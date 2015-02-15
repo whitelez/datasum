@@ -1,0 +1,460 @@
+{% extends "traffic/base.html" %}
+
+{% load staticfiles %}
+
+{% block title %}
+Power of 32 RTIS - Travel Time: Corridors (2013-2015)
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+<link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
+<link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
+{% endblock %}
+
+
+{% block content %}
+
+<div class="well" id="inputframe" style="height:600px;">
+	<div class="container" style="width: inherit">
+       <div class="row"><h3>Travel Time </h3></div>
+       <div class="row"><h4> Corridors (2013-2015): </h4></div>
+	   <div class="row" style="padding-top:5px;">
+		  <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Corridor:</h5></div>
+		  <div class="col-md-8" style="padding-left: 0;">
+               <select id="cor" name="cor"  class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+				   {% for corridor in corridors%}
+					    <option value={{corridor.Corridor_Number}}>Corridor {{corridor.Corridor_Number}} - {{corridor.Corridor_Name}}</option>
+				   {% endfor %}
+			  </select>
+          </div>
+	   </div>
+	   <div class="row" style="padding-top:5px;">
+           <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Node:</h5></div>
+           <div class="col-md-8" style="padding-left: 0;">
+               <select id="SNode" name="SNode" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">    </select>
+           </div>
+       </div>
+        <div class="row" style="padding-top:5px;">
+           <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>End Node:</h5></div>
+           <div class="col-md-8" style="padding-left: 0;">
+               <select id="ENode" name="ENode" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">    </select>
+           </div>
+        </div>
+    	<div class="row" style="padding-top:5px;">
+           <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Year:</h5></div>
+           <div class="col-md-8" style="padding-left: 0;">
+               <select id="spcyear" name="spcyear" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">   </select>
+           </div>
+        </div>
+    	<div class="row" style="padding-top:5px;">
+           <div class="col-md-6" style="height: 30px;text-align: center;">
+               <input type="radio" name="identity" id="AMPM" value=1 checked="checked" /> AM Peak
+           </div>
+           <div class="col-md-6" style="height: 30px;text-align: center;">
+               <input type="radio" name="identity" id="AMPM" value=0 /> PM Peak
+           </div>
+        </div>
+	</div>
+
+	<button type="button" class="btn btn-default btn-block" id="spcshow">
+        <span class="glyphicon glyphicon-search"> </span> &nbsp; Update
+    </button> <br>
+
+	<div style="width:100%;height:2px;margin:0 auto;padding:0;background-color:#ddd;overflow:hidden;"></div> <br>
+
+	<div class="container" style="width: inherit">
+    	<div class="row"><h4> Results: </h4></div>
+    	<div class="row" style="margin-top: 5px;">
+           <div class="col-md-6" style="height: auto;padding-right: 0;">
+               Average Traveltime:
+           </div>
+           <div class="col-md-6" style="height: auto;padding-left: 0;">
+               <span id = 'spctravel_time_car'>&emsp;&emsp;&emsp;</span>
+           </div>
+        </div>
+    	<div class="row" style="margin-top: 10px;">
+           <div class="col-md-6" style="height: auto;padding-right: 0;">
+               <p>Delay per Vehicle:</p>
+           </div>
+           <div class="col-md-6" style="height: auto;padding-left: 0;">
+               <span id = 'spctravel_delay'>&emsp;&emsp;&emsp;</span>
+           </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block map %}
+	<div id="map"></div>
+
+    <div id="chartcontainer">
+     	<div id="chart" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
+	</div>
+{% endblock %}
+	
+	
+
+{% block script %}
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
+
+{#</script>#}
+{#<script type="text/javascript"#}
+{#     src="http://tarruda.github.com/bootstrap-datetimepicker/assets/js/bootstrap-datetimepicker.min.js">#}
+{#</script>#}
+
+<script type="text/javascript" src="{% static 'traffic/TMC_geojson.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/jquery.jqplot.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/jqplot.dateAxisRenderer.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/jqplot.pointLabels.min.js' %}"></script>
+
+{# <script type="text/javascript">#}
+{#      $(function() {#}
+{#        $('#datepicker').datetimepicker({#}
+{#          pickSeconds: false,#}
+{#          pick12HourFormat: true#}
+{#        });#}
+{#      });#}
+{#      $(function() {#}
+{#        $('#datepicker2').datetimepicker({#}
+{#          pickSeconds: false,#}
+{#          pick12HourFormat: true#}
+{#        });#}
+{#      });#}
+{#      $(function() {#}
+{#        $('#datepicker3').datetimepicker({#}
+{#	        pickSeconds: false,#}
+{#	        pick12HourFormat: true#}
+{#        });#}
+{#      });#}
+{# </script>#}
+
+<script>
+     $('.selectpicker').selectpicker({
+      style: 'btn-inverse',
+      size: 10
+     });
+</script>
+
+<script>
+	$(function(){
+	var map = L.map('map').setView([40.4407937, -80.0029874], 10);
+    var nodelayer, Snodelayer, Enodelayer;
+    var nodes;
+    
+	// add an OpenStreetMap tile layer
+	var basemap = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+	}).addTo(map);
+	
+	control = L.control.layers({'Base Map':basemap},null,{collapsed:false}).addTo(map);
+	
+	map.addControl( new L.Control.Search({
+			url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',
+			jsonpParam: 'json_callback',
+			propertyName: 'display_name',
+			propertyLoc: ['lat','lon'],
+			markerLocation: true,
+			autoType: false,
+			autoCollapse: true,
+			minLength: 2,
+			zoom:10
+		}) );
+
+{#======================================================================================================================#}
+                                            {#  NODE-BASED DATA: BY PXD #}
+
+    var geojsonMarkerOptions = {
+        radius: 8,
+        fillColor: "blue",
+        color: "blue",
+        weight: 5,
+        opacity: 0.3,
+        fillOpacity: 0.5
+    };
+
+    function corchange(cornum){
+{#        alert('haha00000');#}
+        $('#SNode').empty();
+        $('#ENode').empty();
+        $('#spcyear').empty();
+        $('#spctravel_time_car').text('');
+		$('#spctravel_delay').text('');
+        if(nodelayer){
+					control.removeLayer(nodelayer);
+					if(map.hasLayer(nodelayer)){
+						map.removeLayer(nodelayer);
+					}
+				}
+        if(Snodelayer){
+					control.removeLayer(Snodelayer);
+					if(map.hasLayer(Snodelayer)){
+						map.removeLayer(Snodelayer);
+					}
+				}
+        if(Enodelayer){
+					control.removeLayer(Enodelayer);
+					if(map.hasLayer(Enodelayer)){
+						map.removeLayer(Enodelayer);
+					}
+				}
+        $.get('../get_node_info_for_one_corridor/', {cornum:cornum}, function(data, textStatus){
+            nodes = $.parseJSON(data);
+{#            alert('hahah11111');#}
+            var latmean, longmean;
+            latmean = 0;
+            longmean = 0;
+            $('#SNode').append("<option selected='selected'></option>");
+            $('#ENode').append("<option selected='selected'></option>");
+            for (var i=0;i<nodes.features.length;i++){
+                $('#SNode').append("<option value="+nodes.features[i].properties.Node_Number + ">" + nodes.features[i].properties.Node_Number + " - " + nodes.features[i].properties.Node_Name + "</option>");
+                $('#SNode').selectpicker('refresh');
+                $('#ENode').append("<option value="+nodes.features[i].properties.Node_Number + ">" + nodes.features[i].properties.Node_Number + " - " + nodes.features[i].properties.Node_Name + "</option>");
+                $('#ENode').selectpicker('refresh');
+            	latmean += nodes.features[i].geometry.coordinates[1];
+                longmean += nodes.features[i].geometry.coordinates[0];
+            }
+            latmean /= i;
+            longmean /= i;
+            map.setView([latmean, longmean], 11);
+
+			nodelayer = L.geoJson(nodes,{
+                 pointToLayer: function (feature, latlng) {
+            		return L.circleMarker(latlng, geojsonMarkerOptions);
+        		 },
+        		 onEachFeature:function(feature,layer){
+{#						layer.on(#}
+{#							{#}
+{#								mouseover:highlightFeature,#}
+{#								mouseout:resetHighlight,#}
+{#								click: function(){#}
+{#										$('#select_tmc2 option:selected').removeAttr('selected');#}
+{#										$('#select_tmc2').find("option[value='" + layer.feature.properties.TMC +"']").attr('selected', true);#}
+{#										}#}
+{#							});#}
+						layer.bindPopup("Corridor : " + feature.properties.Corridor_Number + " - " + feature.properties.Corridor_Name +
+									"<br>Node : " + feature.properties.Node_Number+ " - " + feature.properties.Node_Name + "<br>Latitude : "
+                        			+ feature.geometry.coordinates[1] + "<br>Longitude : " + feature.geometry.coordinates[0]);
+						}
+            }).addTo(map);
+			control.addOverlay(nodelayer, "Corridor " + String(cornum));
+        }, 'json');
+
+        $.get('../get_spc_years/', {cornum:cornum}, function(data, textStatus){
+            years = $.parseJSON(data);
+{#            $('#spcyear').append("<option selected='selected'></option>");#}
+            for (var i=0;i<years.features.length;i++){
+                $('#spcyear').append("<option value=" + years.features[i] + ">" + String(years.features[i]) + "</option>");
+                $('#spcyear').selectpicker('refresh');
+            }
+        }, 'json');
+    }
+
+    cornum0 = $('#cor option:selected').attr('value');
+    corchange(cornum0);
+    $('#cor').change(function(){
+        cornum0 = $('#cor option:selected').attr('value');
+        corchange(cornum0);
+    });
+
+    var geojsonMarkerOptionsSnode = {
+        radius: 11,
+        fillColor: "green",
+        color: "green",
+        weight: 5,
+        opacity: 0.3,
+        fillOpacity: 0.8
+    };
+
+    function snodechange(Snodenum){
+{#        alert('hahaha2222');#}
+        if(Snodelayer){
+					control.removeLayer(Snodelayer);
+					if(map.hasLayer(Snodelayer)){
+						map.removeLayer(Snodelayer);
+					}
+				}
+        $('#spctravel_time_car').text('');
+		$('#spctravel_delay').text('');
+        for (var i=0;i<nodes.features.length;i++){
+            if (nodes.features[i].properties.Node_Number == Snodenum){
+                resultSnode = nodes.features[i];
+                break;
+            }
+        }
+        Snodelayer = L.geoJson(resultSnode,{
+                 pointToLayer: function (feature, latlng) {
+            		return L.circleMarker(latlng, geojsonMarkerOptionsSnode);
+        		 },
+        		 onEachFeature:function(feature,layer){
+						layer.bindPopup("Corridor : " + feature.properties.Corridor_Number + " - " + feature.properties.Corridor_Name +
+									"<br>Node : " + feature.properties.Node_Number+ " - " + feature.properties.Node_Name + "<br>Latitude : "
+                        			+ feature.geometry.coordinates[1] + "<br>Longitude : " + feature.geometry.coordinates[0]);
+						}
+        }).addTo(map);
+        map.setView([resultSnode.geometry.coordinates[1], resultSnode.geometry.coordinates[0]], 12);
+        control.addOverlay(Snodelayer, "Start Node: " + Snodenum);
+    }
+
+    Snodenum0 = $('#SNode option:selected').attr('value');
+    $('#SNode').change(function(){
+		Snodenum0 = $('#SNode option:selected').attr('value');
+    	snodechange(Snodenum0);
+    });
+
+    var geojsonMarkerOptionsEnode = {
+        radius: 11,
+        fillColor: "red",
+        color: "red",
+        weight: 5,
+        opacity: 0.3,
+        fillOpacity: 0.8
+    };
+
+    function enodechange(Enodenum){
+{#        alert('hahaha3333');#}
+        if(Enodelayer){
+					control.removeLayer(Enodelayer);
+					if(map.hasLayer(Enodelayer)){
+						map.removeLayer(Enodelayer);
+					}
+				}
+        $('#spctravel_time_car').text('');
+		$('#spctravel_delay').text('');
+        for (var i=0;i<nodes.features.length;i++){
+            if (nodes.features[i].properties.Node_Number == Enodenum){
+                resultEnode = nodes.features[i];
+                break;
+            }
+        }
+        Enodelayer = L.geoJson(resultEnode,{
+                 pointToLayer: function (feature, latlng) {
+            		return L.circleMarker(latlng, geojsonMarkerOptionsEnode);
+        		 },
+        		 onEachFeature:function(feature,layer){
+						layer.bindPopup("Corridor : " + feature.properties.Corridor_Number + " - " + feature.properties.Corridor_Name +
+									"<br>Node : " + feature.properties.Node_Number+ " - " + feature.properties.Node_Name + "<br>Latitude : "
+                        			+ feature.geometry.coordinates[1] + "<br>Longitude : " + feature.geometry.coordinates[0]);
+						}
+        }).addTo(map);
+        map.setView([resultEnode.geometry.coordinates[1], resultEnode.geometry.coordinates[0]], 12);
+        control.addOverlay(Enodelayer, "End Node: " + Enodenum);
+    }
+
+    Enodenum0 = $('#ENode option:selected').attr('value');
+    $('#ENode').change(function(){
+        Enodenum0 = $('#ENode option:selected').attr('value');
+    	enodechange(Enodenum0);
+    });
+
+	$('#spcyear').change(function(){
+        $('#spctravel_time_car').text('');
+		$('#spctravel_delay').text('');
+    });
+
+	$("input[name='identity']").change(function(){
+        $('#spctravel_time_car').text('');
+		$('#spctravel_delay').text('');
+    });
+
+
+    function plot(alltraveltime,alldelay,allyear,snode,enode,cor,AMPM){
+
+			$("#chart").empty();
+
+			var n = alldelay.length;
+			var line1 = [], line2 = [];
+            var min = 99999, max = -99999;
+			for(var i=0;i<n;i++){
+				var point1 = [allyear[i],alltraveltime[i]];
+                var point2 = [allyear[i],alldelay[i]];
+				line1.push(point1);
+                line2.push(point2);
+                if (alldelay[i] > max){ max = alldelay[i]}
+                if (alltraveltime[i] > max){ max = alltraveltime[i]}
+                if (alldelay[i] < min){ min = alldelay[i]}
+                if (alltraveltime[i] < min){ min = alltraveltime[i]}
+			}
+            max = Math.ceil(max*1.2);
+            min = -1;
+			var plot1 = $.jqplot('chart', [line1, line2], {
+    			title:AMPM + ' Traveltime and Delay between ' + snode + ' and ' + enode + ' on ' + cor + ' in different years',
+                seriesDefaults: {
+                    pointLabels: { show:true, formatString: "%#.2f" }
+                },
+    			axes:{
+    					xaxis:{renderer:$.jqplot.DateAxisRenderer,tickOptions:{formatString:'%Y'}, label:'Year', tickInterval:'1 year', min:'2002-01-01', max:'2014-01-01'},
+    					yaxis:{min:min, max:max, label:'Time\n(min)'}
+    				},
+    			//series:[{lineWidth:4, markerOptions:{style:'circle',size:6}}]
+    			series:[
+                    {color:'#5FAB78',label:'Traveltime'},
+                    {label:'Delay'}
+                ],
+                legend: {
+                    show: true,
+                    location: 'se',     // compass direction, nw, n, ne, e, se, s, sw, w.
+                    xoffset: 12,        // pixel offset of the legend box from the x (or x2) axis.
+                    yoffset: 12        // pixel offset of the legend box from the y (or y2) axis.
+                }
+  			});
+		}
+
+
+    $('#spcshow').click(function(){
+        var year = $("#spcyear option:selected").attr("value");
+        var isam = $("input[name='identity']").filter(":checked").val();
+        Snode = Snodenum0.charCodeAt()-64;
+        Enode = Enodenum0.charCodeAt()-64;
+        $.get('../get_spc_traveltime/', {year:year,cornum:cornum0,Snode:Snode,Enode:Enode,isam:isam}, function(data, textStatus){
+			SpcOutput = $.parseJSON(data);
+            $('#spctravel_time_car').text(SpcOutput.spctraveltime + " minutes");
+			$('#spctravel_delay').text(SpcOutput.spcdelay + " minutes");
+        }, 'json');
+
+        //jqplot preparation:
+        for (var i=0;i<nodes.features.length;i++){
+            if (nodes.features[i].properties.Node_Number == Snodenum0){
+                Snodename = nodes.features[i].properties.Node_Name;
+                corname = nodes.features[i].properties.Corridor_Name;
+                break;
+            }
+        }
+        for (var i=0;i<nodes.features.length;i++){
+            if (nodes.features[i].properties.Node_Number == Enodenum0){
+                Enodename = nodes.features[i].properties.Node_Name;
+                break;
+            }
+        }
+        var allyear = [], yearstring = '';
+        for (var i=0;i<years.features.length;i++){
+                allyear.push(String(years.features[i]));
+            if (i == years.features.length-1){
+                yearstring += String(years.features[i]);
+            }else{
+                 yearstring += String(years.features[i]) + '+';
+            }
+        }
+
+        var alltraveltime = [], alldelay=[];
+        $.get('../get_spc_traveltimeformanyyears/', {years:yearstring,cornum:cornum0,Snode:Snode,Enode:Enode,isam:isam}, function(data, textStatus){
+                SpcOutput = $.parseJSON(data);
+                for (var i=0;i<SpcOutput.length;i++) {
+                    alltraveltime.push(parseFloat(SpcOutput[i].spctraveltime));
+                    alldelay.push(parseFloat(SpcOutput[i].spcdelay));
+                }
+                if (isam == 1){AMPM = 'AM Peak Hour'} else { AMPM = 'PM Peak Hour'}
+                plot(alltraveltime,alldelay,allyear,Snodename,Enodename,corname,AMPM);
+        }, 'json');
+
+    });
+{#======================================================================================================================#}
+
+    });
+</script>
+
+{% endblock %}
+
+

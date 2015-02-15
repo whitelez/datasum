@@ -159,6 +159,22 @@ def travel_time_new(request):
     # nodes = SPCCorridorNodeInfo.objects.filter(Corridor_Number=13)
     return render(request, 'traffic/travel_time_new.html', {'n': range(1, 32), 'tmcs': tmcs, 'corridors': corridors})
 
+def travel_time_corridorafter2013(request): #Need revise!!
+    tmcs = TMC.objects.all()
+    records = SPCCorridorNodeInfo.objects.all()
+    corridors = []
+    CorrNum = []
+    for corridor in records:
+        if not (corridor.Corridor_Number in CorrNum):
+            flag = 0
+            for temp in corridors:
+                if corridor.Corridor_Number < temp.Corridor_Number:
+                    break
+                flag += 1
+            CorrNum.append(corridor.Corridor_Number)
+            corridors.insert(flag, corridor)
+    return render(request, 'traffic/travel_time_corridorafter2013.html', {'n': range(1, 32), 'tmcs': tmcs, 'corridors': corridors})
+
 def get_node_info(request):
     cornum = request.GET['cornum']
     nodes = SPCCorridorNodeInfo.objects.filter(Corridor_Number=cornum)
@@ -862,4 +878,3 @@ def real_time_incidents_rcrs(request):
                 events['features'].append(this_event)
     response = json.dumps(events)
     return HttpResponse(response, content_type='application/json')
-# Create your views here.
