@@ -1,0 +1,511 @@
+{% extends "traffic/base.html" %}
+
+{% load staticfiles %}
+
+{% block title %}
+RTIS - Test
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+<link rel="stylesheet" href="{% static 'traffic/leaflet.draw.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div id='user_input'>
+<!--<p>TMC1:</p>
+<p id = 'tmc1'></p>
+<p>TMC2:</p>
+<p id = 'tmc2'></p>-->
+<strong>Start: </strong>
+<select id='syear' name = 'syear'>
+<option value='2014'>2014</option>
+<option value='2013'>2013</option>
+<option value='2012'>2012</option>
+<option value='2011'>2011</option>
+<option value='2010'>2010</option>
+</select>
+
+<select id='smonth' name = 'smonth'>
+<option value='01'>Jan</option>
+<option value='02'>Feb</option>
+<option value='03'>Mar</option>
+<option value='04'>Apr</option>
+<option value='05'>May</option>
+<option value='06'>Jun</option>
+<option value='07'>Jul</option>
+<option value='08'>Aug</option>
+<option value='09'>Sep</option>
+<option value='10'>Oct</option>
+<option value='11'>Nov</option>
+<option value='12'>Dec</option>
+</select>
+
+<select id='sday' name = 'sday'>
+{% for i in n%}
+	<option value={{i}}>{{i}}</option>
+{% endfor %}
+</select>
+&nbsp;<strong>End: </strong>
+<select id='eyear' name = 'eyear'>
+<option value='2014'>2014</option>
+<option value='2013'>2013</option>
+<option value='2012'>2012</option>
+<option value='2011'>2011</option>
+<option value='2010'>2010</option>
+</select>
+<select id='emonth' name = 'emonth'>
+<option value='01'>Jan</option>
+<option value='02'>Feb</option>
+<option value='03' selected="selected">Mar</option>
+<option value='04'>Apr</option>
+<option value='05'>May</option>
+<option value='06'>Jun</option>
+<option value='07'>Jul</option>
+<option value='08'>Aug</option>
+<option value='09'>Sep</option>
+<option value='10'>Oct</option>
+<option value='11'>Nov</option>
+<option value='12'>Dec</option>
+</select>
+
+<select id='eday' name = 'eday'>
+{% for i in n%}
+	<option value={{i}}>{{i}}</option>
+{% endfor %}
+</select>
+
+&emsp;<strong>Start time: </strong>
+<select id="shour" name="shour">
+<option value='00'>0</option>
+<option value='01'>1</option>
+<option value='02'>2</option>
+<option value='03'>3</option>
+<option value='04'>4</option>
+<option value='05'>5</option>
+<option value='06'>6</option>
+<option value='07'>7</option>
+<option value='08'>8</option>
+<option value='09'>9</option>
+<option value='10'>10</option>
+<option value='11'>11</option>
+<option value='12'>12</option>
+<option value='13'>13</option>
+<option value='14'>14</option>
+<option value='15'>15</option>
+<option value='16'>16</option>
+<option value='17'>17</option>
+<option value='18'>18</option>
+<option value='19'>19</option>
+<option value='20'>20</option>
+<option value='21'>21</option>
+<option value='22'>22</option>
+<option value='23'>23</option>
+</select>
+<strong>:</strong>
+<select id="sminute" name="sminute">
+<option value='00'>0</option>
+<option value='05'>5</option>
+<option value='10'>10</option>
+<option value='15'>15</option>
+<option value='20'>20</option>
+<option value='25'>25</option>
+<option value='30'>30</option>
+<option value='35'>35</option>
+<option value='40'>40</option>
+<option value='45'>45</option>
+<option value='50'>50</option>
+<option value='55'>55</option>
+</select>
+
+&nbsp;<strong>End time: </strong>
+<select id="ehour" name="ehour">
+<option value='00'>0</option>
+<option value='01'>1</option>
+<option value='02'>2</option>
+<option value='03'>3</option>
+<option value='04'>4</option>
+<option value='05'>5</option>
+<option value='06'>6</option>
+<option value='07'>7</option>
+<option value='08'>8</option>
+<option value='09'>9</option>
+<option value='10'>10</option>
+<option value='11'>11</option>
+<option value='12'>12</option>
+<option value='13'>13</option>
+<option value='14'>14</option>
+<option value='15'>15</option>
+<option value='16'>16</option>
+<option value='17'>17</option>
+<option value='18'>18</option>
+<option value='19'>19</option>
+<option value='20'>20</option>
+<option value='21'>21</option>
+<option value='22'>22</option>
+<option value='23' selected="selected">23</option>
+</select>
+<strong>:</strong>
+<select id="eminute" name="eminute">
+<option value='00'>0</option>
+<option value='05'>5</option>
+<option value='10'>10</option>
+<option value='15'>15</option>
+<option value='20'>20</option>
+<option value='25'>25</option>
+<option value='30'>30</option>
+<option value='35'>35</option>
+<option value='40'>40</option>
+<option value='45'>45</option>
+<option value='50'>50</option>
+<option value='55' selected="selected">55</option>
+</select>
+&emsp;<input type="button" id="his_data" value="Update" />
+</div>
+
+
+<p id="txtHint"></p>
+<div id="map"></div>
+
+{% endblock %}
+	
+	
+
+{% block script %}
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script type="text/javascript" src="{% static 'traffic/leaflet.draw.js' %}"></script>
+<script>
+	
+	var map = L.map('map').setView([40.4407937, -80.0029874], 10);
+    
+	// add an OpenStreetMap tile layer
+	var basemap = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+	}).addTo(map);
+	
+	// Initialize the FeatureGroup to store editable layers
+	var drawnItems = new L.FeatureGroup();
+	map.addLayer(drawnItems);
+
+	// Initialize the draw control and pass it the FeatureGroup of editable layers
+	var drawControl = new L.Control.Draw({
+		edit: {
+			featureGroup: drawnItems
+		},
+		draw: {
+				polyline: false,
+				polygon: false,
+                circle: false,
+                marker: false
+        }
+	});
+	map.addControl(drawControl);
+	
+	
+	var lon1=lat1=lon2=lat2=200; //latitude and longitude can never be 200
+	map.on('draw:created', function (e) {
+		var type = e.layerType,
+			layer = e.layer;
+
+		if (type === 'rectangle') {
+			lon1 = layer.getLatLngs()[0].lng;
+			lat1 = layer.getLatLngs()[0].lat;
+			lon2 = layer.getLatLngs()[2].lng;
+			lat2 = layer.getLatLngs()[2].lat;
+		}
+
+		// Do whatever else you need to. (save to db, add to map etc)
+		drawnItems.clearLayers();
+		drawnItems.addLayer(layer);
+	});
+	
+	map.on('draw:edited', function (e) {
+		var layers = e.layers;
+		layers.eachLayer(function (layer) {
+			lon1 = layer.getLatLngs()[0].lng;
+			lat1 = layer.getLatLngs()[0].lat;
+			lon2 = layer.getLatLngs()[2].lng;
+			lat2 = layer.getLatLngs()[2].lat;
+		});
+	});
+	
+	map.on('draw:deleted', function (e) {
+		lon1 = lat1 = lon2 = lat2 = 200;
+	});
+	
+	var info = L.control();
+
+		info.onAdd = function (map) {
+			this._div = L.DomUtil.create('div', 'info');
+			this.update();
+			return this._div;
+		};
+
+		info.update = function (props) {
+			this._div.innerHTML = '<h4>Incident Information</h4>' +  (props ?
+				'<b>' + props.sr + '</b>'
+				+ "<br><b>Direction: </b>" + props.direction
+				+ "<br><b>Cause: </b>" + props.cause
+				+ "<br><b>Close Time: </b>" + props.start
+				+ "<br><b>Open Time :</b>" + props.end
+				+ "<br><b>Duration :</b>" + props.duration
+				+ "<br><b>Total Delay :</b>" + props.delay + ' hours'
+				: 'Hover over an incident');
+		};
+
+		info.addTo(map);
+	
+		
+				function getColor(d) {
+					return d == 'WINTER WEATHER'?'white': 
+					 	   d == 'POLICE ACTIVITY'? 'blue': 
+					       (d == 'FLOODING' || d == 'BRIDGE FLOOD PRECAUTION')? 'orange':
+					       d == 'ROADWORK'?'yellow':
+					       (d == 'ACCIDENT (MULTI-VEHICLE)' || d == 'ACCIDENT')? 'red':
+					       'green';
+					 
+		}
+
+		function style(feature) {
+			return {
+				radius: 6,
+				opacity: 0.7,
+				//dashArray: '3',
+				color: getColor(feature.properties.cause)
+			};
+		}
+
+		function highlightFeature(e) {
+			var layer = e.target;
+
+			/*layer.setStyle({
+				weight: 5,
+				color: '#666',
+				dashArray: '',
+				fillOpacity: 0.7
+			});*/
+
+			if (!L.Browser.ie && !L.Browser.opera) {
+				layer.bringToFront();
+			}
+
+			info.update(layer.feature.properties);
+		}
+
+		
+
+		function resetHighlight(e) {
+			//geojson.resetStyle(e.target);
+			info.update();
+			//$('#chart1').empty();
+		}
+		
+		function zoomToFeature(e) {
+			var layer = e.target;
+			//var weather;
+			map.fitBounds(layer.getBounds()); // zoom to the layer
+		}
+
+		function onEachFeature(feature, layer) {
+			layer.on({
+				mouseover: highlightFeature,
+				mouseout: resetHighlight,
+				click:zoomToFeature
+			});
+			layer.bindPopup('<b>' + feature.properties.sr + '</b>'
+			    + "<br><b>Direction: </b>" + feature.properties.direction
+				+ "<br><b>Cause: </b>" + feature.properties.cause
+				+ "<br><b>Close Time: </b>" + feature.properties.start
+				+ "<br><b>Open Time: </b>" + feature.properties.end
+				+ "<br><b>Duration: </b>" + feature.properties.duration
+				+ "<br><b>Total Delay: </b>" + feature.properties.delay + ' hours');
+			}
+	
+	var accidentLayer = L.geoJson(),
+		roadworkLayer = L.geoJson(),
+		floodLayer = L.geoJson(),
+		policeLayer = L.geoJson(),
+		winterLayer = L.geoJson(),
+		incidentLayer = L.geoJson(),
+		control = L.control.layers({'Base Map':basemap});
+		control.addTo(map);
+	
+	/*var LeafIcon = L.Icon.extend({
+    options: {
+        iconSize:     [30, 30],
+    	}
+	});
+	var myIcon = L.icon({
+		iconUrl:"{% static 'traffic/dirk.png' %}", 
+		iconSize:[30,30]
+	});*/
+	function show_incidents(incidents){
+		if(accidentLayer)
+		{
+			control.removeLayer(accidentLayer);
+			if(map.hasLayer(accidentLayer)){
+				map.removeLayer(accidentLayer);
+			}
+		}
+		accidentLayer = L.geoJson(incidents,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return (feature.properties.cause == 'ACCIDENT (MULTI-VEHICLE)' || feature.properties.cause == 'ACCIDENT');
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(accidentLayer,'Accident');
+		
+		if(roadworkLayer)
+		{
+			control.removeLayer(roadworkLayer);
+			if(map.hasLayer(roadworkLayer)){
+				map.removeLayer(roadworkLayer);
+			}
+		}
+		roadworkLayer = L.geoJson(incidents,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return (feature.properties.cause == 'ROADWORK');
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(roadworkLayer,'Roadwork');
+		
+		if(floodLayer)
+		{
+			control.removeLayer(floodLayer);
+			if(map.hasLayer(floodLayer)){
+				map.removeLayer(floodLayer);
+			}
+		}
+		floodLayer = L.geoJson(incidents,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return (feature.properties.cause == 'FLOODING' || feature.properties.cause == 'BRIDGE FLOOD PRECAUTION' || feature.properties.cause == 'BRIDGE FLOOD WASHOUT/DAMAGE');
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(floodLayer,'Flooding');
+		
+		if(policeLayer)
+		{
+			control.removeLayer(policeLayer);
+			if(map.hasLayer(policeLayer)){
+				map.removeLayer(policeLayer);
+			}
+		}
+		policeLayer = L.geoJson(incidents,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return (feature.properties.cause == 'POLICE ACTIVITY');
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(policeLayer,'Police Activity');
+		
+		if(winterLayer)
+		{
+			control.removeLayer(winterLayer);
+			if(map.hasLayer(winterLayer)){
+				map.removeLayer(winterLayer);
+			}
+		}
+		winterLayer = L.geoJson(incidents,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return (feature.properties.cause == 'WINTER WEATHER');
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(winterLayer,'Winter Weather');
+		
+		if(incidentLayer)
+		{
+			control.removeLayer(incidentLayer);
+			if(map.hasLayer(incidentLayer)){
+				map.removeLayer(incidentLayer);
+			}
+		}
+		incidentLayer = L.geoJson(incidents,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return (feature.properties.cause != 'WINTER WEATHER' 
+					 && feature.properties.cause != 'POLICE ACTIVITY' 
+					 && feature.properties.cause != 'FLOODING'
+					 && feature.properties.cause != 'BRIDGE FLOOD PRECAUTION'
+					 && feature.properties.cause != 'ROADWORK'
+					 && feature.properties.cause != 'ACCIDENT (MULTI-VEHICLE)'
+					 && feature.properties.cause != 'ACCIDENT'
+					 );
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(incidentLayer,'Others');
+	};
+	
+	//var selected = 0;
+	$('#his_data').click(function(){
+		var sy = $("#syear option:selected").attr("value"),
+			sm = $("#smonth option:selected").attr("value"),
+			sd = $("#sday option:selected").attr("value"),
+			ey = $("#eyear option:selected").attr("value"),
+			em = $("#emonth option:selected").attr("value"),
+			ed = $("#eday option:selected").attr("value"),
+			sh = $("#shour option:selected").attr("value"),
+			smi = $("#sminute option:selected").attr("value"),
+			eh = $("#ehour option:selected").attr("value"),
+			emi = $("#eminute option:selected").attr("value");
+		
+		sd = sd<10?'0'+sd:sd;
+		ed = sd<10?'0'+ed:ed;
+	
+	$.get("../get_incidents_rcrs_area/", {s_date:sy+sm+sd, e_date:ey+em+ed, s_time:sh+smi, e_time:eh+emi, lon1:lon1, lat1:lat1, lon2:lon2, lat2:lat2}, function(data, textStatus){
+			
+			 incidents = $.parseJSON(data);
+			 show_incidents(incidents);
+		},"json");
+			
+		
+	});
+	
+	var legend = L.control({position: 'bottomright'});
+
+		legend.onAdd = function (map) {
+
+			var div = L.DomUtil.create('div', 'info legend'),
+				grades = ['ACCIDENT','ROADWORK','FLOODING','POLICE ACTIVITY','WINTER WEATHER','OTHERS'],
+				labels =[];
+			for (var i = 0; i < grades.length; i++) {
+				labels.push(
+					'<i style="background:' + getColor(grades[i]) + '"></i> ' +
+					grades[i]);
+			}
+
+			div.innerHTML = labels.join('<br><br>');
+			return div;
+		};
+
+		legend.addTo(map);
+	
+
+	
+
+
+  </script>
+{% endblock %}
+
+

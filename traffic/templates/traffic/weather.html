@@ -1,0 +1,529 @@
+{% extends "traffic/base.html" %}
+
+{% load staticfiles %}
+
+{% block title %}
+Power of 32 RTIS - Weather
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+<link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
+{% endblock %}
+
+
+{% block map %}
+<input type="button" id="update_weather" value="update all counties" style = "display:none;"/>    
+<div id="map"></div>
+    <h5 style="text-align:right"> * Click on the counties to see weather distribution over one day.</h5>
+    <br>
+<div class="info legend">
+	<img src="http://www.wunderground.com/logos/images/wundergroundLogo_4c.jpg" style="float:right">
+	<p>	<strong> Temperature (Celsius): </strong> &emsp;
+		<mark style="background:#253494">&nbsp;&nbsp;&nbsp;</mark> under -15 &nbsp;
+		<mark style="background:#2c7fb8">&nbsp;&nbsp;&nbsp;</mark> -15 to -5 &nbsp;
+		<mark style="background:#41b6c4">&nbsp;&nbsp;&nbsp;</mark> -5 to 0&nbsp;
+		<mark style="background:#ffffcc">&nbsp;&nbsp;&nbsp;</mark> 0 to 10&nbsp;
+		<mark style="background:#c2e699">&nbsp;&nbsp;&nbsp;</mark> 10 to 15&nbsp;
+		<mark style="background:#78c679">&nbsp;&nbsp;&nbsp;</mark> 15 to 25&nbsp;
+		<mark style="background:#fd8d3c">&nbsp;&nbsp;&nbsp;</mark> 25 to 30&nbsp;
+		<mark style="background:#bd0026">&nbsp;&nbsp;&nbsp;</mark> 30 plus
+	</p>
+	
+	<p>	<strong> Wind Speed (kmph): </strong>&emsp;&emsp;&nbsp;
+		<mark style="background:#f0f9e8">&nbsp;&nbsp;&nbsp;</mark> 0 to 6 &nbsp;
+		<mark style="background:#bae4bc">&nbsp;&nbsp;&nbsp;</mark> 6 to 30 &nbsp;
+		<mark style="background:#7bccc4">&nbsp;&nbsp;&nbsp;</mark> 30 to 62&nbsp;
+		<mark style="background:#43a2ca">&nbsp;&nbsp;&nbsp;</mark> 62 to 87&nbsp;
+		<mark style="background:#0868ac">&nbsp;&nbsp;&nbsp;</mark> 87 plus
+	</p>
+	
+	<p>	<strong> Humidity (%): </strong> &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+		<mark style="background:#eff3ff">&nbsp;&nbsp;&nbsp;</mark> 0 to 10 &nbsp;
+		<mark style="background:#bdd7e7">&nbsp;&nbsp;&nbsp;</mark> 10 to 40 &nbsp;
+		<mark style="background:#6baed6">&nbsp;&nbsp;&nbsp;</mark> 40 to 70&nbsp;
+		<mark style="background:#3182bd">&nbsp;&nbsp;&nbsp;</mark> 70 to 100&nbsp;
+		<mark style="background:#08519c">&nbsp;&nbsp;&nbsp;</mark> 100
+	</p>
+</div>
+	<div id="chart">
+
+     	<div id="chart1" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px "></div>
+     </div>
+{% endblock %}
+	
+	
+
+{% block script %}
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script type="text/javascript" src="{% static 'traffic/power32_geometry.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/jquery.jqplot.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/jqplot.dateAxisRenderer.min.js' %}"></script>
+<script>
+
+		function plot(layer){
+			if (!layer.feature.properties.weather['hourly_forecast']){
+				return;
+			}
+			$("#chart1").empty();
+			/*console.log(l);
+			console.log(l.feature);
+			console.log(l.feature.properties);
+			console.log(l.feature.properties.weather);*/
+			n=layer.feature.properties.weather['hourly_forecast'].length;
+			var line = [];
+			for(var i=0;i<n;i++){
+				var time = '' + layer.feature.properties.weather['hourly_forecast'][i]['FCTTIME']['mon_abbrev'] + ' ' + layer.feature.properties.weather['hourly_forecast'][i]['FCTTIME']['mday_padded'] + ' ' + layer.feature.properties.weather['hourly_forecast'][i]['FCTTIME']['hour'] + ':' 
+				+ layer.feature.properties.weather['hourly_forecast'][i]['FCTTIME']['min'];
+				var point = [time,layer.feature.properties.weather['hourly_forecast'][i]['temp']['metric']];
+				line.push(point);
+			}
+				var plot1 = $.jqplot('chart1', [line], {
+    				title:'Future Temperature of ' + layer.feature.properties.county,
+    				axes:{
+    						xaxis:{renderer:$.jqplot.DateAxisRenderer,tickOptions:{formatString:'%b %d %H:%M'}, label:'time'},
+    						yaxis:{min:-20, max:40}
+    					},
+    				//series:[{lineWidth:4, markerOptions:{style:'circle',size:6}}]
+    				series:[{color:'#5FAB78',label:'Temperature'}]
+  				});
+		}
+		
+		
+		function plotH(layer){
+			if (!layer.feature.properties.weather['hourly_forecast']){
+				return;
+			}
+			$("#chart1").empty();
+			/*console.log(l);
+			console.log(l.feature);
+			console.log(l.feature.properties);
+			console.log(l.feature.properties.weather);*/
+			n=layer.feature.properties.weather['hourly_forecast'].length;
+			var line = [];
+			for(var i=0;i<n;i++){
+				var time = '' + layer.feature.properties.weather['hourly_forecast'][i]['FCTTIME']['mon_abbrev'] + ' ' + layer.feature.properties.weather['hourly_forecast'][i]['FCTTIME']['mday_padded'] + ' ' + layer.feature.properties.weather['hourly_forecast'][i]['FCTTIME']['hour'] + ':' 
+				+ layer.feature.properties.weather['hourly_forecast'][i]['FCTTIME']['min'];
+				var point = [time,layer.feature.properties.weather['hourly_forecast'][i]['humidity']];
+				line.push(point);
+			}
+				var plot1 = $.jqplot('chart1', [line], {
+    				title:'Future Humidity of ' + layer.feature.properties.county,
+    				axes:{
+    						xaxis:{renderer:$.jqplot.DateAxisRenderer,tickOptions:{formatString:'%b %d %H:%M'}, label:'time'},
+    						yaxis:{min:0, max:100}
+    					},
+    				//series:[{lineWidth:4, markerOptions:{style:'circle',size:6}}]
+    				series:[{color:'#5FAB78',label:'Humidity'}]
+  				});
+		}
+		
+		function plotW(layer){
+			if (!layer.feature.properties.weather['hourly_forecast']){
+				return;
+			}
+			$("#chart1").empty();
+			/*console.log(l);
+			console.log(l.feature);
+			console.log(l.feature.properties);
+			console.log(l.feature.properties.weather);*/
+			n=layer.feature.properties.weather['hourly_forecast'].length;
+			var line = [];
+			for(var i=0;i<n;i++){
+				var time = '' + layer.feature.properties.weather['hourly_forecast'][i]['FCTTIME']['mon_abbrev'] + ' ' + layer.feature.properties.weather['hourly_forecast'][i]['FCTTIME']['mday_padded'] + ' ' + layer.feature.properties.weather['hourly_forecast'][i]['FCTTIME']['hour'] + ':' 
+				+ layer.feature.properties.weather['hourly_forecast'][i]['FCTTIME']['min'];
+				var point = [time,layer.feature.properties.weather['hourly_forecast'][i]['wspd']['metric']];
+				line.push(point);
+			}
+				var plot1 = $.jqplot('chart1', [line], {
+    				title:'Future Wind Speed of ' + layer.feature.properties.county,
+    				axes:{
+    						xaxis:{renderer:$.jqplot.DateAxisRenderer,tickOptions:{formatString:'%b %d %H:%M'}, label:'time'},
+    						yaxis:{min:0, max:36}
+    					},
+    				//series:[{lineWidth:4, markerOptions:{style:'circle',size:6}}]
+    				series:[{color:'#5FAB78',label:'Wind Speed'}]
+  				});
+		}
+		
+		$(function(){var map = L.map('map').setView([40.300, -79.000], 8);
+
+		var basemap = L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
+			maxZoom: 18,
+			attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+				'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+			id: 'examples.map-20v6611k'
+		}).addTo(map);
+		
+		var weatherLayer, humidityLayer, windLayer;
+
+		// control that shows state info on hover
+		var info = L.control({position: 'bottomright'});
+
+		info.onAdd = function (map) {
+			this._div = L.DomUtil.create('div', 'info');
+			this.update();
+			return this._div;
+		};
+
+		info.update = function (props) {
+			this._div.innerHTML = '<h4>Weather Information</h4>' +  (props ?
+				'<b>' + props.county + '</b>' + 
+				(props.weather.hasOwnProperty('hourly_forecast')? 
+				  '<br> <img src = ' + props.weather['hourly_forecast'][0]['icon_url'] +'>'
+				+ '<br> <b> temperature: </b> Fahrenheit: ' + props.weather['hourly_forecast'][0]['temp']['english'] + ', Celsius: ' + props.weather['hourly_forecast'][0]['temp']['metric']
+				+ '<br> <b> feels like: </b> Fahrenheit: ' + props.weather['hourly_forecast'][0]['feelslike']['english'] + ', Celsius: ' + props.weather['hourly_forecast'][0]['feelslike']['metric']
+				+ '<br> <b> condition: </b>' + props.weather['hourly_forecast'][0]['condition']
+				+ '<br> <b> humidity: </b>' + props.weather['hourly_forecast'][0]['humidity'] + '%'
+				+ '<br> <b> wind speed: </b>' + props.weather['hourly_forecast'][0]['wspd']['english'] + 'mph / ' + props.weather['hourly_forecast'][0]['wspd']['metric'] + 'kmph'
+				+ '<br> <b> wind direction: </b>' + props.weather['hourly_forecast'][0]['wdir']['dir'] + ' ' + props.weather['hourly_forecast'][0]['wdir']['degrees'] + ' degrees'
+				+ '<br> <b> snow: </b>' + props.weather['hourly_forecast'][0]['snow']['metric']
+				: '<br> not available')
+				: 'Hover over a county');
+		};
+
+		info.addTo(map);
+		
+		var control = L.control.layers({'Base Map':basemap},null,{collapsed:false}).addTo(map);
+
+
+		// get color depending on population temperature
+		function getColor(d) {
+			return d > 30   ? '#bd0026' :
+			       d > 25   ? '#fd8d3c' :
+			       d > 15   ? '#78c679' :
+			       d > 10   ? '#c2e699' :
+			       d > 0    ? '#ffffcc' :
+			       d > -5   ? '#41b6c4' :
+			       d > -15  ? '#2c7fb8' :
+			                  '#253494';
+		}
+
+		function style(feature) {
+			return {
+				weight: 2,
+				opacity: 1,
+				color: 'white',
+				dashArray: '3',
+				fillOpacity: 0.7,
+				fillColor: feature.properties.weather.hourly_forecast?getColor(feature.properties.weather['hourly_forecast'][0]['temp']['metric']):'white'
+				//fillColor: getColor(feature.properties.density)
+			};
+		}
+
+		function highlightFeature(e) {
+			var layer = e.target;
+
+			layer.setStyle({
+				weight: 5,
+				color: '#666',
+				dashArray: '',
+				fillOpacity: 0.7
+			});
+
+			if (!L.Browser.ie && !L.Browser.opera) {
+				layer.bringToFront();
+			}
+
+			info.update(layer.feature.properties);
+			plot(layer);
+		}
+
+		
+
+		function resetHighlight(e) {
+			weatherLayer.resetStyle(e.target);
+			info.update();
+			//$('#chart1').empty();
+		}
+		
+		/*function update_weather(layer, p){
+			//var weather;
+			$.get("../get_county_weather/", {state:layer.feature.properties.state, county:layer.feature.properties.api}, function(data, textStatus){
+			
+				weather = $.parseJSON(data);
+				layer.feature.properties.weather = weather;
+				layer.setStyle({
+					fillColor: getColor(layer.feature.properties.weather['hourly_forecast'][0]['temp']['metric'])
+				});
+				if(p){
+					plot(layer);
+				}
+			});
+			//return weather;	
+		}*/
+		
+		
+		function zoomToFeature(e) {
+			var layer = e.target;
+			//var weather;
+			map.fitBounds(layer.getBounds()); // zoom to the layer
+			
+			//update_weather(layer, true);
+			plot(layer);
+			/*$.get("../get_county_weather/", {state:layer.feature.properties.state, county:layer.feature.properties.county}, function(data, textStatus){
+			
+				weather = $.parseJSON(data);
+				layer.feature.properties.weather = weather;
+				//$('#txtHint').text(layer.feature.properties.weather['hourly_forecast'][0]['temp']);
+				//alert(data);
+			});*/
+			
+			
+			/*var weather;
+			
+			for(var i=0,j=weatherLayer.getLayers().length; i<j; i++){
+			  	$.get("../get_county_weather/", {state:weatherLayer.getLayers()[i].feature.properties.state, county:weatherLayer.getLayers()[i].feature.properties.county}, function(data, textStatus){
+			
+					weather = $.parseJSON(data);
+					weatherLayer.getLayers()[i].feature.properties.weather = weather;
+					});
+				
+			};*/
+			
+			//info.update(layer.feature.properties);
+			//plot(layer, weather);
+		}
+
+		function onEachFeature(feature, layer) {
+			layer.on({
+				mouseover: highlightFeature,
+				mouseout: resetHighlight,
+				click: zoomToFeature
+			});
+		}
+		
+		
+		
+		// get color depending on humidity
+		function getColorH(d) {
+			return d < 10   ? '#eff3ff' :
+			       d < 40   ? '#bdd7e7' :
+			       d < 70   ? '#6baed6' :
+			       d < 100  ? '#3182bd' :
+			                  '#08519c';
+		}
+
+		function styleH(feature) {
+			return {
+				weight: 2,
+				opacity: 1,
+				color: 'white',
+				dashArray: '3',
+				fillOpacity: 0.7,
+				fillColor: feature.properties.weather.hourly_forecast?getColorH(feature.properties.weather['hourly_forecast'][0]['humidity']):'white'
+			};
+		}
+
+		function highlightFeatureH(e) {
+			var layer = e.target;
+
+			layer.setStyle({
+				weight: 5,
+				color: '#666',
+				dashArray: '',
+				fillOpacity: 0.7
+			});
+
+			if (!L.Browser.ie && !L.Browser.opera) {
+				layer.bringToFront();
+			}
+
+			info.update(layer.feature.properties);
+			plotH(layer);
+		}
+
+		
+
+		function resetHighlightH(e) {
+			humidityLayer.resetStyle(e.target);
+			info.update();
+		}
+		
+
+		function zoomToFeatureH(e) {
+			var layer = e.target;
+			map.fitBounds(layer.getBounds()); // zoom to the layer
+			plotH(layer);
+		}
+
+		function onEachFeatureH(feature, layer) {
+			layer.on({
+				mouseover: highlightFeatureH,
+				mouseout: resetHighlightH,
+				click: zoomToFeatureH
+			});
+		}
+		
+		
+		
+		// get color depending on humidity
+		function getColorW(d) {
+			return d <= 6   ? '#f0f9e8' :
+			       d <= 30  ? '#bae4bc' :
+			       d <= 62   ? '#7bccc4' :
+			       d <= 87  ? '#43a2ca' :
+			                  '#0868ac';
+		}
+
+		function styleW(feature) {
+			return {
+				weight: 2,
+				opacity: 1,
+				color: 'white',
+				dashArray: '3',
+				fillOpacity: 0.7,
+				fillColor: feature.properties.weather.hourly_forecast?getColorW(feature.properties.weather['hourly_forecast'][0]['wspd']['metric']):'white'
+			};
+		}
+
+		function highlightFeatureW(e) {
+			var layer = e.target;
+
+			layer.setStyle({
+				weight: 5,
+				color: '#666',
+				dashArray: '',
+				fillOpacity: 0.7
+			});
+
+			if (!L.Browser.ie && !L.Browser.opera) {
+				layer.bringToFront();
+			}
+
+			info.update(layer.feature.properties);
+			plotW(layer);
+		}
+
+		
+
+		function resetHighlightW(e) {
+			windLayer.resetStyle(e.target);
+			info.update();
+		}
+		
+
+		function zoomToFeatureW(e) {
+			var layer = e.target;
+			map.fitBounds(layer.getBounds()); // zoom to the layer
+			plotW(layer);
+		}
+
+		function onEachFeatureW(feature, layer) {
+			layer.on({
+				mouseover: highlightFeatureW,
+				mouseout: resetHighlightW,
+				click: zoomToFeatureW
+			});
+		}
+		/*weatherLayer = L.geoJson(countyData, {
+			style: style,
+			onEachFeature: onEachFeature
+		}).addTo(map);*/
+
+		map.attributionControl.addAttribution('Weather data &copy; <a href="http://www.wunderground.com/?apiref=569ad407f642ce53">Weather Underground</a>');
+
+		/*$("#update_weather").click(function() {
+			var weather;
+			var layers;
+			layers = weatherLayer.getLayers();
+			for(var i=0,j=layers.length; i<j; i++){
+				if(i%10==8){
+					setTimeout(function(){update_weather(layers[i],false);},60000);
+				}
+				else{
+					update_weather(layers[i],false);
+				}
+				
+			}
+		});*/
+		
+		$("#update_weather").click(function() {
+			$.get("../get_weather/", function(data, textStatus){
+			
+				weather = $.parseJSON(data);
+				if(humidityLayer)
+				{
+					control.removeLayer(humidityLayer);
+					if(map.hasLayer(humidityLayer)){
+						map.removeLayer(humidityLayer);
+					}
+				}
+				if(weatherLayer)
+				{
+					control.removeLayer(weatherLayer);
+					if(map.hasLayer(weatherLayer)){
+						map.removeLayer(weatherLayer);
+					}
+				}
+				if(windLayer)
+				{
+					control.removeLayer(windLayer);
+					if(map.hasLayer(windLayer)){
+						map.removeLayer(windLayer);
+					}
+				}
+				weatherLayer = L.geoJson(weather, {
+										style: style,
+										onEachFeature: onEachFeature
+										}).addTo(map);
+				control.addOverlay(weatherLayer,'Temperature');
+										
+				windLayer = L.geoJson(weather, {
+										style: styleW,
+										onEachFeature: onEachFeatureW
+										});
+				control.addOverlay(windLayer,'Wind Speed');
+				
+				humidityLayer = L.geoJson(weather, {
+										style: styleH,
+										onEachFeature: onEachFeatureH
+										});					
+				control.addOverlay(humidityLayer,'Humidity');
+			});
+		});
+		
+		
+		/*var legend = L.control({position: 'bottomright'});
+
+		legend.onAdd = function (map) {
+
+			var div = L.DomUtil.create('div', 'info legend'),
+				grades = [-15, -5, 0, 10, 15, 25, 30],
+				labels = [],
+				from, to;
+
+			for (var i = 0; i < grades.length+1; i++) {
+				from = grades[i-1];
+				to = grades[i];
+
+				labels.push(
+					'<i style="background:' + getColor(from + 1) + '"></i> ' +
+					((from || from == 0) ? from: '') + ((to || to == 0) ? ' to ' + to : '+'));
+			}
+
+			div.innerHTML = labels.join('<br><br>');
+			return div;
+		};
+
+		legend.addTo(map);*/
+	
+	map.addControl( new L.Control.Search({
+			url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',
+			jsonpParam: 'json_callback',
+			propertyName: 'display_name',
+			propertyLoc: ['lat','lon'],
+			markerLocation: true,
+			autoType: false,
+			autoCollapse: true,
+			minLength: 2,
+			zoom:10
+		}) );
+		
+	$("#update_weather").trigger('click');
+		
+	});
+  </script>
+{% endblock %}

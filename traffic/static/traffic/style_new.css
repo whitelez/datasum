@@ -1,0 +1,57 @@
+body{
+	background: lightgray;
+}
+.mainpage{
+
+	margin: 0 auto;
+	padding-bottom: 200px;
+	background: white;
+}
+
+.jumbotron {
+	padding: 10px 40px;
+	margin-bottom: 0px;
+	background: transparent;
+	background-color: #B30303;
+}
+
+.container{
+padding-left: 0px; padding-right: 0px;	margin-right: 0px; margin-left: 0px;
+}
+
+
+.navbar-inverse{
+	margin: 0px 0px;
+}
+
+form{
+	margin: 0px;
+}
+
+#lw,#rw{
+	min-height: 0px;
+}
+#lw{
+	padding: 0px;
+	border-right: 0px solid lightgray;
+}
+
+#lw-bottom{
+
+}
+#rw{
+	padding-right: 0px;
+}
+
+.container h1{
+	float: left;
+	color: white;font-size:36px;margin-top:10px;
+}
+.container img{
+	float: right;margin-top:8px;
+
+}
+
+#map-placeholder img{
+	margin: 10 50px;	
+}#map{width:auto;height:600px;box-shadow: 0 0 10px rgba(0,0,0,0.5);}.well{margin-bottom: 0px;border-radius: 0px;padding-left: 25px;padding-right: 25px;}.nav{padding-left: 15px;}.btn{padding: 7px 12px;font-size: 12px;font-weight: 400;}.form-control{height:30px;}.btn-default{background-color:#4e4f4a;}

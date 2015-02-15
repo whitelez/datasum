@@ -1,0 +1,121 @@
+{% load staticfiles %}
+
+<!DOCTYPE HTML>
+
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>{% block title %}{% endblock %} </title>
+	<link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap-Sandstone.min.css'%}">
+	<link rel="stylesheet" type="text/css" href="{% static 'traffic/style_new.css'%}">
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.min.css">
+	<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0-rc2/css/bootstrap-glyphicons.css">
+	<script type="text/javascript" src={% static 'traffic/jquery-2.1.3.min.js'%}></script>
+	<script type="text/javascript" src={% static "traffic/bootstrap.js" %}></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.min.js"> </script>
+	<link rel="shortcut icon" href="{% static 'traffic/images/favicon.ico' %}" type="image/x-icon">
+	<link rel="icon" href="{% static 'traffic/images/favicon.ico' %}" type="image/x-icon">
+    {% block style %}{% endblock %}
+</head>
+
+<body>
+  <div class="mainpage" id="main">
+		<div class="jumbotron">
+			<div class="container">
+				<h1>Power of 32 - Regional Traveler Information System</h1>
+				<img src="http://www.powerof32.org/images/powerof32-logo.png">
+			</div>
+		</div>
+
+		<nav class="navbar navbar-default navbar-static-top" role="navigation">
+			<!-- Brand and toggle get grouped for better mobile display -->
+{#			<div class="navbar-header">#}
+{#				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">#}
+{#					<span class="sr-only">Toggle navigation</span>#}
+{#					<span class="icon-bar"></span>#}
+{#					<span class="icon-bar"></span>#}
+{#					<span class="icon-bar"></span>#}
+{#				</button>#}
+{#				<a class="navbar-brand" href="{% url 'traffic:index' %}">Home</a>#}
+{#			</div>#}
+
+			<!-- Collect the nav links, forms, and other content for toggling -->
+			<div class="collapse navbar-collapse navbar-ex1-collapse">
+				<ul class="nav navbar-nav">
+                    <li id="nav-home"><a href="{% url 'traffic:index' %}">Home</a></li>
+        	        <li id="nav-weather"><a href="{% url 'traffic:weather' %}">Weather</a></li>
+                    <li id="nav-parking"><a href="{% url 'traffic:parking' %}">Parking</a></li>
+                    <li id="nav-transit"><a href="{% url 'traffic:transit' %}">Transit</a></li>
+                    <li id="nav-cameras"><a href="{% url 'traffic:camera' %}">Cameras</a></li>
+                    <li id="nav-trafficcounts"><a href="{% url 'traffic:count' %}">Traffic Counts</a></li>
+                    <li id="nav-traveltime" class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Travel <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'traffic:routing' %}">Trip Planner</a></li>
+							<li><a href="{% url 'traffic:travel_time' %}">Travel Time: Interstates</a></li>
+							<li><a href="{% url 'traffic:travel_time_new' %}">Travel Time: Arteries (2003-2012)</a></li>
+							<li><a href="#">Travel Time: Arteries (2013-2015)</a></li>
+                        </ul>
+                    </li>
+                    <li id="nav-incidents"><a href="{% url 'traffic:incidents' %}">Incidents</a></li>
+                    <li id="nav-evstation"><a href="{% url 'traffic:ev_stations' %}">EV Stations</a></li>
+                    <li id="nav-download"><a href="{% url 'traffic:download' %}">Download</a></li>
+				</ul>
+
+{#				<ul class="nav navbar-nav navbar-right">#}
+{#					<li><a href="#">Link</a></li>#}
+{#					<li class="dropdown">#}
+{#						<a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>#}
+{#						<ul class="dropdown-menu">#}
+{#							<li><a href="#">Action</a></li>#}
+{#							<li><a href="#">Another action</a></li>#}
+{#							<li><a href="#">Something else here</a></li>#}
+{#							<li><a href="#">Separated link</a></li>#}
+{#						</ul>#}
+{#					</li>#}
+{#				</ul>#}
+			</div><!-- /.navbar-collapse -->
+		</nav>
+
+				<div id="lw" style="width:25%;height:auto;float: left;">
+{#					<form action="" method="POST" role="form">#}
+{#						<legend>Form title</legend>#}
+{#						<div class="form-group">#}
+{#							<label for="">label</label>#}
+{#								<input type="text" class="form-control" id="" placeholder="Inputfield">#}
+{#							<label for="">label</label>#}
+{#								<input type="text" class="form-control" id="" placeholder="Inputfield">#}
+{#							<label for="">label</label>#}
+{#								<input type="text" class="form-control" id="" placeholder="Inputfield">#}
+{#						</div>#}
+{#						<button type="submit" class="btn btn-primary">Submit</button>#}
+{#					</form>#}
+{#					<div id="lw-bottom"> </div>#}
+                    {% block content %}{% endblock %}
+				</div>
+{#				<div id="rw" style="width:auto;float: right;">#}
+                    {% block map %}{% endblock %}
+{#				</div>#}
+
+      <div style="width:100%;height:2px;margin:0 auto;padding:0;background-color:#ddd;overflow:hidden;"></div>
+      <footer>
+       <p class="footer_content" style="text-align:center;padding-top: 10px"><a href="http://www.cmu.edu/index.shtml" target="_blank">Carnegie Mellon University</a> | <a href="http://www.benedum.org/" target="_blank">Benedum Foundation</a> | <a href="http://heinz.cmu.edu/index.aspx" target="_blank">Heinz College</a> | <a href="http://traffic21.heinz.cmu.edu/" target="_blank">Traffic21</a> | contact us </p>
+      </footer>
+
+	</div>
+</body>
+<script>
+    var url = window.location;
+	// Will only work if string in href matches with location
+{#	$('ul.nav a[href="'+ url +'"]').parent().addClass('active');#}
+    // Will also work for relative and absolute hrefs
+    $('ul.nav a').filter(function() {
+    	return this.href == url;
+	}).parent().addClass('active');
+    $('ul.nav a').filter(function() {
+    	return this.href == url;
+	}).parent().parent().parent().addClass('active');
+</script>
+{% block script %}{% endblock %}
+</html>

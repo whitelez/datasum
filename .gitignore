@@ -1,0 +1,5 @@
+#ignore all files in .idea directory
+.idea/
+
+#ignore all .pyc files
+*.pyc

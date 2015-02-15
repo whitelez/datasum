@@ -1,0 +1,426 @@
+{% extends "traffic/base.html" %}
+
+{% load staticfiles %}
+
+{% block title %}
+Power of 32 RTIS - Transit
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+<link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
+{% endblock %}
+
+
+{% block content %}
+<div class="well" style="height:600px;">
+	<div class="container" style="width: inherit">
+    	<div class="row"><h3>Transit </h3></div>
+		<div class="row" style="padding-top:5px;">
+            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Route:</h5></div>
+            <div class="col-md-8" style="padding-left: 0;">
+                <select id='select_route' name = 'select_route' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+			  	    {% for route in routes%}
+						<option value={{route}}>{{route}}</option>
+					{% endfor %}
+			    </select>
+            </div>
+	    </div>
+
+    	<div class="row" style="padding-top:5px;">
+           <div class="col-md-4" style="height: 30px;text-align: center;">
+               <input type="radio" name="direction" class="direction" value='I' checked="checked" id = 'inbound'/> Inbound
+           </div>
+           <div class="col-md-5" style="height: 30px;text-align: left;">
+               <input type="radio" name="direction" class="direction" value='O' /> Outbound <br>
+           </div>
+        </div>
+
+		<div class="row" style="padding-top:5px;">
+            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Origin:</h5></div>
+            <div class="col-md-8" style="padding-left: 0;">
+                <select id="select_stop1" name="select_stop1"  class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+			    </select>
+            </div>
+	    </div>
+
+    	<div class="row" style="padding-top:5px;">
+            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Destination:</h5></div>
+            <div class="col-md-8" style="padding-left: 0;">
+                <select id="select_stop2" name="select_stop2"  class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+			    </select>
+            </div>
+	    </div>
+
+    	<div class="row" style="padding-top:5px;">
+            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Time:</h5></div>
+            <div class="col-md-4" style="padding-left: 0;padding-right: 1px;">
+            	<select id='hour' name = 'hour' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="90%">
+					<option value='00'>0</option>
+					<option value='01'>1</option>
+					<option value='02'>2</option>
+					<option value='03'>3</option>
+					<option value='04'>4</option>
+					<option value='05'>5</option>
+					<option value='06'>6</option>
+					<option value='07'>7</option>
+					<option value='08'>8</option>
+					<option value='09'>9</option>
+					<option value='10' selected="selected">10</option>
+					<option value='11'>11</option>
+					<option value='12'>12</option>
+					<option value='13'>13</option>
+					<option value='14'>14</option>
+					<option value='15'>15</option>
+					<option value='16'>16</option>
+					<option value='17'>17</option>
+					<option value='18'>18</option>
+					<option value='19'>19</option>
+					<option value='20'>20</option>
+					<option value='21'>21</option>
+					<option value='22'>22</option>
+					<option value='23'>23</option>
+                </select>
+                <span> <strong>:</strong> </span>
+            </div>
+            <div class="col-md-4" style="padding-left: 0;">
+				<select id='minute' name = 'minute' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					<option value='00'>0</option>
+					<option value='05'>5</option>
+					<option value='10'>10</option>
+					<option value='15'>15</option>
+					<option value='20'>20</option>
+					<option value='25'>25</option>
+					<option value='30'>30</option>
+					<option value='35'>35</option>
+					<option value='40'>40</option>
+					<option value='45'>45</option>
+					<option value='50'>50</option>
+					<option value='55'>55</option>
+				</select>
+            </div>
+	    </div>
+
+    </div>
+
+{#<div id='user_input'>#}
+{#<h3> Transit:</h3>#}
+{#<strong>Route:</strong> #}
+{#<select id='select_route' name = 'select_route'>#}
+{#{% for route in routes%}#}
+{#	<option value={{route}}>{{route}}</option>#}
+{#{% endfor %}#}
+{#</select> <br>#}
+
+<!--<input type="text" id="route" />
+<input type="button" id="get_route" value="get route infomation" />-->
+{#<input type="radio" name="direction" class="direction" value='I' checked="checked" id = 'inbound'/> Inbound#}
+{#<input type="radio" name="direction" class="direction" value='O' /> Outbound <br>#}
+
+{#    <strong>Origin:</strong><select id ='select_stop1' style="width:100%"></select> <br>#}
+{#<strong>Destination:</strong><select id ='select_stop2' style="width:100%"></select>#}
+{#<br><br>#}
+{#</div>#}
+
+{#<div class="info legend">#}
+{#	<strong>Time: </strong>#}
+{#<select id="hour" name="hour">#}
+{#<option value='00'>0</option>#}
+{#<option value='01'>1</option>#}
+{#<option value='02'>2</option>#}
+{#<option value='03'>3</option>#}
+{#<option value='04'>4</option>#}
+{#<option value='05'>5</option>#}
+{#<option value='06'>6</option>#}
+{#<option value='07'>7</option>#}
+{#<option value='08'>8</option>#}
+{#<option value='09'>9</option>#}
+{#<option value='10' selected = 'selected'>10</option>#}
+{#<option value='11'>11</option>#}
+{#<option value='12'>12</option>#}
+{#<option value='13'>13</option>#}
+{#<option value='14'>14</option>#}
+{#<option value='15'>15</option>#}
+{#<option value='16'>16</option>#}
+{#<option value='17'>17</option>#}
+{#<option value='18'>18</option>#}
+{#<option value='19'>19</option>#}
+{#<option value='20'>20</option>#}
+{#<option value='21'>21</option>#}
+{#<option value='22'>22</option>#}
+{#<option value='23'>23</option>#}
+{#</select>#}
+{#<strong>:</strong>#}
+{#<select id="minute" name="minute">#}
+{#<option value='00'>0</option>#}
+{#<option value='05'>5</option>#}
+{#<option value='10'>10</option>#}
+{#<option value='15'>15</option>#}
+{#<option value='20'>20</option>#}
+{#<option value='25'>25</option>#}
+{#<option value='30'>30</option>#}
+{#<option value='35'>35</option>#}
+{#<option value='40'>40</option>#}
+{#<option value='45'>45</option>#}
+{#<option value='50'>50</option>#}
+{#<option value='55'>55</option>#}
+{#</select>#}
+{#<br><br>#}
+	<br> <div style="width:100%;height:2px;margin:0 auto;padding:0;background-color:#ddd;overflow:hidden;"></div>
+
+	<div class="container" style="width: inherit">
+        <div class="row" style="padding-top: 15px">
+			<h4> Result: </h4>
+        </div>
+        <div class="row" style="padding-top: 10px">
+        	<div class="col-md-7" style="padding-right: 0;">
+				Ontime Performance:
+            </div>
+            <div class="col-md-5" style="padding-left: 0;">
+                <span id = 'ontime'>&emsp;&emsp;&emsp;</span>
+            </div>
+        </div>
+        <div class="row" style="padding-top: 10px">
+            <div class="col-md-7" style="padding-right: 0;">
+				Crowding:
+            </div>
+            <div class="col-md-5" style="padding-left: 0;">
+                <span id = 'crowding'>&emsp;&emsp;&emsp;</span>
+            </div>
+        </div>
+        <div class="row" style="padding-top: 10px">
+            <div class="col-md-7" style="padding-right: 0;">
+				Waiting Time:
+            </div>
+            <div class="col-md-5" style="padding-left: 0;">
+                <span id = 'waiting'>&emsp;&emsp;&emsp;</span>
+            </div>
+        </div>
+    </div>
+
+{#</div>#}
+{#<p id="txtHint"></p>#}
+</div>
+{% endblock %}
+
+
+{% block map %}
+
+<div id="map"></div>
+
+{% endblock %}
+	
+	
+
+{% block script %}
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
+
+<script>
+     $('.selectpicker').selectpicker({
+      style: 'btn-inverse',
+      size: 10
+     });
+</script>
+
+<script>
+	$(function(){
+	var map = L.map('map').setView([40.300, -79.000], 8);
+    
+	// add an OpenStreetMap tile layer
+	var basemap = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+	}).addTo(map);
+	
+	control = L.control.layers({'Base Map':basemap},null,{collapsed:false}).addTo(map);
+	
+	map.addControl( new L.Control.Search({
+			url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',
+			jsonpParam: 'json_callback',
+			propertyName: 'display_name',
+			propertyLoc: ['lat','lon'],
+			markerLocation: true,
+			autoType: false,
+			autoCollapse: true,
+			minLength: 2,
+			zoom:10
+		}) );
+	
+	/*var info = L.control();
+
+		info.onAdd = function (map) {
+			this._div = L.DomUtil.create('div', 'info');
+			this._div.innerHTML = '<h4>Route Information</h4>'
+								+ "<br> <b>Route:</b><p id = 'info_route'></p>"
+								+ "<b>Direction:</b><p id = 'info_direction'></p>"
+								+ "<b>Stop 1:</b><p id = 'stop1'></p>"
+								+ "<b>Stop 1 Order:</b><p id = 'order1'></p>"
+								+ "<b>Stop 2:</b><p id = 'stop2'></p>"
+								+ "<b>Stop 2 Order:</b><p id = 'order2'></p>"
+								+ "<b>Metrics:</b><p id = 'metrics'></p>";
+			return this._div;
+		};
+
+		info.addTo(map);*/
+	
+	var info = L.control();
+
+		info.onAdd = function (map) {
+			this._div = L.DomUtil.create('div', 'info');
+			this.update();
+			return this._div;
+		};
+
+		info.update = function (props) {
+			this._div.innerHTML = '<h4>Stop</h4>' +  (props ?
+				'<b>' + props.name + '</b>'
+				: 'Hover over a stop');
+		};
+
+		info.addTo(map);
+	
+	function highlightFeature(e) {
+			var layer = e.target;
+
+			/*layer.setStyle({
+				weight: 5,
+				color: '#666',
+				dashArray: '',
+				fillOpacity: 0.7
+			});*/
+
+			if (!L.Browser.ie && !L.Browser.opera) {
+				layer.bringToFront();
+			}
+
+			info.update(layer.feature.properties);
+		}
+
+		function resetHighlight(e) {
+			info.update();
+		}
+		
+		var selected = 1;
+		function zoomToFeature(e) {
+			var layer = e.target;
+			//var weather;
+			//map.fitBounds(layer.getBounds()); // zoom to the layer
+			selected = (selected+1)%2;
+			var update = '#select_stop' + (selected+1);
+			$(update +' option:selected').removeAttr('selected');
+            $(update +' option:selected').selectpicker('refresh');
+			$(update).find("option[value='" + layer.feature.properties.stop_id +"']").attr('selected', true);
+            $(update).selectpicker('refresh');
+			$(update).trigger('change');
+            $(update).selectpicker('refresh');
+			//var order = '#order' + (selected+1);
+			//$(update).text(layer.feature.properties.name);
+			//$(order).text(layer.feature.properties.order);
+			
+		}
+
+		function onEachFeature(feature, layer) {
+			layer.on({
+				mouseover: highlightFeature,
+				mouseout:resetHighlight,
+				click:zoomToFeature
+			});
+			layer.bindPopup('<b>' + feature.properties.name + '</b>');
+			}
+	
+	
+	var routeLayer =L.geoJson(),
+		stopsLayer =L.geoJson();
+	function getInfo(){
+		//var route = $("#route").val();
+		$('#ontime').text('');
+		$('#crowding').text('');
+		$('#waiting').text('');
+		$('#txtHint').text('');
+		
+		var route = $('#select_route option:selected').attr('value');
+		var direction = $('input.direction:checked').attr('value');
+		
+		$.get("../get_route/", {route:route, direction:direction}, function(data, textStatus){
+			
+			if(routeLayer){
+			 	control.removeLayer(routeLayer);
+			 	if(map.hasLayer(routeLayer)){
+			 		map.removeLayer(routeLayer);
+			 	}
+			 }
+			if(data){
+			 route_geoJson = $.parseJSON(data);
+			 routeLayer = L.geoJson(route_geoJson,{style:{color:'green'}}).addTo(map);
+			 $('#info_route').text(route);
+			 $('#info_direction').text((direction == 'I'?'Inbound':'Outbound'));
+			 $('#stop1').text('');
+			 $('#stop2').text('');
+			 $('#order1').text('');
+			 $('#order2').text('');
+			 $('#metrics').text('');
+			 map.fitBounds(routeLayer.getBounds());
+			 control.addOverlay(routeLayer,'Route '+route);
+			}
+		},"json");
+		
+		
+		$.get("../get_stops/", {route:route, direction:direction}, function(data, textStatus){
+			
+		  $('#select_stop1').empty();
+		  $('#select_stop2').empty();
+		  if(stopsLayer){
+			 	control.removeLayer(stopsLayer);
+			 	if(map.hasLayer(stopsLayer)){
+			 		map.removeLayer(stopsLayer);
+			 	}
+			 }
+		  if(data){
+			 stops_geoJson = $.parseJSON(data);
+			 stopsLayer = L.geoJson(stops_geoJson, {
+					pointToLayer:function(feature, latlng){
+							return L.circleMarker(latlng,{radius:5,fillOpacity:0.9});
+					},
+					onEachFeature:onEachFeature
+					}).addTo(map);
+			control.addOverlay(stopsLayer,'Stops');
+			for(var i=0;i<stops_geoJson.features.length;i++){
+				$("#select_stop1").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");
+                $("#select_stop1").selectpicker('refresh');
+				$("#select_stop2").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");
+                $("#select_stop2").selectpicker('refresh');
+			}
+		  }
+		  else{
+		  	$('#txtHint').text('Route ' + route + '-' + (direction == 'I'?'Inbound':'Outbound') + ' not found');
+		  }
+		},"json");
+		
+	}
+	$('#select_route').change(getInfo);
+	$('.direction').click(getInfo);
+	function get_metrics(){
+		//generate some random metrics for now
+		var h = 1;
+		if (parseInt($('#hour option:selected').attr('value')) < Math.floor($('#select_stop1 option:selected').attr('value').charCodeAt(0)/10) || parseInt($('#hour option:selected').attr('value')) > 17 + Math.floor($('#select_stop1 option:selected').attr('value').charCodeAt(0)/15)){
+			h = 0;
+		}
+		var seed = ($('#select_stop1 option:selected').attr('value').charCodeAt(2) + $('#select_stop2 option:selected').attr('value').charCodeAt(2)- 85 + Math.abs(parseInt($('#minute option:selected').attr('value'))-30) + Math.abs(parseInt($('#hour option:selected').attr('value'))-15)*h)/75;
+		var ontime_performance = (''+ ((seed) * 20 + 50)*h).substr(0,5) + '%',
+		    crowding = (''+ seed * 1.5*h).substr(0,4),
+		    waiting_time = (''+ (1-seed) * 25 * h).substr(0,4) + ' minutes';
+		$('#ontime').text(ontime_performance);
+		$('#crowding').text(crowding);
+		$('#waiting').text(waiting_time);
+		 
+	}
+	$('#minute').change(get_metrics);
+	$('#hour').change(get_metrics);
+	$('#select_stop1').change(get_metrics);
+	$('#select_stop2').change(get_metrics);
+	$('#inbound').trigger('click');
+	});
+</script>
+{% endblock %}
+
+

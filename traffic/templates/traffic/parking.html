@@ -1,0 +1,775 @@
+{% extends "traffic/base.html" %}
+
+{% load staticfiles %}
+
+{% block title %}
+Power of 32 RTIS - Parking
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+<link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
+<link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
+{% endblock %}
+
+{% block content %}
+<div id="options" class="well" style="height: 600px;">
+    <div class="container" style="width: inherit">
+    	<div class="row"><h3 style="margin-top: 5px;margin-bottom: 5px;">Parking </h3></div>
+        <div class="row"><h4> Historical Data: </h4></div>
+		<div class="row" style="padding-top:3px;">
+            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Date:</h5></div>
+            <div class="col-md-4" style="padding-left: 0;padding-right: 1px;">
+            	<select id='sm' name = 'sm' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					<option value='01'>Jan</option>
+					<option value='02'>Feb</option>
+					<option value='03'>Mar</option>
+					<option value='04'>Apr</option>
+				</select>
+            </div>
+            <div class="col-md-4" style="padding-left: 0;">
+				<select id='sd' name = 'sd' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					{% for i in n%}
+						<option value={{i}}>{{i}}</option>
+					{% endfor %}
+				</select>
+            </div>
+	    </div>
+    	<div class="row" style="padding-top:3px;">
+            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>End Date:</h5></div>
+            <div class="col-md-4" style="padding-left: 0;padding-right: 1px;">
+            	<select id='em' name = 'em' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					<option value='01'>Jan</option>
+					<option value='02'>Feb</option>
+					<option value='03'>Mar</option>
+					<option value='04' selected="selected">Apr</option>
+				</select>
+            </div>
+            <div class="col-md-4" style="padding-left: 0;">
+				<select id='ed' name = 'ed' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					{% for i in n%}
+						<option value={{i}}>{{i}}</option>
+					{% endfor %}
+				</select>
+            </div>
+	    </div>
+    	<div class="row" style="padding-top:5px;padding-left: 20px;"> <input type="checkbox" name="all_data" id="all_data"/> &nbsp;All Data </div>
+		<div class="row" style="padding-top:5px;">
+            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Weekday:</h5></div>
+            <div class="col-md-8" style="padding-left: 0;">
+            	<select id="wd" name="wd" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					<option value=1>Sunday</option>
+					<option value=2>Monday</option>
+					<option value=3>Tuesday</option>
+					<option value=4>Wednesday</option>
+					<option value=5>Thursday</option>
+					<option value=6>Friday</option>
+					<option value=7>Saturday</option>
+					<option value=-1 selected="selected">All</option>
+				</select>
+            </div>
+        </div>
+	</div>
+
+
+
+{#		<h3>Historical Data: </h3>#}
+{#    	<div style="width:100%;height:2px;margin:0 auto;margin-bottom:5px;padding:0;background-color:#ddd;overflow:hidden;"></div>#}
+{#		<strong>Start:</strong>#}
+{#		<select id='sm' name = 'sm'>#}
+{#		<option value=1>Jan</option>#}
+{#		<option value=2>Feb</option>#}
+{#		<option value=3>Mar</option>#}
+{#		<option value=4>Apr</option>#}
+{#		</select>#}
+{# #}
+{#		<select id='sd' name = 'sd'>#}
+{#		{% for i in n%}#}
+{#			<option value={{i}}>{{i}}</option>#}
+{#		{% endfor %}#}
+{#		</select> <br>#}
+
+{#		<strong>End:</strong>#}
+{#		<select id='em' name = 'em'>#}
+{#		<option value=1>Jan</option>#}
+{#		<option value=2>Feb</option>#}
+{#		<option value=3>Mar</option>#}
+{#		<option value=4 selected="selected">Apr</option>#}
+{#		</select>#}
+{# #}
+{#		<select id='ed' name = 'ed'>#}
+{#		{% for i in n%}#}
+{#			<option value={{i}}>{{i}}</option>#}
+{#		{% endfor %}#}
+{#		</select>#}
+{#		<input type="checkbox" name="all_data" id="all_data"/> All Data <br>#}
+		
+		
+		<!--<strong>Single Day</strong>(start day):-->
+{#		<input type="radio" name="single" class="single" value="True" style = "display:none;"/>#}
+{#		<input type="radio" name="single" class="single" value="False" checked="checked" style = "display:none;"/>#}
+		
+{#		#}
+{#		<strong>Weekday: </strong>#}
+{#		<select id="wd" name="wd">#}
+{#		<option value=1>Sunday</option>#}
+{#		<option value=2>Monday</option>#}
+{#		<option value=3>Tuesday</option>#}
+{#		<option value=4>Wednesday</option>#}
+{#		<option value=5>Thursday</option>#}
+{#		<option value=6>Friday</option>#}
+{#		<option value=7>Saturday</option>#}
+{#		<option value=-1 selected="selected">All</option>#}
+{#		</select>#}
+
+{#		<input type="button" id="time_range_submit" value="Update"/>#}
+    	<button type="button" class="btn btn-default btn-block" style="margin-top: 10px; margin-bottom: 15px;" id="time_range_submit">
+			<span class="glyphicon glyphicon-search"> </span> &nbsp; Update
+		</button>
+
+	<div class="container" style="width: inherit">
+        <div class="row"><h4> Prediction: </h4></div>
+		<div class="row" style="padding-top:3px;">
+            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Future Date:</h5></div>
+            <div class="col-md-4" style="padding-left: 0;padding-right: 1px;">
+            	<select id='pm' name = 'pm' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					<option value='01'>Jan</option>
+					<option value='02'>Feb</option>
+					<option value='03'>Mar</option>
+					<option value='04'>Apr</option>
+					<option value='05'>May</option>
+					<option value='06'>Jun</option>
+					<option value='07'>Jul</option>
+					<option value='08'>Aug</option>
+					<option value='09'>Sep</option>
+					<option value='10'>Oct</option>
+					<option value='11'>Nov</option>
+					<option value='12'>Dec</option>
+				</select>
+            </div>
+            <div class="col-md-4" style="padding-left: 0;">
+				<select id='pd' name = 'pd' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					{% for i in n%}
+						<option value={{i}}>{{i}}</option>
+					{% endfor %}
+				</select>
+            </div>
+	    </div>
+	</div>
+
+{#		<h3>Prediction: </h3>#}
+{#    	<div style="width:100%;height:2px;margin:0 auto;margin-bottom:5px;padding:0;background-color:#ddd;overflow:hidden;"></div>#}
+{#		<strong>Date:</strong>#}
+{#		<select id='pm' name = 'pm'>#}
+{#		<option value='01'>Jan</option>#}
+{#		<option value='02'>Feb</option>#}
+{#		<option value='03'>Mar</option>#}
+{#		<option value='04'>Apr</option>#}
+{#		<option value='05'>May</option>#}
+{#		<option value='06'>Jun</option>#}
+{#		<option value='07'>Jul</option>#}
+{#		<option value='08'>Aug</option>#}
+{#		<option value='09'>Sep</option>#}
+{#		<option value='10'>Oct</option>#}
+{#		<option value='11'>Nov</option>#}
+{#		<option value='12'>Dec</option>#}
+{#		</select>#}
+ 
+{#		<select id='pd' name = 'pd'>#}
+{#		{% for i in n%}#}
+{#			<option value={{i}}>{{i}}</option>#}
+{#		{% endfor %}#}
+{#		</select><br>#}
+
+{#		<input type="button" id="predict" value="Update" />#}
+    	<button type="button" class="btn btn-default btn-block" style="margin-top: 10px; margin-bottom: 15px;" id="predict">
+			<span class="glyphicon glyphicon-search"> </span> &nbsp; Update
+		</button>
+
+{#		<input type="button" id="update_lots" value="Update Parking Lots" />#}
+
+	<div class="container" style="width: inherit">
+		<div class="row" style="padding-top:3px;">
+            <div class="col-md-6"> <h5> Time to Display: </h5> </div>
+            <div class="col-md-3" style="padding-left: 0;padding-right: 1px;">
+            	<select id='hour' name = 'hour' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="90%">
+					<option value=0>12</option>
+					<option value=1>1</option>
+					<option value=2>2</option>
+					<option value=3>3</option>
+					<option value=4>4</option>
+					<option value=5>5</option>
+					<option value=6>6</option>
+					<option value=7>7</option>
+					<option value=8>8</option>
+					<option value=9>9</option>
+					<option value=10 selected="selected">10</option>
+					<option value=11>11</option>
+                </select>
+                <span> <strong>:</strong> </span>
+            </div>
+            <div class="col-md-3" style="padding-left: 0;">
+				<select id='minute' name = 'minute' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					<option value=0>00</option>
+					<option value=1>10</option>
+					<option value=2>20</option>
+					<option value=3>30</option>
+					<option value=4>40</option>
+					<option value=5>50</option>
+				</select>
+            </div>
+        </div>
+        <div class="row" style="padding-top:7px;" >
+            <div class="col-md-4" style="padding-left: 0; text-align: center">
+				<input type="radio" name="ampm" class="ampm" value=0 checked="checked"/> a.m.
+            </div>
+            <div class="col-md-3" style="padding-left: 0; text-align: center">
+                <input type="radio" name="ampm" class="ampm" value=12 /> p.m.
+            </div>
+	    </div>
+	</div>
+
+	<button type="button" class="btn btn-default btn-block" style="margin-top: 10px; margin-bottom: 15px;" id="update_lots">
+			<span class="glyphicon glyphicon-search"> </span> &nbsp; Update Parking Lots
+	</button>
+</div>
+
+{#		<div class="info legend"></div>#}
+{#		<br>#}
+{#		<strong>Time to Display: </strong> <br>#}
+{#		<select id="hour" name="hour">#}
+{#		<option value=0>12</option>#}
+{#		<option value=1>1</option>#}
+{#		<option value=2>2</option>#}
+{#		<option value=3>3</option>#}
+{#		<option value=4>4</option>#}
+{#		<option value=5>5</option>#}
+{#		<option value=6>6</option>#}
+{#		<option value=7>7</option>#}
+{#		<option value=8>8</option>#}
+{#		<option value=9>9</option>#}
+{#		<option value=10 selected="selected">10</option>#}
+{#		<option value=11>11</option>#}
+{#		</select>#}
+{#		<strong>:</strong>#}
+{#		<select id="minute" name="minute">#}
+{#		<option value=0>00</option>#}
+{#		<option value=1>10</option>#}
+{#		<option value=2>20</option>#}
+{#		<option value=3>30</option>#}
+{#		<option value=4>40</option>#}
+{#		<option value=5>50</option>#}
+{#		</select> &emsp;#}
+{#		<input type="radio" name="ampm" class="ampm" value=0 checked="checked"/> a.m.#}
+{#		<input type="radio" name="ampm" class="ampm" value=12 /> p.m.#}
+{#		<input type="button" id="choose_time_submit" value="submit time" style = "display:none;" />#}
+	    
+{#	 </div>#}
+	 
+{#	 <p id="txtHint"></p>#}
+{% endblock %}
+
+{% block map %}
+    <div id="map"></div>
+    <div id="chart">
+     	<h5 style="text-align: right"> * Click on the streets to see the occupancy distribution over one day.</h5>
+     	<div id="chart1" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px "></div>
+	</div>
+{% endblock %}
+
+
+{% block script %}
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script type="text/javascript" src="{% static 'traffic/terminals_geoJSON.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/jquery.jqplot.min.js' %}"></script>
+<!--<script type="text/javascript" src="{% static 'traffic/jqplot.cursor.js' %}"></script>-->
+<script type="text/javascript" src="{% static 'traffic/jqplot.dateAxisRenderer.min.js' %}"></script>
+
+<script>
+     $('.selectpicker').selectpicker({
+      style: 'btn-inverse',
+      size: 10
+     });
+</script>
+
+<script>
+	// create a map in the "map" div, set the view to a given place and zoom
+	
+	$(function(){
+	var streetLayer, truckLayer;
+	var terminalLayer, lotLayer;
+	var streets;
+	var map;
+	// add an OpenStreetMap tile layer
+	var streets = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+	}),
+		grayscale = L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
+			maxZoom: 18,
+			attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+				'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+			id: 'examples.map-20v6611k'
+		});
+		
+	//map = L.map('map').setView([40.4407937, -80.0029874], 16);
+	var map = L.map('map', {
+    	center: [40.4407937, -80.0029874],
+    	zoom: 16,
+    	layers: [grayscale]
+	});
+    
+    var baseMaps = {
+    	"Grayscale": grayscale,
+    	"Streets": streets
+	};
+
+	/*var overlayMaps = {
+    	"Parking Terminals": terminalLayer
+	};*/
+	
+	var control = L.control.layers(baseMaps,null,{collapsed:false}).addTo(map);
+	
+	function getColor(d) {
+    return d > 0.6   ? '#FF0000' :
+           d > 0.5   ? '#FFFF00' :
+                       '#008000';
+	}
+	
+	function parkingMarkerStyle(){
+		return {
+			radius: 5,
+			fillColor: 'white',
+			color: 'blue',
+			weight: 1,
+			opacity: 1,
+			fillOpacity: 0.9
+		};
+	}
+	
+
+	var info = L.control();
+
+		info.onAdd = function (map) {
+			this._div = L.DomUtil.create('div', 'info');
+			this.update();
+			return this._div;
+		};
+
+		info.update = function (props) {
+			if(props){
+				var h = parseInt($("#hour option:selected").attr('value'));
+   		 		var m = parseInt($("#minute option:selected").attr('value'));
+				var ampm = parseInt($('input.ampm:checked').attr('value'));
+				var cell = (h + ampm) * 6 + m;
+				
+			}
+			this._div.innerHTML = '<h4>Parking Information</h4>' +  (props ?
+				'<b>' + props.street + '</b>' + 
+				'<br><b>Occupancy: </b>' + (''+props.occupancy[cell]*100).substr(0,5)+'%'
+				: 'Hover over a street');
+			};
+			
+		info.updateT = function (props) {
+			if(props){
+				var h = parseInt($("#hour option:selected").attr('value'));
+   		 		var m = parseInt($("#minute option:selected").attr('value'));
+				var ampm = parseInt($('input.ampm:checked').attr('value'));
+				var cell = (h + ampm) * 6 + m;
+				
+			}
+			this._div.innerHTML = '<h4>Parking Information</h4>' +  (props ?
+				'<b>' + props.street + '</b>' + 
+				'<br><b>Occupancy: </b>' + (''+Math.min(props.occupancy[cell]*150,100)).substr(0,5)+'%'
+				: 'Hover over a street');
+			};
+		
+		info.updateLot = function (props) {
+			this._div.innerHTML = '<h4>Parking Information</h4>' +  (props ?
+				props.long_name + '<br>' + props.address1 + ' ' + props.address2 + '<br>Availiable Spots: ' + props.available_spots + '<br>Hours: ' + props.hours
+				: 'Hover over a street');
+			};
+
+		info.addTo(map);
+	
+	
+	function highlightFeature(e) {
+			var layer = e.target;
+
+			layer.setStyle({
+				weight: 8,
+			});
+
+			if (!L.Browser.ie && !L.Browser.opera) {
+				layer.bringToFront();
+			}
+
+			info.update(layer.feature.properties);
+		}
+		
+		function highlightFeatureT(e) {
+			var layer = e.target;
+
+			layer.setStyle({
+				weight: 8,
+			});
+
+			if (!L.Browser.ie && !L.Browser.opera) {
+				layer.bringToFront();
+			}
+
+			info.updateT(layer.feature.properties);
+		}
+		
+		function highlightFeatureLot(e) {
+			var layer = e.target;
+
+			if (!L.Browser.ie && !L.Browser.opera) {
+				layer.bringToFront();
+			}
+
+			info.updateLot(layer.feature.properties);
+		}
+
+		
+
+		function resetHighlight(e) {
+			streetLayer.resetStyle(e.target);
+			info.update();
+			//$('#chart1').empty();
+		}
+		
+		function resetHighlightT(e) {
+			truckLayer.resetStyle(e.target);
+			info.updateT();
+			//$('#chart1').empty();
+		}
+		
+		function resetHighlightLot(e) {
+			lotLayer.resetStyle(e.target);
+			info.updateLot();
+			//$('#chart1').empty();
+		}
+		
+		function onEachFeature(feature, layer) {
+			layer.on({
+				mouseover: highlightFeature,
+				mouseout: resetHighlight,
+			});
+			var h = parseInt($("#hour option:selected").attr('value'));
+   			var m = parseInt($("#minute option:selected").attr('value'));
+			var ampm = parseInt($('input.ampm:checked').attr('value'));
+			var cell = (h + ampm) * 6 + m;
+			if (feature.properties && feature.properties.street && feature.properties.occupancy) {
+				layer.bindPopup("Street : " + feature.properties.street + "<br/>Occupancy : " + (''+feature.properties.occupancy[cell]*100).substr(0,5)+'%').on('click', function(e){
+					$("#chart1").empty();
+					n=feature.properties.occupancy.length;
+					var line = [];
+					for(var i=0;i<n;i++){
+						var hour = Math.floor(i/6);
+						var minute = (i%6)*10;
+						if(minute==0){
+							minute = "00";
+						}
+						var point = [""+hour+":"+minute,feature.properties.occupancy[i]];
+						line.push(point);
+					}
+					var plot1 = $.jqplot('chart1', [line], {
+    										title:'Occupancy Distribution of ' + feature.properties.street + ' : Car',
+    										axes:{
+    											xaxis:{renderer:$.jqplot.DateAxisRenderer,tickOptions:{formatString:'%H:%M'}},
+    											yaxis:{min:0, max:1}
+    											},
+    										series:[{lineWidth:4, markerOptions:{style:'circle',size:6}}]
+  										});
+				});
+			}
+		}
+		
+		function onEachFeatureT(feature, layer) {
+			layer.on({
+				mouseover: highlightFeatureT,
+				mouseout: resetHighlightT,
+			});
+			var h = parseInt($("#hour option:selected").attr('value'));
+   			var m = parseInt($("#minute option:selected").attr('value'));
+			var ampm = parseInt($('input.ampm:checked').attr('value'));
+			var cell = (h + ampm) * 6 + m;
+			if (feature.properties && feature.properties.street && feature.properties.occupancy) {
+				layer.bindPopup("Street : " + feature.properties.street + "<br/>Occupancy : " + (''+Math.min(feature.properties.occupancy[cell]*150,100)).substr(0,5)+'%').on('click', function(e){
+					$("#chart1").empty();
+					n=feature.properties.occupancy.length;
+					var line = [];
+					for(var i=0;i<n;i++){
+						var hour = Math.floor(i/6);
+						var minute = (i%6)*10;
+						if(minute==0){
+							minute = "00";
+						}
+						var point = [""+hour+":"+minute,Math.min(feature.properties.occupancy[i]*1.5,1)];
+						line.push(point);
+					}
+					var plot1 = $.jqplot('chart1', [line], {
+    										title:'Occupancy Distribution of ' + feature.properties.street + ' : Truck',
+    										axes:{
+    											xaxis:{renderer:$.jqplot.DateAxisRenderer,tickOptions:{formatString:'%H:%M'}},
+    											yaxis:{min:0, max:1}
+    											},
+    										series:[{lineWidth:4, markerOptions:{style:'circle',size:6}}]
+  										});
+				});
+			}
+		}
+		
+
+function showOcp()
+{
+    var h = parseInt($("#hour option:selected").attr('value'));
+    var m = parseInt($("#minute option:selected").attr('value'));
+	var ampm = parseInt($('input.ampm:checked').attr('value'));
+
+
+	/*for (var i = 0, length = radios.length; i < length; i++) {
+		if (radios[i].checked) {
+			// do whatever you want with the checked radio
+			var g = 24*parseInt(e)+parseInt(f)+parseInt(radios[i].value);
+
+			// only one radio can be logically checked, don't check the rest
+			break;
+		}
+	}*/
+	var cell = (h + ampm) * 6 + m;
+	var st_in_map = true;
+	var tr_in_map = false;
+	
+	if(streetLayer){
+		control.removeLayer(streetLayer);
+		if(map.hasLayer(streetLayer)){
+			map.removeLayer(streetLayer);
+		}
+		else{
+			st_in_map = false;
+		}
+	}
+	
+	if(truckLayer){
+		control.removeLayer(truckLayer);
+		if(map.hasLayer(truckLayer)){
+			map.removeLayer(truckLayer);
+			tr_in_map = true;
+		}
+	}
+	
+	/*geoJSONLayer = L.geoJson(terminals,{
+		pointToLayer:function(feature, latlng){
+			return L.circleMarker(latlng, parkingMarkerStyle(feature.properties.occupancy[cell]));
+		},
+		onEachFeature:function(feature, layer){
+			if (feature.properties && feature.properties.streetID && feature.properties.occupancy) {
+				layer.bindPopup("Terminal : " + feature.properties.streetID + "<br/>Occupancy : " + feature.properties.occupancy[cell]);
+			}
+		}
+		
+	}).addTo(map);*/
+	streetLayer = L.geoJson(streets, {
+		style: function(feature){
+			if(feature.properties.occupancy[cell] < 0.5){
+				return {weight:7, color:'green', opacity: 0.9};
+			}else if(feature.properties.occupancy[cell] < 0.6){
+				return {weight:7, color:'yellow', opacity: 0.9};
+			}else{
+				return {weight:7, color:'red', opacity: 0.9};
+			}
+		},
+		onEachFeature:onEachFeature
+	});
+	if(st_in_map){
+		streetLayer.addTo(map);
+	}
+	control.addOverlay(streetLayer,'Street Parking');
+	
+	truckLayer = L.geoJson(streets, {
+		style: function(feature){
+			if(feature.properties.occupancy[cell]*1.5 < 0.5){
+				return {weight:7, color:'green', opacity: 0.9};
+			}else if(feature.properties.occupancy[cell]*1.5 < 0.6){
+				return {weight:7, color:'yellow', opacity: 0.9};
+			}else{
+				return {weight:7, color:'red', opacity: 0.9};
+			}
+		},
+		onEachFeature:onEachFeatureT
+	});
+	if(tr_in_map){
+		truckLayer.addTo(map);
+	}
+	control.addOverlay(truckLayer,'Truck Parking');
+
+}
+	
+	
+	$("#time_range_submit").click(function(){
+		$("#chart1").empty();
+		var sd,sm,ed,em;
+		if($("#all_data").is(':checked')){
+			sd = 2;
+			sm = 1;
+			ed = 22;
+			em = 4;
+		}
+		else{
+			sd = parseInt($("#sd option:selected").attr("value"));
+			sm = parseInt($("#sm option:selected").attr("value"));
+			var single = $('input.single:checked').attr('value');
+			if(single == "True"){
+				ed = sd;
+				em = sm;
+			}
+			else{
+				ed = parseInt($("#ed option:selected").attr("value"));
+				em = parseInt($("#em option:selected").attr("value"));
+				if(sm > em || (sm==em && sd > ed)){
+					alert("End day should be later than start day, or choose single day option.");
+					return false;
+				}
+			}	
+		}
+		
+		$.get("../parking_geoJSON/", {sd:sd,sm:sm,ed:ed,em:em,wd:$("#wd option:selected").attr("value")}, function(data, textStatus){
+			
+			streets = $.parseJSON(data);
+			//$('#txtHint').text(terminals);
+			showOcp();
+		},"json");
+	});
+	
+	$("#predict").click(function(){
+		$("#chart1").empty();
+		var pd,pm;
+		pd = parseInt($("#pd option:selected").attr("value"));
+		pm = parseInt($("#pm option:selected").attr("value"));
+		$.get("../parking_geoJSON_prediction/", {pd:pd,pm:pm}, function(data, textStatus){
+			
+			streets = $.parseJSON(data);
+			//$('#txtHint').text(terminals);
+			showOcp();
+		},"json");
+	});
+	
+	/*$('#choose_time_submit').click(function(){
+		showOcp();
+	});*/
+	$('#minute').change(showOcp);
+	$('#hour').change(showOcp);
+	$('.ampm').click(showOcp);
+	
+	terminalLayer = L.geoJson(terminals,{
+		pointToLayer:function(feature, latlng){
+			return L.circleMarker(latlng, parkingMarkerStyle());
+		},
+		onEachFeature:function(feature, layer){
+			if (feature.properties && feature.properties.street) {
+				layer.bindPopup("Street : " + feature.properties.street);
+			}
+		}
+	}).addTo(map);
+	control.addOverlay(terminalLayer, 'Terminals');
+	$("#time_range_submit").trigger('click');
+	
+	var legend = L.control({position: 'bottomright'});
+
+	legend.onAdd = function (map) {
+
+    	var div = L.DomUtil.create('div', 'info legend'),
+        	grades = [0, 0.5, 0.6, 1];
+
+    	// loop through our density intervals and generate a label with a colored square for each interval
+    	div.innerHTML = "<strong>Occupancy</strong> <br><br>" ;
+    	for (var i = 0; i < grades.length-1; i++) {
+        	div.innerHTML +=
+            	'<i style="background:' + getColor(grades[i] + 0.01) + '"></i> ' +
+            	grades[i] + '&ndash;' + grades[i + 1] + '<br><br>' ;
+    	}
+
+    	return div;
+	};
+
+	legend.addTo(map);
+	
+	function getColorLots(d) {
+    return d >= 100   ? '#008000' :
+		   d >= 20    ? '#FFFF66' :
+           d > 0      ? '#FF9900' :
+                        '#FF0000' ;
+	}
+	
+	function lotsMarkerStyle(d){
+		return {
+			radius: 7,
+			fillColor: getColorLots(d),
+			color: 'white',
+			weight: 1,
+			opacity: 1,
+			fillOpacity: 0.9
+		};
+	}
+	
+	function onEachFeatureLot(feature, layer) {
+			layer.on({
+				mouseover: highlightFeatureLot,
+				mouseout: resetHighlightLot,
+			});
+			if (feature.properties) {
+				layer.bindPopup(feature.properties.long_name + '<br>' + feature.properties.address1 + ' ' + feature.properties.address2 + '<br>Availiable Spots: ' + feature.properties.available_spots + '<br>Hours: ' + feature.properties.hours);
+			}
+	}
+	
+	$.get("../parking_lots/", function(data, textStatus){
+			//$('#txtHint').text(data);
+			lotLayer = L.geoJson(data,{
+					pointToLayer:function(feature, latlng){
+						return L.circleMarker(latlng, lotsMarkerStyle(feature.properties.available_spots));
+					},
+					onEachFeature:onEachFeatureLot
+				}
+			);
+			control.addOverlay(lotLayer,'Parking Lots');
+	},"json");
+
+	$('#update_lots').click(function(){
+		if(lotLayer){
+			control.removeLayer(lotLayer);
+			if(map.hasLayer(lotLayer)){
+				map.removeLayer(lotLayer);
+			}
+		}
+		if(map.hasLayer(streetLayer)){
+			map.removeLayer(streetLayer);
+		}
+		if(map.hasLayer(truckLayer)){
+			map.removeLayer(truckLayer);
+		}
+		if(map.hasLayer(terminalLayer)){
+			map.removeLayer(terminalLayer);
+		}
+		$.get("../parking_lots/", function(data, textStatus){
+			//$('#txtHint').text(data);
+			lotLayer = L.geoJson(data,{
+					pointToLayer:function(feature, latlng){
+						return L.circleMarker(latlng, lotsMarkerStyle(feature.properties.available_spots));
+					},
+					onEachFeature:onEachFeatureLot
+				}
+			).addTo(map);
+			control.addOverlay(lotLayer,'Parking Lots');
+		},"json");
+		
+	});	
+	
+	});
+	
+	
+</script>
+
+{% endblock %}
+

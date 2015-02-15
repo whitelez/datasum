@@ -1,0 +1,102 @@
+{% extends "traffic/base.html" %}
+
+{% load staticfiles %}
+
+{% block title %}
+Power of 32 RTIS - EV Stations
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+<link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
+{% endblock %}
+
+
+{% block map %}
+<div id="map"></div>
+{% endblock %}
+	
+	
+
+{% block script %}
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script type="text/javascript" src="{% static 'traffic/EVstation_geojson.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
+<script>
+	var map = L.map('map').setView([40.300, -79.000], 8);
+
+	// add an OpenStreetMap tile layer
+	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+	}).addTo(map);
+	
+	map.addControl( new L.Control.Search({
+			url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',
+			jsonpParam: 'json_callback',
+			propertyName: 'display_name',
+			propertyLoc: ['lat','lon'],
+			markerLocation: true,
+			autoType: false,
+			autoCollapse: true,
+			minLength: 2,
+			zoom:10
+		}) );
+		
+	/*function zoomToFeature(e) {
+			var layer = e.target;
+			//var weather;
+			map.fitBounds(layer.getBounds()); // zoom to the layer
+		}*/
+		
+	function getColor(d){
+		return 	d==1? 'green':
+				d==2? 'blue':
+				d==3? 'yellow':
+				      'red';
+	}
+	function parkingMarkerStyle(type){
+		return {
+			radius: 7,
+			fillColor: getColor(type),
+			weight: 1,
+			opacity: 1,
+			fillOpacity: 0.9
+		};
+	}
+	EVstationLayer = L.geoJson(EVstations,{
+		pointToLayer:function(feature, latlng){
+			return L.circleMarker(latlng, parkingMarkerStyle(feature.properties.type));
+		},
+		onEachFeature:function(feature, layer){
+			if (feature.properties) {
+				layer.bindPopup('<b>' + feature.properties.station +'</b>'
+								+ '<br> <b>Address: </b>' + feature.properties.address
+								+ '<br> <b>Number of Chargers: </b>' + feature.properties.number);
+			}
+		}
+	}).addTo(map);
+	
+	var legend = L.control({position: 'bottomright'});
+
+		legend.onAdd = function (map) {
+
+			var div = L.DomUtil.create('div', 'info legend'),
+				grades = [1,2,3],
+				types = ['planned', 'private', 'public'],
+				labels = [];
+
+			for (var i = 0; i < grades.length; i++) {
+
+				labels.push('<i style="background:' + getColor(grades[i]) + '"></i> ' + types[i]);
+			}
+
+			div.innerHTML = labels.join('<br><br>');
+			return div;
+		};
+
+	legend.addTo(map);
+
+  </script>
+{% endblock %}
+
+

@@ -1,0 +1,321 @@
+[24/Sep/2014 12:01:31] "GET /traffic/ HTTP/1.1" 200 3108
+[24/Sep/2014 12:31:04] "GET /traffic/ HTTP/1.1" 200 3108
+[24/Sep/2014 12:31:04] "GET /static/traffic/style.css HTTP/1.1" 304 0
+[24/Sep/2014 12:31:04] "GET /static/traffic/jquery-1.11.1.js HTTP/1.1" 304 0
+[24/Sep/2014 12:31:08] "GET /traffic/ HTTP/1.1" 200 3108
+[24/Sep/2014 12:31:12] "GET /traffic/transit/ HTTP/1.1" 200 14384
+[24/Sep/2014 12:31:12] "GET /traffic/get_route/?route=1&direction=I HTTP/1.1" 200 36372
+[24/Sep/2014 12:31:12] "GET /traffic/get_stops/?route=1&direction=I HTTP/1.1" 200 24463
+[24/Sep/2014 12:31:12] "GET /static/images/search-icon.png HTTP/1.1" 404 1700
+[24/Sep/2014 14:32:31] "GET /traffic/weather/ HTTP/1.1" 200 18965
+[24/Sep/2014 14:33:23] "GET /traffic/weather/ HTTP/1.1" 200 18965
+[24/Sep/2014 14:33:23] "GET /static/traffic/leaflet-search.css HTTP/1.1" 200 2549
+[24/Sep/2014 14:33:24] "GET /static/traffic/leaflet-search.min.js HTTP/1.1" 200 14073
+[24/Sep/2014 14:33:24] "GET /static/traffic/style.css HTTP/1.1" 200 12008
+[24/Sep/2014 14:33:24] "GET /static/traffic/jqplot.dateAxisRenderer.min.js HTTP/1.1" 200 10067
+[24/Sep/2014 14:33:24] "GET /static/traffic/jquery.jqplot.min.js HTTP/1.1" 200 172482
+[24/Sep/2014 14:33:26] "GET /static/traffic/jquery-1.11.1.js HTTP/1.1" 200 282766
+[24/Sep/2014 14:33:43] "GET /static/traffic/power32_geometry.js HTTP/1.1" 200 2251729
+[24/Sep/2014 14:33:55] "GET /static/images/search-icon.png HTTP/1.1" 404 1700
+[24/Sep/2014 14:38:49] "GET /traffic/get_weather/ HTTP/1.1" 200 4888361
+[24/Sep/2014 16:11:58] "GET /traffic/parking/ HTTP/1.1" 200 20181
+[24/Sep/2014 16:12:01] "GET /traffic/parking_geoJSON/?sd=1&sm=1&ed=1&em=4&wd=-1 HTTP/1.1" 200 130933
+[24/Sep/2014 16:12:42] "GET /traffic/download/ HTTP/1.1" 200 22492
+[24/Sep/2014 16:41:22] "GET /traffic/ HTTP/1.1" 200 3108
+[24/Sep/2014 16:41:24] "GET /traffic/transit/ HTTP/1.1" 200 14384
+[24/Sep/2014 16:41:24] "GET /traffic/get_route/?route=1&direction=I HTTP/1.1" 200 36372
+[24/Sep/2014 16:41:24] "GET /traffic/get_stops/?route=1&direction=I HTTP/1.1" 200 24463
+[24/Sep/2014 16:54:33] "GET /traffic/weather/ HTTP/1.1" 200 18965
+[24/Sep/2014 16:54:34] "GET /static/images/search-icon.png HTTP/1.1" 404 1700
+[24/Sep/2014 16:54:53] "GET /traffic/download/ HTTP/1.1" 200 22492
+[24/Sep/2014 16:54:55] "GET /traffic/ev_stations/ HTTP/1.1" 200 4445
+[24/Sep/2014 16:54:55] "GET /static/traffic/EVstation_geojson.js HTTP/1.1" 200 16817
+[24/Sep/2014 16:54:55] "GET /static/images/search-icon.png HTTP/1.1" 404 1700
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/wsgiref/handlers.py", line 94, in run
+    self.finish_response()
+  File "/usr/lib64/python2.6/wsgiref/handlers.py", line 135, in finish_response
+    self.write(data)
+  File "/usr/lib64/python2.6/wsgiref/handlers.py", line 223, in write
+    self._write(data)
+  File "/usr/lib64/python2.6/socket.py", line 324, in write
+    self.flush()
+  File "/usr/lib64/python2.6/socket.py", line 303, in flush
+    self._sock.sendall(buffer(data, write_offset, buffer_size))
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/SocketServer.py", line 570, in process_request_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib64/python2.6/SocketServer.py", line 332, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.6/site-packages/django/core/servers/basehttp.py", line 126, in __init__
+    super(WSGIRequestHandler, self).__init__(*args, **kwargs)
+  File "/usr/lib64/python2.6/SocketServer.py", line 628, in __init__
+    self.finish()
+  File "/usr/lib64/python2.6/SocketServer.py", line 671, in finish
+    self.wfile.flush()
+  File "/usr/lib64/python2.6/socket.py", line 303, in flush
+    self._sock.sendall(buffer(data, write_offset, buffer_size))
+error: [Errno 32] Broken pipe
+[24/Sep/2014 17:06:33] "GET /traffic/transit/ HTTP/1.1" 200 14384
+[24/Sep/2014 17:06:33] "GET /static/images/search-icon.png HTTP/1.1" 404 1700
+[24/Sep/2014 17:06:34] "GET /traffic/get_route/?route=1&direction=I HTTP/1.1" 200 36372
+[24/Sep/2014 17:06:34] "GET /traffic/get_stops/?route=1&direction=I HTTP/1.1" 200 24463
+[25/Sep/2014 00:34:04] "GET /traffic/ HTTP/1.1" 200 3108
+[25/Sep/2014 00:34:04] "GET /static/traffic/style.css HTTP/1.1" 200 12008
+[25/Sep/2014 00:34:04] "GET /static/traffic/jquery-1.11.1.js HTTP/1.1" 200 282766
+[25/Sep/2014 10:40:12] "GET /traffic/ HTTP/1.1" 200 3108
+[25/Sep/2014 11:33:19] "GET http://www.soso.com/ HTTP/1.1" 404 1648
+[25/Sep/2014 11:33:22] "GET http://www.soso.com/ HTTP/1.1" 404 1648
+[25/Sep/2014 11:33:23] "GET http://www.soso.com/ HTTP/1.1" 404 1648
+[25/Sep/2014 14:27:59] "GET /traffic/ HTTP/1.1" 200 3108
+[25/Sep/2014 14:29:18] "GET /traffic/parking/ HTTP/1.1" 200 20181
+[25/Sep/2014 14:29:18] "GET /static/traffic/jquery.jqplot.min.css HTTP/1.1" 200 3522
+[25/Sep/2014 14:29:18] "GET /static/traffic/leaflet-search.css HTTP/1.1" 200 2549
+[25/Sep/2014 14:29:18] "GET /static/traffic/jqplot.dateAxisRenderer.min.js HTTP/1.1" 200 10067
+[25/Sep/2014 14:29:18] "GET /static/traffic/terminals_geoJSON.js HTTP/1.1" 200 19023
+[25/Sep/2014 14:29:18] "GET /static/traffic/jquery.jqplot.min.js HTTP/1.1" 200 172482
+[25/Sep/2014 14:29:20] "GET /traffic/parking_geoJSON/?sd=1&sm=1&ed=1&em=4&wd=-1 HTTP/1.1" 200 130933
+[25/Sep/2014 14:32:31] "GET /traffic/travel_time/ HTTP/1.1" 200 47523
+[25/Sep/2014 14:32:31] "GET /static/traffic/leaflet-search.min.js HTTP/1.1" 200 14073
+[25/Sep/2014 14:32:31] "GET /static/traffic/TMC_geojson.js HTTP/1.1" 200 98311
+[25/Sep/2014 14:32:32] "GET /static/images/search-icon.png HTTP/1.1" 404 1700
+[25/Sep/2014 14:33:14] "GET /traffic/get_road_tmc/?tmc=104P04510 HTTP/1.1" 200 12939
+[25/Sep/2014 14:33:19] "GET /traffic/get_travel_time/?s_date=0101&e_date=0101&s_time=0930&e_time=1030&tmc1=104P04510&tmc2=104P04508 HTTP/1.1" 200 1598
+[25/Sep/2014 14:34:45] "GET /traffic/transit/ HTTP/1.1" 200 14384
+[25/Sep/2014 14:34:45] "GET /traffic/get_route/?route=1&direction=I HTTP/1.1" 200 36372
+[25/Sep/2014 14:34:45] "GET /traffic/get_stops/?route=1&direction=I HTTP/1.1" 200 24463
+[25/Sep/2014 14:34:53] "GET /traffic/get_route/?route=15&direction=I HTTP/1.1" 200 9137
+[25/Sep/2014 14:34:53] "GET /traffic/get_stops/?route=15&direction=I HTTP/1.1" 200 10369
+[25/Sep/2014 14:35:53] "GET /traffic/camera/ HTTP/1.1" 200 3314
+[25/Sep/2014 14:35:53] "GET /static/traffic/modernizr-1.5.min.js HTTP/1.1" 200 11642
+[25/Sep/2014 14:35:53] "GET /static/traffic/CCTV_geoJSON.js HTTP/1.1" 200 336777
+[25/Sep/2014 14:36:15] "GET /traffic/count/ HTTP/1.1" 200 7485
+[25/Sep/2014 14:36:15] "GET /static/traffic/interstate_aadt_geometry.js HTTP/1.1" 200 590981
+[25/Sep/2014 14:36:20] "GET /static/traffic/all_route_aadt_geometry.js HTTP/1.1" 200 19115798
+[25/Sep/2014 14:36:55] "GET /traffic/incidents/ HTTP/1.1" 200 17915
+[25/Sep/2014 14:36:59] "GET /traffic/get_incidents_rcrs/?s_date=20140101&e_date=20140301&s_time=0000&e_time=2355 HTTP/1.1" 200 1314098
+[25/Sep/2014 14:37:44] "GET /traffic/ev_stations/ HTTP/1.1" 200 4445
+[25/Sep/2014 14:37:44] "GET /static/traffic/EVstation_geojson.js HTTP/1.1" 200 16817
+[25/Sep/2014 14:38:07] "GET /traffic/download/ HTTP/1.1" 200 22492
+[25/Sep/2014 14:39:18] "GET /traffic/ HTTP/1.1" 200 3108
+[25/Sep/2014 14:39:20] "GET /traffic/parking/ HTTP/1.1" 200 20181
+[25/Sep/2014 14:39:22] "GET /traffic/parking_geoJSON/?sd=1&sm=1&ed=1&em=4&wd=-1 HTTP/1.1" 200 130933
+[25/Sep/2014 18:40:04] "GET /traffic/weather/ HTTP/1.1" 200 18965
+[25/Sep/2014 23:00:15] "GET /traffic/parking/ HTTP/1.1" 200 20181
+[25/Sep/2014 23:00:16] "GET /static/traffic/leaflet-search.css HTTP/1.1" 200 2549
+[25/Sep/2014 23:00:16] "GET /static/traffic/jquery.jqplot.min.css HTTP/1.1" 200 3522
+[25/Sep/2014 23:00:16] "GET /static/traffic/style.css HTTP/1.1" 200 12008
+[25/Sep/2014 23:00:16] "GET /static/traffic/jquery-1.11.1.js HTTP/1.1" 200 282766
+[25/Sep/2014 23:00:16] "GET /static/traffic/terminals_geoJSON.js HTTP/1.1" 200 19023
+[25/Sep/2014 23:00:16] "GET /static/traffic/jqplot.dateAxisRenderer.min.js HTTP/1.1" 200 10067
+[25/Sep/2014 23:00:16] "GET /static/traffic/jquery.jqplot.min.js HTTP/1.1" 200 172482
+[25/Sep/2014 23:00:18] "GET /traffic/parking_geoJSON/?sd=1&sm=1&ed=1&em=4&wd=-1 HTTP/1.1" 200 130933
+[25/Sep/2014 23:02:02] "GET /traffic/weather/ HTTP/1.1" 200 18965
+[25/Sep/2014 23:02:02] "GET /static/traffic/leaflet-search.min.js HTTP/1.1" 200 14073
+[25/Sep/2014 23:02:06] "GET /static/traffic/power32_geometry.js HTTP/1.1" 200 2251729
+[25/Sep/2014 23:02:06] "GET /static/images/search-icon.png HTTP/1.1" 404 1700
+[25/Sep/2014 23:02:23] "GET /traffic/parking/ HTTP/1.1" 200 20181
+[25/Sep/2014 23:02:26] "GET /traffic/parking_geoJSON/?sd=1&sm=1&ed=1&em=4&wd=-1 HTTP/1.1" 200 130933
+[25/Sep/2014 23:02:29] "GET /traffic/travel_time/ HTTP/1.1" 200 47523
+[25/Sep/2014 23:02:30] "GET /static/traffic/TMC_geojson.js HTTP/1.1" 200 98311
+[25/Sep/2014 23:02:31] "GET /static/images/search-icon.png HTTP/1.1" 404 1700
+[25/Sep/2014 23:03:07] "GET /traffic/transit/ HTTP/1.1" 200 14384
+[25/Sep/2014 23:03:08] "GET /traffic/get_route/?route=1&direction=I HTTP/1.1" 200 36372
+[25/Sep/2014 23:03:08] "GET /static/images/search-icon.png HTTP/1.1" 404 1700
+[25/Sep/2014 23:03:08] "GET /traffic/get_stops/?route=1&direction=I HTTP/1.1" 200 24463
+[25/Sep/2014 23:03:22] "GET /traffic/camera/ HTTP/1.1" 200 3314
+[25/Sep/2014 23:03:22] "GET /static/traffic/modernizr-1.5.min.js HTTP/1.1" 200 11642
+[25/Sep/2014 23:03:22] "GET /static/traffic/CCTV_geoJSON.js HTTP/1.1" 200 336777
+[25/Sep/2014 23:03:23] "GET /static/images/search-icon.png HTTP/1.1" 404 1700
+[25/Sep/2014 23:03:36] "GET /traffic/count/ HTTP/1.1" 200 7485
+[25/Sep/2014 23:03:36] "GET /static/traffic/interstate_aadt_geometry.js HTTP/1.1" 200 590981
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/wsgiref/handlers.py", line 94, in run
+    self.finish_response()
+  File "/usr/lib64/python2.6/wsgiref/handlers.py", line 135, in finish_response
+    self.write(data)
+  File "/usr/lib64/python2.6/wsgiref/handlers.py", line 223, in write
+    self._write(data)
+  File "/usr/lib64/python2.6/socket.py", line 324, in write
+    self.flush()
+  File "/usr/lib64/python2.6/socket.py", line 303, in flush
+    self._sock.sendall(buffer(data, write_offset, buffer_size))
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/SocketServer.py", line 570, in process_request_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib64/python2.6/SocketServer.py", line 332, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.6/site-packages/django/core/servers/basehttp.py", line 126, in __init__
+    super(WSGIRequestHandler, self).__init__(*args, **kwargs)
+  File "/usr/lib64/python2.6/SocketServer.py", line 628, in __init__
+    self.finish()
+  File "/usr/lib64/python2.6/SocketServer.py", line 671, in finish
+    self.wfile.flush()
+  File "/usr/lib64/python2.6/socket.py", line 303, in flush
+    self._sock.sendall(buffer(data, write_offset, buffer_size))
+error: [Errno 32] Broken pipe
+[25/Sep/2014 23:03:47] "GET /static/images/search-icon.png HTTP/1.1" 404 1700
+[25/Sep/2014 23:03:47] "GET /traffic/incidents/ HTTP/1.1" 200 17915
+[25/Sep/2014 23:03:47] "GET /static/images/search-icon.png HTTP/1.1" 404 1700
+[25/Sep/2014 23:06:05] "GET /static/images/search-icon.png HTTP/1.1" 404 1700
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/wsgiref/handlers.py", line 94, in run
+    self.finish_response()
+  File "/usr/lib64/python2.6/wsgiref/handlers.py", line 135, in finish_response
+    self.write(data)
+  File "/usr/lib64/python2.6/wsgiref/handlers.py", line 223, in write
+    self._write(data)
+  File "/usr/lib64/python2.6/socket.py", line 324, in write
+    self.flush()
+  File "/usr/lib64/python2.6/socket.py", line 303, in flush
+    self._sock.sendall(buffer(data, write_offset, buffer_size))
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/SocketServer.py", line 570, in process_request_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib64/python2.6/SocketServer.py", line 332, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.6/site-packages/django/core/servers/basehttp.py", line 126, in __init__
+    super(WSGIRequestHandler, self).__init__(*args, **kwargs)
+  File "/usr/lib64/python2.6/SocketServer.py", line 628, in __init__
+    self.finish()
+  File "/usr/lib64/python2.6/SocketServer.py", line 671, in finish
+    self.wfile.flush()
+  File "/usr/lib64/python2.6/socket.py", line 303, in flush
+    self._sock.sendall(buffer(data, write_offset, buffer_size))
+error: [Errno 32] Broken pipe
+[26/Sep/2014 02:35:41] "GET http://www.baidu.com/ HTTP/1.1" 404 1652
+[26/Sep/2014 23:11:04] "GET /traffic/ HTTP/1.1" 200 3108
+[26/Sep/2014 23:11:04] "GET /traffic/weather/ HTTP/1.1" 200 18965
+[28/Sep/2014 08:42:55] "GET http://www.soso.com/ HTTP/1.1" 404 1648
+[28/Sep/2014 08:42:57] "GET http://www.soso.com/ HTTP/1.1" 404 1648
+[28/Sep/2014 08:42:58] "GET http://www.soso.com/ HTTP/1.1" 404 1648
+[28/Sep/2014 18:49:52] "GET /traffic/ HTTP/1.1" 200 3108
+[28/Sep/2014 18:49:52] "GET /traffic/weather/ HTTP/1.1" 200 18965
+[28/Sep/2014 21:30:39] "GET http://www.soso.com/ HTTP/1.1" 404 1648
+[29/Sep/2014 10:49:18] "GET /traffic/ HTTP/1.1" 200 3108
+[29/Sep/2014 10:49:18] "GET /static/traffic/style.css HTTP/1.1" 200 12008
+[29/Sep/2014 10:49:18] "GET /static/traffic/jquery-1.11.1.js HTTP/1.1" 200 282766
+[29/Sep/2014 10:49:20] "GET /traffic/weather/ HTTP/1.1" 200 18965
+[29/Sep/2014 10:49:20] "GET /static/traffic/leaflet-search.css HTTP/1.1" 200 2549
+[29/Sep/2014 10:49:20] "GET /static/traffic/jqplot.dateAxisRenderer.min.js HTTP/1.1" 200 10067
+[29/Sep/2014 10:49:20] "GET /static/traffic/leaflet-search.min.js HTTP/1.1" 200 14073
+[29/Sep/2014 10:49:20] "GET /static/traffic/jquery.jqplot.min.js HTTP/1.1" 200 172482
+[29/Sep/2014 10:49:21] "GET /static/traffic/power32_geometry.js HTTP/1.1" 200 2251729
+[29/Sep/2014 10:49:21] "GET /static/images/search-icon.png HTTP/1.1" 404 1700
+[29/Sep/2014 10:49:32] "GET /traffic/parking/ HTTP/1.1" 200 20181
+[29/Sep/2014 10:49:32] "GET /static/traffic/jquery.jqplot.min.css HTTP/1.1" 200 3522
+[29/Sep/2014 10:49:32] "GET /static/traffic/terminals_geoJSON.js HTTP/1.1" 200 19023
+[29/Sep/2014 10:49:40] "GET /traffic/travel_time/ HTTP/1.1" 200 47523
+[29/Sep/2014 10:49:41] "GET /static/traffic/TMC_geojson.js HTTP/1.1" 200 98311
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/wsgiref/handlers.py", line 94, in run
+    self.finish_response()
+  File "/usr/lib64/python2.6/wsgiref/handlers.py", line 135, in finish_response
+    self.write(data)
+  File "/usr/lib64/python2.6/wsgiref/handlers.py", line 223, in write
+    self._write(data)
+  File "/usr/lib64/python2.6/socket.py", line 324, in write
+    self.flush()
+  File "/usr/lib64/python2.6/socket.py", line 303, in flush
+    self._sock.sendall(buffer(data, write_offset, buffer_size))
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/SocketServer.py", line 570, in process_request_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib64/python2.6/SocketServer.py", line 332, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.6/site-packages/django/core/servers/basehttp.py", line 126, in __init__
+    super(WSGIRequestHandler, self).__init__(*args, **kwargs)
+  File "/usr/lib64/python2.6/SocketServer.py", line 628, in __init__
+    self.finish()
+  File "/usr/lib64/python2.6/SocketServer.py", line 671, in finish
+    self.wfile.flush()
+  File "/usr/lib64/python2.6/socket.py", line 303, in flush
+    self._sock.sendall(buffer(data, write_offset, buffer_size))
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/wsgiref/handlers.py", line 94, in run
+    self.finish_response()
+  File "/usr/lib64/python2.6/wsgiref/handlers.py", line 135, in finish_response
+    self.write(data)
+  File "/usr/lib64/python2.6/wsgiref/handlers.py", line 223, in write
+    self._write(data)
+  File "/usr/lib64/python2.6/socket.py", line 324, in write
+    self.flush()
+  File "/usr/lib64/python2.6/socket.py", line 303, in flush
+    self._sock.sendall(buffer(data, write_offset, buffer_size))
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/SocketServer.py", line 570, in process_request_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib64/python2.6/SocketServer.py", line 332, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.6/site-packages/django/core/servers/basehttp.py", line 126, in __init__
+    super(WSGIRequestHandler, self).__init__(*args, **kwargs)
+  File "/usr/lib64/python2.6/SocketServer.py", line 628, in __init__
+    self.finish()
+  File "/usr/lib64/python2.6/SocketServer.py", line 671, in finish
+    self.wfile.flush()
+  File "/usr/lib64/python2.6/socket.py", line 303, in flush
+    self._sock.sendall(buffer(data, write_offset, buffer_size))
+error: [Errno 32] Broken pipe
+[29/Sep/2014 16:33:29] "GET /traffic/ HTTP/1.1" 200 3108
+[29/Sep/2014 16:33:37] "GET /traffic/ HTTP/1.1" 200 3108
+[29/Sep/2014 19:13:29] "GET /traffic/ HTTP/1.1" 200 3108
+[30/Sep/2014 01:31:43] "GET http://www.soso.com/ HTTP/1.1" 404 1648
+[30/Sep/2014 01:31:44] "GET http://www.soso.com/ HTTP/1.1" 404 1648
+[30/Sep/2014 16:55:12] "GET /traffic/weather/ HTTP/1.1" 200 18965
+[30/Sep/2014 16:55:13] "GET /static/traffic/leaflet-search.css HTTP/1.1" 200 2549
+[30/Sep/2014 16:55:13] "GET /static/traffic/style.css HTTP/1.1" 200 12008
+[30/Sep/2014 16:55:19] "GET /static/traffic/jquery-1.11.1.js HTTP/1.1" 200 282766
+[30/Sep/2014 16:55:20] "GET /static/traffic/leaflet-search.min.js HTTP/1.1" 200 14073
+[30/Sep/2014 16:55:20] "GET /static/traffic/jqplot.dateAxisRenderer.min.js HTTP/1.1" 200 10067
+[30/Sep/2014 16:55:22] "GET /static/traffic/jquery.jqplot.min.js HTTP/1.1" 200 172482
+[30/Sep/2014 16:55:32] "GET /static/traffic/power32_geometry.js HTTP/1.1" 200 2251729
+[30/Sep/2014 16:55:33] "GET /static/images/search-icon.png HTTP/1.1" 404 1700
+[30/Sep/2014 16:56:03] "GET /traffic/weather/ HTTP/1.1" 200 18965
+[30/Sep/2014 16:56:03] "GET /static/traffic/leaflet-search.css HTTP/1.1" 200 2549
+[30/Sep/2014 16:56:04] "GET /static/traffic/leaflet-search.min.js HTTP/1.1" 200 14073
+[30/Sep/2014 16:56:04] "GET /static/traffic/jqplot.dateAxisRenderer.min.js HTTP/1.1" 200 10067
+[30/Sep/2014 16:56:05] "GET /static/traffic/jquery.jqplot.min.js HTTP/1.1" 200 172482
+[30/Sep/2014 16:56:05] "GET /static/traffic/style.css HTTP/1.1" 200 12008
+[30/Sep/2014 16:56:08] "GET /static/traffic/power32_geometry.js HTTP/1.1" 200 2251729
+[30/Sep/2014 16:56:16] "GET /static/traffic/jquery-1.11.1.js HTTP/1.1" 200 282766
+[30/Sep/2014 16:56:18] "GET /static/images/search-icon.png HTTP/1.1" 404 1700
+[30/Sep/2014 16:56:44] "GET /traffic/camera/ HTTP/1.1" 200 3314
+[30/Sep/2014 16:56:45] "GET /static/traffic/modernizr-1.5.min.js HTTP/1.1" 200 11642
+[30/Sep/2014 16:56:47] "GET /static/traffic/CCTV_geoJSON.js HTTP/1.1" 200 336777
+[30/Sep/2014 16:56:48] "GET /static/images/search-icon.png HTTP/1.1" 404 1700
+[30/Sep/2014 16:57:17] "GET /traffic/travel_time/ HTTP/1.1" 200 47523
+[30/Sep/2014 16:57:18] "GET /static/traffic/TMC_geojson.js HTTP/1.1" 200 98311
+[30/Sep/2014 16:57:19] "GET /static/images/search-icon.png HTTP/1.1" 404 1700
+[30/Sep/2014 16:57:49] "GET /traffic/get_road_tmc/?tmc=104-04814 HTTP/1.1" 200 10319
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/wsgiref/handlers.py", line 94, in run
+    self.finish_response()
+  File "/usr/lib64/python2.6/wsgiref/handlers.py", line 135, in finish_response
+    self.write(data)
+  File "/usr/lib64/python2.6/wsgiref/handlers.py", line 223, in write
+    self._write(data)
+  File "/usr/lib64/python2.6/socket.py", line 324, in write
+    self.flush()
+  File "/usr/lib64/python2.6/socket.py", line 303, in flush
+    self._sock.sendall(buffer(data, write_offset, buffer_size))
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/lib64/python2.6/SocketServer.py", line 570, in process_request_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib64/python2.6/SocketServer.py", line 332, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.6/site-packages/django/core/servers/basehttp.py", line 126, in __init__
+    super(WSGIRequestHandler, self).__init__(*args, **kwargs)
+  File "/usr/lib64/python2.6/SocketServer.py", line 628, in __init__
+    self.finish()
+  File "/usr/lib64/python2.6/SocketServer.py", line 671, in finish
+    self.wfile.flush()
+  File "/usr/lib64/python2.6/socket.py", line 303, in flush
+    self._sock.sendall(buffer(data, write_offset, buffer_size))
+error: [Errno 32] Broken pipe

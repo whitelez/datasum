@@ -1,0 +1,279 @@
+{% extends "traffic/base.html" %}
+
+{% block title %}
+Power of 32 RTIS - Download
+{% endblock %}
+
+
+{% block map %}
+	<div class="content" style="height: 100%;text-align: center">
+        <h1>Download</h1>
+        
+        <div class="info legend">
+        	<h4>Weather</h4>
+        	<strong>From:</strong>
+        	<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				<option value='2014'>2014</option>
+                <option value='2013'>2013</option>
+                <option value='2012'>2012</option>
+                <option value='2011'>2011</option>
+			</select>
+
+{#        	<div class="dropdown" style="width: 30px">#}
+{#			  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">#}
+{#				Year#}
+{#				<span class="caret"></span>#}
+{#			  </button>#}
+{#			  <ul class="dropdown-menu dropdown-menu-" role="menu" aria-labelledby="dropdownMenu1">#}
+{#				<li role="presentation"><a role="menuitem" tabindex="-1" href="#">2014</a></li>#}
+{#				<li role="presentation"><a role="menuitem" tabindex="-1" href="#">2013</a></li>#}
+{#				<li role="presentation"><a role="menuitem" tabindex="-1" href="#">2012</a></li>#}
+{#				<li role="presentation"><a role="menuitem" tabindex="-1" href="#">2011</a></li>#}
+{#			  </ul>#}
+{#			</div>#}
+
+        	<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				{% for month in months14%}
+					<option value={{month}}>{{month}}</option>
+				{% endfor %}
+			</select>
+			<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				{% for day in days%}
+					<option value={{day}}>{{day}}</option>
+				{% endfor %}
+			</select>
+			&emsp;
+			<strong>To:</strong>
+        	<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				<option value='2014'>2014</option>
+			</select>
+        	<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				{% for month in months14%}
+					<option value={{month}}>{{month}}</option>
+				{% endfor %}
+			</select>
+			<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				{% for day in days%}
+					<option value={{day}}>{{day}}</option>
+				{% endfor %}
+			</select>
+			&emsp;
+{#        	<input type="button" class = "download" value="download" />#}
+        	<button type="button" class="btn btn-default" id="download-weather">
+                <span class="glyphicon glyphicon-download-alt"> </span> &nbsp; Download
+            </button>
+		</div>
+		
+		<br><br>
+		<div class="info legend">
+        	<h4>Parking</h4>
+        	<strong>From:</strong>
+        	<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				<option value='2014'>2014</option>
+			</select>
+        	<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				{% for month in months14%}
+					<option value={{month}}>{{month}}</option>
+				{% endfor %}
+			</select>
+			<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				{% for day in days%}
+					<option value={{day}}>{{day}}</option>
+				{% endfor %}
+			</select>
+			&emsp;
+			<strong>To:</strong>
+        	<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				<option value='2014'>2014</option>
+			</select>
+        	<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				{% for month in months14%}
+					<option value={{month}}>{{month}}</option>
+				{% endfor %}
+			</select>
+			<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				{% for day in days%}
+					<option value={{day}}>{{day}}</option>
+				{% endfor %}
+			</select>
+			&emsp;
+{#        	<input type="button" class = "download" value="download" />#}
+        	<button type="button" class="btn btn-default" id="download-parking">
+                <span class="glyphicon glyphicon-download-alt"> </span> &nbsp; Download
+            </button>
+		</div>
+		
+		<br><br>
+		<div class="info legend">
+			<h4>Travel Time</h4>
+			<strong>From:</strong>
+        	<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				<option value='2013'>2013</option>
+			</select>
+        	<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				{% for month in months%}
+					<option value={{month}}>{{month}}</option>
+				{% endfor %}
+			</select>
+			<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				{% for day in days%}
+					<option value={{day}}>{{day}}</option>
+				{% endfor %}
+			</select>
+			&emsp;
+			<strong>To:</strong>
+        	<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				<option value='2013'>2013</option>
+			</select>
+        	<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				{% for month in months%}
+					<option value={{month}}>{{month}}</option>
+				{% endfor %}
+			</select>
+			<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				{% for day in days%}
+					<option value={{day}}>{{day}}</option>
+				{% endfor %}
+			</select>
+			&emsp;
+{#			<input type="button" class = "download" value="download" />#}
+        	<button type="button" class="btn btn-default" id="download-traveltime">
+                <span class="glyphicon glyphicon-download-alt"> </span> &nbsp;  Download
+            </button>
+		</div>
+		
+		<br><br>
+		<div class="info legend">
+			<h4>Transit</h4>
+			<strong>From:</strong>
+        	<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				<option value='2013'>2013</option>
+			</select>
+        	<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				{% for month in months%}
+					<option value={{month}}>{{month}}</option>
+				{% endfor %}
+			</select>
+			<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				{% for day in days%}
+					<option value={{day}}>{{day}}</option>
+				{% endfor %}
+			</select>
+			&emsp;
+			<strong>To:</strong>
+        	<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				<option value='2013'>2013</option>
+			</select>
+        	<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				{% for month in months%}
+					<option value={{month}}>{{month}}</option>
+				{% endfor %}
+			</select>
+			<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				{% for day in days%}
+					<option value={{day}}>{{day}}</option>
+				{% endfor %}
+			</select>
+			&emsp;
+{#			<input type="button" class = "download" value="download" />#}
+        	<button type="button" class="btn btn-default" id="download-transit">
+                <span class="glyphicon glyphicon-download-alt"> </span> &nbsp; Download
+            </button>
+		</div>
+		
+		<br><br>
+		<div class="info legend">
+			<h4>Traffic Counts</h4>
+            <strong>Year:</strong>
+        	<select class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				<option value='2013'>2013</option>
+			</select>
+			&emsp;
+{#			<input type="button" class = "download" value="download" />#}
+            <button type="button" class="btn btn-default" id="download-counts">
+                <span class="glyphicon glyphicon-download-alt"> </span> &nbsp; Download
+            </button>
+		</div>
+
+		<br><br>	
+		<div class="info legend">
+			<h4>Incidents</h4>
+			<strong>From:</strong>
+        	<select id='incidents_syear' class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+        		<option value='2010'>2010</option>
+        		<option value='2011'>2011</option>
+        		<option value='2012'>2012</option>
+        		<option value='2013'>2013</option>
+				<option value='2014'>2014</option>
+			</select>
+        	<select id='incidents_smonth' class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				{% for month in months%}
+					<option value={{month}}>{{month}}</option>
+				{% endfor %}
+			</select>
+			<select id='incidents_sday' class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				{% for day in days%}
+					<option value={{day}}>{{day}}</option>
+				{% endfor %}
+			</select>
+			&emsp;
+			<strong>To:</strong>
+        	<select id='incidents_eyear' class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+        		<option value='2010'>2010</option>
+        		<option value='2011'>2011</option>
+        		<option value='2012'>2012</option>
+        		<option value='2013'>2013</option>
+				<option value='2014'>2014</option>
+			</select>
+        	<select id='incidents_emonth' class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				{% for month in months%}
+					<option value={{month}}>{{month}}</option>
+				{% endfor %}
+			</select>
+			<select id='incidents_eday' class = "selectpicker show-menu-arrow" data-live-search="true" data-width="100px">
+				{% for day in days%}
+					<option value={{day}}>{{day}}</option>
+				{% endfor %}
+			</select>
+			&emsp;
+{#			<input type="button" class = "download" value="download" />#}
+        	<button type="button" class="btn btn-default" id="download-incidents">
+                <span class="glyphicon glyphicon-download-alt"> </span> &nbsp; Download
+            </button>
+		</div>
+
+		<br><br>
+		<div class="info legend">
+			<h4>Electronic Vehicle Stations</h4>
+{#			<input type="button" class = "download" value="download" />#}
+            <button type="button" class="btn btn-default" id="download-EVstation">
+                <span class="glyphicon glyphicon-download-alt"> </span> &nbsp; Download
+            </button>
+		</div>
+    	<br>
+	</div>
+{% endblock %}
+
+{% block script %}
+    <script>
+     $('.selectpicker').selectpicker({
+      style: 'btn-inverse',
+      size: 10
+     });
+	 $('#download-incidents').click(function(){
+		var sy = $("#incidents_syear option:selected").attr("value"),
+			sm = $("#incidents_smonth option:selected").attr("value"),
+			sd = $("#incidents_sday option:selected").attr("value"),
+			ey = $("#incidents_eyear option:selected").attr("value"),
+			em = $("#incidents_emonth option:selected").attr("value"),
+			ed = $("#incidents_eday option:selected").attr("value");
+		sm = sd<10?'0'+sm:sm;
+		em = em<10?'0'+em:em;
+		sd = sd<10?'0'+sd:sd;
+		ed = sd<10?'0'+ed:ed;
+		var url = "../test/?s_date=" + sy+sm+sd + "&e_date=" + ey+em+ed;
+		window.open(url);
+		//$.get("../test/", {s_date:sy+sm+sd, e_date:ey+em+ed},"csv");
+	 });
+    </script>
+{% endblock %}

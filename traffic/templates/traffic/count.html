@@ -1,0 +1,201 @@
+{% extends "traffic/base.html" %}
+
+{% load staticfiles %}
+
+{% block title %}
+Power of 32 RTIS - Traffic Counts
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+<link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
+{% endblock %}
+
+
+{% block content %}
+	<div class="well" style="height:600px">
+        <div class="container" style="width: inherit">
+            <div class="row"> <h3>Traffic Count</h3> </div>
+            <div class="row"> <h4>Vehicle Type:</h4> </div>
+            <div class="row">
+                <div class="col-md-6" style="text-align: center">
+                    <input type="checkbox" id="car" value="car"><span>&nbsp;Car</span>
+                </div>
+                <div class="col-md-6">
+                    <input type="checkbox" id="truck" value="truck"><span>&nbsp;Truck</span>
+                </div>
+			</div>
+        </div>
+	</div>
+{% endblock %}
+
+{% block map %}
+<div id="map"></div>
+{% endblock %}
+	
+	
+
+{% block script %}
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script type="text/javascript" src="{% static 'traffic/interstate_aadt_geometry.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/all_route_aadt_geometry.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
+<script>
+	$(function(){var map = L.map('map').setView([40.300, -79.000], 8);
+
+	// add an OpenStreetMap tile layer
+	var basemap = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+	}).addTo(map);
+	
+	map.addControl( new L.Control.Search({
+			url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',
+			jsonpParam: 'json_callback',
+			propertyName: 'display_name',
+			propertyLoc: ['lat','lon'],
+			markerLocation: true,
+			autoType: false,
+			autoCollapse: true,
+			minLength: 2,
+			zoom:10
+		}) );
+	
+	var legend = L.control({position: 'bottomright'});
+
+	legend.onAdd = function (map) {
+
+    	var div = L.DomUtil.create('div', 'info legend interstate'),
+        	grades = [0, 10000, 15000],
+        	color = ['green', 'yellow', 'red'];
+
+    	// loop through our density intervals and generate a label with a colored square for each interval
+    	div.innerHTML = "<strong>AADT</strong> <br><br>" ;
+    	for (var i = 0; i < grades.length; i++) {
+    		from = grades[i];
+    		to = grades[i+1];
+        	div.innerHTML +=
+            	'<i style="background:' + color[i] + '"></i> ' +
+            	from + (to?'&ndash;' + to + '<br><br>':'+');
+    	}
+
+    	return div;
+	};
+	
+	legend.addTo(map);
+	
+	var allroute_layer, interstate_layer,
+		control = L.control.layers({'Base Map':basemap},null,{collapsed:false});
+		control.addTo(map);
+	var show_layer = function(){
+		var which ="";
+		if(map.hasLayer(allroute_layer)){
+			map.removeLayer(allroute_layer);
+		}
+		if(map.hasLayer(interstate_layer)){
+			map.removeLayer(interstate_layer);
+			control.removeLayer(interstate_layer);
+		}
+		if(allroute_layer){
+			control.removeLayer(allroute_layer);
+		}
+		if(interstate_layer){
+			control.removeLayer(interstate_layer);
+		}
+	if($('#car').is(':checked') && $('#truck').is(':checked')){
+		which = 'aadt';
+	}
+	else if($('#car').is(':checked')){
+		which = 'aadt_car';
+	}
+	else if($('#truck').is(':checked')){
+		which = 'aadt_truck';
+	}
+	else{
+		return;
+	}
+	interstate_layer = L.geoJson(interstate,{
+		style: function(feature){
+			if(feature.properties[which] < 10000){
+				return {weight:5, color:'green', opacity: 0.8};
+			}else if(feature.properties[which] < 15000){
+				return {weight:5, color:'yellow', opacity: 0.8};
+			}else{
+				return {weight:5, color:'red', opacity: 0.8};
+			}
+		}
+	}).addTo(map);
+	
+	/*var legend_interstate = L.control({position: 'bottomright'});
+
+	legend_interstate.onAdd = function (map) {
+
+    	var div = L.DomUtil.create('div', 'info legend interstate'),
+        	grades = [0, 13300, 19300],
+        	color = ['green', 'yellow', 'red'];
+
+    	// loop through our density intervals and generate a label with a colored square for each interval
+    	div.innerHTML = "<strong>AADT</strong> <br><br>" ;
+    	for (var i = 0; i < grades.length; i++) {
+    		from = grades[i];
+    		to = grades[i+1];
+        	div.innerHTML +=
+            	'<i style="background:' + color[i] + '"></i> ' +
+            	from + (to?'&ndash;' + to + '<br><br>':'+');
+    	}
+
+    	return div;
+	};
+	
+	legend_interstate.onRemove = function (map) {
+    	return;
+	};
+	*/
+	allroute_layer = L.geoJson(allroute,{
+		style: function(feature){
+			if(feature.properties[which] < 10000){
+				return {weight:5, color:'green', opacity: 0.8};
+			}else if(feature.properties[which] < 15000){
+				return {weight:5, color:'yellow', opacity: 0.8};
+			}else{
+				return {weight:5, color:'red', opacity: 0.8};
+			}
+		}
+	});
+	
+	/*var legend_allroute = L.control({position: 'bottomright'});
+
+	legend_allroute.onAdd = function (map) {
+
+    	var div = L.DomUtil.create('div', 'info legend interstate'),
+        	grades = [0, 2800, 6200],
+        	color = ['green', 'yellow', 'red'];
+
+    	// loop through our density intervals and generate a label with a colored square for each interval
+    	div.innerHTML = "<strong>AADT</strong> <br><br>" ;
+    	for (var i = 0; i < grades.length; i++) {
+    		from = grades[i];
+    		to = grades[i+1];
+        	div.innerHTML +=
+            	'<i style="background:' + color[i] + '"></i> ' +
+            	from + (to?'&ndash;' + to + '<br><br>':'+');
+    	}
+
+    	return div;
+	};
+	
+	
+	var allroute_group = L.layerGroup([allroute_layer,legend_allroute]),
+	    interstate_group = L.layerGroup([interstate_layer,legend_interstate]);*/
+	/*var routelayer = {
+		"Interstate": interstate_layer,
+		"All Routes": allroute_layer
+	};*/
+	
+	control.addOverlay(interstate_layer,"Interstate");
+	control.addOverlay(allroute_layer,"All Routes");
+	};
+	$('#car').change(show_layer);
+	$('#truck').change(show_layer);
+	});
+  </script>
+{% endblock %}
