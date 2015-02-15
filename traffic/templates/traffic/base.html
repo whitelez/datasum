@@ -55,7 +55,7 @@
                             <li><a href="{% url 'traffic:routing' %}">Trip Planner</a></li>
 							<li><a href="{% url 'traffic:travel_time' %}">Travel Time: Interstates</a></li>
 							<li><a href="{% url 'traffic:travel_time_new' %}">Travel Time: Corridors (2003-2012)</a></li>
-							<li><a href="#">Travel Time: Corridors (2013-2015)</a></li>
+							<li><a href="{% url 'traffic:travel_time_corridorafter2013' %}">Travel Time: Corridors (2013-2015)</a></li>
                         </ul>
                     </li>
                     <li id="nav-incidents"><a href="{% url 'traffic:incidents' %}">Incidents</a></li>
