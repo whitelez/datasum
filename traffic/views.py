@@ -189,6 +189,20 @@ def get_node_info(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+def get_node_info_2013to2015(request):
+    cornum = request.GET['cornum']
+    nodes = SPCCorridorNodeInfo2013to2015.objects.filter(Corridor_Number=cornum)
+    result = '''{ "type": "FeatureCollection","features": ['''
+    for node in nodes:
+        result += '''{"type":"Feature","properties": {"Corridor_Number":''' + str(node.Corridor_Number) + \
+                  ''',"Corridor_Name":"''' + node.Corridor_Name + '''","Node_Number":"''' + node.Node_Number + \
+                  '''","Node_Name":"''' + node.Node_Name + '''"},"geometry": {"type": "Point", "coordinates": ['''\
+                  + str(node.Longitude) + ',' + str(node.Latitude) + ']}},'
+    result = result.rstrip(',')
+    result += ']}'
+    response = json.dumps(result)
+    return HttpResponse(response, content_type='application/json')
+
 def get_spcyears(request):
     cornum = request.GET['cornum']
     records = SPCtraveltime.objects.filter(Corridor_Number=cornum)

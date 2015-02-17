@@ -200,7 +200,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 						map.removeLayer(Enodelayer);
 					}
 				}
-        $.get('../get_node_info_for_one_corridor/', {cornum:cornum}, function(data, textStatus){
+        $.get('../get_node_info_2013to2015/', {cornum:cornum}, function(data, textStatus){
             nodes = $.parseJSON(data);
 {#            alert('hahah11111');#}
             var latmean, longmean;
