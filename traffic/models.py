@@ -45,6 +45,16 @@ class SPCCorridorNodeInfo(models.Model):
     def __unicode__(self):
         return 'Corridor' + str(self.Corridor_Number) + '-' + self.Corridor_Name
 
+class SPCCorridorNodeInfo2013to2015(models.Model):
+    Corridor_Number = models.PositiveSmallIntegerField()
+    Corridor_Name = models.CharField(max_length=50)
+    Node_Number = models.CharField(max_length=5)
+    Node_Name = models.CharField(max_length=50)
+    Latitude = models.FloatField()
+    Longitude = models.FloatField()
+
+    def __unicode__(self):
+        return 'Corridor' + str(self.Corridor_Number) + '-' + self.Corridor_Name
 
 class SPCtraveltime(models.Model):
     Year = models.PositiveSmallIntegerField()
