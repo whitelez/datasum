@@ -161,7 +161,7 @@ def travel_time_new(request):
 
 def travel_time_corridorafter2013(request): #Need revise!!
     tmcs = TMC.objects.all()
-    records = SPCCorridorNodeInfo.objects.all()
+    records = SPCCorridorNodeInfo2013to2015.objects.all()
     corridors = []
     CorrNum = []
     for corridor in records:
@@ -173,7 +173,7 @@ def travel_time_corridorafter2013(request): #Need revise!!
                 flag += 1
             CorrNum.append(corridor.Corridor_Number)
             corridors.insert(flag, corridor)
-    return render(request, 'traffic/travel_time_corridorafter2013.html', {'n': range(1, 32), 'tmcs': tmcs, 'corridors': corridors})
+    return render(request, 'traffic/travel_time_corridorafter2013.html', {'corridors': corridors})
 
 def get_node_info(request):
     cornum = request.GET['cornum']
