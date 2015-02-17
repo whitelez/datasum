@@ -23,6 +23,7 @@ urlpatterns = patterns('',
     url(r'^get_spc_years/$', views.get_spcyears, name='get_spcyears'),
     url(r'^travel_time_corridorafter2013/$', views.travel_time_corridorafter2013, name='travel_time_corridorafter2013'),
     url(r'^get_node_info_2013to2015/$', views.get_node_info_2013to2015, name='get_node_info_2013to2015'),
+    url(r'^get_spc_traveltime_2013to2015/$', views.get_spctraveltime_2013to2015, name='get_spctraveltime2013to2015'),
 #END
     url(r'^get_travel_time/$', views.get_travel_time, name='get_travel_time'),
     url(r'^get_travel_time_prediction/$', views.get_travel_time_prediction, name='get_travel_time_prediction'),

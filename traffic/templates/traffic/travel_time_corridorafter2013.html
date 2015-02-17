@@ -10,6 +10,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
+<link rel="stylesheet" href="{% static 'traffic/bootstrap-datetimepicker.min.css' %}" />
 {% endblock %}
 
 
@@ -42,22 +43,32 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
            </div>
         </div>
     	<div class="row" style="padding-top:5px;">
-           <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Year:</h5></div>
+           <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Time:</h5></div>
            <div class="col-md-8" style="padding-left: 0;">
-               <select id="spcyear" name="spcyear" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">   </select>
+{#               <div class="form-group">#}
+                    <div class='input-group date' id='datetimepicker'>
+                        <input type='text' style="height: 36px;width: 145px;" class="form-control" />
+                        <span class="input-group-addon" style="height: 36px;width: 36px;padding: 0;"><span class="glyphicon glyphicon-time"></span>
+                        </span>
+                    </div>
+{#               </div>#}
            </div>
         </div>
-    	<div class="row" style="padding-top:5px;">
-           <div class="col-md-6" style="height: 30px;text-align: center;">
-               <input type="radio" name="identity" id="AMPM" value=1 checked="checked" /> AM Peak
-           </div>
-           <div class="col-md-6" style="height: 30px;text-align: center;">
-               <input type="radio" name="identity" id="AMPM" value=0 /> PM Peak
+        <div class="row" style="padding-top:5px;">
+           <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>End Time:</h5></div>
+           <div class="col-md-8" style="padding-left: 0;">
+{#               <div class="form-group">#}
+                    <div class='input-group date' id='datetimepicker2'>
+                        <input style="height: 36px;width: 145px;" type='text' class="form-control" />
+                        <span class="input-group-addon" style="height: 36px;width: 36px;padding: 0;"><span class="glyphicon glyphicon-time"></span>
+                        </span>
+                    </div>
+{#               </div>#}
            </div>
         </div>
 	</div>
 
-	<button type="button" class="btn btn-default btn-block" id="spcshow">
+	<button type="button" style="margin-top:5px;" class="btn btn-default btn-block" id="spcshow">
         <span class="glyphicon glyphicon-search"> </span> &nbsp; Update
     </button> <br>
 
@@ -99,37 +110,28 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 {% block script %}
 <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
-
-{#</script>#}
-{#<script type="text/javascript"#}
-{#     src="http://tarruda.github.com/bootstrap-datetimepicker/assets/js/bootstrap-datetimepicker.min.js">#}
-{#</script>#}
-
 <script type="text/javascript" src="{% static 'traffic/TMC_geojson.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/jquery.jqplot.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/jqplot.dateAxisRenderer.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/jqplot.pointLabels.min.js' %}"></script>
 
-{# <script type="text/javascript">#}
-{#      $(function() {#}
-{#        $('#datepicker').datetimepicker({#}
-{#          pickSeconds: false,#}
-{#          pick12HourFormat: true#}
-{#        });#}
-{#      });#}
-{#      $(function() {#}
-{#        $('#datepicker2').datetimepicker({#}
-{#          pickSeconds: false,#}
-{#          pick12HourFormat: true#}
-{#        });#}
-{#      });#}
-{#      $(function() {#}
-{#        $('#datepicker3').datetimepicker({#}
-{#	        pickSeconds: false,#}
-{#	        pick12HourFormat: true#}
-{#        });#}
-{#      });#}
-{# </script>#}
+<script type="text/javascript" src="{% static 'traffic/moment.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/transition.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/collapse.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/bootstrap-datetimepicker.min.js' %}"></script>
+
+<script type="text/javascript">
+      $(function () {
+          $('#datetimepicker').datetimepicker({
+              format: 'LT'
+          });
+      });
+      $(function () {
+          $('#datetimepicker2').datetimepicker({
+              format: 'LT'
+          });
+      });
+</script>
 
 <script>
      $('.selectpicker').selectpicker({
@@ -176,7 +178,6 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
     };
 
     function corchange(cornum){
-{#        alert('haha00000');#}
         $('#SNode').empty();
         $('#ENode').empty();
         $('#spcyear').empty();
@@ -202,7 +203,6 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 				}
         $.get('../get_node_info_2013to2015/', {cornum:cornum}, function(data, textStatus){
             nodes = $.parseJSON(data);
-{#            alert('hahah11111');#}
             var latmean, longmean;
             latmean = 0;
             longmean = 0;
@@ -241,15 +241,6 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
             }).addTo(map);
 			control.addOverlay(nodelayer, "Corridor " + String(cornum));
         }, 'json');
-
-        $.get('../get_spc_years/', {cornum:cornum}, function(data, textStatus){
-            years = $.parseJSON(data);
-{#            $('#spcyear').append("<option selected='selected'></option>");#}
-            for (var i=0;i<years.features.length;i++){
-                $('#spcyear').append("<option value=" + years.features[i] + ">" + String(years.features[i]) + "</option>");
-                $('#spcyear').selectpicker('refresh');
-            }
-        }, 'json');
     }
 
     cornum0 = $('#cor option:selected').attr('value');
@@ -269,7 +260,6 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
     };
 
     function snodechange(Snodenum){
-{#        alert('hahaha2222');#}
         if(Snodelayer){
 					control.removeLayer(Snodelayer);
 					if(map.hasLayer(Snodelayer)){
@@ -314,7 +304,6 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
     };
 
     function enodechange(Enodenum){
-{#        alert('hahaha3333');#}
         if(Enodelayer){
 					control.removeLayer(Enodelayer);
 					if(map.hasLayer(Enodelayer)){
@@ -349,15 +338,11 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
     	enodechange(Enodenum0);
     });
 
-	$('#spcyear').change(function(){
-        $('#spctravel_time_car').text('');
-		$('#spctravel_delay').text('');
-    });
-
-	$("input[name='identity']").change(function(){
-        $('#spctravel_time_car').text('');
-		$('#spctravel_delay').text('');
-    });
+        //need to revise to datetimepiker!
+{#	$('#spcyear').change(function(){#}
+{#        $('#spctravel_time_car').text('');#}
+{#		$('#spctravel_delay').text('');#}
+{#    });#}
 
 
     function plot(alltraveltime,alldelay,allyear,snode,enode,cor,AMPM){
@@ -404,50 +389,50 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 
 
     $('#spcshow').click(function(){
-        var year = $("#spcyear option:selected").attr("value");
-        var isam = $("input[name='identity']").filter(":checked").val();
+        Stime = '';
+        Etime = '';
         Snode = Snodenum0.charCodeAt()-64;
         Enode = Enodenum0.charCodeAt()-64;
-        $.get('../get_spc_traveltime/', {year:year,cornum:cornum0,Snode:Snode,Enode:Enode,isam:isam}, function(data, textStatus){
+        $.get('../get_spc_traveltime_2013to2015/', {cornum:cornum0,Snode:Snode,Enode:Enode}, function(data, textStatus){
 			SpcOutput = $.parseJSON(data);
             $('#spctravel_time_car').text(SpcOutput.spctraveltime + " minutes");
 			$('#spctravel_delay').text(SpcOutput.spcdelay + " minutes");
         }, 'json');
 
-        //jqplot preparation:
-        for (var i=0;i<nodes.features.length;i++){
-            if (nodes.features[i].properties.Node_Number == Snodenum0){
-                Snodename = nodes.features[i].properties.Node_Name;
-                corname = nodes.features[i].properties.Corridor_Name;
-                break;
-            }
-        }
-        for (var i=0;i<nodes.features.length;i++){
-            if (nodes.features[i].properties.Node_Number == Enodenum0){
-                Enodename = nodes.features[i].properties.Node_Name;
-                break;
-            }
-        }
-        var allyear = [], yearstring = '';
-        for (var i=0;i<years.features.length;i++){
-                allyear.push(String(years.features[i]));
-            if (i == years.features.length-1){
-                yearstring += String(years.features[i]);
-            }else{
-                 yearstring += String(years.features[i]) + '+';
-            }
-        }
-
-        var alltraveltime = [], alldelay=[];
-        $.get('../get_spc_traveltimeformanyyears/', {years:yearstring,cornum:cornum0,Snode:Snode,Enode:Enode,isam:isam}, function(data, textStatus){
-                SpcOutput = $.parseJSON(data);
-                for (var i=0;i<SpcOutput.length;i++) {
-                    alltraveltime.push(parseFloat(SpcOutput[i].spctraveltime));
-                    alldelay.push(parseFloat(SpcOutput[i].spcdelay));
-                }
-                if (isam == 1){AMPM = 'AM Peak Hour'} else { AMPM = 'PM Peak Hour'}
-                plot(alltraveltime,alldelay,allyear,Snodename,Enodename,corname,AMPM);
-        }, 'json');
+        //jqplot preparation: need revise!!!
+{#        for (var i=0;i<nodes.features.length;i++){#}
+{#            if (nodes.features[i].properties.Node_Number == Snodenum0){#}
+{#                Snodename = nodes.features[i].properties.Node_Name;#}
+{#                corname = nodes.features[i].properties.Corridor_Name;#}
+{#                break;#}
+{#            }#}
+{#        }#}
+{#        for (var i=0;i<nodes.features.length;i++){#}
+{#            if (nodes.features[i].properties.Node_Number == Enodenum0){#}
+{#                Enodename = nodes.features[i].properties.Node_Name;#}
+{#                break;#}
+{#            }#}
+{#        }#}
+{#        var allyear = [], yearstring = '';#}
+{#        for (var i=0;i<years.features.length;i++){#}
+{#                allyear.push(String(years.features[i]));#}
+{#            if (i == years.features.length-1){#}
+{#                yearstring += String(years.features[i]);#}
+{#            }else{#}
+{#                 yearstring += String(years.features[i]) + '+';#}
+{#            }#}
+{#        }#}
+{##}
+{#        var alltraveltime = [], alldelay=[];#}
+{#        $.get('../get_spc_traveltimeformanyyears/', {years:yearstring,cornum:cornum0,Snode:Snode,Enode:Enode,isam:isam}, function(data, textStatus){#}
+{#                SpcOutput = $.parseJSON(data);#}
+{#                for (var i=0;i<SpcOutput.length;i++) {#}
+{#                    alltraveltime.push(parseFloat(SpcOutput[i].spctraveltime));#}
+{#                    alldelay.push(parseFloat(SpcOutput[i].spcdelay));#}
+{#                }#}
+{#                if (isam == 1){AMPM = 'AM Peak Hour'} else { AMPM = 'PM Peak Hour'}#}
+{#                plot(alltraveltime,alldelay,allyear,Snodename,Enodename,corname,AMPM);#}
+{#        }, 'json');#}
 
     });
 {#======================================================================================================================#}

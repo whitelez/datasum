@@ -218,6 +218,68 @@ def get_spcyears(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+def get_spctraveltime_2013to2015(request):
+    cornum = request.GET['cornum']
+    Snode = request.GET['Snode']
+    Enode = request.GET['Enode']
+    if Snode <= Enode:
+        records = SPCtraveltime.objects.filter(Corridor_Number=cornum, Year=year, Direction='A')
+    else:
+        records = SPCtraveltime.objects.filter(Corridor_Number=cornum, Year=year, Direction='Z')
+
+    result = []
+    total = 0
+    for record in records:
+        total += 1
+        flag = 0
+        for temp in result:
+            if record.id < temp.id:
+                break
+            flag += 1
+        result.insert(flag, record)
+
+    spctraveltime = 0
+    spcdelay = 0
+    flag_traveltime = True
+    # flag_delay = True
+    Snode = int(Snode)
+    Enode = int(Enode)
+    isam = int(isam)
+    if Snode > Enode:
+        Snode = total - Snode + 2
+        Enode = total - Enode + 2
+    for i in range(Snode-1, Enode-1):
+        if i >= total:
+            i = total - 1
+        if isam == 1:
+            if result[i].AM_Travel_Time != None:
+                spctraveltime += result[i].AM_Travel_Time
+            else:
+                flag_traveltime = False
+            if result[i].AM_Delay_Per_Vehicle != None:
+                spcdelay += result[i].AM_Delay_Per_Vehicle
+            else:
+                spcdelay += result[i].Travel_Time_At_Posted_Speed_Limit - result[i].AM_Travel_Time
+        else:
+            if result[i].PM_Travel_Time != None:
+                spctraveltime += result[i].PM_Travel_Time
+            else:
+                flag_traveltime = False
+            if result[i].PM_Delay_Per_Vehicle != None:
+                spcdelay += result[i].PM_Delay_Per_Vehicle
+            else:
+                spcdelay += result[i].Travel_Time_At_Posted_Speed_Limit - result[i].PM_Travel_Time
+
+    response = '''{"spctraveltime":"'''
+    if flag_traveltime:
+        response += str(spctraveltime)[0:4] + '''", "spcdelay":"''' + str(spcdelay)[0:4] + '''"'''
+    else:
+        response += '''N/A", "spcdelay":"N/A"'''
+
+    response += '}'
+    response2 = json.dumps(response)
+    return HttpResponse(response2, content_type='application/json')
+
 def get_spctraveltime(request):
     cornum = request.GET['cornum']
     year = request.GET['year']
