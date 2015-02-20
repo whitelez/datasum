@@ -259,7 +259,7 @@ def get_spctraveltime_2013to2015(request):
             if result[i].AM_Delay_Per_Vehicle != None:
                 spcdelay += result[i].AM_Delay_Per_Vehicle
             else:
-                spcdelay += result[i].Travel_Time_At_Posted_Speed_Limit - result[i].AM_Travel_Time
+                spcdelay += result[i].AM_Travel_Time - result[i].Travel_Time_At_Posted_Speed_Limit
         else:
             if result[i].PM_Travel_Time != None:
                 spctraveltime += result[i].PM_Travel_Time
@@ -268,7 +268,7 @@ def get_spctraveltime_2013to2015(request):
             if result[i].PM_Delay_Per_Vehicle != None:
                 spcdelay += result[i].PM_Delay_Per_Vehicle
             else:
-                spcdelay += result[i].Travel_Time_At_Posted_Speed_Limit - result[i].PM_Travel_Time
+                spcdelay += result[i].PM_Travel_Time - result[i].Travel_Time_At_Posted_Speed_Limit
 
     response = '''{"spctraveltime":"'''
     if flag_traveltime:
@@ -323,7 +323,7 @@ def get_spctraveltime(request):
             if result[i].AM_Delay_Per_Vehicle != None:
                 spcdelay += result[i].AM_Delay_Per_Vehicle
             else:
-                spcdelay += result[i].Travel_Time_At_Posted_Speed_Limit - result[i].AM_Travel_Time
+                spcdelay += result[i].AM_Travel_Time - result[i].Travel_Time_At_Posted_Speed_Limit
         else:
             if result[i].PM_Travel_Time != None:
                 spctraveltime += result[i].PM_Travel_Time
@@ -332,7 +332,7 @@ def get_spctraveltime(request):
             if result[i].PM_Delay_Per_Vehicle != None:
                 spcdelay += result[i].PM_Delay_Per_Vehicle
             else:
-                spcdelay += result[i].Travel_Time_At_Posted_Speed_Limit - result[i].PM_Travel_Time
+                spcdelay += result[i].PM_Travel_Time - result[i].Travel_Time_At_Posted_Speed_Limit
 
     response = '''{"spctraveltime":"'''
     if flag_traveltime:
@@ -392,7 +392,7 @@ def get_spctraveltimeformanyyears(request):
                 if result[i].AM_Delay_Per_Vehicle != None:
                     spcdelay += result[i].AM_Delay_Per_Vehicle
                 else:
-                    spcdelay += result[i].Travel_Time_At_Posted_Speed_Limit - result[i].AM_Travel_Time
+                    spcdelay += result[i].AM_Travel_Time - result[i].Travel_Time_At_Posted_Speed_Limit
             else:
                 if result[i].PM_Travel_Time != None:
                     spctraveltime += result[i].PM_Travel_Time
@@ -401,7 +401,7 @@ def get_spctraveltimeformanyyears(request):
                 if result[i].PM_Delay_Per_Vehicle != None:
                     spcdelay += result[i].PM_Delay_Per_Vehicle
                 else:
-                    spcdelay += result[i].Travel_Time_At_Posted_Speed_Limit - result[i].PM_Travel_Time
+                    spcdelay += result[i].PM_Travel_Time - result[i].Travel_Time_At_Posted_Speed_Limit
 
         response += '''{"spctraveltime":"'''
         if flag_traveltime:

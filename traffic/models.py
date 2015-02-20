@@ -79,6 +79,18 @@ class SPCtraveltime(models.Model):
     PM_Total_Delay = models.FloatField()
     Direction = models.CharField(max_length=5)  # Direction = 'A'(means direction from node A to node Z) or 'Z'
 
+class SPCtraveltime2013to2015(models.Model):
+    Year = models.PositiveSmallIntegerField()
+    Corridor_Number = models.PositiveSmallIntegerField()
+    Start_Node = models.CharField(max_length=50)
+    End_Node = models.CharField(max_length=50)
+    Time = models.TimeField()
+    Travel_Time = models.FloatField()
+    Speed = models.FloatField()
+    Travel_Time_At_Posted_Speed_Limit = models.FloatField()
+    Posted_Speed_Limit = models.PositiveSmallIntegerField()
+    Direction = models.CharField(max_length=5)  # Direction = 'A'(means direction from node A to node Z) or 'Z'
+
 #END
 
 
