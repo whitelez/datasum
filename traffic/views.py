@@ -863,3 +863,29 @@ def real_time_incidents_rcrs(request):
     response = json.dumps(events)
     return HttpResponse(response, content_type='application/json')
 # Create your views here.
+
+def real_time_tmc(request):
+    token_url = "http://api.inrix.com/Traffic/Inrix.ashx?action=getsecuritytoken&Vendorid=1346213929&consumerid=30c227fe-93ab-4f30-9408-362645f33730"
+    token_link = urllib2.urlopen(token_url)
+    token_rsps = token_link.read()
+    token_root = XMLET.fromstring(token_rsps)
+    token = token_root.find("AuthResponse").find("AuthToken").text
+    api_path = "http://na.api.inrix.com/Traffic/Inrix.ashx"
+    url = api_path + "?Action=GetRoadSpeedInTMCs&Token=" + token + "&Tmcs="
+    tmc_set = TMC_real_time.objects.all()
+    i=1
+    n=len(tmc_set)
+    result_data = {"type":"FeatureCollection","features":[]}
+    while i*180 < n or (i-1)*180 <n: #max length of a url request is 2000 characters, can take about 180 tmcs in a request
+        end = min(i*180,n)
+        tmc_list = ",".join(record.tmc for record in tmc_set[(i-1)*180:end])
+        link = urllib2.urlopen(url+tmc_list)
+        url_rsps = link.read()
+        root = XMLET.fromstring(url_rsps)
+        for record in root.iter("TMC"):
+            this_tmc = tmc_set.filter(tmc = record.attrib["code"])[0]
+            this_data = {"type":"Feature","geometry":{"type":"MultiPoint","coordinates":[[this_tmc.s_lon,this_tmc.s_lat],[this_tmc.e_lon,this_tmc.e_lat]]},"properties":{"speed":float(record.attrib["speed"]),"reference":float(record.attrib["reference"]),"tt":float(record.attrib["travelTimeMinutes"]),"sp_ref_ratio":float(record.attrib["speed"])/float(record.attrib["reference"])}}
+            result_data["features"].append(this_data)
+        i+=1
+    response = json.dumps(result_data)
+    return HttpResponse(response,content_type="application/json")
