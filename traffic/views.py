@@ -884,7 +884,13 @@ def real_time_tmc(request):
         root = XMLET.fromstring(url_rsps)
         for record in root.iter("TMC"):
             this_tmc = tmc_set.filter(tmc = record.attrib["code"])[0]
-            this_data = {"type":"Feature","geometry":{"type":"MultiPoint","coordinates":[[this_tmc.s_lon,this_tmc.s_lat],[this_tmc.e_lon,this_tmc.e_lat]]},"properties":{"speed":float(record.attrib["speed"]),"reference":float(record.attrib["reference"]),"tt":float(record.attrib["travelTimeMinutes"]),"sp_ref_ratio":float(record.attrib["speed"])/float(record.attrib["reference"])}}
+            # this_tmc.speed = float(record.attrib["speed"])
+            # this_tmc.reference = float(record.attrib["reference"])
+            # this_tmc.average = float(record.attrib["average"])
+            # this_tmc.ttm = float(record.attrib["travelTimeMinutes"])
+            # this_tmc.congestion = float(record.attrib["congestionLevel"])
+            # this_tmc.save()
+            this_data = {"type":"Feature","geometry":{"type":"MultiPoint","coordinates":[[this_tmc.s_lon,this_tmc.s_lat],[this_tmc.e_lon,this_tmc.e_lat]]},"properties":{"road":this_tmc.road,"direction":this_tmc.direction,"miles":this_tmc.miles,"order":this_tmc.road_order,"speed":float(record.attrib["speed"]),"reference":float(record.attrib["reference"]),"tt":float(record.attrib["travelTimeMinutes"]),"sp_ref_ratio":float(record.attrib["speed"])/float(record.attrib["reference"])}}
             result_data["features"].append(this_data)
         i+=1
     response = json.dumps(result_data)
