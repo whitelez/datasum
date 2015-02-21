@@ -47,7 +47,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
            <div class="col-md-8" style="padding-left: 0;">
 {#               <div class="form-group">#}
                     <div class='input-group date' id='datetimepicker'>
-                        <input type='text' style="height: 36px;width: 145px;" class="form-control" />
+                        <input id="Stime" type='text' style="height: 36px;width: 145px;" class="form-control" />
                         <span class="input-group-addon" style="height: 36px;width: 36px;padding: 0;"><span class="glyphicon glyphicon-time"></span>
                         </span>
                     </div>
@@ -59,7 +59,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
            <div class="col-md-8" style="padding-left: 0;">
 {#               <div class="form-group">#}
                     <div class='input-group date' id='datetimepicker2'>
-                        <input style="height: 36px;width: 145px;" type='text' class="form-control" />
+                        <input id="Etime" style="height: 36px;width: 145px;" type='text' class="form-control" />
                         <span class="input-group-addon" style="height: 36px;width: 36px;padding: 0;"><span class="glyphicon glyphicon-time"></span>
                         </span>
                     </div>
@@ -340,12 +340,6 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
     	enodechange(Enodenum0);
     });
 
-        //need to revise to datetimepiker!
-{#	$('#spcyear').change(function(){#}
-{#        $('#spctravel_time_car').text('');#}
-{#		$('#spctravel_delay').text('');#}
-{#    });#}
-
 
     function plot(alltraveltime,alldelay,allindex,snode,enode,cor){
 
@@ -394,42 +388,68 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
   			});
 		}
 
+    function getrange(time){
+        temp = time.split(' ')[0];
+        h = parseInt(temp.split(':')[0]);
+        if (h == 12){h -= 12}
+        m = parseInt(temp.split(':')[1]);
+        ans = h * 4;
+        if ((m > 7.5) && (m < 22.5)){ans += 1}
+        else if ((m > 22.5) && (m < 37.5)){ans += 2}
+        else if ((m > 37.5) && (m < 52.5)){ans += 3}
+        else if ((m > 52.5) && (m < 60)){ans += 4}
+        if (time.split(' ')[1] == 'PM'){ans += 48}
+
+        return ans
+    }
+
+	$('#datetimepicker').change(function(){
+        $('#spctravel_time_car').text('');
+		$('#spctravel_delay').text('');
+    });
+
+    $('#Etime').change(function(){
+        $('#spctravel_time_car').text('');
+		$('#spctravel_delay').text('');
+    });
 
     $('#spcshow').click(function(){
-        Stime = '';
-        Etime = '';
+        Stime = $('#Stime').val();
+        Etime = $('#Etime').val();
         $.get('../get_spc_traveltime_2013to2015/', {cornum:cornum0,Snode:Snodenum0,Enode:Enodenum0}, function(data, textStatus){
 			SpcOutput = $.parseJSON(data);
             finaltraveltime = 0;
             finaldelay = 0;
             counttraveltime = 0;
             countdelay = 0;
-            tmin = 0;
-            tmax = 1;
-            for (var i=tmin; i<tmax; i++){
-                if (SpcOutput[i].spctraveltime != "NULL"){
-                    finaltraveltime += parseFloat(SpcOutput[i].spctraveltime);
-                    counttraveltime += 1
+            tmin = getrange(Stime);
+            tmax = getrange(Etime) + 1;
+            if (tmin < tmax) {
+                for (var i = tmin; i < tmax; i++) {
+                    if (SpcOutput[i].spctraveltime != "NULL") {
+                        finaltraveltime += parseFloat(SpcOutput[i].spctraveltime);
+                        counttraveltime += 1
+                    }
+                    if (SpcOutput[i].spcdelay != "NULL") {
+                        finaldelay += parseFloat(SpcOutput[i].spcdelay);
+                        countdelay += 1
+                    }
                 }
-                if (SpcOutput[i].spcdelay != "NULL"){
-                    finaldelay += parseFloat(SpcOutput[i].spcdelay);
-                    countdelay += 1
+                if (finaltraveltime == 0) {
+                    $('#spctravel_time_car').text("Data Not Available");
                 }
-            }
-            if (finaltraveltime == 0){
-                $('#spctravel_time_car').text("Data Not Available");
-            }
-            else{
-                finaltraveltime /= counttraveltime;
-                $('#spctravel_time_car').text( String(finaltraveltime) + " Minutes");
-            }
-            if (finaldelay == 0){
-                $('#spctravel_delay').text("Data Not Available");
-            }
-            else{
-                finaldelay /= countdelay;
-                $('#spctravel_delay').text( String(finaldelay) + " Minutes");
-            }
+                else {
+                    finaltraveltime /= counttraveltime;
+                    $('#spctravel_time_car').text(String(finaltraveltime).substring(0, 5) + " Minutes");
+                }
+                if (finaldelay == 0) {
+                    $('#spctravel_delay').text("Data Not Available");
+                }
+                else {
+                    finaldelay /= countdelay;
+                    $('#spctravel_delay').text(String(finaldelay).substring(0, 5) + " Minutes");
+                }
+            } else {alert('Start Time must be ealier than End Time!\n\nPlease select another time period.')}
 
             //jqplot preparation:
             var alltraveltime = [], alldelay=[], allindex = [];
