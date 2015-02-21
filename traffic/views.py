@@ -159,8 +159,7 @@ def travel_time_new(request):
     # nodes = SPCCorridorNodeInfo.objects.filter(Corridor_Number=13)
     return render(request, 'traffic/travel_time_new.html', {'n': range(1, 32), 'tmcs': tmcs, 'corridors': corridors})
 
-def travel_time_corridorafter2013(request): #Need revise!!
-    tmcs = TMC.objects.all()
+def travel_time_corridorafter2013(request):
     records = SPCCorridorNodeInfo2013to2015.objects.all()
     corridors = []
     CorrNum = []
@@ -219,64 +218,48 @@ def get_spcyears(request):
     return HttpResponse(response, content_type='application/json')
 
 def get_spctraveltime_2013to2015(request):
-    cornum = request.GET['cornum']
+    cornum0 = request.GET['cornum']
     Snode = request.GET['Snode']
     Enode = request.GET['Enode']
+
     if Snode <= Enode:
-        records = SPCtraveltime.objects.filter(Corridor_Number=cornum, Year=year, Direction='A')
+        delta = 1
     else:
-        records = SPCtraveltime.objects.filter(Corridor_Number=cornum, Year=year, Direction='Z')
+        delta = -1
 
-    result = []
-    total = 0
-    for record in records:
-        total += 1
-        flag = 0
-        for temp in result:
-            if record.id < temp.id:
-                break
-            flag += 1
-        result.insert(flag, record)
+    info = {}
+    for hour in range(24):
+        for min in [0.0, 0.25, 0.5, 0.75]:
+            info[hour+min] = [0, 0]
 
-    spctraveltime = 0
-    spcdelay = 0
-    flag_traveltime = True
-    # flag_delay = True
-    Snode = int(Snode)
-    Enode = int(Enode)
-    isam = int(isam)
-    if Snode > Enode:
-        Snode = total - Snode + 2
-        Enode = total - Enode + 2
-    for i in range(Snode-1, Enode-1):
-        if i >= total:
-            i = total - 1
-        if isam == 1:
-            if result[i].AM_Travel_Time != None:
-                spctraveltime += result[i].AM_Travel_Time
+    cornum = int(cornum0)
+    Currentnode = Snode
+    while Currentnode != Enode:
+        nextnode = chr(ord(Currentnode) + delta)
+        records = SPCtraveltime2013to2015.objects.filter(Corridor_Number=cornum, Start_Node=Currentnode, End_Node=nextnode)
+        for record in records:
+            if (info[record.Time][0] == 'NULL') or (not(isinstance(record.Travel_Time, (int, long, float, complex)))):
+                info[record.Time][0] = 'NULL'
+                info[record.Time][1] = 'NULL'
             else:
-                flag_traveltime = False
-            if result[i].AM_Delay_Per_Vehicle != None:
-                spcdelay += result[i].AM_Delay_Per_Vehicle
-            else:
-                spcdelay += result[i].AM_Travel_Time - result[i].Travel_Time_At_Posted_Speed_Limit
-        else:
-            if result[i].PM_Travel_Time != None:
-                spctraveltime += result[i].PM_Travel_Time
-            else:
-                flag_traveltime = False
-            if result[i].PM_Delay_Per_Vehicle != None:
-                spcdelay += result[i].PM_Delay_Per_Vehicle
-            else:
-                spcdelay += result[i].PM_Travel_Time - result[i].Travel_Time_At_Posted_Speed_Limit
+                info[record.Time][0] += record.Travel_Time
+                info[record.Time][1] += record.Travel_Time - record.Travel_Time_At_Posted_Speed_Limit
+        Currentnode = nextnode
 
-    response = '''{"spctraveltime":"'''
-    if flag_traveltime:
-        response += str(spctraveltime)[0:4] + '''", "spcdelay":"''' + str(spcdelay)[0:4] + '''"'''
-    else:
-        response += '''N/A", "spcdelay":"N/A"'''
-
-    response += '}'
+    response = '''['''
+    for hour in range(24):
+        for min in [0.0, 0.25, 0.5, 0.75]:
+            time = hour + min
+            if info[time][0] == "NULL":
+                response += '''{"spctraveltime":"''' + info[time][0]
+            else:
+                response += '''{"spctraveltime":"''' + str(info[time][0]/60)[0:5]
+            if info[time][1] == "NULL":
+                response += '''", "spcdelay":"''' + info[time][1] + '''"},'''
+            else:
+                response += '''", "spcdelay":"''' + str(info[time][1]/60)[0:5] + '''"},'''
+    response = response.rstrip(',')
+    response += ']'
     response2 = json.dumps(response)
     return HttpResponse(response2, content_type='application/json')
 
