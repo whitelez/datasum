@@ -180,9 +180,9 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
     function corchange(cornum){
         $('#SNode').empty();
         $('#ENode').empty();
-        $('#spcyear').empty();
         $('#spctravel_time_car').text('');
 		$('#spctravel_delay').text('');
+        $("#chart").empty();
         if(nodelayer){
 					control.removeLayer(nodelayer);
 					if(map.hasLayer(nodelayer)){
@@ -268,6 +268,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 				}
         $('#spctravel_time_car').text('');
 		$('#spctravel_delay').text('');
+        $("#chart").empty();
         for (var i=0;i<nodes.features.length;i++){
             if (nodes.features[i].properties.Node_Number == Snodenum){
                 resultSnode = nodes.features[i];
@@ -312,6 +313,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 				}
         $('#spctravel_time_car').text('');
 		$('#spctravel_delay').text('');
+        $("#chart").empty();
         for (var i=0;i<nodes.features.length;i++){
             if (nodes.features[i].properties.Node_Number == Enodenum){
                 resultEnode = nodes.features[i];
@@ -345,7 +347,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 {#    });#}
 
 
-    function plot(alltraveltime,alldelay,allyear,snode,enode,cor,AMPM){
+    function plot(alltraveltime,alldelay,allindex,snode,enode,cor){
 
 			$("#chart").empty();
 
@@ -353,8 +355,13 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 			var line1 = [], line2 = [];
             var min = 99999, max = -99999;
 			for(var i=0;i<n;i++){
-				var point1 = [allyear[i],alltraveltime[i]];
-                var point2 = [allyear[i],alldelay[i]];
+                var hour = parseInt(allindex[i]/4);
+                var minute = parseInt((allindex[i]%4)*15);
+                if(minute==0){
+                    minute = "00";
+                }
+				var point1 = [""+hour+":"+minute,alltraveltime[i]];
+                var point2 = [""+hour+":"+minute,alldelay[i]];
 				line1.push(point1);
                 line2.push(point2);
                 if (alldelay[i] > max){ max = alldelay[i]}
@@ -363,20 +370,20 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
                 if (alltraveltime[i] < min){ min = alltraveltime[i]}
 			}
             max = Math.ceil(max*1.2);
-            min = -1;
+            min = -2;
 			var plot1 = $.jqplot('chart', [line1, line2], {
-    			title:AMPM + ' Traveltime and Delay between ' + snode + ' and ' + enode + ' on ' + cor + ' in different years',
+    			title:'Average Traveltime and Delay between Nodes ' + snode + ' and ' + enode + ' on Corridor ' + cor + ' in a Typical Weekday between Year 2013-2015',
                 seriesDefaults: {
-                    pointLabels: { show:true, formatString: "%#.2f" }
+                    pointLabels: { show:false, formatString: "%#.2f" }
                 },
     			axes:{
-    					xaxis:{renderer:$.jqplot.DateAxisRenderer,tickOptions:{formatString:'%Y'}, label:'Year', tickInterval:'1 year', min:'2002-01-01', max:'2014-01-01'},
+    					xaxis:{label:'Time of the day', renderer:$.jqplot.DateAxisRenderer, tickOptions:{formatString:'%#H:%M'}, min:"0:00", max:"24:00"},
     					yaxis:{min:min, max:max, label:'Time\n(min)'}
     				},
     			//series:[{lineWidth:4, markerOptions:{style:'circle',size:6}}]
     			series:[
-                    {color:'#5FAB78',label:'Traveltime'},
-                    {label:'Delay'}
+                    {color:'#5FAB78',label:'Traveltime',showLine:false },
+                    {label:'Delay',showLine:false }
                 ],
                 legend: {
                     show: true,
@@ -391,48 +398,50 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
     $('#spcshow').click(function(){
         Stime = '';
         Etime = '';
-        Snode = Snodenum0.charCodeAt()-64;
-        Enode = Enodenum0.charCodeAt()-64;
-        $.get('../get_spc_traveltime_2013to2015/', {cornum:cornum0,Snode:Snode,Enode:Enode}, function(data, textStatus){
+        $.get('../get_spc_traveltime_2013to2015/', {cornum:cornum0,Snode:Snodenum0,Enode:Enodenum0}, function(data, textStatus){
 			SpcOutput = $.parseJSON(data);
-            $('#spctravel_time_car').text(SpcOutput.spctraveltime + " minutes");
-			$('#spctravel_delay').text(SpcOutput.spcdelay + " minutes");
-        }, 'json');
+            finaltraveltime = 0;
+            finaldelay = 0;
+            counttraveltime = 0;
+            countdelay = 0;
+            tmin = 0;
+            tmax = 1;
+            for (var i=tmin; i<tmax; i++){
+                if (SpcOutput[i].spctraveltime != "NULL"){
+                    finaltraveltime += parseFloat(SpcOutput[i].spctraveltime);
+                    counttraveltime += 1
+                }
+                if (SpcOutput[i].spcdelay != "NULL"){
+                    finaldelay += parseFloat(SpcOutput[i].spcdelay);
+                    countdelay += 1
+                }
+            }
+            if (finaltraveltime == 0){
+                $('#spctravel_time_car').text("Data Not Available");
+            }
+            else{
+                finaltraveltime /= counttraveltime;
+                $('#spctravel_time_car').text( String(finaltraveltime) + " Minutes");
+            }
+            if (finaldelay == 0){
+                $('#spctravel_delay').text("Data Not Available");
+            }
+            else{
+                finaldelay /= countdelay;
+                $('#spctravel_delay').text( String(finaldelay) + " Minutes");
+            }
 
-        //jqplot preparation: need revise!!!
-{#        for (var i=0;i<nodes.features.length;i++){#}
-{#            if (nodes.features[i].properties.Node_Number == Snodenum0){#}
-{#                Snodename = nodes.features[i].properties.Node_Name;#}
-{#                corname = nodes.features[i].properties.Corridor_Name;#}
-{#                break;#}
-{#            }#}
-{#        }#}
-{#        for (var i=0;i<nodes.features.length;i++){#}
-{#            if (nodes.features[i].properties.Node_Number == Enodenum0){#}
-{#                Enodename = nodes.features[i].properties.Node_Name;#}
-{#                break;#}
-{#            }#}
-{#        }#}
-{#        var allyear = [], yearstring = '';#}
-{#        for (var i=0;i<years.features.length;i++){#}
-{#                allyear.push(String(years.features[i]));#}
-{#            if (i == years.features.length-1){#}
-{#                yearstring += String(years.features[i]);#}
-{#            }else{#}
-{#                 yearstring += String(years.features[i]) + '+';#}
-{#            }#}
-{#        }#}
-{##}
-{#        var alltraveltime = [], alldelay=[];#}
-{#        $.get('../get_spc_traveltimeformanyyears/', {years:yearstring,cornum:cornum0,Snode:Snode,Enode:Enode,isam:isam}, function(data, textStatus){#}
-{#                SpcOutput = $.parseJSON(data);#}
-{#                for (var i=0;i<SpcOutput.length;i++) {#}
-{#                    alltraveltime.push(parseFloat(SpcOutput[i].spctraveltime));#}
-{#                    alldelay.push(parseFloat(SpcOutput[i].spcdelay));#}
-{#                }#}
-{#                if (isam == 1){AMPM = 'AM Peak Hour'} else { AMPM = 'PM Peak Hour'}#}
-{#                plot(alltraveltime,alldelay,allyear,Snodename,Enodename,corname,AMPM);#}
-{#        }, 'json');#}
+            //jqplot preparation:
+            var alltraveltime = [], alldelay=[], allindex = [];
+            for (var i=0;i<SpcOutput.length;i++) {
+                if (SpcOutput[i].spctraveltime != "NULL" && SpcOutput[i].spcdelay != "NULL"){
+                    alltraveltime.push(parseFloat(SpcOutput[i].spctraveltime));
+                    alldelay.push(parseFloat(SpcOutput[i].spcdelay));
+                    allindex.push(i);
+                }
+            }
+            plot(alltraveltime,alldelay,allindex,Snodenum0,Enodenum0,cornum0);
+        }, 'json');
 
     });
 {#======================================================================================================================#}
