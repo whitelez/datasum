@@ -862,4 +862,9 @@ def real_time_incidents_rcrs(request):
                 events['features'].append(this_event)
     response = json.dumps(events)
     return HttpResponse(response, content_type='application/json')
+
+#SGYang
+def closure(request):
+    return render(request, 'traffic/closure.html')
+
 # Create your views here.
