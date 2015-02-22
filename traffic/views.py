@@ -660,10 +660,10 @@ def routing_path(request):
     rsps_json["travel_time"] = time
     result = {"type":"FeatureCollection","features":[]}
     path_geoJson =  {"type":"Feature","geometry":{"type":"MultiLineString","coordinates":path_coor}}
-    #origin_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":[[s_lon,s_lat],[origin['lon'],origin['lat']]]},"properties":{"position":"origin","id":str(origin['id'])}}
-    origin_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":get_google_direction([s_lon,s_lat],[origin['lon'],origin['lat']],'driving')},"properties":{"position":"origin","id":str(origin['id'])}}
-    #destination_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":[[e_lon,e_lat],[destination['lon'],destination['lat']]]},"properties":{"position":"destination","id":str(destination['id'])}}
-    destination_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":get_google_direction([e_lon,e_lat],[destination['lon'],destination['lat']],'driving')},"properties":{"position":"destination","id":str(destination['id'])}}
+    origin_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":[[s_lon,s_lat],[origin['lon'],origin['lat']]]},"properties":{"position":"origin","id":str(origin['id'])}}
+    #origin_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":get_google_direction([s_lon,s_lat],[origin['lon'],origin['lat']],'driving')},"properties":{"position":"origin","id":str(origin['id'])}}
+    destination_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":[[e_lon,e_lat],[destination['lon'],destination['lat']]]},"properties":{"position":"destination","id":str(destination['id'])}}
+    #destination_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":get_google_direction([e_lon,e_lat],[destination['lon'],destination['lat']],'driving')},"properties":{"position":"destination","id":str(destination['id'])}}
     result['features'] = [origin_geoJson,destination_geoJson,path_geoJson]
     if nearest_lot:
         path_to_lot_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":get_google_direction([e_lon, e_lat],[d_lon,d_lat],'walking')},"properties":{"position":"path to parking lot"}}
@@ -884,6 +884,7 @@ def real_time_tmc(request):
         root = XMLET.fromstring(url_rsps)
         for record in root.iter("TMC"):
             this_tmc = tmc_set.filter(tmc = record.attrib["code"])[0]
+            # efficiency is not so good
             # this_tmc.speed = float(record.attrib["speed"])
             # this_tmc.reference = float(record.attrib["reference"])
             # this_tmc.average = float(record.attrib["average"])
