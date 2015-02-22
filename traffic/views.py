@@ -937,8 +937,7 @@ def real_time_incidents_rcrs(request):
                 events['features'].append(this_event)
     response = json.dumps(events)
     return HttpResponse(response, content_type='application/json')
-<<<<<<< HEAD
-=======
+
 # Create your views here.
 
 def real_time_tmc(request):
@@ -973,4 +972,4 @@ def real_time_tmc(request):
         i+=1
     response = json.dumps(result_data)
     return HttpResponse(response,content_type="application/json")
->>>>>>> hzn-realtime_tt
+
