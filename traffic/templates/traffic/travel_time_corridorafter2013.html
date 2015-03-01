@@ -101,7 +101,8 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 	<div id="map"></div>
 
     <div id="chartcontainer">
-     	<div id="chart" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
+     	<div id="chart1" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
+        <div id="chart2" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
 	</div>
 {% endblock %}
 	
@@ -343,11 +344,13 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 
     function plot(alltraveltime,alldelay,allindex,snode,enode,cor){
 
-			$("#chart").empty();
+			$("#chart1").empty();
+            $("#chart2").empty();
 
 			var n = alldelay.length;
 			var line1 = [], line2 = [];
-            var min = 99999, max = -99999;
+            var mintravetime = 99999, maxtraveltime = -99999;
+            var mindelay = 99999, maxdelay = -99999;
 			for(var i=0;i<n;i++){
                 var hour = parseInt(allindex[i]/4);
                 var minute = parseInt((allindex[i]%4)*15);
@@ -358,25 +361,49 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
                 var point2 = [""+hour+":"+minute,alldelay[i]];
 				line1.push(point1);
                 line2.push(point2);
-                if (alldelay[i] > max){ max = alldelay[i]}
-                if (alltraveltime[i] > max){ max = alltraveltime[i]}
-                if (alldelay[i] < min){ min = alldelay[i]}
-                if (alltraveltime[i] < min){ min = alltraveltime[i]}
+                if (alldelay[i] > maxdelay){ maxdelay = alldelay[i]}
+                if (alltraveltime[i] > maxtraveltime){ maxtraveltime = alltraveltime[i]}
+                if (alldelay[i] < mindelay){ mindelay = alldelay[i]}
+                if (alltraveltime[i] < mintravetime){ mintravetime = alltraveltime[i]}
 			}
-            max = Math.ceil(max*1.2);
-            min = -2;
-			var plot1 = $.jqplot('chart', [line1, line2], {
-    			title:'Average Traveltime and Delay between Nodes ' + snode + ' and ' + enode + ' on Corridor ' + cor + ' in a Typical Weekday between Year 2013-2015',
+            maxtraveltime = Math.ceil(maxtraveltime*1.2);
+            mintravetime = Math.floor(mintravetime/1.5);
+            maxdelay = Math.ceil(maxdelay*1.2);
+            mindelay = -1;
+			var plot1 = $.jqplot('chart1', [line1], {
+    			title:'Average Travel Time between Nodes ' + snode + ' and ' + enode + ' on Corridor ' + cor + ' in a Typical Weekday between Year 2013-2015',
                 seriesDefaults: {
                     pointLabels: { show:false, formatString: "%#.2f" }
                 },
     			axes:{
     					xaxis:{label:'Time of the day', renderer:$.jqplot.DateAxisRenderer, tickOptions:{formatString:'%#H:%M'}, min:"0:00", max:"24:00"},
-    					yaxis:{min:min, max:max, label:'Time\n(min)'}
+    					yaxis:{min:mintravetime, max:maxtraveltime, label:'Time\n(min)'}
     				},
     			//series:[{lineWidth:4, markerOptions:{style:'circle',size:6}}]
     			series:[
                     {color:'#5FAB78',label:'Traveltime',showLine:false },
+{#                    {label:'Delay',showLine:false }#}
+                ],
+                legend: {
+                    show: true,
+                    location: 'se',     // compass direction, nw, n, ne, e, se, s, sw, w.
+                    xoffset: 12,        // pixel offset of the legend box from the x (or x2) axis.
+                    yoffset: 12        // pixel offset of the legend box from the y (or y2) axis.
+                }
+  			});
+
+            var plot2 = $.jqplot('chart2', [line2], {
+    			title:'Average Delay between Nodes ' + snode + ' and ' + enode + ' on Corridor ' + cor + ' in a Typical Weekday between Year 2013-2015',
+                seriesDefaults: {
+                    pointLabels: { show:false, formatString: "%#.2f" }
+                },
+    			axes:{
+    					xaxis:{label:'Time of the day', renderer:$.jqplot.DateAxisRenderer, tickOptions:{formatString:'%#H:%M'}, min:"0:00", max:"24:00"},
+    					yaxis:{min:mindelay, max:maxdelay, label:'Time\n(min)'}
+    				},
+    			//series:[{lineWidth:4, markerOptions:{style:'circle',size:6}}]
+    			series:[
+{#                    {color:'#5FAB78',label:'Traveltime',showLine:false },#}
                     {label:'Delay',showLine:false }
                 ],
                 legend: {
