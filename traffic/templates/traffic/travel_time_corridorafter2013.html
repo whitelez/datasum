@@ -7,7 +7,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 {% endblock %}
 
 {% block style %}
-<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css" xmlns="http://www.w3.org/1999/html">
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-datetimepicker.min.css' %}" />
@@ -18,24 +18,24 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 
 <div class="well" id="inputframe" style="height:600px;">
 	<div class="container" style="width: inherit">
-       <div class="row"><h3>Travel Time </h3></div>
-       <div class="row"><h4> Corridors (2013-2015): </h4></div>
-	   <div class="row" style="padding-top:5px;">
-		  <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Corridor:</h5></div>
-		  <div class="col-md-8" style="padding-left: 0;">
+        <div class="row"><h3>Travel Time </h3></div>
+        <div class="row"><h4> Corridors (2013-2015): </h4></div>
+	    <div class="row" style="padding-top:5px;">
+		   <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Corridor:</h5></div>
+		   <div class="col-md-8" style="padding-left: 0;">
                <select id="cor" name="cor"  class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
-				   {% for corridor in corridors%}
+				    {% for corridor in corridors%}
 					    <option value={{corridor.Corridor_Number}}>Corridor {{corridor.Corridor_Number}} - {{corridor.Corridor_Name}}</option>
-				   {% endfor %}
-			  </select>
-          </div>
-	   </div>
-	   <div class="row" style="padding-top:5px;">
-           <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Node:</h5></div>
-           <div class="col-md-8" style="padding-left: 0;">
-               <select id="SNode" name="SNode" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">    </select>
+			 	    {% endfor %}
+		 	   </select>
            </div>
-       </div>
+	    </div>
+	    <div class="row" style="padding-top:5px;">
+            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Node:</h5></div>
+            <div class="col-md-8" style="padding-left: 0;">
+               <select id="SNode" name="SNode" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">    </select>
+            </div>
+        </div>
         <div class="row" style="padding-top:5px;">
            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>End Node:</h5></div>
            <div class="col-md-8" style="padding-left: 0;">
@@ -45,28 +45,42 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
     	<div class="row" style="padding-top:5px;">
            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Time:</h5></div>
            <div class="col-md-8" style="padding-left: 0;">
-{#               <div class="form-group">#}
                     <div class='input-group date' id='datetimepicker'>
                         <input id="Stime" type='text' style="height: 36px;width: 145px;" class="form-control" />
                         <span class="input-group-addon" style="height: 36px;width: 36px;padding: 0;"><span class="glyphicon glyphicon-time"></span>
                         </span>
                     </div>
-{#               </div>#}
            </div>
         </div>
         <div class="row" style="padding-top:5px;">
            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>End Time:</h5></div>
            <div class="col-md-8" style="padding-left: 0;">
-{#               <div class="form-group">#}
                     <div class='input-group date' id='datetimepicker2'>
                         <input id="Etime" style="height: 36px;width: 145px;" type='text' class="form-control" />
                         <span class="input-group-addon" style="height: 36px;width: 36px;padding: 0;"><span class="glyphicon glyphicon-time"></span>
                         </span>
                     </div>
-{#               </div>#}
            </div>
         </div>
-	</div>
+        <div class="row" style="padding-top: 5px;">
+            <div class="col-md-6" style="padding-right: 0;">
+                <div class="checkbox checkbox-info checkbox-inline">
+                    <input type="checkbox" id="checkboxTTI" value="TTI">
+                    <label for="checkboxTTI">
+                        "TTI"
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-6" style="padding-left: 0;">
+                <div class="checkbox checkbox-primary checkbox-inline">
+                    <input type="checkbox" id="checkboxbuffertime" value="buffertime">
+                    <label for="checkboxbuffertime">
+                        "Buffer Time"
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
 
 	<button type="button" style="margin-top:10px;" class="btn btn-default btn-block" id="spcshow">
         <span class="glyphicon glyphicon-search"> </span> &nbsp; Update
