@@ -43,4 +43,6 @@ urlpatterns = patterns('',
     url(r'^get_incidents_rcrs_area/$', views.get_incidents_rcrs_area, name='get_incidents_rcrs_area'),
     url(r'^real_time_incidents_rcrs/$', views.real_time_incidents_rcrs, name='real_time_incidents_rcrs'),
     url(r'^real_time_tmc/$', views.real_time_tmc, name='real_time_tmc'),
+    url(r'^real_time_tt/$', views.real_time_tt, name='real_time_tt'),
+    url(r'^tmc_gis/$', views.TMC_GIS, name='TMC_GIS'),
 )

@@ -967,9 +967,34 @@ def real_time_tmc(request):
             # this_tmc.ttm = float(record.attrib["travelTimeMinutes"])
             # this_tmc.congestion = float(record.attrib["congestionLevel"])
             # this_tmc.save()
-            this_data = {"type":"Feature","geometry":{"type":"MultiPoint","coordinates":[[this_tmc.s_lon,this_tmc.s_lat],[this_tmc.e_lon,this_tmc.e_lat]]},"properties":{"road":this_tmc.road,"direction":this_tmc.direction,"miles":this_tmc.miles,"order":this_tmc.road_order,"speed":float(record.attrib["speed"]),"reference":float(record.attrib["reference"]),"tt":float(record.attrib["travelTimeMinutes"]),"sp_ref_ratio":float(record.attrib["speed"])/float(record.attrib["reference"])}}
+            this_data = {"type":"Feature","geometry":{"type":"MultiPoint","coordinates":[[this_tmc.s_lon,this_tmc.s_lat],[this_tmc.e_lon,this_tmc.e_lat]]},"properties":{"tmc":this_tmc.tmc,"road":this_tmc.road,"direction":this_tmc.direction,"miles":this_tmc.miles,"order":this_tmc.road_order,"speed":float(record.attrib["speed"]),"reference":float(record.attrib["reference"]),"tt":float(record.attrib["travelTimeMinutes"]),"sp_ref_ratio":float(record.attrib["speed"])/float(record.attrib["reference"])}}
             result_data["features"].append(this_data)
         i+=1
     response = json.dumps(result_data)
     return HttpResponse(response,content_type="application/json")
+
+def TMC_GIS(request):
+    # data = {"gis":{},"tmc":{}}
+
+    GIS = {"type":"FeatureCollection","features":[]}
+    links = GIS_links.objects.all()
+    features = [0]*len(links)
+    for i,link in enumerate(links):
+        features[i] = {"type":"Feature","geometry":{"type":"LineString","coordinates":json.loads(link.geometries.strip())},"properties":{"lid":link.link_id}}
+    GIS["features"] = features
+    #data["gis"] = GIS
+
+    # TMC = {"type":"FeatureCollection","features":[]}
+    # tmcs = TMC_real_time.objects.all()
+    # features = [0]*len(tmcs)
+    # for i,tmc in enumerate(tmcs):
+    #     features[i] = {"type":"Feature","geometry":{"type":"MultiPoint","coordinates":[[tmc.s_lon,tmc.s_lat],[tmc.e_lon,tmc.e_lat]]},"properties":{"id":tmc.tmc}}
+    # TMC["features"] = features
+    # data["tmc"] = TMC
+
+    response = json.dumps(GIS)
+    return HttpResponse(response,content_type="application/json")
+
+def real_time_tt(request):
+    return render(request, 'traffic/real_time_tt.html')
 
