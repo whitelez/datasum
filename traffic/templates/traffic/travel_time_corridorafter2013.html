@@ -11,6 +11,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-datetimepicker.min.css' %}" />
+<link rel="stylesheet" href="{% static 'traffic/bootstrap-switch.min.css' %}" />
 {% endblock %}
 
 
@@ -64,20 +65,18 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
         </div>
         <div class="row" style="padding-top: 5px;">
             <div class="col-md-6" style="padding-right: 0;">
-                <div class="checkbox checkbox-info checkbox-inline">
-                    <input type="checkbox" id="checkboxTTI" value="TTI">
-                    <label for="checkboxTTI">
-                        "TTI"
-                    </label>
-                </div>
+                    <input type="checkbox" id="checkboxTTI" name="checkboxTTI" value="TTI" checked>
             </div>
             <div class="col-md-6" style="padding-left: 0;">
-                <div class="checkbox checkbox-primary checkbox-inline">
-                    <input type="checkbox" id="checkboxbuffertime" value="buffertime">
-                    <label for="checkboxbuffertime">
-                        "Buffer Time"
-                    </label>
-                </div>
+                    <input type="checkbox" id="checkboxBT" name="checkboxBT" value="BT" checked>
+            </div>
+        </div>
+        <div class="row" style="padding-top: 5px;">
+            <div class="col-md-6" style="padding-right: 0;">
+                    <input type="checkbox" id="checkboxBI" name="checkboxBI" value="BI" checked>
+            </div>
+            <div class="col-md-6" style="padding-left: 0;">
+                    <input type="checkbox" id="checkboxPTI" name="checkboxPTI" value="PTI" checked>
             </div>
         </div>
     </div>
@@ -117,6 +116,10 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
     <div id="chartcontainer">
      	<div id="chart1" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
         <div id="chart2" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
+        <div id="chartTTI" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
+        <div id="chartBT" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
+        <div id="chartBI" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
+        <div id="chartPTI" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
 	</div>
 {% endblock %}
 	
@@ -134,6 +137,24 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 <script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/transition.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/collapse.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-datetimepicker.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/bootstrap-switch.min.js' %}"></script>
+
+
+<script type="text/javascript">
+    var options = {
+        onColor: 'info',
+        offColor: 'warning',
+        labelText: 'TTI',
+        labelWidth: 50
+    };
+    $("[name='checkboxTTI']").bootstrapSwitch(options);
+    options.labelText = 'BT';
+    $("[name='checkboxBT']").bootstrapSwitch(options);
+    options.labelText = 'BI';
+    $("[name='checkboxBI']").bootstrapSwitch(options);
+    options.labelText = 'PTI';
+    $("[name='checkboxPTI']").bootstrapSwitch(options);
+</script>
 
 <script type="text/javascript">
       $(function () {
