@@ -64,19 +64,16 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
            </div>
         </div>
         <div class="row" style="padding-top: 5px;">
-            <div class="col-md-6" style="padding-right: 0;">
-                    <input type="checkbox" id="checkboxTTI" name="checkboxTTI" value="TTI" checked>
-            </div>
-            <div class="col-md-6" style="padding-left: 0;">
-                    <input type="checkbox" id="checkboxBT" name="checkboxBT" value="BT" checked>
+            <div class="col-md-12" style="padding-right: 0;">
+                    <input type="checkbox" id="checkboxTravelTime" name="checkboxTravelTime" checked>
             </div>
         </div>
         <div class="row" style="padding-top: 5px;">
             <div class="col-md-6" style="padding-right: 0;">
-                    <input type="checkbox" id="checkboxBI" name="checkboxBI" value="BI" checked>
+                <input type="checkbox" id="checkboxDelay" name="checkboxDelay" checked>
             </div>
             <div class="col-md-6" style="padding-left: 0;">
-                    <input type="checkbox" id="checkboxPTI" name="checkboxPTI" value="PTI" checked>
+                <input type="checkbox" id="checkboxTTI" name="checkboxTTI" checked>
             </div>
         </div>
     </div>
@@ -114,12 +111,9 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 	<div id="map"></div>
 
     <div id="chartcontainer">
-     	<div id="chart1" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
-        <div id="chart2" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
+     	<div id="chartTraveltime" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
+        <div id="chartDelay" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
         <div id="chartTTI" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
-        <div id="chartBT" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
-        <div id="chartBI" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
-        <div id="chartPTI" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
 	</div>
 {% endblock %}
 	
@@ -148,12 +142,11 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
         labelWidth: 50
     };
     $("[name='checkboxTTI']").bootstrapSwitch(options);
-    options.labelText = 'BT';
-    $("[name='checkboxBT']").bootstrapSwitch(options);
-    options.labelText = 'BI';
-    $("[name='checkboxBI']").bootstrapSwitch(options);
-    options.labelText = 'PTI';
-    $("[name='checkboxPTI']").bootstrapSwitch(options);
+    options.labelText = 'Delay';
+    $("[name='checkboxDelay']").bootstrapSwitch(options);
+    options.labelText = 'Travel Time';
+    options.labelWidth = 80;
+    $("[name='checkboxTravelTime']").bootstrapSwitch(options);
 </script>
 
 <script type="text/javascript">
@@ -218,7 +211,9 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
         $('#ENode').empty();
         $('#spctravel_time_car').text('');
 		$('#spctravel_delay').text('');
-        $("#chart").empty();
+        $("#chartTraveltime").empty();
+        $("#chartDelay").empty();
+        $("#chartTTI").empty();
         if(nodelayer){
 					control.removeLayer(nodelayer);
 					if(map.hasLayer(nodelayer)){
@@ -304,7 +299,9 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 				}
         $('#spctravel_time_car').text('');
 		$('#spctravel_delay').text('');
-        $("#chart").empty();
+        $("#chartTraveltime").empty();
+        $("#chartDelay").empty();
+        $("#chartTTI").empty();
         for (var i=0;i<nodes.features.length;i++){
             if (nodes.features[i].properties.Node_Number == Snodenum){
                 resultSnode = nodes.features[i];
@@ -349,7 +346,9 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 				}
         $('#spctravel_time_car').text('');
 		$('#spctravel_delay').text('');
-        $("#chart").empty();
+        $("#chartTraveltime").empty();
+        $("#chartDelay").empty();
+        $("#chartTTI").empty();
         for (var i=0;i<nodes.features.length;i++){
             if (nodes.features[i].properties.Node_Number == Enodenum){
                 resultEnode = nodes.features[i];
@@ -377,69 +376,36 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
     });
 
 
-    function plot(alltraveltime,alldelay,allindex,snode,enode,cor){
+    function plotindex(label,chartlabel,all,allindex,snode,enode,cor){
 
-			$("#chart1").empty();
-            $("#chart2").empty();
-
-			var n = alldelay.length;
-			var line1 = [], line2 = [];
-            var mintravetime = 99999, maxtraveltime = -99999;
-            var mindelay = 99999, maxdelay = -99999;
+			var n = all.length;
+			var line = [];
+            var min = 99999, max = -99999;
 			for(var i=0;i<n;i++){
                 var hour = parseInt(allindex[i]/4);
                 var minute = parseInt((allindex[i]%4)*15);
                 if(minute==0){
                     minute = "00";
                 }
-				var point1 = [""+hour+":"+minute,alltraveltime[i]];
-                var point2 = [""+hour+":"+minute,alldelay[i]];
-				line1.push(point1);
-                line2.push(point2);
-                if (alldelay[i] > maxdelay){ maxdelay = alldelay[i]}
-                if (alltraveltime[i] > maxtraveltime){ maxtraveltime = alltraveltime[i]}
-                if (alldelay[i] < mindelay){ mindelay = alldelay[i]}
-                if (alltraveltime[i] < mintravetime){ mintravetime = alltraveltime[i]}
+				var point = [""+hour+":"+minute,all[i]];
+				line.push(point);
+                if (all[i] > max){ max = all[i]}
+                if (all[i] < min){ min = all[i]}
 			}
-            maxtraveltime = Math.ceil(maxtraveltime*1.2);
-            mintravetime = Math.floor(mintravetime/1.5);
-            maxdelay = Math.ceil(maxdelay*1.2);
-            mindelay = -1;
-			var plot1 = $.jqplot('chart1', [line1], {
-    			title:'Average Travel Time between Nodes ' + snode + ' and ' + enode + ' on Corridor ' + cor + ' in a Typical Weekday between Year 2013-2015',
+            max = max+0.5*(max-min);
+            min = min-0.5*(max-min);
+			var plot = $.jqplot(chartlabel, [line], {
+    			title: label + ' betweeen Nodes ' + snode + ' and ' + enode + ' on Corridor ' + cor + ' in a Typical Weekday between Year 2013-2015',
                 seriesDefaults: {
                     pointLabels: { show:false, formatString: "%#.2f" }
                 },
     			axes:{
     					xaxis:{label:'Time of the day', renderer:$.jqplot.DateAxisRenderer, tickOptions:{formatString:'%#H:%M'}, min:"0:00", max:"24:00"},
-    					yaxis:{min:mintravetime, max:maxtraveltime, label:'Time\n(min)'}
+    					yaxis:{min:min, max:max, tickOptions:'%#.4f',label:'Time\n(min)'}
     				},
     			//series:[{lineWidth:4, markerOptions:{style:'circle',size:6}}]
     			series:[
-                    {color:'#5FAB78',label:'Traveltime',showLine:false },
-{#                    {label:'Delay',showLine:false }#}
-                ],
-                legend: {
-                    show: true,
-                    location: 'se',     // compass direction, nw, n, ne, e, se, s, sw, w.
-                    xoffset: 12,        // pixel offset of the legend box from the x (or x2) axis.
-                    yoffset: 12        // pixel offset of the legend box from the y (or y2) axis.
-                }
-  			});
-
-            var plot2 = $.jqplot('chart2', [line2], {
-    			title:'Average Delay between Nodes ' + snode + ' and ' + enode + ' on Corridor ' + cor + ' in a Typical Weekday between Year 2013-2015',
-                seriesDefaults: {
-                    pointLabels: { show:false, formatString: "%#.2f" }
-                },
-    			axes:{
-    					xaxis:{label:'Time of the day', renderer:$.jqplot.DateAxisRenderer, tickOptions:{formatString:'%#H:%M'}, min:"0:00", max:"24:00"},
-    					yaxis:{min:mindelay, max:maxdelay, label:'Time\n(min)'}
-    				},
-    			//series:[{lineWidth:4, markerOptions:{style:'circle',size:6}}]
-    			series:[
-{#                    {color:'#5FAB78',label:'Traveltime',showLine:false },#}
-                    {label:'Delay',showLine:false }
+                    {color:"#55A9D3",label:label,showLine:false }
                 ],
                 legend: {
                     show: true,
@@ -465,19 +431,18 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
         return ans
     }
 
-	$('#datetimepicker').change(function(){
-        $('#spctravel_time_car').text('');
-		$('#spctravel_delay').text('');
-    });
-
-    $('#Etime').change(function(){
-        $('#spctravel_time_car').text('');
-		$('#spctravel_delay').text('');
-    });
-
     $('#spcshow').click(function(){
+        $("#chartTraveltime").empty();
+        $("#chartTraveltime").height(0);
+        $("#chartDelay").empty();
+        $("#chartDelay").height(0);
+        $("#chartTTI").empty();
+        $("#chartTTI").height(0);
         Stime = $('#Stime').val();
         Etime = $('#Etime').val();
+        traveltimeflag = $('#checkboxTravelTime').bootstrapSwitch('state');
+        delayflag = $('#checkboxDelay').bootstrapSwitch('state');
+        TTIflag = $('#checkboxTTI').bootstrapSwitch('state');
         $.get('../get_spc_traveltime_2013to2015/', {cornum:cornum0,Snode:Snodenum0,Enode:Enodenum0}, function(data, textStatus){
 			SpcOutput = $.parseJSON(data);
             finaltraveltime = 0;
@@ -514,23 +479,25 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
             } else {alert('Start Time must be ealier than End Time!\n\nPlease select another time period.')}
 
             //jqplot preparation:
-            var alltraveltime = [], alldelay=[], allindex = [];
+            var alltraveltime = [], alldelay=[], allindex = [], allTTI = [];
             for (var i=0;i<SpcOutput.length;i++) {
                 if (SpcOutput[i].spctraveltime != "NULL" && SpcOutput[i].spcdelay != "NULL"){
-                    alltraveltime.push(parseFloat(SpcOutput[i].spctraveltime));
-                    alldelay.push(parseFloat(SpcOutput[i].spcdelay));
+                    ftime = parseFloat(SpcOutput[i].spctraveltime);
+                    fdelay = parseFloat(SpcOutput[i].spcdelay);
+                    alltraveltime.push(ftime);
+                    alldelay.push(fdelay);
                     allindex.push(i);
+                    allTTI.push(ftime/(ftime-fdelay));
                 }
             }
-            plot(alltraveltime,alldelay,allindex,Snodenum0,Enodenum0,cornum0);
+            if (traveltimeflag){plotindex('Average Travel Time','chartTraveltime',alltraveltime,allindex,Snodenum0,Enodenum0,cornum0);}
+            if (delayflag){plotindex('Average Delay','chartDelay',alldelay,allindex,Snodenum0,Enodenum0,cornum0);}
+            if (TTIflag){plotindex('Travel Time Index','chartTTI',allTTI,allindex,Snodenum0,Enodenum0,cornum0);}
         }, 'json');
 
     });
 {#======================================================================================================================#}
-
-    });
+});
 </script>
 
 {% endblock %}
-
-

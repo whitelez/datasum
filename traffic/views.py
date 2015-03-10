@@ -156,8 +156,7 @@ def travel_time_new(request):
                 flag += 1
             CorrNum.append(corridor.Corridor_Number)
             corridors.insert(flag, corridor)
-    # nodes = SPCCorridorNodeInfo.objects.filter(Corridor_Number=13)
-    return render(request, 'traffic/travel_time_new.html', {'n': range(1, 32), 'tmcs': tmcs, 'corridors': corridors})
+    return render(request, 'traffic/travel_time_new.html', {'corridors': corridors})
 
 def travel_time_corridorafter2013(request):
     records = SPCCorridorNodeInfo2013to2015.objects.all()

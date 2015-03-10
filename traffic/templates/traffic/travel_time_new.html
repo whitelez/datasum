@@ -10,12 +10,11 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
 <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
+<link rel="stylesheet" href="{% static 'traffic/bootstrap-switch.min.css' %}" />
 {% endblock %}
 
 
 {% block content %}
-{#<div> {{ nodes }} </div>#}
-{#<p id="test"> </p>#}
 
 <div class="well" id="inputframe" style="height:600px;">
 	<div class="container" style="width: inherit">
@@ -49,38 +48,13 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
                <select id="spcyear" name="spcyear" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">   </select>
            </div>
         </div>
-    	<div class="row" style="padding-top:5px;">
-           <div class="col-md-6" style="height: 30px;text-align: center;">
-               <input type="radio" name="identity" id="AMPM" value=1 checked="checked" /> AM Peak
-           </div>
-           <div class="col-md-6" style="height: 30px;text-align: center;">
-               <input type="radio" name="identity" id="AMPM" value=0 /> PM Peak
+    	<div class="row" style="padding-top:8px;padding-bottom: 10px;">
+           <div class="col-md-12" style="text-align: center;">
+               <input type="checkbox" id="AMPM" name="AMPM" checked>
            </div>
         </div>
 	</div>
 
-{#      <h3>Travel Time: </h3>#}
-{#	   <h4> Node-based </h4>#}
-{#       <strong>Corridor: </strong>#}
-{#       <select id="cor" name="cor" style="float: right" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="60%">#}
-{#          <option value=1 selected="selected">Corridor1</option>#}
-{#          <option value=2>Corridor2</option>#}
-{#       	  <option value=0 selected="selected"></option>#}
-{#          {% for corridor in corridors%}#}
-{#               <option value={{corridor.Corridor_Number}}>Corridor {{corridor.Corridor_Number}} - {{corridor.Corridor_Name}}</option>#}
-{#		  {% endfor %}#}
-{#      </select><br>#}
-{##}
-{#      <strong style="float: left">Start Node: </strong>#}
-{#      <select id="SNode" name="SNode" style="float: right" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="60%">    </select><br>#}
-{##}
-{#      <strong style="float: left">End Node: </strong>#}
-{#      <select id="ENode" name="ENode" style="float: right" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="60%">    </select><br>#}
-{##}
-{#    <strong style="float: left">Year: </strong>#}
-{#    <select id="spcyear" name="spcyear" style="float: right" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="60%">   </select><br><br>#}
-{#	<input type="radio" name="identity" id="AMPM" value=1 checked="checked" /> AM Peak &emsp;#}
-{#	<input type="radio" name="identity" id="AMPM" value=0 /> PM Peak <br>#}
 	<button type="button" class="btn btn-default btn-block" id="spcshow">
         <span class="glyphicon glyphicon-search"> </span> &nbsp; Update
     </button> <br>
@@ -106,31 +80,12 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
            </div>
         </div>
     </div>
-
-{#	    <h4> Result: </h4>#}
-{#	  <strong> Average Traveltime: </strong> <span id = 'spctravel_time_car'>&emsp;&emsp;&emsp;</span> <br>#}
-{#	  <strong> Delay per Vehicle: </strong> <span id = 'spctravel_delay'>&emsp;&emsp;&emsp;</span>#}
 </div>
 {% endblock %}
 
 {% block map %}
-{#<div id = 'mapframe' class="well" >#}
-{#    <span style="font-weight:bold; font-size: large">Trip Planner: </span> &emsp;#}
-{#    <strong> Origin:</strong>#}
-{#      <input id="origin">#}
-{#      <select id="origin" name="origin" style="width:100%">#}
-{#          <option selected="selected"> </option>#}
-{#      </select>#}
-{#      <strong>Destination: </strong>#}
-{#      <input id="detination">#}
-{#      <select id="destination" name="destination" style="width:100%">#}
-{#          <option selected="selected"> </option>#}
-{#      </select>#}
-{#    <button type="button" class="btn btn-primary">Update</button> <br>#}
-{#<div class="well" id="mapframe">#}
+
 	<div id="map"></div>
-{#</div>#}
-{#</div>#}
     <div id="chartcontainer">
      	<div id="chart" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
 	</div>
@@ -143,36 +98,23 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
 <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
 
-{#</script>#}
-{#<script type="text/javascript"#}
-{#     src="http://tarruda.github.com/bootstrap-datetimepicker/assets/js/bootstrap-datetimepicker.min.js">#}
-{#</script>#}
-
 <script type="text/javascript" src="{% static 'traffic/TMC_geojson.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/jquery.jqplot.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/jqplot.dateAxisRenderer.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/jqplot.pointLabels.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/bootstrap-switch.min.js' %}"></script>
 
-{# <script type="text/javascript">#}
-{#      $(function() {#}
-{#        $('#datepicker').datetimepicker({#}
-{#          pickSeconds: false,#}
-{#          pick12HourFormat: true#}
-{#        });#}
-{#      });#}
-{#      $(function() {#}
-{#        $('#datepicker2').datetimepicker({#}
-{#          pickSeconds: false,#}
-{#          pick12HourFormat: true#}
-{#        });#}
-{#      });#}
-{#      $(function() {#}
-{#        $('#datepicker3').datetimepicker({#}
-{#	        pickSeconds: false,#}
-{#	        pick12HourFormat: true#}
-{#        });#}
-{#      });#}
-{# </script>#}
+<script type="text/javascript">
+    var options = {
+        onColor: 'info',
+        offColor: 'warning',
+        onText: 'AM Peak',
+        offText: 'PM Peak',
+        labelWidth: 30,
+        handleWidth: 100
+    };
+    $("[name='AMPM']").bootstrapSwitch(options);
+</script>
 
 <script>
      $('.selectpicker').selectpicker({
@@ -331,7 +273,6 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
 				}
         $.get('../get_node_info_for_one_corridor/', {cornum:cornum}, function(data, textStatus){
             nodes = $.parseJSON(data);
-{#            alert('hahah11111');#}
             var latmean, longmean;
             latmean = 0;
             longmean = 0;
@@ -373,7 +314,6 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
 
         $.get('../get_spc_years/', {cornum:cornum}, function(data, textStatus){
             years = $.parseJSON(data);
-{#            $('#spcyear').append("<option selected='selected'></option>");#}
             for (var i=0;i<years.features.length;i++){
                 $('#spcyear').append("<option value=" + years.features[i] + ">" + String(years.features[i]) + "</option>");
                 $('#spcyear').selectpicker('refresh');
@@ -398,7 +338,6 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
     };
 
     function snodechange(Snodenum){
-{#        alert('hahaha2222');#}
         if(Snodelayer){
 					control.removeLayer(Snodelayer);
 					if(map.hasLayer(Snodelayer)){
@@ -443,7 +382,6 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
     };
 
     function enodechange(Enodenum){
-{#        alert('hahaha3333');#}
         if(Enodelayer){
 					control.removeLayer(Enodelayer);
 					if(map.hasLayer(Enodelayer)){
@@ -534,7 +472,8 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
 
     $('#spcshow').click(function(){
         var year = $("#spcyear option:selected").attr("value");
-        var isam = $("input[name='identity']").filter(":checked").val();
+        var isam = $('#AMPM').bootstrapSwitch('state');
+        if (isam){isam = 1} else {isam=0}
         Snode = Snodenum0.charCodeAt()-64;
         Enode = Enodenum0.charCodeAt()-64;
         $.get('../get_spc_traveltime/', {year:year,cornum:cornum0,Snode:Snode,Enode:Enode,isam:isam}, function(data, textStatus){
