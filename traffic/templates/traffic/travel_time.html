@@ -9,6 +9,9 @@ Power of 32 RTIS - Travel Time: Interstates
 {% block style %}
 <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
+<link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
+<link rel="stylesheet" href="{% static 'traffic/bootstrap-datetimepicker.min.css' %}" />
+<link rel="stylesheet" href="{% static 'traffic/bootstrap-switch.min.css' %}" />
 {% endblock %}
 
 
@@ -17,7 +20,6 @@ Power of 32 RTIS - Travel Time: Interstates
     <div class="container" style="width: inherit">
         <div class="row"><h3>Travel Time </h3></div>
         <div class="row"><h4> Interstates: </h4></div>
-{#	    <div class="row"> <h5>Origin:</h5> </div>#}
     	<div class="row" style="padding-top:3px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Origin:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
@@ -28,7 +30,6 @@ Power of 32 RTIS - Travel Time: Interstates
 			    </select>
             </div>
 	    </div>
-{#    	<div class="row"> <h5>Destination:</h5> </div>#}
     	<div class="row" style="padding-top:3px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Destination:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
@@ -186,265 +187,13 @@ Power of 32 RTIS - Travel Time: Interstates
 	    </div>
     </div>
 
-{#<h3>Travel Time: </h3>#}
-{#    <h4> TMC-based </h4>#}
-{#<strong>Origin:</strong> #}
-{#<select id='select_tmc1' name = 'select_tmc1' style="width: 100%">#}
-{#{% for tmc in tmcs%}#}
-{#	<option value={{tmc.tmc}}>{{tmc.road}} - {{tmc.direction}} - {{tmc.intersection}}</option>#}
-{#{% endfor %}#}
-{#</select> <br>#}
-{#<strong>Destination:</strong> #}
-{#<select id='select_tmc2' name = 'select_tmc2' style="width: 100%">#}
-{#</select> <br>#}
-{#<br>#}
-{#    <p><strong>Start Date: </strong>#}
-{#<select id='sm' name = 'sm'>#}
-{#<option value='01'>Jan</option>#}
-{#<option value='02'>Feb</option>#}
-{#<option value='03'>Mar</option>#}
-{#<option value='04'>Apr</option>#}
-{#<option value='05'>May</option>#}
-{#<option value='06'>Jun</option>#}
-{#<option value='07'>Jul</option>#}
-{#<option value='08'>Aug</option>#}
-{#<option value='09'>Sep</option>#}
-{#<option value='10'>Oct</option>#}
-{#<option value='11'>Nov</option>#}
-{#<option value='12'>Dec</option>#}
-{#</select>#}
-{##}
-{#<select id='sd' name = 'sd'>#}
-{#{% for i in n%}#}
-{#	<option value={{i}}>{{i}}</option>#}
-{#{% endfor %}#}
-{#</select> <br>#}
-{##}
-{#<strong>End Date: </strong>#}
-{#<select id='em' name = 'em'>#}
-{#<option value='01'>Jan</option>#}
-{#<option value='02'>Feb</option>#}
-{#<option value='03'>Mar</option>#}
-{#<option value='04'>Apr</option>#}
-{#<option value='05'>May</option>#}
-{#<option value='06'>Jun</option>#}
-{#<option value='07'>Jul</option>#}
-{#<option value='08'>Aug</option>#}
-{#<option value='09'>Sep</option>#}
-{#<option value='10'>Oct</option>#}
-{#<option value='11'>Nov</option>#}
-{#<option value='12'>Dec</option>#}
-{#</select>#}
-{#<select id='ed' name = 'ed'>#}
-{#{% for i in n%}#}
-{#	<option value={{i}}>{{i}}</option>#}
-{#{% endfor %}#}
-{#</select>  <br>#}
-{##}
-{#<strong>Start Time: </strong>#}
-{#<select id="sh" name="sh">#}
-{#<option value='00'>0</option>#}
-{#<option value='01'>1</option>#}
-{#<option value='02'>2</option>#}
-{#<option value='03'>3</option>#}
-{#<option value='04'>4</option>#}
-{#<option value='05'>5</option>#}
-{#<option value='06'>6</option>#}
-{#<option value='07'>7</option>#}
-{#<option value='08'>8</option>#}
-{#<option value='09' selected="selected">9</option>#}
-{#<option value='10'>10</option>#}
-{#<option value='11'>11</option>#}
-{#<option value='12'>12</option>#}
-{#<option value='13'>13</option>#}
-{#<option value='14'>14</option>#}
-{#<option value='15'>15</option>#}
-{#<option value='16'>16</option>#}
-{#<option value='17'>17</option>#}
-{#<option value='18'>18</option>#}
-{#<option value='19'>19</option>#}
-{#<option value='20'>20</option>#}
-{#<option value='21'>21</option>#}
-{#<option value='22'>22</option>#}
-{#<option value='23'>23</option>#}
-{#</select>#}
-{#<strong>:</strong>#}
-{#<select id="smi" name="smi">#}
-{#<option value='00'>0</option>#}
-{#<option value='05'>5</option>#}
-{#<option value='10'>10</option>#}
-{#<option value='15'>15</option>#}
-{#<option value='20'>20</option>#}
-{#<option value='25'>25</option>#}
-{#<option value='30' selected="selected">30</option>#}
-{#<option value='35'>35</option>#}
-{#<option value='40'>40</option>#}
-{#<option value='45'>45</option>#}
-{#<option value='50'>50</option>#}
-{#<option value='55'>55</option>#}
-{#</select>  <br>#}
-{##}
-{#<strong>End Time: </strong>#}
-{#<select id="eh" name="eh">#}
-{#<option value='00'>0</option>#}
-{#<option value='01'>1</option>#}
-{#<option value='02'>2</option>#}
-{#<option value='03'>3</option>#}
-{#<option value='04'>4</option>#}
-{#<option value='05'>5</option>#}
-{#<option value='06'>6</option>#}
-{#<option value='07'>7</option>#}
-{#<option value='08'>8</option>#}
-{#<option value='09'>9</option>#}
-{#<option value='10' selected="selected">10</option>#}
-{#<option value='11'>11</option>#}
-{#<option value='12'>12</option>#}
-{#<option value='13'>13</option>#}
-{#<option value='14'>14</option>#}
-{#<option value='15'>15</option>#}
-{#<option value='16'>16</option>#}
-{#<option value='17'>17</option>#}
-{#<option value='18'>18</option>#}
-{#<option value='19'>19</option>#}
-{#<option value='20'>20</option>#}
-{#<option value='21'>21</option>#}
-{#<option value='22'>22</option>#}
-{#<option value='23'>23</option>#}
-{#</select>#}
-{#<strong>:</strong>#}
-{#<select id="emi" name="emi">#}
-{#<option value='00'>0</option>#}
-{#<option value='05'>5</option>#}
-{#<option value='10'>10</option>#}
-{#<option value='15'>15</option>#}
-{#<option value='20'>20</option>#}
-{#<option value='25'>25</option>#}
-{#<option value='30' selected="selected">30</option>#}
-{#<option value='35'>35</option>#}
-{#<option value='40'>40</option>#}
-{#<option value='45'>45</option>#}
-{#<option value='50'>50</option>#}
-{#<option value='55'>55</option>#}
-{#</select>  <br>#}
-
 <button type="button" class="btn btn-default btn-block" style="margin-top: 15px; margin-bottom: 15px;" id="his_avg">
     <span class="glyphicon glyphicon-search"> </span> &nbsp; Update
 </button>
-<!--
-<p>Prediction</p>
-<strong>Date: </strong>
-<select id='em' name = 'em'>
-<option value='01'>Jan</option>
-<option value='02'>Feb</option>
-<option value='03'>Mar</option>
-<option value='04'>Apr</option>
-<option value='05'>May</option>
-<option value='06'>Jun</option>
-<option value='07'>Jul</option>
-<option value='08'>Aug</option>
-<option value='09'>Sep</option>
-<option value='10'>Oct</option>
-<option value='11'>Nov</option>
-<option value='12'>Dec</option>
-</select>
-
-<select id='ed' name = 'ed'>
-{% for i in n%}
-	<option value={{i}}>{{i}}</option>
-{% endfor %}
-</select>
-
-<p><strong>Start time: </strong>
-<select id="sh" name="sh">
-<option value='00'>0</option>
-<option value='01'>1</option>
-<option value='02'>2</option>
-<option value='03'>3</option>
-<option value='04'>4</option>
-<option value='05'>5</option>
-<option value='06'>6</option>
-<option value='07'>7</option>
-<option value='08'>8</option>
-<option value='09'>9</option>
-<option value='10'>10</option>
-<option value='11'>11</option>
-<option value='12'>12</option>
-<option value='13'>13</option>
-<option value='14'>14</option>
-<option value='15'>15</option>
-<option value='16'>16</option>
-<option value='17'>17</option>
-<option value='18'>18</option>
-<option value='19'>19</option>
-<option value='20'>20</option>
-<option value='21'>21</option>
-<option value='22'>22</option>
-<option value='23'>23</option>
-</select>
-
-<select id="smi" name="smi">
-<option value='00'>0</option>
-<option value='05'>5</option>
-<option value='10'>10</option>
-<option value='15'>15</option>
-<option value='20'>20</option>
-<option value='25'>25</option>
-<option value='30'>30</option>
-<option value='35'>35</option>
-<option value='40'>40</option>
-<option value='45'>45</option>
-<option value='50'>50</option>
-<option value='55'>55</option>
-</select>
-
-<p><strong>End time: </strong>
-<select id="eh" name="eh">
-<option value='00'>0</option>
-<option value='01'>1</option>
-<option value='02'>2</option>
-<option value='03'>3</option>
-<option value='04'>4</option>
-<option value='05'>5</option>
-<option value='06'>6</option>
-<option value='07'>7</option>
-<option value='08'>8</option>
-<option value='09'>9</option>
-<option value='10'>10</option>
-<option value='11'>11</option>
-<option value='12'>12</option>
-<option value='13'>13</option>
-<option value='14'>14</option>
-<option value='15'>15</option>
-<option value='16'>16</option>
-<option value='17'>17</option>
-<option value='18'>18</option>
-<option value='19'>19</option>
-<option value='20'>20</option>
-<option value='21'>21</option>
-<option value='22'>22</option>
-<option value='23'>23</option>
-</select>
-
-<select id="emi" name="emi">
-<option value='00'>0</option>
-<option value='05'>5</option>
-<option value='10'>10</option>
-<option value='15'>15</option>
-<option value='20'>20</option>
-<option value='25'>25</option>
-<option value='30'>30</option>
-<option value='35'>35</option>
-<option value='40'>40</option>
-<option value='45'>45</option>
-<option value='50'>50</option>
-<option value='55'>55</option>
-</select>-->
 
     <div style="width:100%;height:2px;margin:0 auto;padding:0;background-color:#ddd;overflow:hidden;"></div>
 
 	<div class="container" style="width: inherit">
-	{#	<strong> Road: </strong> <span id = 'info_road'>&emsp;&emsp;&emsp;</span> &emsp;#}
-	{#	<strong> Direction: </strong> <span id = 'info_direction'>&emsp;&emsp;&emsp;</span> <br>#}
         <div class="row">
 			<h4 style="padding-top: 15px"> Average Travel Time: </h4>
         </div>
@@ -466,7 +215,6 @@ Power of 32 RTIS - Travel Time: Interstates
         </div>
 	</div>
 </div>
-{#<p id="txtHint"></p>#}
 {% endblock%}
 
 {% block map %}
@@ -479,8 +227,16 @@ Power of 32 RTIS - Travel Time: Interstates
 {% block script %}
 <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
-
 <script type="text/javascript" src="{% static 'traffic/TMC_geojson.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/jquery.jqplot.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/jqplot.dateAxisRenderer.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/jqplot.pointLabels.min.js' %}"></script>
+
+<script type="text/javascript" src="{% static 'traffic/moment.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/transition.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/collapse.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/bootstrap-datetimepicker.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/bootstrap-switch.min.js' %}"></script>
 
 <script>
      $('.selectpicker').selectpicker({
@@ -488,7 +244,6 @@ Power of 32 RTIS - Travel Time: Interstates
       size: 10
      });
 </script>
-
 
 <script>
 	$(function(){
@@ -543,23 +298,20 @@ Power of 32 RTIS - Travel Time: Interstates
 		info.addTo(map);*/
 		
 	var info = L.control();
-
-		info.onAdd = function (map) {
-			this._div = L.DomUtil.create('div', 'info');
-			this.update();
-			return this._div;
-		};
-
-		info.update = function (props) {
-			this._div.innerHTML = '<h4>Information</h4>' +  (props ?
-				'<b>' + props.road + '</b>'
-				+'<br>' + props.direction
-				+'<br>' + props.intersection
-				+'<br>' + ('' + props.miles).substr(0,4) + ' miles'
-				: 'Hover over a point');
-		};
-
-		info.addTo(map);
+	info.onAdd = function (map) {
+		this._div = L.DomUtil.create('div', 'info');
+		this.update();
+		return this._div;
+	};
+	info.update = function (props) {
+		this._div.innerHTML = '<h4>Information</h4>' +  (props ?
+			'<b>' + props.road + '</b>'
+			+'<br>' + props.direction
+			+'<br>' + props.intersection
+			+'<br>' + ('' + props.miles).substr(0,4) + ' miles'
+			: 'Hover over a point');
+	};
+	info.addTo(map);
 	
 	function highlightFeature(e) {
 			var layer = e.target;
@@ -574,11 +326,10 @@ Power of 32 RTIS - Travel Time: Interstates
 			info.update(layer.feature.properties);
 		}
 
-		function resetHighlight(e) {
-			info.update();
-		}
-	
-	
+    function resetHighlight(e) {
+		info.update();
+	}
+
 	//var selected = 0;
 	var road_dir = '';
 	$('#select_tmc1').change(function(){
@@ -674,6 +425,7 @@ Power of 32 RTIS - Travel Time: Interstates
 			   direction == 'EASTBOUND'? 'white':
 			   							  '#d4b9da';
 	}
+
 	function parkingMarkerStyle(direction){
 		return {
 			radius: 5,
@@ -698,6 +450,7 @@ Power of 32 RTIS - Travel Time: Interstates
 			   speed < 50 ? 'yellow':
 			                'green';
 	}
+
 	$("#his_avg").click(function(){
 		var sm = $("#sm option:selected").attr("value"),
 			sd = $("#sd option:selected").attr("value"),
@@ -713,8 +466,7 @@ Power of 32 RTIS - Travel Time: Interstates
 			sd = sd<10?'0'+sd:sd;
 			ed = sd<10?'0'+ed:ed;
 		$.get("../get_travel_time/", {s_date:sm+sd, e_date:em+ed, s_time:sh+smi, e_time:eh+emi, tmc1:tmc1, tmc2:tmc2}, function(data, textStatus){
-			
-			 travel_time= $.parseJSON(data);
+			travel_time= $.parseJSON(data);
 			$('#travel_time_car').text((''+travel_time.travel_time).substr(0,4)+" minutes");
 			$('#travel_time_truck').text((''+travel_time.truck_travel_time).substr(0,4)+" minutes");
 			
@@ -783,9 +535,7 @@ Power of 32 RTIS - Travel Time: Interstates
 	});
 	
 	var legend = L.control({position: 'bottomright'});
-
 		legend.onAdd = function (map) {
-
 			var div = L.DomUtil.create('div', 'info legend'),
 				grades = [0, 20, 50],
 				labels =[];
@@ -802,10 +552,7 @@ Power of 32 RTIS - Travel Time: Interstates
 			div.innerHTML = labels.join('<br><br>');
 			return div;
 		};
-
 		legend.addTo(map);
 	});
   </script>
 {% endblock %}
-
-

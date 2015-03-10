@@ -139,7 +139,7 @@ def ev_stations(request):
 
 def travel_time(request):
     tmcs = TMC.objects.all()
-    return render(request, 'traffic/travel_time.html',{'n':range(1,32),'tmcs':tmcs})
+    return render(request, 'traffic/travel_time.html', {'n': range(1, 32), 'tmcs': tmcs})
 
 #BY PXD
 def travel_time_new(request):
@@ -287,7 +287,6 @@ def get_spctraveltime(request):
     spctraveltime = 0
     spcdelay = 0
     flag_traveltime = True
-    # flag_delay = True
     Snode = int(Snode)
     Enode = int(Enode)
     isam = int(isam)
