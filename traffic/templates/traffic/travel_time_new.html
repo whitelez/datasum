@@ -81,7 +81,7 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
         </div>
         <div class="row" style="margin-top: 10px;">
            <div class="col-md-6" style="height: auto;padding-right: 0;">
-               Travel Time Index:
+               Travel Time Index (TTI):
            </div>
            <div class="col-md-6" style="height: auto;padding-left: 0;">
                <span id = 'spctravel_TTI'>&emsp;&emsp;&emsp;</span>
@@ -440,27 +440,31 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
     });
 
 
-    function plot(alltraveltime,alldelay,allyear,snode,enode,cor,AMPM){
+    function plot(alltraveltime,alldelay,allTTI,allyear,snode,enode,cor,AMPM){
 
 			$("#chart").empty();
 
 			var n = alldelay.length;
-			var line1 = [], line2 = [];
+			var line1 = [], line2 = [], line3 = [];
             var min = 99999, max = -99999;
 			for(var i=0;i<n;i++){
 				var point1 = [allyear[i],alltraveltime[i]];
                 var point2 = [allyear[i],alldelay[i]];
+                var point3 = [allyear[i],allTTI[i]];
 				line1.push(point1);
                 line2.push(point2);
+                line3.push(point3);
                 if (alldelay[i] > max){ max = alldelay[i]}
                 if (alltraveltime[i] > max){ max = alltraveltime[i]}
+                if (allTTI[i] > max){ max = allTTI[i]}
                 if (alldelay[i] < min){ min = alldelay[i]}
                 if (alltraveltime[i] < min){ min = alltraveltime[i]}
+                if (allTTI[i] < min){ min = allTTI[i]}
 			}
             max = Math.ceil(max*1.2);
-            min = min - 0.5;
-			var plot1 = $.jqplot('chart', [line1, line2], {
-    			title:'Weekday '+ AMPM + ' Traveltime and Delay between ' + snode + ' and ' + enode + ' on ' + cor + ' in different years',
+            min = Math.floor(min - 1.0);
+			var plot1 = $.jqplot('chart', [line1, line2, line3], {
+    			title:'Weekday '+ AMPM + ' Average Traveltime, Delay and TTI between ' + snode + ' and ' + enode + ' on ' + cor + ' in different years',
                 seriesDefaults: {
                     pointLabels: { show:true, formatString: "%#.2f" }
                 },
@@ -471,7 +475,8 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
     			//series:[{lineWidth:4, markerOptions:{style:'circle',size:6}}]
     			series:[
                     {color:'#5FAB78',label:'Traveltime'},
-                    {label:'Delay'}
+                    {label:'Delay'},
+                    {color:'#839557',label:'TTI'}
                 ],
                 legend: {
                     show: true,
@@ -517,19 +522,20 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
             if (i == years.features.length-1){
                 yearstring += String(years.features[i]);
             }else{
-                 yearstring += String(years.features[i]) + '+';
+                yearstring += String(years.features[i]) + '+';
             }
         }
 
-        var alltraveltime = [], alldelay=[];
+        var alltraveltime = [], alldelay=[], allTTI=[];
         $.get('../get_spc_traveltimeformanyyears/', {years:yearstring,cornum:cornum0,Snode:Snode,Enode:Enode,isam:isam}, function(data, textStatus){
                 SpcOutput = $.parseJSON(data);
                 for (var i=0;i<SpcOutput.length;i++) {
                     alltraveltime.push(parseFloat(SpcOutput[i].spctraveltime));
                     alldelay.push(parseFloat(SpcOutput[i].spcdelay));
+                    allTTI.push(parseFloat(SpcOutput.spctraveltime)/(parseFloat(SpcOutput.spctraveltime)-parseFloat(SpcOutput.spcdelay)))
                 }
                 if (isam == 1){AMPM = 'AM Peak Hour'} else { AMPM = 'PM Peak Hour'}
-                plot(alltraveltime,alldelay,allyear,Snodename,Enodename,corname,AMPM);
+                plot(alltraveltime,alldelay,allTTI,allyear,Snodename,Enodename,corname,AMPM);
         }, 'json');
 
     });
