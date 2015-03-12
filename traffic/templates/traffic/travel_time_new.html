@@ -65,7 +65,7 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
     	<div class="row"><h4> Results: </h4></div>
     	<div class="row" style="margin-top: 5px;">
            <div class="col-md-6" style="height: auto;padding-right: 0;">
-               Average Traveltime:
+               Average Travel Time:
            </div>
            <div class="col-md-6" style="height: auto;padding-left: 0;">
                <span id = 'spctravel_time_car'>&emsp;&emsp;&emsp;</span>
@@ -73,10 +73,18 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
         </div>
     	<div class="row" style="margin-top: 10px;">
            <div class="col-md-6" style="height: auto;padding-right: 0;">
-               <p>Delay per Vehicle:</p>
+               Delay per Vehicle:
            </div>
            <div class="col-md-6" style="height: auto;padding-left: 0;">
                <span id = 'spctravel_delay'>&emsp;&emsp;&emsp;</span>
+           </div>
+        </div>
+        <div class="row" style="margin-top: 10px;">
+           <div class="col-md-6" style="height: auto;padding-right: 0;">
+               Travel Time Index:
+           </div>
+           <div class="col-md-6" style="height: auto;padding-left: 0;">
+               <span id = 'spctravel_TTI'>&emsp;&emsp;&emsp;</span>
            </div>
         </div>
     </div>
@@ -253,6 +261,7 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
         $('#spcyear').empty();
         $('#spctravel_time_car').text('');
 		$('#spctravel_delay').text('');
+		$('#spctravel_TTI').text('');
         if(nodelayer){
 					control.removeLayer(nodelayer);
 					if(map.hasLayer(nodelayer)){
@@ -346,6 +355,7 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
 				}
         $('#spctravel_time_car').text('');
 		$('#spctravel_delay').text('');
+		$('#spctravel_TTI').text('');
         for (var i=0;i<nodes.features.length;i++){
             if (nodes.features[i].properties.Node_Number == Snodenum){
                 resultSnode = nodes.features[i];
@@ -390,6 +400,7 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
 				}
         $('#spctravel_time_car').text('');
 		$('#spctravel_delay').text('');
+		$('#spctravel_TTI').text('');
         for (var i=0;i<nodes.features.length;i++){
             if (nodes.features[i].properties.Node_Number == Enodenum){
                 resultEnode = nodes.features[i];
@@ -419,11 +430,13 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
 	$('#spcyear').change(function(){
         $('#spctravel_time_car').text('');
 		$('#spctravel_delay').text('');
+		$('#spctravel_TTI').text('');
     });
 
 	$("input[name='identity']").change(function(){
         $('#spctravel_time_car').text('');
 		$('#spctravel_delay').text('');
+		$('#spctravel_TTI').text('');
     });
 
 
@@ -480,6 +493,8 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
 			SpcOutput = $.parseJSON(data);
             $('#spctravel_time_car').text(SpcOutput.spctraveltime + " minutes");
 			$('#spctravel_delay').text(SpcOutput.spcdelay + " minutes");
+			$('#spctravel_TTI').text(String(float.valueOf(parseSpcOutput.spctraveltime)/(float.valueOf(SpcOutput.spctraveltime)
+            -float.valueOf(SpcOutput.spcdelay))).substring(0, 4));
         }, 'json');
 
         //jqplot preparation:
