@@ -493,8 +493,8 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
 			SpcOutput = $.parseJSON(data);
             $('#spctravel_time_car').text(SpcOutput.spctraveltime + " minutes");
 			$('#spctravel_delay').text(SpcOutput.spcdelay + " minutes");
-			$('#spctravel_TTI').text(String(float.valueOf(parseSpcOutput.spctraveltime)/(float.valueOf(SpcOutput.spctraveltime)
-            -float.valueOf(SpcOutput.spcdelay))).substring(0, 4));
+			$('#spctravel_TTI').text(String(parseFloat(SpcOutput.spctraveltime)/(parseFloat(SpcOutput.spctraveltime)
+            -parseFloat(SpcOutput.spcdelay))).substring(0, 4));
         }, 'json');
 
         //jqplot preparation:
