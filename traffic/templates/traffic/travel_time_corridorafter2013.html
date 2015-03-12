@@ -19,7 +19,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 
 <div class="well" id="inputframe" style="height:600px;">
 	<div class="container" style="width: inherit">
-        <div class="row"><h3>Travel Time </h3></div>
+        <div class="row"><h3 style="margin-top: 0;">Travel Time </h3></div>
         <div class="row"><h4> Corridors (2013-2015): </h4></div>
 	    <div class="row" style="padding-top:5px;">
 		   <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Corridor:</h5></div>
@@ -82,24 +82,32 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
         <span class="glyphicon glyphicon-search"> </span> &nbsp; Update
     </button> <br>
 
-	<div style="width:100%;height:2px;margin:0 auto;padding:0;background-color:#ddd;overflow:hidden;"></div> <br>
+	<div style="width:100%;height:2px;margin:0 auto;padding:0;background-color:#ddd;overflow:hidden;"></div>
 
 	<div class="container" style="width: inherit">
     	<div class="row"><h4> Results: </h4></div>
     	<div class="row" style="margin-top: 5px;">
-           <div class="col-md-6" style="height: auto;padding-right: 0;">
-               Average Traveltime:
+           <div class="col-md-7" style="height: auto;padding-right: 0;">
+               Average Travel Time:
            </div>
-           <div class="col-md-6" style="height: auto;padding-left: 0;">
+           <div class="col-md-5" style="height: auto;padding-left: 0;">
                <span id = 'spctravel_time_car'>&emsp;&emsp;&emsp;</span>
            </div>
         </div>
     	<div class="row" style="margin-top: 10px;">
-           <div class="col-md-6" style="height: auto;padding-right: 0;">
-               <p>Delay per Vehicle:</p>
+           <div class="col-md-7" style="height: auto;padding-right: 0;">
+               Delay per Vehicle:
            </div>
-           <div class="col-md-6" style="height: auto;padding-left: 0;">
+           <div class="col-md-5" style="height: auto;padding-left: 0;">
                <span id = 'spctravel_delay'>&emsp;&emsp;&emsp;</span>
+           </div>
+        </div>
+        <div class="row" style="margin-top: 10px;">
+           <div class="col-md-7" style="height: auto;padding-right: 0;">
+               Travel Time Index (TTI):
+           </div>
+           <div class="col-md-5" style="height: auto;padding-left: 0;">
+               <span id = 'spctravel_TTI'>&emsp;&emsp;&emsp;</span>
            </div>
         </div>
     </div>
@@ -211,6 +219,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
         $('#ENode').empty();
         $('#spctravel_time_car').text('');
 		$('#spctravel_delay').text('');
+		$('#spctravel_TTI').text('');
         $("#chartTraveltime").empty();
         $("#chartDelay").empty();
         $("#chartTTI").empty();
@@ -299,6 +308,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 				}
         $('#spctravel_time_car').text('');
 		$('#spctravel_delay').text('');
+		$('#spctravel_TTI').text('');
         $("#chartTraveltime").empty();
         $("#chartDelay").empty();
         $("#chartTTI").empty();
@@ -346,6 +356,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 				}
         $('#spctravel_time_car').text('');
 		$('#spctravel_delay').text('');
+		$('#spctravel_TTI').text('');
         $("#chartTraveltime").empty();
         $("#chartDelay").empty();
         $("#chartTTI").empty();
@@ -467,14 +478,21 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
                 }
                 else {
                     finaltraveltime /= counttraveltime;
-                    $('#spctravel_time_car').text(String(finaltraveltime).substring(0, 5) + " Minutes");
+                    $('#spctravel_time_car').text(String(finaltraveltime).substring(0, 4) + " Minutes");
                 }
                 if (finaldelay == 0) {
                     $('#spctravel_delay').text("Data Not Available");
                 }
                 else {
                     finaldelay /= countdelay;
-                    $('#spctravel_delay').text(String(finaldelay).substring(0, 5) + " Minutes");
+                    $('#spctravel_delay').text(String(finaldelay).substring(0, 4) + " Minutes");
+                }
+                if ((finaltraveltime == 0)||(finaldelay == 0)){
+                    $('#spctravel_TTI').text("Data Not Available");
+                }
+                else{
+                    finalTTI = finaltraveltime/(finaltraveltime-finaldelay);
+                    $('#spctravel_TTI').text(String(finalTTI).substring(0, 4));
                 }
             } else {alert('Start Time must be ealier than End Time!\n\nPlease select another time period.')}
 
