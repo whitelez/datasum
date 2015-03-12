@@ -476,7 +476,7 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
     			series:[
                     {color:'#5FAB78',label:'Traveltime'},
                     {label:'Delay'},
-                    {color:'#839557',label:'TTI'}
+                    {color:'#d8b83f',label:'TTI'}
                 ],
                 legend: {
                     show: true,
@@ -532,7 +532,7 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
                 for (var i=0;i<SpcOutput.length;i++) {
                     alltraveltime.push(parseFloat(SpcOutput[i].spctraveltime));
                     alldelay.push(parseFloat(SpcOutput[i].spcdelay));
-                    allTTI.push(parseFloat(SpcOutput.spctraveltime)/(parseFloat(SpcOutput.spctraveltime)-parseFloat(SpcOutput.spcdelay)))
+                    allTTI.push(parseFloat(SpcOutput[i].spctraveltime)/(parseFloat(SpcOutput[i].spctraveltime)-parseFloat(SpcOutput[i].spcdelay)))
                 }
                 if (isam == 1){AMPM = 'AM Peak Hour'} else { AMPM = 'PM Peak Hour'}
                 plot(alltraveltime,alldelay,allTTI,allyear,Snodename,Enodename,corname,AMPM);
