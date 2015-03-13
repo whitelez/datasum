@@ -412,11 +412,11 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
                 },
     			axes:{
     					xaxis:{label:'Time of the day', renderer:$.jqplot.DateAxisRenderer, tickOptions:{formatString:'%#H:%M'}, min:"0:00", max:"24:00"},
-    					yaxis:{min:min, max:max, tickOptions:'%#.4f',label:'Time\n(min)'}
+    					yaxis:{min:min, max:max, tickOptions:'%#.4f',label:jqYaxisLabel[label.split(' ')[2]]}
     				},
     			//series:[{lineWidth:4, markerOptions:{style:'circle',size:6}}]
     			series:[
-                    {color:"#55A9D3",label:label,showLine:false }
+                    {color:jqplotColors[label.split(' ')[2]],label:label,showLine:false }
                 ],
                 legend: {
                     show: true,
@@ -441,6 +441,17 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 
         return ans
     }
+
+    var jqplotColors = {
+        Time: '#55A9D3',
+        Delay: '#f1c40f',
+        Index: '#5FAB78'
+    };
+    var jqYaxisLabel = {
+        Time: 'Travel Time\n(min)',
+        Delay: 'Delay Time\n(min)',
+        Index: 'Value'
+    };
 
     $('#spcshow').click(function(){
         $("#chartTraveltime").empty();
@@ -474,21 +485,21 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
                     }
                 }
                 if (finaltraveltime == 0) {
-                    $('#spctravel_time_car').text("Data Not Available");
+                    $('#spctravel_time_car').text("Data N/A");
                 }
                 else {
                     finaltraveltime /= counttraveltime;
                     $('#spctravel_time_car').text(String(finaltraveltime).substring(0, 4) + " Minutes");
                 }
                 if (finaldelay == 0) {
-                    $('#spctravel_delay').text("Data Not Available");
+                    $('#spctravel_delay').text("Data N/A");
                 }
                 else {
                     finaldelay /= countdelay;
                     $('#spctravel_delay').text(String(finaldelay).substring(0, 4) + " Minutes");
                 }
                 if ((finaltraveltime == 0)||(finaldelay == 0)){
-                    $('#spctravel_TTI').text("Data Not Available");
+                    $('#spctravel_TTI').text("Data N/A");
                 }
                 else{
                     finalTTI = finaltraveltime/(finaltraveltime-finaldelay);
@@ -509,7 +520,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
                 }
             }
             if (traveltimeflag){plotindex('Average Travel Time','chartTraveltime',alltraveltime,allindex,Snodenum0,Enodenum0,cornum0);}
-            if (delayflag){plotindex('Average Delay','chartDelay',alldelay,allindex,Snodenum0,Enodenum0,cornum0);}
+            if (delayflag){plotindex('Average Vehicle Delay','chartDelay',alldelay,allindex,Snodenum0,Enodenum0,cornum0);}
             if (TTIflag){plotindex('Travel Time Index','chartTTI',allTTI,allindex,Snodenum0,Enodenum0,cornum0);}
         }, 'json');
 
