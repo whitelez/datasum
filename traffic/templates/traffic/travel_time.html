@@ -18,7 +18,7 @@ Power of 32 RTIS - Travel Time: Interstates
 {% block content %}
 <div id='user_input' class="well" style="height:600px;">
     <div class="container" style="width: inherit">
-        <div class="row"><h3>Travel Time </h3></div>
+        <div class="row"><h3 style="margin-top: 0;">Travel Time </h3></div>
         <div class="row"><h4> Interstates: </h4></div>
     	<div class="row" style="padding-top:3px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Origin:</h5></div>
@@ -185,9 +185,25 @@ Power of 32 RTIS - Travel Time: Interstates
 				</select>
             </div>
 	    </div>
+    	<div class="row" style="padding-top: 10px;">
+            <div class="col-md-6" style="padding-right: 0;">
+                <input type="checkbox" id="checkboxTTI" name="checkboxTTI" checked>
+            </div>
+            <div class="col-md-6" style="padding-left: 0;">
+                <input type="checkbox" id="checkboxBT" name="checkboxBT" checked>
+            </div>
+        </div>
+        <div class="row" style="padding-top: 5px;">
+            <div class="col-md-6" style="padding-right: 0;">
+                <input type="checkbox" id="checkboxBI" name="checkboxBI" checked>
+            </div>
+            <div class="col-md-6" style="padding-left: 0;">
+                <input type="checkbox" id="checkboxPTI" name="checkboxPTI" checked>
+            </div>
+        </div>
     </div>
 
-<button type="button" class="btn btn-default btn-block" style="margin-top: 15px; margin-bottom: 15px;" id="his_avg">
+<button type="button" class="btn btn-default btn-block" style="margin-top: 10px; margin-bottom: 15px;" id="his_avg">
     <span class="glyphicon glyphicon-search"> </span> &nbsp; Update
 </button>
 
@@ -221,8 +237,7 @@ Power of 32 RTIS - Travel Time: Interstates
 <div id="map"></div>
 
 {% endblock %}
-	
-	
+
 
 {% block script %}
 <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
@@ -237,6 +252,22 @@ Power of 32 RTIS - Travel Time: Interstates
 <script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/collapse.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-datetimepicker.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-switch.min.js' %}"></script>
+
+<script type="text/javascript">
+    var options = {
+        onColor: 'info',
+        offColor: 'warning',
+        labelText: 'TTI',
+        labelWidth: 50
+    };
+    $("[name='checkboxTTI']").bootstrapSwitch(options);
+    options.labelText = 'BT';
+    $("[name='checkboxBT']").bootstrapSwitch(options);
+    options.labelText = 'BI';
+    $("[name='checkboxBI']").bootstrapSwitch(options);
+	options.labelText = 'PTI';
+    $("[name='checkboxPTI']").bootstrapSwitch(options);
+</script>
 
 <script>
      $('.selectpicker').selectpicker({
