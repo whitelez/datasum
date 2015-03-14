@@ -672,6 +672,83 @@ def routing_path(request):
                 nearest_lot['lat'] = lot.lat
                 nearest_lot['name'] = lot.name
                 nearest_lot['max_spots'] = lot.max_spots
+    #origin = {'id':'', 'node':'', 'lon':0.0, 'lat':0.0}
+    #destination = {'id':'', 'node':'', 'lon':0.0, 'lat':0.0}
+
+        #get traffic pattern
+    weekday = date(2015,int(p_date[0:2]), int(p_date[2:4])).weekday()
+    if weekday == 0:
+        pattern = 1
+    elif weekday == 4:
+        pattern = 3
+    elif weekday > 4:
+        pattern = 4
+    else:
+        pattern = 2
+
+    interval =  int(p_time[0:2])*60 + int(p_time[2:4]) + 1
+    url = 'http://ec2-54-152-117-200.compute-1.amazonaws.com/travel_time_hierachy.php?s_lng='+ str(s_lon) + '&s_lat=' + str(s_lat) + '&e_lng=' + str(e_lon) + '&e_lat=' + str(e_lat) + '&interval=' + str(interval) + '&pattern=' + str(pattern)
+    rsps = urllib2.urlopen(url)
+    info = rsps.read().strip(',\r\n')
+    info = info.split('\t')
+    if not info[1]: #no rsps
+        response = json.dumps({"success":"no","path":{},"lot":{"find_lot":0,"geoJson":{}},"travel_time":-1})
+        return HttpResponse(response, content_type='application/json')
+    origin, destination = info[0].split(";")
+    origin = json.loads(origin)
+    destination = json.loads(destination)
+    time = float(info[1])
+    path = info[2].split(',')
+    path_coor = []
+    for p in path:
+       link_record = GIS_links.objects.filter(link_id = p)
+       path_coor.append(json.loads(link_record[0].geometries.strip()))
+    #path_coor = path_coor.rstrip(',')
+    #path_coor = json.loads(path_coor)
+    rsps_json = {"success":"yes","path":{},"lot":{"find_lot":0,"geoJson":{}},"travel_time":-1}
+    rsps_json["travel_time"] = time
+    result = {"type":"FeatureCollection","features":[]}
+    path_geoJson =  {"type":"Feature","geometry":{"type":"MultiLineString","coordinates":path_coor}}
+    origin_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":[[s_lon,s_lat],origin]},"properties":{"position":"origin"}}
+    #origin_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":get_google_direction([s_lon,s_lat],[origin['lon'],origin['lat']],'driving')},"properties":{"position":"origin","id":str(origin['id'])}}
+    destination_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":[[e_lon,e_lat],destination]},"properties":{"position":"destination"}}
+    #destination_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":get_google_direction([e_lon,e_lat],[destination['lon'],destination['lat']],'driving')},"properties":{"position":"destination","id":str(destination['id'])}}
+    result['features'] = [origin_geoJson,destination_geoJson,path_geoJson]
+    #result['features'] = [path_geoJson]
+    if nearest_lot:
+        path_to_lot_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":get_google_direction([e_lon, e_lat],[d_lon,d_lat],'walking')},"properties":{"position":"path to parking lot"}}
+        result['features'].append(path_to_lot_geoJson)
+        lot_geoJson = {"type":"Feature","geometry":{"type":"Point","coordinates":[e_lon, e_lat]},"properties":nearest_lot}
+        rsps_json["lot"]["geoJson"] = lot_geoJson
+        rsps_json["lot"]["find_lot"] = 1
+    rsps_json["path"] = result
+    response = json.dumps(rsps_json)
+    return HttpResponse(response, content_type='application/json')
+
+def routing_path_nodes(request):
+    s_lon = float(request.GET['s_lon'])
+    s_lat = float(request.GET['s_lat'])
+    d_lon = e_lon = float(request.GET['e_lon'])
+    d_lat = e_lat = float(request.GET['e_lat'])
+    p_date = request.GET['date']
+    p_time = request.GET['time']
+    find_lots = request.GET['find_lots']
+    rad = request.GET['rad']
+    nearest_lot ={}
+
+    if find_lots == 'true' and rad:
+        min_dist = float(rad)
+        lots = Parking_lots.objects.all()
+        for lot in lots:
+            dist = distance_lnglat([d_lon,d_lat],[lot.lon,lot.lat])
+            if dist <= min_dist:
+                min_dist = dist
+                e_lon = lot.lon
+                e_lat = lot.lat
+                nearest_lot['lon'] = lot.lon
+                nearest_lot['lat'] = lot.lat
+                nearest_lot['name'] = lot.name
+                nearest_lot['max_spots'] = lot.max_spots
     origin = {'id':'', 'node':'', 'lon':0.0, 'lat':0.0}
     destination = {'id':'', 'node':'', 'lon':0.0, 'lat':0.0}
     dist_min_origin = 10000000000.0
