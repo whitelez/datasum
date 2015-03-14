@@ -238,11 +238,24 @@ class Parking_lots(models.Model):
     def __unicode__(self):
         return self.lot_id
 
-
-
+class Closed_roads(models.Model):
+    perm_no = models.PositiveIntegerField(primary_key=True)
+    location = models.CharField(max_length=100)
+    lat = models.FloatField()
+    lng = models.FloatField()
+    note = models.CharField(max_length=500)
+    start_date = models.CharField(max_length=15)  #in format mm/dd/yy
+    end_data = models.CharField(max_length=15)
+    wkday_hrs = models.CharField(max_length=30)  #store the closure hours on weekdays, split by"," two fields as a time range
+    wkend_hrs = models.CharField(max_length=30)
+    def __unicode__(self):
+        return self.perm_no
 
     
     
+
+
+
 
 
 

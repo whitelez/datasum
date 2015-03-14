@@ -40,5 +40,5 @@ urlpatterns = patterns('',
     url(r'^get_incidents_rcrs_area/$', views.get_incidents_rcrs_area, name='get_incidents_rcrs_area'),
     url(r'^real_time_incidents_rcrs/$', views.real_time_incidents_rcrs, name='real_time_incidents_rcrs'),
 #SGYang
-    url(r'^road_closure/$', views.closure,name='closure'),
+    url(r'^road_closure/$', views.closure, name='closure'),
 )
