@@ -670,6 +670,83 @@ def routing_path(request):
                 nearest_lot['lat'] = lot.lat
                 nearest_lot['name'] = lot.name
                 nearest_lot['max_spots'] = lot.max_spots
+    #origin = {'id':'', 'node':'', 'lon':0.0, 'lat':0.0}
+    #destination = {'id':'', 'node':'', 'lon':0.0, 'lat':0.0}
+
+        #get traffic pattern
+    weekday = date(2015,int(p_date[0:2]), int(p_date[2:4])).weekday()
+    if weekday == 0:
+        pattern = 1
+    elif weekday == 4:
+        pattern = 3
+    elif weekday > 4:
+        pattern = 4
+    else:
+        pattern = 2
+
+    interval =  int(p_time[0:2])*60 + int(p_time[2:4]) + 1
+    url = 'http://ec2-54-152-117-200.compute-1.amazonaws.com/travel_time_hierachy.php?s_lng='+ str(s_lon) + '&s_lat=' + str(s_lat) + '&e_lng=' + str(e_lon) + '&e_lat=' + str(e_lat) + '&interval=' + str(interval) + '&pattern=' + str(pattern)
+    rsps = urllib2.urlopen(url)
+    info = rsps.read().strip(',\r\n')
+    info = info.split('\t')
+    if not info[1]: #no rsps
+        response = json.dumps({"success":"no","path":{},"lot":{"find_lot":0,"geoJson":{}},"travel_time":-1})
+        return HttpResponse(response, content_type='application/json')
+    origin, destination = info[0].split(";")
+    origin = json.loads(origin)
+    destination = json.loads(destination)
+    time = float(info[1])
+    path = info[2].split(',')
+    path_coor = []
+    for p in path:
+       link_record = GIS_links.objects.filter(link_id = p)
+       path_coor.append(json.loads(link_record[0].geometries.strip()))
+    #path_coor = path_coor.rstrip(',')
+    #path_coor = json.loads(path_coor)
+    rsps_json = {"success":"yes","path":{},"lot":{"find_lot":0,"geoJson":{}},"travel_time":-1}
+    rsps_json["travel_time"] = time
+    result = {"type":"FeatureCollection","features":[]}
+    path_geoJson =  {"type":"Feature","geometry":{"type":"MultiLineString","coordinates":path_coor}}
+    origin_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":[[s_lon,s_lat],origin]},"properties":{"position":"origin"}}
+    #origin_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":get_google_direction([s_lon,s_lat],[origin['lon'],origin['lat']],'driving')},"properties":{"position":"origin","id":str(origin['id'])}}
+    destination_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":[[e_lon,e_lat],destination]},"properties":{"position":"destination"}}
+    #destination_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":get_google_direction([e_lon,e_lat],[destination['lon'],destination['lat']],'driving')},"properties":{"position":"destination","id":str(destination['id'])}}
+    result['features'] = [origin_geoJson,destination_geoJson,path_geoJson]
+    #result['features'] = [path_geoJson]
+    if nearest_lot:
+        path_to_lot_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":get_google_direction([e_lon, e_lat],[d_lon,d_lat],'walking')},"properties":{"position":"path to parking lot"}}
+        result['features'].append(path_to_lot_geoJson)
+        lot_geoJson = {"type":"Feature","geometry":{"type":"Point","coordinates":[e_lon, e_lat]},"properties":nearest_lot}
+        rsps_json["lot"]["geoJson"] = lot_geoJson
+        rsps_json["lot"]["find_lot"] = 1
+    rsps_json["path"] = result
+    response = json.dumps(rsps_json)
+    return HttpResponse(response, content_type='application/json')
+
+def routing_path_nodes(request):
+    s_lon = float(request.GET['s_lon'])
+    s_lat = float(request.GET['s_lat'])
+    d_lon = e_lon = float(request.GET['e_lon'])
+    d_lat = e_lat = float(request.GET['e_lat'])
+    p_date = request.GET['date']
+    p_time = request.GET['time']
+    find_lots = request.GET['find_lots']
+    rad = request.GET['rad']
+    nearest_lot ={}
+
+    if find_lots == 'true' and rad:
+        min_dist = float(rad)
+        lots = Parking_lots.objects.all()
+        for lot in lots:
+            dist = distance_lnglat([d_lon,d_lat],[lot.lon,lot.lat])
+            if dist <= min_dist:
+                min_dist = dist
+                e_lon = lot.lon
+                e_lat = lot.lat
+                nearest_lot['lon'] = lot.lon
+                nearest_lot['lat'] = lot.lat
+                nearest_lot['name'] = lot.name
+                nearest_lot['max_spots'] = lot.max_spots
     origin = {'id':'', 'node':'', 'lon':0.0, 'lat':0.0}
     destination = {'id':'', 'node':'', 'lon':0.0, 'lat':0.0}
     dist_min_origin = 10000000000.0
@@ -965,9 +1042,36 @@ def real_time_tmc(request):
             # this_tmc.ttm = float(record.attrib["travelTimeMinutes"])
             # this_tmc.congestion = float(record.attrib["congestionLevel"])
             # this_tmc.save()
-            this_data = {"type":"Feature","geometry":{"type":"MultiPoint","coordinates":[[this_tmc.s_lon,this_tmc.s_lat],[this_tmc.e_lon,this_tmc.e_lat]]},"properties":{"road":this_tmc.road,"direction":this_tmc.direction,"miles":this_tmc.miles,"order":this_tmc.road_order,"speed":float(record.attrib["speed"]),"reference":float(record.attrib["reference"]),"tt":float(record.attrib["travelTimeMinutes"]),"sp_ref_ratio":float(record.attrib["speed"])/float(record.attrib["reference"])}}
+            this_data = {"type":"Feature","geometry":{"type":"MultiPoint","coordinates":[[this_tmc.s_lon,this_tmc.s_lat],[this_tmc.e_lon,this_tmc.e_lat]]},"properties":{"tmc":this_tmc.tmc,"road":this_tmc.road,"direction":this_tmc.direction,"miles":this_tmc.miles,"order":this_tmc.road_order,"speed":float(record.attrib["speed"]),"reference":float(record.attrib["reference"]),"tt":float(record.attrib["travelTimeMinutes"]),"sp_ref_ratio":float(record.attrib["speed"])/float(record.attrib["reference"])}}
             result_data["features"].append(this_data)
         i+=1
     response = json.dumps(result_data)
     return HttpResponse(response,content_type="application/json")
+
+
+def TMC_GIS(request):
+    # data = {"gis":{},"tmc":{}}
+
+    GIS = {"type":"FeatureCollection","features":[]}
+    links = GIS_links.objects.all()
+    features = [0]*len(links)
+    for i,link in enumerate(links):
+        features[i] = {"type":"Feature","geometry":{"type":"LineString","coordinates":json.loads(link.geometries.strip())},"properties":{"lid":link.link_id}}
+    GIS["features"] = features
+    #data["gis"] = GIS
+
+    # TMC = {"type":"FeatureCollection","features":[]}
+    # tmcs = TMC_real_time.objects.all()
+    # features = [0]*len(tmcs)
+    # for i,tmc in enumerate(tmcs):
+    #     features[i] = {"type":"Feature","geometry":{"type":"MultiPoint","coordinates":[[tmc.s_lon,tmc.s_lat],[tmc.e_lon,tmc.e_lat]]},"properties":{"id":tmc.tmc}}
+    # TMC["features"] = features
+    # data["tmc"] = TMC
+
+    response = json.dumps(GIS)
+    return HttpResponse(response,content_type="application/json")
+
+def real_time_tt(request):
+    return render(request, 'traffic/real_time_tt.html')
+
 

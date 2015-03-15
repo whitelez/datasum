@@ -262,8 +262,8 @@ class Transit_data(models.Model):
 class GIS_links(models.Model):
     link_id = models.CharField(max_length = 20, primary_key = True)
     miles = models.FloatField()
-    from_node = models.PositiveSmallIntegerField()
-    to_node = models.PositiveSmallIntegerField()
+    from_node = models.CharField(max_length = 10)
+    to_node = models.CharField(max_length = 10)
     s_lon = models.FloatField()
     s_lat = models.FloatField()
     e_lon = models.FloatField()
