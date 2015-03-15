@@ -3,7 +3,7 @@
 {% load staticfiles %}
 
 {% block title %}
-Power of 32 RTIS - Travel Time (Node-based)
+Power of 32 RTIS - Travel Time: Corridors (2003-2012)
 {% endblock %}
 
 {% block style %}
@@ -20,7 +20,7 @@ Power of 32 RTIS - Travel Time (Node-based)
 <div class="well" id="inputframe" style="height:600px;">
 	<div class="container" style="width: inherit">
        <div class="row"><h3>Travel Time </h3></div>
-       <div class="row"><h4> Node-based: </h4></div>
+       <div class="row"><h4> Corridors (2003-2012): </h4></div>
 	   <div class="row" style="padding-top:5px;">
 		  <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Corridor:</h5></div>
 		  <div class="col-md-8" style="padding-left: 0;">
@@ -509,7 +509,7 @@ Power of 32 RTIS - Travel Time (Node-based)
             max = Math.ceil(max*1.2);
             min = -1;
 			var plot1 = $.jqplot('chart', [line1, line2], {
-    			title:AMPM + ' Traveltime and Delay between ' + snode + ' and ' + enode + ' on ' + cor + ' in different years',
+    			title:'Weekday '+ AMPM + ' Traveltime and Delay between ' + snode + ' and ' + enode + ' on ' + cor + ' in different years',
                 seriesDefaults: {
                     pointLabels: { show:true, formatString: "%#.2f" }
                 },

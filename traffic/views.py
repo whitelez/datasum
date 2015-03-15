@@ -159,9 +159,38 @@ def travel_time_new(request):
     # nodes = SPCCorridorNodeInfo.objects.filter(Corridor_Number=13)
     return render(request, 'traffic/travel_time_new.html', {'n': range(1, 32), 'tmcs': tmcs, 'corridors': corridors})
 
+def travel_time_corridorafter2013(request):
+    records = SPCCorridorNodeInfo2013to2015.objects.all()
+    corridors = []
+    CorrNum = []
+    for corridor in records:
+        if not (corridor.Corridor_Number in CorrNum):
+            flag = 0
+            for temp in corridors:
+                if corridor.Corridor_Number < temp.Corridor_Number:
+                    break
+                flag += 1
+            CorrNum.append(corridor.Corridor_Number)
+            corridors.insert(flag, corridor)
+    return render(request, 'traffic/travel_time_corridorafter2013.html', {'corridors': corridors})
+
 def get_node_info(request):
     cornum = request.GET['cornum']
     nodes = SPCCorridorNodeInfo.objects.filter(Corridor_Number=cornum)
+    result = '''{ "type": "FeatureCollection","features": ['''
+    for node in nodes:
+        result += '''{"type":"Feature","properties": {"Corridor_Number":''' + str(node.Corridor_Number) + \
+                  ''',"Corridor_Name":"''' + node.Corridor_Name + '''","Node_Number":"''' + node.Node_Number + \
+                  '''","Node_Name":"''' + node.Node_Name + '''"},"geometry": {"type": "Point", "coordinates": ['''\
+                  + str(node.Longitude) + ',' + str(node.Latitude) + ']}},'
+    result = result.rstrip(',')
+    result += ']}'
+    response = json.dumps(result)
+    return HttpResponse(response, content_type='application/json')
+
+def get_node_info_2013to2015(request):
+    cornum = request.GET['cornum']
+    nodes = SPCCorridorNodeInfo2013to2015.objects.filter(Corridor_Number=cornum)
     result = '''{ "type": "FeatureCollection","features": ['''
     for node in nodes:
         result += '''{"type":"Feature","properties": {"Corridor_Number":''' + str(node.Corridor_Number) + \
@@ -187,6 +216,52 @@ def get_spcyears(request):
     result += ']}'
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
+
+def get_spctraveltime_2013to2015(request):
+    cornum0 = request.GET['cornum']
+    Snode = request.GET['Snode']
+    Enode = request.GET['Enode']
+
+    if Snode <= Enode:
+        delta = 1
+    else:
+        delta = -1
+
+    info = {}
+    for hour in range(24):
+        for min in [0.0, 0.25, 0.5, 0.75]:
+            info[hour+min] = [0, 0]
+
+    cornum = int(cornum0)
+    Currentnode = Snode
+    while Currentnode != Enode:
+        nextnode = chr(ord(Currentnode) + delta)
+        records = SPCtraveltime2013to2015.objects.filter(Corridor_Number=cornum, Start_Node=Currentnode, End_Node=nextnode)
+        for record in records:
+            if (info[record.Time][0] == 'NULL') or (not(isinstance(record.Travel_Time, (int, long, float, complex)))):
+                info[record.Time][0] = 'NULL'
+                info[record.Time][1] = 'NULL'
+            else:
+                info[record.Time][0] += record.Travel_Time
+                info[record.Time][1] += record.Travel_Time - record.Travel_Time_At_Posted_Speed_Limit
+        Currentnode = nextnode
+
+    response = '''['''
+    for hour in range(24):
+        for min in [0.0, 0.25, 0.5, 0.75]:
+            time = hour + min
+            if info[time][0] == "NULL":
+                response += '''{"spctraveltime":"''' + info[time][0]
+            else:
+                response += '''{"spctraveltime":"''' + str(info[time][0]/60)[0:5]
+            if info[time][1] == "NULL":
+                response += '''", "spcdelay":"''' + info[time][1] + '''"},'''
+            else:
+                response += '''", "spcdelay":"''' + str(info[time][1]/60)[0:5] + '''"},'''
+    response = response.rstrip(',')
+    response += ']'
+    response2 = json.dumps(response)
+    return HttpResponse(response2, content_type='application/json')
 
 def get_spctraveltime(request):
     cornum = request.GET['cornum']
@@ -231,7 +306,7 @@ def get_spctraveltime(request):
             if result[i].AM_Delay_Per_Vehicle != None:
                 spcdelay += result[i].AM_Delay_Per_Vehicle
             else:
-                spcdelay += result[i].Travel_Time_At_Posted_Speed_Limit - result[i].AM_Travel_Time
+                spcdelay += result[i].AM_Travel_Time - result[i].Travel_Time_At_Posted_Speed_Limit
         else:
             if result[i].PM_Travel_Time != None:
                 spctraveltime += result[i].PM_Travel_Time
@@ -240,7 +315,7 @@ def get_spctraveltime(request):
             if result[i].PM_Delay_Per_Vehicle != None:
                 spcdelay += result[i].PM_Delay_Per_Vehicle
             else:
-                spcdelay += result[i].Travel_Time_At_Posted_Speed_Limit - result[i].PM_Travel_Time
+                spcdelay += result[i].PM_Travel_Time - result[i].Travel_Time_At_Posted_Speed_Limit
 
     response = '''{"spctraveltime":"'''
     if flag_traveltime:
@@ -300,7 +375,7 @@ def get_spctraveltimeformanyyears(request):
                 if result[i].AM_Delay_Per_Vehicle != None:
                     spcdelay += result[i].AM_Delay_Per_Vehicle
                 else:
-                    spcdelay += result[i].Travel_Time_At_Posted_Speed_Limit - result[i].AM_Travel_Time
+                    spcdelay += result[i].AM_Travel_Time - result[i].Travel_Time_At_Posted_Speed_Limit
             else:
                 if result[i].PM_Travel_Time != None:
                     spctraveltime += result[i].PM_Travel_Time
@@ -309,7 +384,7 @@ def get_spctraveltimeformanyyears(request):
                 if result[i].PM_Delay_Per_Vehicle != None:
                     spcdelay += result[i].PM_Delay_Per_Vehicle
                 else:
-                    spcdelay += result[i].Travel_Time_At_Posted_Speed_Limit - result[i].PM_Travel_Time
+                    spcdelay += result[i].PM_Travel_Time - result[i].Travel_Time_At_Posted_Speed_Limit
 
         response += '''{"spctraveltime":"'''
         if flag_traveltime:
@@ -660,10 +735,10 @@ def routing_path(request):
     rsps_json["travel_time"] = time
     result = {"type":"FeatureCollection","features":[]}
     path_geoJson =  {"type":"Feature","geometry":{"type":"MultiLineString","coordinates":path_coor}}
-    #origin_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":[[s_lon,s_lat],[origin['lon'],origin['lat']]]},"properties":{"position":"origin","id":str(origin['id'])}}
-    origin_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":get_google_direction([s_lon,s_lat],[origin['lon'],origin['lat']],'driving')},"properties":{"position":"origin","id":str(origin['id'])}}
-    #destination_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":[[e_lon,e_lat],[destination['lon'],destination['lat']]]},"properties":{"position":"destination","id":str(destination['id'])}}
-    destination_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":get_google_direction([e_lon,e_lat],[destination['lon'],destination['lat']],'driving')},"properties":{"position":"destination","id":str(destination['id'])}}
+    origin_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":[[s_lon,s_lat],[origin['lon'],origin['lat']]]},"properties":{"position":"origin","id":str(origin['id'])}}
+    #origin_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":get_google_direction([s_lon,s_lat],[origin['lon'],origin['lat']],'driving')},"properties":{"position":"origin","id":str(origin['id'])}}
+    destination_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":[[e_lon,e_lat],[destination['lon'],destination['lat']]]},"properties":{"position":"destination","id":str(destination['id'])}}
+    #destination_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":get_google_direction([e_lon,e_lat],[destination['lon'],destination['lat']],'driving')},"properties":{"position":"destination","id":str(destination['id'])}}
     result['features'] = [origin_geoJson,destination_geoJson,path_geoJson]
     if nearest_lot:
         path_to_lot_geoJson = {"type":"Feature","geometry":{"type":"LineString","coordinates":get_google_direction([e_lon, e_lat],[d_lon,d_lat],'walking')},"properties":{"position":"path to parking lot"}}
@@ -867,4 +942,39 @@ def real_time_incidents_rcrs(request):
 def closure(request):
     return render(request, 'traffic/closure.html')
 
+
 # Create your views here.
+
+def real_time_tmc(request):
+    token_url = "http://api.inrix.com/Traffic/Inrix.ashx?action=getsecuritytoken&Vendorid=1346213929&consumerid=30c227fe-93ab-4f30-9408-362645f33730"
+    token_link = urllib2.urlopen(token_url)
+    token_rsps = token_link.read()
+    token_root = XMLET.fromstring(token_rsps)
+    token = token_root.find("AuthResponse").find("AuthToken").text
+    api_path = "http://na.api.inrix.com/Traffic/Inrix.ashx"
+    url = api_path + "?Action=GetRoadSpeedInTMCs&Token=" + token + "&Tmcs="
+    tmc_set = TMC_real_time.objects.all()
+    i=1
+    n=len(tmc_set)
+    result_data = {"type":"FeatureCollection","features":[]}
+    while i*180 < n or (i-1)*180 <n: #max length of a url request is 2000 characters, can take about 180 tmcs in a request
+        end = min(i*180,n)
+        tmc_list = ",".join(record.tmc for record in tmc_set[(i-1)*180:end])
+        link = urllib2.urlopen(url+tmc_list)
+        url_rsps = link.read()
+        root = XMLET.fromstring(url_rsps)
+        for record in root.iter("TMC"):
+            this_tmc = tmc_set.filter(tmc = record.attrib["code"])[0]
+            # efficiency is not so good
+            # this_tmc.speed = float(record.attrib["speed"])
+            # this_tmc.reference = float(record.attrib["reference"])
+            # this_tmc.average = float(record.attrib["average"])
+            # this_tmc.ttm = float(record.attrib["travelTimeMinutes"])
+            # this_tmc.congestion = float(record.attrib["congestionLevel"])
+            # this_tmc.save()
+            this_data = {"type":"Feature","geometry":{"type":"MultiPoint","coordinates":[[this_tmc.s_lon,this_tmc.s_lat],[this_tmc.e_lon,this_tmc.e_lat]]},"properties":{"road":this_tmc.road,"direction":this_tmc.direction,"miles":this_tmc.miles,"order":this_tmc.road_order,"speed":float(record.attrib["speed"]),"reference":float(record.attrib["reference"]),"tt":float(record.attrib["travelTimeMinutes"]),"sp_ref_ratio":float(record.attrib["speed"])/float(record.attrib["reference"])}}
+            result_data["features"].append(this_data)
+        i+=1
+    response = json.dumps(result_data)
+    return HttpResponse(response,content_type="application/json")
+

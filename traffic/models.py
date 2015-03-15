@@ -45,6 +45,16 @@ class SPCCorridorNodeInfo(models.Model):
     def __unicode__(self):
         return 'Corridor' + str(self.Corridor_Number) + '-' + self.Corridor_Name
 
+class SPCCorridorNodeInfo2013to2015(models.Model):
+    Corridor_Number = models.PositiveSmallIntegerField()
+    Corridor_Name = models.CharField(max_length=50)
+    Node_Number = models.CharField(max_length=5)
+    Node_Name = models.CharField(max_length=50)
+    Latitude = models.FloatField()
+    Longitude = models.FloatField()
+
+    def __unicode__(self):
+        return 'Corridor' + str(self.Corridor_Number) + '-' + self.Corridor_Name
 
 class SPCtraveltime(models.Model):
     Year = models.PositiveSmallIntegerField()
@@ -69,6 +79,16 @@ class SPCtraveltime(models.Model):
     PM_Total_Delay = models.FloatField()
     Direction = models.CharField(max_length=5)  # Direction = 'A'(means direction from node A to node Z) or 'Z'
 
+class SPCtraveltime2013to2015(models.Model):
+    Year = models.PositiveSmallIntegerField()
+    Corridor_Number = models.PositiveSmallIntegerField()
+    Start_Node = models.CharField(max_length=50)
+    End_Node = models.CharField(max_length=50)
+    Time = models.FloatField()
+    Travel_Time = models.FloatField()
+    Speed = models.FloatField()
+    Travel_Time_At_Posted_Speed_Limit = models.FloatField()
+    Posted_Speed_Limit = models.PositiveSmallIntegerField()
 #END
 
 
@@ -87,6 +107,29 @@ class TMC(models.Model):
     e_lon = models.FloatField()
     miles = models.FloatField()
     road_order = models.PositiveSmallIntegerField()
+    def __unicode__(self):
+            return self.tmc
+
+class TMC_real_time(models.Model):
+    tmc = models.CharField(max_length = 9, primary_key = True)
+    road = models.CharField(max_length = 50, db_index = True)
+    DIRECTION_CHOICES = (('N', 'Northbound'),('S', 'Southbound'),('E', 'Eastbound'),('W', 'Westbound'))
+    direction = models.CharField(max_length=1, choices = DIRECTION_CHOICES)
+    intersection = models.CharField(max_length = 100)
+    state = models.CharField(max_length = 2)
+    county = models.CharField(max_length = 20)
+    zip = models.CharField(max_length = 5)
+    s_lat = models.FloatField()
+    s_lon = models.FloatField()
+    e_lat = models.FloatField()
+    e_lon = models.FloatField()
+    miles = models.FloatField()
+    road_order = models.PositiveSmallIntegerField()
+    reference = models.FloatField()
+    speed = models.FloatField()
+    average = models.FloatField()
+    ttm = models.FloatField() # travel time in minute
+    congestion = models.PositiveSmallIntegerField() # congestion level
     def __unicode__(self):
             return self.tmc
 
