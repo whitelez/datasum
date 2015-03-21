@@ -236,6 +236,13 @@ Power of 32 RTIS - Travel Time: Interstates
 {% block map %}
 <div id="map"></div>
 
+    <div id="chartcontainer">
+     	<div id="chartTTI" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
+        <div id="chartBT" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
+        <div id="chartBI" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
+        <div id="chartPTI" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
+	</div>
+
 {% endblock %}
 
 
@@ -482,6 +489,46 @@ Power of 32 RTIS - Travel Time: Interstates
 			                'green';
 	}
 
+    function plotindex(label,chartlabel,all,allindex){
+
+			var n = all.length;
+			var line = [];
+            var min = 99999, max = -99999;
+			for(var i=0;i<n;i++){
+                var hour = parseInt(allindex[i]/4);
+                var minute = parseInt((allindex[i]%4)*15);
+                if(minute==0){
+                    minute = "00";
+                }
+				var point = [""+hour+":"+minute,all[i]];
+				line.push(point);
+                if (all[i] > max){ max = all[i]}
+                if (all[i] < min){ min = all[i]}
+			}
+            max = max+0.5*(max-min);
+            min = min-0.5*(max-min);
+			var plot = $.jqplot(chartlabel, [line], {
+    			title: label, //+ ' betweeen Nodes ' + snode + ' and ' + enode + ' on Corridor ' + cor + ' in Year 2013',
+                seriesDefaults: {
+                    pointLabels: { show:false, formatString: "%#.2f" }
+                },
+    			axes:{
+    					xaxis:{label:'Time of the day', renderer:$.jqplot.DateAxisRenderer, tickOptions:{formatString:'%#H:%M'}, min:"0:00", max:"24:00"},
+    					yaxis:{min:min, max:max, tickOptions:'%#.4f',label:jqYaxisLabel[label.split(' ')[2]]}
+    				},
+    			//series:[{lineWidth:4, markerOptions:{style:'circle',size:6}}]
+    			series:[
+                    {color:jqplotColors[label.split(' ')[2]],label:label,showLine:false }
+                ],
+                legend: {
+                    show: true,
+                    location: 'se',     // compass direction, nw, n, ne, e, se, s, sw, w.
+                    xoffset: 12,        // pixel offset of the legend box from the x (or x2) axis.
+                    yoffset: 12        // pixel offset of the legend box from the y (or y2) axis.
+                }
+  			});
+	}
+
 	$("#his_avg").click(function(){
 		var sm = $("#sm option:selected").attr("value"),
 			sd = $("#sd option:selected").attr("value"),
@@ -496,11 +543,67 @@ Power of 32 RTIS - Travel Time: Interstates
 			travel_time;
 			sd = sd<10?'0'+sd:sd;
 			ed = sd<10?'0'+ed:ed;
+        $("#chartTTI").empty();
+        $("#chartTTI").height(0);
+        $("#chartBT").empty();
+        $("#chartBT").height(0);
+        $("#chartBI").empty();
+        $("#chartBI").height(0);
+		$("#chartPTI").empty();
+        $("#chartPTI").height(0);
 		$.get("../get_travel_time/", {s_date:sm+sd, e_date:em+ed, s_time:sh+smi, e_time:eh+emi, tmc1:tmc1, tmc2:tmc2}, function(data, textStatus){
 			travel_time= $.parseJSON(data);
 			$('#travel_time_car').text((''+travel_time.travel_time).substr(0,4)+" minutes");
 			$('#travel_time_truck').text((''+travel_time.truck_travel_time).substr(0,4)+" minutes");
-			
+
+            var timeave = travel_time.allavg;
+            var time95 = travel_time.all95;
+            var freetime = parseFloat(travel_time.freeflowtime);
+
+			var TTIflag = $('#checkboxTTI').bootstrapSwitch('state');
+        	var BTflag = $('#checkboxBT').bootstrapSwitch('state');
+        	var BIflag = $('#checkboxBI').bootstrapSwitch('state');
+        	var PTIflag = $('#checkboxPTI').bootstrapSwitch('state');
+            if (TTIflag){
+				var allTTI = [], allTTIindex = [];
+                for (var i=0; i<timeave.length; i++){
+                    temp = parseFloat(timeave[i].value);
+                    allTTI.push(temp/freetime);
+                    allTTIindex.push(timeave[i].key);
+                }
+                alert(allTTIindex[0]);
+                plotindex('Travel Time Index','chartTTI',allTTI,allTTIindex);
+            }
+            if (BTflag){
+                var allBT = [], allBTindex = [];
+                for (var i=0; i<timeave.length; i++){
+                    temp = parseFloat(timeave[i].value);
+                    temp2 = parseFloat(time95[i].value);
+                    allBT.push(temp2-temp);
+                    allBTindex.push(timeave[i].key);
+                }
+                plotindex('Buffer Time','chartBT',allBT,allBTindex);
+            }
+            if (BIflag){
+                var allBI = [], allBIindex = [];
+                for (var i=0; i<timeave.length; i++){
+                    temp = parseFloat(timeave[i].value);
+                    temp2 = parseFloat(time95[i].value);
+                    allBI.push((temp2-temp)/temp);
+                    allBIindex.push(timeave[i].key);
+                }
+                plotindex('Buffer Index','chartBI',allBI,allBIindex);
+            }
+            if (PTIflag){
+                var allPTI = [], allPTIindex = [];
+                for (var i=0; i<timeave.length; i++){
+                    temp2 = parseFloat(time95[i].value);
+                    allPTI.push(temp2/freetime);
+                    allPTIindex.push(timeave[i].key);
+                }
+                plotindex('Planning Time Index','chartPTI',allPTI,allPTIindex);
+            }
+
 			if(carLayer){
 				control.removeLayer(carLayer);
 				if(map.hasLayer(carLayer)){

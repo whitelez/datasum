@@ -436,20 +436,56 @@ def get_travel_time(request):
     tmc_number = tmc_set.count()
     total = 0
     miles = 0
+    alltimeavg = {}
+    alltime95 = {}
+    freeflowtime = 0
     for tmc in tmc_set:
         avg = 0
         miles += tmc.miles
-        #data = tmc.tmc_data_set.filter(date__range=(start_date,end_date), time__range=(start_time, end_time))
         data = TMC_data.objects.filter(tmc_id=tmc.tmc, date__range=(start_date,end_date), time__range=(start_time, end_time))
         n = data.count()
         for record in data:
             avg += record.travel_time
         avg = avg/n
         total += avg
+        # By PXD
+        data = TMC_data.objects.filter(tmc_id=tmc.tmc, date__range=(start_date,end_date))
+        difftime = {}
+        for record in data:
+            key = str(record.time)
+            if key not in difftime.keys():
+                difftime[key] = [record.travel_time]
+            else:
+                difftime[key].append(record.travel_time)
+        for key in difftime.keys():
+            s2 = sorted(difftime[key])
+            temp = 0
+            for entry in s2:
+                temp += entry
+            if key not in alltimeavg.keys():
+                alltimeavg[key] = temp/len(s2)
+                alltime95[key] = s2[int(len(s2)*0.95)]
+            else:
+                alltimeavg[key] += temp/len(s2)
+                alltime95[key] += s2[int(len(s2)*0.95)]
+        freeflowtime += (tmc.miles/tmc.reference_speed)*60
+        #End
+
     speed = miles/total*60
     truck_total = total*(1+max(speed-40,0)/50)
     truck_speed = miles/truck_total*60
-    result = '{"travel_time":' + str(total) + ',"speed":' + str(speed) +',"truck_travel_time":' + str(truck_total) + ',"truck_speed":' + str(truck_speed) +',"tmc_geometry":'+ tmc_geometry +'}'
+    result = '{"travel_time":' + str(total) + ',"speed":' + str(speed) +',"truck_travel_time":' + str(truck_total) + ',"truck_speed":' + str(truck_speed) + ',"tmc_geometry":' + tmc_geometry
+    #By PXD
+    result += ',"freeflowtime":' + str(freeflowtime) + ',"allavg":['
+    for key in alltimeavg.keys():
+        result += '{"key":"' + key + '","value":' + str(alltimeavg[key]) + '},'
+    result.rstrip(',')
+    result += '],"all95":['
+    for key in alltime95.keys():
+        result += '{"key":"' + key + '","value":' + str(alltime95[key]) + '},'
+    result.rstrip(',')
+    result += ']}'
+    #End
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
