@@ -502,16 +502,16 @@ Power of 32 RTIS - Travel Time: Interstates
                 if (all[i] > max){ max = all[i]}
                 if (all[i] < min){ min = all[i]}
 			}
-            max = max+0.5*(max-min);
-            min = min-0.5*(max-min);
+            max = max+0.2*(max-min);
+            min = min-0.2*(max-min);
 			var plot = $.jqplot(chartlabel, [line], {
     			title: label + ' in Year 2013', //+ ' betweeen Nodes ' + snode + ' and ' + enode,
                 seriesDefaults: {
-                    pointLabels: { show:false, formatString: "%#.2f" }
+                    pointLabels: { show:false, formatString: "%#.3f" }
                 },
     			axes:{
     					xaxis:{label:'Time of the day', renderer:$.jqplot.DateAxisRenderer, tickOptions:{formatString:'%#H:%M'}, min:"0:00", max:"24:00"},
-    					yaxis:{min:min, max:max, tickOptions:'%#.4f',label:jqYaxisLabel[label]}
+    					yaxis:{min:min, max:max, tickOptions:'%#.3f',label:jqYaxisLabel[label]}
     				},
     			//series:[{lineWidth:4, markerOptions:{style:'circle',size:6}}]
     			series:[
