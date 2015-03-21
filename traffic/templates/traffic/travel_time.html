@@ -489,7 +489,7 @@ Power of 32 RTIS - Travel Time: Interstates
 			                'green';
 	}
 
-    function plotindex(label,chartlabel,all,allindex){
+    function plotindex(label,chartlabel,all,allindex,tmc1,tmc2){
 
 			var n = all.length;
 			var line = [];
@@ -505,7 +505,7 @@ Power of 32 RTIS - Travel Time: Interstates
             max = max+0.2*(max-min);
             min = min-0.2*(max-min);
 			var plot = $.jqplot(chartlabel, [line], {
-    			title: label + ' in Year 2013', //+ ' betweeen Nodes ' + snode + ' and ' + enode,
+    			title: label + ' for the whole day between TMC: ' + tmc1 + ' and TMC: ' + tmc2 + ' in Year 2013',
                 seriesDefaults: {
                     pointLabels: { show:false, formatString: "%#.3f" }
                 },
@@ -551,9 +551,14 @@ Power of 32 RTIS - Travel Time: Interstates
 			emi = $("#emi option:selected").attr("value"),
 			tmc1 = $("#select_tmc1 option:selected").attr('value'),
 			tmc2 = $("#select_tmc2 option:selected").attr('value'),
+            sdate = $("#sm option:selected").option() + ' ' + $("#sd option:selected").option(),
+            edate = $("#em option:selected").option() + ' ' + $("#ed option:selected").option();
+            alert(sdate);
+            alert(edate);
 			travel_time;
 			sd = sd<10?'0'+sd:sd;
 			ed = sd<10?'0'+ed:ed;
+
         $("#chartTTI").empty();
         $("#chartTTI").height(0);
         $("#chartBT").empty();
@@ -568,14 +573,14 @@ Power of 32 RTIS - Travel Time: Interstates
 			$('#travel_time_truck').text((''+travel_time.truck_travel_time).substr(0,4)+" minutes");
 
 			//By PXD
-            var timeave = travel_time.allavg;
-            var time95 = travel_time.all95;
-            var freetime = parseFloat(travel_time.freeflowtime);
+            var timeave = travel_time.allavg,
+                time95 = travel_time.all95,
+                freetime = parseFloat(travel_time.freeflowtime),
+			    TTIflag = $('#checkboxTTI').bootstrapSwitch('state'),
+        	    BTflag = $('#checkboxBT').bootstrapSwitch('state'),
+        	    BIflag = $('#checkboxBI').bootstrapSwitch('state'),
+        	    PTIflag = $('#checkboxPTI').bootstrapSwitch('state');
 
-			var TTIflag = $('#checkboxTTI').bootstrapSwitch('state');
-        	var BTflag = $('#checkboxBT').bootstrapSwitch('state');
-        	var BIflag = $('#checkboxBI').bootstrapSwitch('state');
-        	var PTIflag = $('#checkboxPTI').bootstrapSwitch('state');
             if (TTIflag){
 				var allTTI = [], allTTIindex = [];
                 for (var i=0; i<timeave.length; i++){
@@ -583,7 +588,7 @@ Power of 32 RTIS - Travel Time: Interstates
                     allTTI.push(temp/freetime);
                     allTTIindex.push(timeave[i].key);
                 }
-                plotindex('Travel Time Index','chartTTI',allTTI,allTTIindex);
+                plotindex('Travel Time Index','chartTTI',allTTI,allTTIindex,tmc1,tmc2);
             }
             if (BTflag){
                 var allBT = [], allBTindex = [];
@@ -593,7 +598,7 @@ Power of 32 RTIS - Travel Time: Interstates
                     allBT.push(temp2-temp);
                     allBTindex.push(timeave[i].key);
                 }
-                plotindex('Buffer Time','chartBT',allBT,allBTindex);
+                plotindex('Buffer Time','chartBT',allBT,allBTindex,tmc1,tmc2);
             }
             if (BIflag){
                 var allBI = [], allBIindex = [];
@@ -603,7 +608,7 @@ Power of 32 RTIS - Travel Time: Interstates
                     allBI.push((temp2-temp)/temp);
                     allBIindex.push(timeave[i].key);
                 }
-                plotindex('Buffer Index','chartBI',allBI,allBIindex);
+                plotindex('Buffer Index','chartBI',allBI,allBIindex,tmc1,tmc2);
             }
             if (PTIflag){
                 var allPTI = [], allPTIindex = [];
@@ -612,7 +617,7 @@ Power of 32 RTIS - Travel Time: Interstates
                     allPTI.push(temp2/freetime);
                     allPTIindex.push(timeave[i].key);
                 }
-                plotindex('Planning Time Index','chartPTI',allPTI,allPTIindex);
+                plotindex('Planning Time Index','chartPTI',allPTI,allPTIindex,tmc1,tmc2);
             }
 			//End
 
