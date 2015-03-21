@@ -551,11 +551,14 @@ Power of 32 RTIS - Travel Time: Interstates
         $("#chartBI").height(0);
 		$("#chartPTI").empty();
         $("#chartPTI").height(0);
+        alert(1);
 		$.get("../get_travel_time/", {s_date:sm+sd, e_date:em+ed, s_time:sh+smi, e_time:eh+emi, tmc1:tmc1, tmc2:tmc2}, function(data, textStatus){
 			travel_time= $.parseJSON(data);
+            alert(2);
 			$('#travel_time_car').text((''+travel_time.travel_time).substr(0,4)+" minutes");
 			$('#travel_time_truck').text((''+travel_time.truck_travel_time).substr(0,4)+" minutes");
 
+			//By PXD
             var timeave = travel_time.allavg;
             var time95 = travel_time.all95;
             var freetime = parseFloat(travel_time.freeflowtime);
@@ -603,6 +606,7 @@ Power of 32 RTIS - Travel Time: Interstates
                 }
                 plotindex('Planning Time Index','chartPTI',allPTI,allPTIindex);
             }
+			//End
 
 			if(carLayer){
 				control.removeLayer(carLayer);
