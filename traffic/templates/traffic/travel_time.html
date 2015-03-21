@@ -551,11 +551,11 @@ Power of 32 RTIS - Travel Time: Interstates
 			emi = $("#emi option:selected").attr("value"),
 			tmc1 = $("#select_tmc1 option:selected").attr('value'),
 			tmc2 = $("#select_tmc2 option:selected").attr('value'),
-            sdate = $("#sm option:selected").option() + ' ' + $("#sd option:selected").option(),
-            edate = $("#em option:selected").option() + ' ' + $("#ed option:selected").option();
-            alert(sdate);
-            alert(edate);
+            sdate = $("#sm option:selected") + ' ' + $("#sd option:selected"),
+            edate = $("#em option:selected") + ' ' + $("#ed option:selected"),
 			travel_time;
+        	alert(sdate);
+            alert(edate);
 			sd = sd<10?'0'+sd:sd;
 			ed = sd<10?'0'+ed:ed;
 
