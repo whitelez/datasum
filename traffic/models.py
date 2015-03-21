@@ -107,6 +107,7 @@ class TMC(models.Model):
     e_lon = models.FloatField()
     miles = models.FloatField()
     road_order = models.PositiveSmallIntegerField()
+    reference_speed = models.FloatField()
     def __unicode__(self):
             return self.tmc
 
