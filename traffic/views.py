@@ -480,11 +480,11 @@ def get_travel_time(request):
     result += ',"freeflowtime":' + str(freeflowtime) + ',"allavg":['
     for key in alltimeavg.keys():
         result += '{"key":"' + key + '","value":' + str(alltimeavg[key]) + '},'
-    result.rstrip(',')
+    result = result[:-1]
     result += '],"all95":['
     for key in alltime95.keys():
         result += '{"key":"' + key + '","value":' + str(alltime95[key]) + '},'
-    result.rstrip(',')
+    result = result[:-1]
     result += ']}'
     #End
     response = json.dumps(result)
