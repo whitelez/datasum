@@ -489,7 +489,7 @@ Power of 32 RTIS - Travel Time: Interstates
 			                'green';
 	}
 
-    function plotindex(label,chartlabel,all,allindex,tmc1,tmc2){
+    function plotindex(label,chartlabel,all,allindex,tmc1,tmc2,sdate,edate){
 
 			var n = all.length;
 			var line = [];
@@ -505,7 +505,8 @@ Power of 32 RTIS - Travel Time: Interstates
             max = max+0.2*(max-min);
             min = min-0.2*(max-min);
 			var plot = $.jqplot(chartlabel, [line], {
-    			title: label + ' for the whole day between TMC: ' + tmc1 + ' and TMC: ' + tmc2 + ' in Year 2013',
+    			title: label + ' for whole day between TMC: ' + tmc1 + ' and TMC: ' + tmc2 + ' in the period: ' +
+                sdate + '-' + edate + ' of Year 2013',
                 seriesDefaults: {
                     pointLabels: { show:false, formatString: "%#.3f" }
                 },
@@ -551,11 +552,7 @@ Power of 32 RTIS - Travel Time: Interstates
 			emi = $("#emi option:selected").attr("value"),
 			tmc1 = $("#select_tmc1 option:selected").attr('value'),
 			tmc2 = $("#select_tmc2 option:selected").attr('value'),
-            sdate = $("#sm option:selected").text() + ' ' + $("#sd option:selected").text(),
-            edate = $("#em option:selected") + ' ' + $("#ed option:selected"),
 			travel_time;
-        	alert(sdate);
-            alert(edate);
 			sd = sd<10?'0'+sd:sd;
 			ed = sd<10?'0'+ed:ed;
 
@@ -579,7 +576,9 @@ Power of 32 RTIS - Travel Time: Interstates
 			    TTIflag = $('#checkboxTTI').bootstrapSwitch('state'),
         	    BTflag = $('#checkboxBT').bootstrapSwitch('state'),
         	    BIflag = $('#checkboxBI').bootstrapSwitch('state'),
-        	    PTIflag = $('#checkboxPTI').bootstrapSwitch('state');
+        	    PTIflag = $('#checkboxPTI').bootstrapSwitch('state'),
+				sdate = $("#sm option:selected").text() + ' ' + $("#sd option:selected").text(),
+            	edate = $("#em option:selected").text() + ' ' + $("#ed option:selected").text();
 
             if (TTIflag){
 				var allTTI = [], allTTIindex = [];
@@ -588,7 +587,7 @@ Power of 32 RTIS - Travel Time: Interstates
                     allTTI.push(temp/freetime);
                     allTTIindex.push(timeave[i].key);
                 }
-                plotindex('Travel Time Index','chartTTI',allTTI,allTTIindex,tmc1,tmc2);
+                plotindex('Travel Time Index','chartTTI',allTTI,allTTIindex,tmc1,tmc2,sdate,edate);
             }
             if (BTflag){
                 var allBT = [], allBTindex = [];
@@ -598,7 +597,7 @@ Power of 32 RTIS - Travel Time: Interstates
                     allBT.push(temp2-temp);
                     allBTindex.push(timeave[i].key);
                 }
-                plotindex('Buffer Time','chartBT',allBT,allBTindex,tmc1,tmc2);
+                plotindex('Buffer Time','chartBT',allBT,allBTindex,tmc1,tmc2,sdate,edate);
             }
             if (BIflag){
                 var allBI = [], allBIindex = [];
@@ -608,7 +607,7 @@ Power of 32 RTIS - Travel Time: Interstates
                     allBI.push((temp2-temp)/temp);
                     allBIindex.push(timeave[i].key);
                 }
-                plotindex('Buffer Index','chartBI',allBI,allBIindex,tmc1,tmc2);
+                plotindex('Buffer Index','chartBI',allBI,allBIindex,tmc1,tmc2,sdate,edate);
             }
             if (PTIflag){
                 var allPTI = [], allPTIindex = [];
@@ -617,7 +616,7 @@ Power of 32 RTIS - Travel Time: Interstates
                     allPTI.push(temp2/freetime);
                     allPTIindex.push(timeave[i].key);
                 }
-                plotindex('Planning Time Index','chartPTI',allPTI,allPTIindex,tmc1,tmc2);
+                plotindex('Planning Time Index','chartPTI',allPTI,allPTIindex,tmc1,tmc2,sdate,edate);
             }
 			//End
 
