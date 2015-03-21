@@ -495,11 +495,8 @@ Power of 32 RTIS - Travel Time: Interstates
 			var line = [];
             var min = 99999, max = -99999;
 			for(var i=0;i<n;i++){
-                var hour = parseInt(allindex[i]/4);
-                var minute = parseInt((allindex[i]%4)*15);
-                if(minute==0){
-                    minute = "00";
-                }
+                var hour = allindex[i].split(':')[0];
+                var minute = allindex[i].split(":")[1];
 				var point = [""+hour+":"+minute,all[i]];
 				line.push(point);
                 if (all[i] > max){ max = all[i]}
@@ -508,17 +505,17 @@ Power of 32 RTIS - Travel Time: Interstates
             max = max+0.5*(max-min);
             min = min-0.5*(max-min);
 			var plot = $.jqplot(chartlabel, [line], {
-    			title: label, //+ ' betweeen Nodes ' + snode + ' and ' + enode + ' on Corridor ' + cor + ' in Year 2013',
+    			title: label + ' in Year 2013', //+ ' betweeen Nodes ' + snode + ' and ' + enode,
                 seriesDefaults: {
                     pointLabels: { show:false, formatString: "%#.2f" }
                 },
     			axes:{
     					xaxis:{label:'Time of the day', renderer:$.jqplot.DateAxisRenderer, tickOptions:{formatString:'%#H:%M'}, min:"0:00", max:"24:00"},
-    					yaxis:{min:min, max:max, tickOptions:'%#.4f',label:jqYaxisLabel[label.split(' ')[2]]}
+    					yaxis:{min:min, max:max, tickOptions:'%#.4f',label:jqYaxisLabel[label]}
     				},
     			//series:[{lineWidth:4, markerOptions:{style:'circle',size:6}}]
     			series:[
-                    {color:jqplotColors[label.split(' ')[2]],label:label,showLine:false }
+                    {color:jqplotColors[label],label:label,showLine:false }
                 ],
                 legend: {
                     show: true,
@@ -528,6 +525,20 @@ Power of 32 RTIS - Travel Time: Interstates
                 }
   			});
 	}
+
+    var jqplotColors = {
+        "Travel Time Index": '#55A9D3',
+        "Buffer Time": '#f1c40f',
+        "Buffer Index": '#5FAB78',
+        "Planning Time Index": '#5FAB78'
+    };
+
+    var jqYaxisLabel = {
+        "Travel Time Index": 'TTI Value',
+        "Buffer Time": 'Buffer Time\n(min)',
+        "Buffer Index": 'BI Value',
+        "Planning Time Index": 'PTI Value'
+    };
 
 	$("#his_avg").click(function(){
 		var sm = $("#sm option:selected").attr("value"),
@@ -552,10 +563,7 @@ Power of 32 RTIS - Travel Time: Interstates
 		$("#chartPTI").empty();
         $("#chartPTI").height(0);
 		$.get("../get_travel_time/", {s_date:sm+sd, e_date:em+ed, s_time:sh+smi, e_time:eh+emi, tmc1:tmc1, tmc2:tmc2}, function(data, textStatus){
-			alert(2);
-            alert(data);
             travel_time= $.parseJSON(data);
-            alert(3);
 			$('#travel_time_car').text((''+travel_time.travel_time).substr(0,4)+" minutes");
 			$('#travel_time_truck').text((''+travel_time.truck_travel_time).substr(0,4)+" minutes");
 
@@ -575,7 +583,6 @@ Power of 32 RTIS - Travel Time: Interstates
                     allTTI.push(temp/freetime);
                     allTTIindex.push(timeave[i].key);
                 }
-                alert(allTTIindex[0]);
                 plotindex('Travel Time Index','chartTTI',allTTI,allTTIindex);
             }
             if (BTflag){
