@@ -504,6 +504,10 @@ Power of 32 RTIS - Travel Time: Interstates
 			}
             max = max+0.2*(max-min);
             min = min-0.2*(max-min);
+        	if (max == min){
+                max = max + 0.1;
+                min = min - 0.1;
+            }
 			var plot = $.jqplot(chartlabel, [line], {
     			title: label + ' for whole day between TMC: ' + tmc1 + ' and TMC: ' + tmc2 + ' in the period: ' +
                 sdate + '-' + edate + ' of Year 2013',
