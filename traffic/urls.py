@@ -45,4 +45,6 @@ urlpatterns = patterns('',
     url(r'^real_time_tmc/$', views.real_time_tmc, name='real_time_tmc'),
 #SGYang
     url(r'^road_closure/$', views.closure, name='closure'),
+    url(r'^get_road_closure_query/$', views.get_road_closure_query, name='get_road_closure_query'),
+
 )
