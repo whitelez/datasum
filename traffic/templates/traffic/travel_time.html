@@ -555,7 +555,8 @@ Power of 32 RTIS - Travel Time: Interstates
 			travel_time;
 			sd = sd<10?'0'+sd:sd;
 			ed = sd<10?'0'+ed:ed;
-
+		$('#travel_time_car').text('');
+		$('#travel_time_truck').text('');
         $("#chartTTI").empty();
         $("#chartTTI").height(0);
         $("#chartBT").empty();
