@@ -451,44 +451,44 @@ def get_travel_time(request):
         total += avg
         # By PXD
 
-        difftime = {}
-        for record in data:
-            key = str(record.time)
-            if key not in difftime.keys():
-                difftime[key] = [record.travel_time]
-            else:
-                difftime[key].append(record.travel_time)
-        for key in difftime.keys():
-            s2 = sorted(difftime[key])
-            temp = 0
-            for entry in s2:
-                temp += entry
-            if key not in alltimeavg.keys():
-                alltimeavg[key] = temp/len(s2)
-                alltime95[key] = s2[int(len(s2)*0.95)]
-            else:
-                alltimeavg[key] += temp/len(s2)
-                alltime95[key] += s2[int(len(s2)*0.95)]
-        freeflowtime += (tmc.miles/tmc.reference_speed)*60
+        # difftime = {}
+        # for record in data:
+        #     key = str(record.time)
+        #     if key not in difftime.keys():
+        #         difftime[key] = [record.travel_time]
+        #     else:
+        #         difftime[key].append(record.travel_time)
+        # for key in difftime.keys():
+        #     s2 = sorted(difftime[key])
+        #     temp = 0
+        #     for entry in s2:
+        #         temp += entry
+        #     if key not in alltimeavg.keys():
+        #         alltimeavg[key] = temp/len(s2)
+        #         alltime95[key] = s2[int(len(s2)*0.95)]
+        #     else:
+        #         alltimeavg[key] += temp/len(s2)
+        #         alltime95[key] += s2[int(len(s2)*0.95)]
+        # freeflowtime += (tmc.miles/tmc.reference_speed)*60
         #End
 
     speed = miles/total*60
     truck_total = total*(1+max(speed-40, 0)/50)
     truck_speed = miles/truck_total*60
-    result = '{"travel_time":' + str(total) + ',"speed":' + str(speed) + ',"truck_travel_time":' + str(truck_total) + \
-             ',"truck_speed":' + str(truck_speed) + ',"tmc_geometry":' + tmc_geometry
-    #By PXD
-    result += ',"freeflowtime":' + str(freeflowtime) + ',"allavg":['
-    for key in alltimeavg.keys():
-        result += '{"key":"' + key + '","value":' + str(alltimeavg[key]) + '},'
-    result = result[:-1]
-    result += '],"all95":['
-    for key in alltime95.keys():
-        result += '{"key":"' + key + '","value":' + str(alltime95[key]) + '},'
-    result = result[:-1]
-    result += ']}'
+    # result = '{"travel_time":' + str(total) + ',"speed":' + str(speed) + ',"truck_travel_time":' + str(truck_total) + \
+    #          ',"truck_speed":' + str(truck_speed) + ',"tmc_geometry":' + tmc_geometry
+    # #By PXD
+    # result += ',"freeflowtime":' + str(freeflowtime) + ',"allavg":['
+    # for key in alltimeavg.keys():
+    #     result += '{"key":"' + key + '","value":' + str(alltimeavg[key]) + '},'
+    # result = result[:-1]
+    # result += '],"all95":['
+    # for key in alltime95.keys():
+    #     result += '{"key":"' + key + '","value":' + str(alltime95[key]) + '},'
+    # result = result[:-1]
+    # result += ']}'
     #End
-    response = json.dumps(result)
+    response = json.dumps(tmc_geometry)
     return HttpResponse(response, content_type='application/json')
 
 def get_travel_time_prediction(request):
