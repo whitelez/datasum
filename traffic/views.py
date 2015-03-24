@@ -442,14 +442,15 @@ def get_travel_time(request):
     for tmc in tmc_set:
         avg = 0
         miles += tmc.miles
-        data = TMC_data.objects.filter(tmc_id=tmc.tmc, date__range=(start_date, end_date), time__range=(start_time, end_time))
-        n = data.count()
-        for record in data:
+        data = TMC_data.objects.filter(tmc_id=tmc.tmc, date__range=(start_date, end_date))
+        data_time_range = data.filter(time__range=(start_time, end_time))
+        n = data_time_range.count()
+        for record in data_time_range:
             avg += record.travel_time
         avg = avg/n
         total += avg
         # By PXD
-        data = TMC_data.objects.filter(tmc_id=tmc.tmc, date__range=(start_date, end_date))
+
         difftime = {}
         for record in data:
             key = str(record.time)
