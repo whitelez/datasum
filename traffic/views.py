@@ -10,7 +10,6 @@ from traffic.models import * #Meter, Parking, Street, Streetparking, TMC, TMC_da
 from datetime import date, time, datetime
 import time as the_time
 import xml.etree.ElementTree as XMLET
-import gc
 
 
 import csv
@@ -454,7 +453,7 @@ def get_travel_time(request):
         total += avg
         # By PXD
 
-        gc.disable()
+
         difftime = {}
         for record in data:
             key = str(record.time)
@@ -474,7 +473,7 @@ def get_travel_time(request):
                 alltimeavg[key] += temp/len(s2)
                 alltime95[key] += s2[int(len(s2)*0.95)]
         freeflowtime += (tmc.miles/tmc.reference_speed)*60
-        gc.enable()
+
         #End
 
     speed = miles/total*60

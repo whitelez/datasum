@@ -60,8 +60,11 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'dataproject',
-	'USER': 'root',
-	'PASSWORD': 'dataproject',
+	    'USER': 'root',
+	    'PASSWORD': 'dataproject',
+        'HOST':'52.1.172.127',
+        'PORT':'3306',
+
     }
 }
 
