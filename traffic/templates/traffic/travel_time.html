@@ -570,7 +570,7 @@ Power of 32 RTIS - Travel Time: Interstates
 		$("#chartPTI").empty();
         $("#chartPTI").height(0);
 		$.get("../get_travel_time/", {s_date:sm+sd, e_date:em+ed, s_time:sh+smi, e_time:eh+emi, tmc1:tmc1, tmc2:tmc2}, function(data, textStatus){
-            travel_time= $.parseJSON(data);
+            travel_time= data;
 			$('#travel_time_car').text((''+travel_time.travel_time).substr(0,4)+" minutes");
 			$('#travel_time_truck').text((''+travel_time.truck_travel_time).substr(0,4)+" minutes");
 
