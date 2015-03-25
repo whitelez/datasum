@@ -431,8 +431,9 @@ def get_travel_time(request):
         max_o = o2
         min_o = o1
     tmc_set = TMC.objects.filter(road = rd, direction = dir, road_order__range=(min_o,max_o))
-    tmc_geometry = ','.join('''{"type":"Feature","properties": {"TMC":"''' + tmc.tmc + '''","road":"''' + tmc.road +'''","direction":"''' + tmc.direction + '''","intersection":"''' + tmc.intersection + '''","miles":''' + str(tmc.miles) + ''',"road_order":''' + str(tmc.road_order) + '''},"geometry": {"type": "MultiPoint", "coordinates": [[''' + str(tmc.s_lon) + ',' + str(tmc.s_lat) + '],[' + str(tmc.e_lon) + ',' + str(tmc.e_lat) +']]}}' for tmc in tmc_set)
-    tmc_geometry = '''{ "type": "FeatureCollection","features": [''' + tmc_geometry + ']}'
+    tmc_geometry_list = [{"type":"Feature","properties": {"TMC": tmc.tmc ,"road": tmc.road,"direction":tmc.direction ,"intersection":tmc.intersection ,"miles":tmc.miles,"road_order":tmc.road_order},"geometry": {"type": "MultiPoint", "coordinates": [[tmc.s_lon ,tmc.s_lat],[tmc.e_lon ,tmc.e_lat]]}} for tmc in tmc_set]
+    #tmc_geometry = ','.join('''{"type":"Feature","properties": {"TMC":"''' + tmc.tmc + '''","road":"''' + tmc.road +'''","direction":"''' + tmc.direction + '''","intersection":"''' + tmc.intersection + '''","miles":''' + str(tmc.miles) + ''',"road_order":''' + str(tmc.road_order) + '''},"geometry": {"type": "MultiPoint", "coordinates": [[''' + str(tmc.s_lon) + ',' + str(tmc.s_lat) + '],[' + str(tmc.e_lon) + ',' + str(tmc.e_lat) +']]}}' for tmc in tmc_set)
+    tmc_geometry = {"type": "FeatureCollection","features":tmc_geometry_list}
     tmc_number = tmc_set.count()
     total = 0
     miles = 0
@@ -451,44 +452,41 @@ def get_travel_time(request):
         total += avg
         # By PXD
 
-        # difftime = {}
-        # for record in data:
-        #     key = str(record.time)
-        #     if key not in difftime.keys():
-        #         difftime[key] = [record.travel_time]
-        #     else:
-        #         difftime[key].append(record.travel_time)
-        # for key in difftime.keys():
-        #     s2 = sorted(difftime[key])
-        #     temp = 0
-        #     for entry in s2:
-        #         temp += entry
-        #     if key not in alltimeavg.keys():
-        #         alltimeavg[key] = temp/len(s2)
-        #         alltime95[key] = s2[int(len(s2)*0.95)]
-        #     else:
-        #         alltimeavg[key] += temp/len(s2)
-        #         alltime95[key] += s2[int(len(s2)*0.95)]
-        # freeflowtime += (tmc.miles/tmc.reference_speed)*60
+        difftime = {}
+        for record in data:
+            key = str(record.time)
+            if key not in difftime.keys():
+                difftime[key] = [record.travel_time]
+            else:
+                difftime[key].append(record.travel_time)
+        for key in difftime.keys():
+            s2 = sorted(difftime[key])
+            temp = 0
+            for entry in s2:
+                temp += entry
+            if key not in alltimeavg.keys():
+                alltimeavg[key] = temp/len(s2)
+                alltime95[key] = s2[int(len(s2)*0.95)]
+            else:
+                alltimeavg[key] += temp/len(s2)
+                alltime95[key] += s2[int(len(s2)*0.95)]
+        freeflowtime += (tmc.miles/tmc.reference_speed)*60
         #End
 
     speed = miles/total*60
     truck_total = total*(1+max(speed-40, 0)/50)
     truck_speed = miles/truck_total*60
-    # result = '{"travel_time":' + str(total) + ',"speed":' + str(speed) + ',"truck_travel_time":' + str(truck_total) + \
-    #          ',"truck_speed":' + str(truck_speed) + ',"tmc_geometry":' + tmc_geometry
-    # #By PXD
-    # result += ',"freeflowtime":' + str(freeflowtime) + ',"allavg":['
+    result = {"travel_time": total,"speed": speed,"truck_travel_time":truck_total ,"truck_speed":truck_speed,"tmc_geometry":tmc_geometry}
+    #By PXD
+    result["freeflowtime"] = freeflowtime
+    #result += ',"freeflowtime":' + str(freeflowtime) + ',"allavg":['
     # for key in alltimeavg.keys():
     #     result += '{"key":"' + key + '","value":' + str(alltimeavg[key]) + '},'
-    # result = result[:-1]
-    # result += '],"all95":['
-    # for key in alltime95.keys():
-    #     result += '{"key":"' + key + '","value":' + str(alltime95[key]) + '},'
-    # result = result[:-1]
-    # result += ']}'
+    result["allavg"] =[{"key":key,"value":alltimeavg[key]} for key in alltimeavg.keys()]
+    result["all95"] = [{"key":key,"value":alltime95[key]} for key in alltime95.keys()]
+
     #End
-    response = json.dumps(tmc_geometry)
+    response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
 def get_travel_time_prediction(request):
