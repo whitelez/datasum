@@ -284,7 +284,7 @@ Power of 32 RTIS - Travel Time: Interstates
 </script>
 
 <script>
-	$(function(){
+	//$(function(){
 	var map = L.map('map').setView([40.4407937, -80.0029874], 10);
     var tmcLayer, selectionLayer, carLayer, truckLayer;
     
@@ -557,8 +557,10 @@ Power of 32 RTIS - Travel Time: Interstates
 			tmc1 = $("#select_tmc1 option:selected").attr('value'),
 			tmc2 = $("#select_tmc2 option:selected").attr('value'),
 			travel_time;
-			sd = sd<10?'0'+sd:sd;
-			ed = sd<10?'0'+ed:ed;
+            sd = sd.length<2?'0'+sd:sd;
+            ed = ed.length<2?('0'+ed):ed;
+			//sd = sd<10?('0'+sd):sd;
+			//ed = ed<10?('0'+ed):ed;
 		$('#travel_time_car').text('');
 		$('#travel_time_truck').text('');
         $("#chartTTI").empty();
@@ -708,6 +710,6 @@ Power of 32 RTIS - Travel Time: Interstates
 			return div;
 		};
 		legend.addTo(map);
-	});
+	//});
   </script>
 {% endblock %}
