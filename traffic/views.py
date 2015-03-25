@@ -447,10 +447,10 @@ def get_travel_time(request):
         data = TMC_data.objects.filter(tmc_id=tmc.tmc, date__range=(start_date, end_date))
         data_time_range = data.filter(time__range=(start_time, end_time))
         n = data_time_range.count()
-        # for record in data_time_range:
-        #     avg += record.travel_time
-        # avg = avg/n
-        # total += avg
+        for record in data_time_range:
+            avg += record.travel_time
+        avg = avg/n
+        total += avg
         # # By PXD
         #
         #
@@ -476,10 +476,10 @@ def get_travel_time(request):
         #
         # #End
 
-    # speed = miles/total*60
-    # truck_total = total*(1+max(speed-40, 0)/50)
-    # truck_speed = miles/truck_total*60
-    # result = {"travel_time": total,"speed": speed,"truck_travel_time":truck_total ,"truck_speed":truck_speed,"tmc_geometry":tmc_geometry}
+    speed = miles/total*60
+    truck_total = total*(1+max(speed-40, 0)/50)
+    truck_speed = miles/truck_total*60
+    result = {"travel_time": total,"speed": speed,"truck_travel_time":truck_total ,"truck_speed":truck_speed,"tmc_geometry":tmc_geometry}
     # #By PXD
     # result["freeflowtime"] = freeflowtime
     # #result += ',"freeflowtime":' + str(freeflowtime) + ',"allavg":['
@@ -489,8 +489,7 @@ def get_travel_time(request):
     # result["all95"] = [{"key":key,"value":alltime95[key]} for key in alltime95.keys()]
     #
     # #End
-    # response = json.dumps(result)
-    response = 'n'
+    response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
 def get_travel_time_prediction(request):
