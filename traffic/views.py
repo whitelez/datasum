@@ -538,11 +538,8 @@ def get_road_tmc(request):
     input_tmc = request.GET['tmc']
     s_tmc = TMC.objects.get(tmc = input_tmc)
     tmc_set = TMC.objects.filter(road = s_tmc.road, direction = s_tmc.direction)
-    result = '''{ "type": "FeatureCollection","features": ['''
-    for tmc in tmc_set:
-        result += '''{"type":"Feature","properties": {"TMC":"''' + tmc.tmc + '''","road":"''' + tmc.road +'''","direction":"''' + tmc.direction + '''","intersection":"''' + tmc.intersection + '''","miles":''' + str(tmc.miles) + ''',"road_order":''' + str(tmc.road_order) + '''},"geometry": {"type": "MultiPoint", "coordinates": [[''' + str(tmc.s_lon) + ',' + str(tmc.s_lat) + '],[' + str(tmc.e_lon) + ',' + str(tmc.e_lat) +']]}},'
-    result = result.rstrip(',')
-    result += ']}'
+    result = { "type": "FeatureCollection","features": []}
+    result["features"] = [{"type":"Feature","properties": {"TMC":tmc.tmc,"road":tmc.road,"direction":tmc.direction,"intersection":tmc.intersection,"miles":tmc.miles,"road_order":tmc.road_order},"geometry": {"type": "MultiPoint", "coordinates": [[tmc.s_lon,tmc.s_lat],[tmc.e_lon,tmc.e_lat]]}} for tmc in tmc_set]
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
