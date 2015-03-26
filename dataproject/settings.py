@@ -10,9 +10,18 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 #for celery use
 from __future__ import absolute_import
-#from datetime import timedelta
+from datetime import timedelta
 
 #celery settings
+
+CELERY_TASK_RESULT_EXPIRES=3600,
+CELERYBEAT_SCHEDULE = {
+    'add-every-30-seconds': {
+        'task': 'traffic.tasks.add',
+        'schedule': timedelta(seconds=5),
+        'args': (16, 16)
+    },
+}
 
 #broker url for celery use
 BROKER_URL = 'django://'

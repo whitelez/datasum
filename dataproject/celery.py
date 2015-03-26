@@ -6,9 +6,7 @@ from celery import Celery
 
 from django.conf import settings
 
-from datetime import timedelta
-
-#from traffic import tasks
+#from datetime import timedelta
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dataproject.settings')
@@ -19,18 +17,11 @@ app = Celery('dataproject')
 # pickle the object when using Windows.
 app.config_from_object('django.conf:settings')
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
-app.conf.update(
-    #CELERY_IMPORTS = ("traffic.tasks", ),
-    CELERY_RESULT_BACKEND='djcelery.backends.database:DatabaseBackend',
-    CELERY_TASK_RESULT_EXPIRES=3600,
-    CELERYBEAT_SCHEDULE = {
-    'add-every-30-seconds': {
-        'task': 'traffic.tasks.add',
-        'schedule': timedelta(seconds=5),
-        'args': (16, 16)
-    },
-}
-)
+# add celery configuration
+# app.conf.update(
+    # use database as a result backend
+#     CELERY_RESULT_BACKEND='djcelery.backends.database:DatabaseBackend',
+# )
 
 @app.task(bind=True)
 def debug_task(self):
