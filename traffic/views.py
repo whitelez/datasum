@@ -1,6 +1,8 @@
 from django.shortcuts import render
+from django.core import serializers
 from django.http import HttpResponse
 from django.db.models import Q
+from django.template import RequestContext, loader
 
 import json
 import urllib2,urllib
@@ -1116,4 +1118,41 @@ def TMC_GIS(request):
 def real_time_tt(request):
     return render(request, 'traffic/real_time_tt.html')
 
+
+
+#SGYang
+def closure(request):
+    return render(request, 'traffic/closure.html')
+
+
+def get_road_closure_query(request):
+    #eee = Closed_roads.objects.filter(location__icontains='FORBES AVE')
+    #print eee.rdline
+    if request.GET['first'] == '1':
+        entry = Closed_roads.objects.exclude(type__in=[0])
+    else:
+        weekday = request.GET['weekday']
+        hour = int(request.GET['hour'])
+        datin = date(int(request.GET['yy']), int(request.GET['mm']), int(request.GET['dd']))
+        entry = Closed_roads.objects.filter(start_date__lte=datin, end_date__gte=datin).exclude(type__in=[0])
+        print len(entry)
+        throw = []
+        for t in entry:
+            timeslot = []
+            within = False
+            if weekday == '0':
+                timeslot = t.wkend_hrs.split('-')
+            else:
+                timeslot = t.wkday_hrs.split('-')
+            for i in range(len(timeslot)/2):
+                if (float(timeslot[2*i]) <= hour and float(timeslot[2*i+1]) >= hour):
+                    within = True
+            if not within:
+                throw.append(t.perm_no)
+            entry = Closed_roads.objects.filter(start_date__lte=datin, end_date__gte=datin).exclude(perm_no__in=throw).exclude(type__in=[0])
+
+    datarender = '{ "points" : '+ serializers.serialize('json', entry) + '}'
+    datarender = datarender.replace('\n', '')
+    print len(entry)
+    return HttpResponse(datarender, content_type='application/json')
 

@@ -16,7 +16,6 @@ Power of 32 RTIS - Camera
 <div id="map"></div>
 {% endblock %}
 	
-	
 
 {% block script %}
 <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
@@ -28,7 +27,7 @@ Power of 32 RTIS - Camera
 
 	// add an OpenStreetMap tile layer
 	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+		attribution: '&copy; <a href="http://osm.ggorg/copyright">OpenStreetMap</a> contributors'
 	}).addTo(map);
 	
 	map.addControl( new L.Control.Search({
