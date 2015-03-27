@@ -5,3 +5,5 @@
 *.pyc
 celerybeat.pid
 celerybeat-schedule
+gis_to_geoJSON.js
+real_time_tt.html

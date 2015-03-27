@@ -16,10 +16,9 @@ from datetime import timedelta
 
 CELERY_TASK_RESULT_EXPIRES=3600,
 CELERYBEAT_SCHEDULE = {
-    'add-every-30-seconds': {
-        'task': 'traffic.tasks.add',
-        'schedule': timedelta(seconds=5),
-        'args': (16, 16)
+    'get_travel_time-every-3-minutes': {
+        'task': 'traffic.tasks.get_travel_time_tmc',
+        'schedule': timedelta(minutes=3),
     },
 }
 
