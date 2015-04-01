@@ -11,6 +11,8 @@ from datetime import date, time, datetime
 import time as the_time
 import xml.etree.ElementTree as XMLET
 
+from django.db.models import Avg
+
 
 import csv
 
@@ -445,11 +447,15 @@ def get_travel_time(request):
         avg = 0
         miles += tmc.miles
         data = TMC_data.objects.filter(tmc_id=tmc.tmc, date__range=(start_date, end_date))
-        data_time_range = data.filter(time__range=(start_time, end_time))
-        n = data_time_range.count()
-        for record in data_time_range:
-            avg += record.travel_time
-        avg = avg/n
+        #avg = TMC_data.objects.filter(tmc_id=tmc.tmc, date__range=(start_date, end_date),time__range=(start_time, end_time)).aggregate(Avg('travel_time'))['travel_time__avg']
+        #data_time_range = data.filter(time__range=(start_time, end_time))
+        #n = data_time_range.count()
+        # for record in data_time_range:
+        #     #pass
+        #     avg += record.travel_time
+        #avg = sum([record.travel_time for record in data_time_range])
+        avg = data.filter(time__range=(start_time, end_time)).aggregate(Avg('travel_time'))['travel_time__avg']
+        #avg = avg/n
         total += avg
         # By PXD
         difftime = {}
@@ -479,6 +485,9 @@ def get_travel_time(request):
     result = {"travel_time": total,"speed": speed,"truck_travel_time":truck_total ,"truck_speed":truck_speed,"tmc_geometry":tmc_geometry}
     #By PXD
     result["freeflowtime"] = freeflowtime
+    result += ',"freeflowtime":' + str(freeflowtime) + ',"allavg":['
+    for key in alltimeavg.keys():
+        result += '{"key":"' + key + '","value":' + str(alltimeavg[key]) + '},'
     result["allavg"] =[{"key":key,"value":alltimeavg[key]} for key in alltimeavg.keys()]
     result["all95"] = [{"key":key,"value":alltime95[key]} for key in alltime95.keys()]
     #End

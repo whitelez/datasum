@@ -8,8 +8,31 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 
+#for celery use
+from __future__ import absolute_import
+from datetime import timedelta
+
+#celery settings
+
+CELERY_TASK_RESULT_EXPIRES=3600,
+CELERYBEAT_SCHEDULE = {
+    'get_travel_time-every-3-minutes': {
+        'task': 'traffic.tasks.get_travel_time_tmc',
+        'schedule': timedelta(minutes=3),
+    },
+}
+
+#broker url for celery use
+BROKER_URL = 'django://'
+
+#periodical schedules
+
+
+#Django settings
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+#import kombu
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -37,6 +60,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'traffic',
+    'kombu.transport.django',
+    'djcelery',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -86,3 +111,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+

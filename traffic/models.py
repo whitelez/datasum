@@ -282,6 +282,22 @@ class Parking_lots(models.Model):
     def __unicode__(self):
         return self.lot_id
 
+class Real_time_tmc_data(models.Model):
+    tmc = models.CharField(max_length = 9)
+    date = models.DateField()
+    time = models.TimeField()
+    speed = models.FloatField()
+    avg_speed = models.FloatField()
+    ref_speed = models.FloatField()
+    delta = models.SmallIntegerField()
+    score = models.SmallIntegerField()
+    c_value = models.SmallIntegerField()
+    travel_time = models.FloatField() #in minutes
+    cong_level = models.SmallIntegerField() # congestion level
+    def __unicode__(self):
+            return self.tmc
+
+
 
 
 
