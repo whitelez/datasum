@@ -9,6 +9,9 @@ Power of 32 RTIS - Transit
 {% block style %}
 <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
+link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
+<link rel="stylesheet" href="{% static 'traffic/bootstrap-datetimepicker.min.css' %}" />
+<link rel="stylesheet" href="{% static 'traffic/bootstrap-switch.min.css' %}" />
 {% endblock %}
 
 
@@ -52,7 +55,100 @@ Power of 32 RTIS - Transit
             </div>
 	    </div>
 
-    	<div class="row" style="padding-top:5px;">
+        <div class="row" style="padding-top:5px;">
+        	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Date:</h5></div>
+            <div class="col-md-3" style="padding-left:0px;padding-right: 0px;">
+                <select id='syear' name = 'syear' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					<option value='2014'>2014</option>
+					<option value='2013'>2013</option>
+					<option value='2012'>2012</option>
+					<option value='2011'>2011</option>
+					<option value='2010'>2010</option>
+				</select>
+            </div>
+            <div class="col-md-2" style="padding-left: 0;padding-right: 1px;">
+				<select id='smonth' name = 'smonth' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					<option value='01'>Jan</option>
+					<option value='02'>Feb</option>
+					<option value='03'>Mar</option>
+					<option value='04'>Apr</option>
+					<option value='05'>May</option>
+					<option value='06'>Jun</option>
+					<option value='07'>Jul</option>
+					<option value='08'>Aug</option>
+					<option value='09'>Sep</option>
+					<option value='10'>Oct</option>
+					<option value='11'>Nov</option>
+					<option value='12'>Dec</option>
+				</select>
+            </div>
+            <div class="col-md-2" style="padding-left: 0;padding-right: 10px;">
+				<select id='sday' name = 'sday' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					{% for i in n%}
+						<option value={{i}}>{{i}}</option>
+					{% endfor %}
+				</select>
+            </div>
+	    </div>
+
+		<div class="row" style="padding-top:5px;">
+        	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>End Date:</h5></div>
+            <div class="col-md-3" style="padding-left:0px;padding-right: 0px;">
+                <select id='eyear' name = 'eyear' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					<option value='2014'>2014</option>
+					<option value='2013'>2013</option>
+					<option value='2012'>2012</option>
+					<option value='2011'>2011</option>
+					<option value='2010'>2010</option>
+				</select>
+            </div>
+            <div class="col-md-2" style="padding-left: 0;padding-right: 1px;">
+				<select id='emonth' name = 'emonth' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					<option value='01'>Jan</option>
+					<option value='02'>Feb</option>
+					<option value='03' selected="selected">Mar</option>
+					<option value='04'>Apr</option>
+					<option value='05'>May</option>
+					<option value='06'>Jun</option>
+					<option value='07'>Jul</option>
+					<option value='08'>Aug</option>
+					<option value='09'>Sep</option>
+					<option value='10'>Oct</option>
+					<option value='11'>Nov</option>
+					<option value='12'>Dec</option>
+				</select>
+            </div>
+            <div class="col-md-2" style="padding-left: 0;padding-right: 10px;">
+				<select id='eday' name = 'eday' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					{% for i in n%}
+						<option value={{i}}>{{i}}</option>
+					{% endfor %}
+				</select>
+            </div>
+	    </div>
+        <div class="row" style="padding-top:5px;">
+           <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Time:</h5></div>
+           <div class="col-md-8" style="padding-left: 0;">
+                    <div class='input-group date' id='datetimepicker'>
+                        <input id="Stime" type='text' style="height: 36px;width: 145px;" class="form-control" />
+                        <span class="input-group-addon" style="height: 36px;width: 36px;padding: 0;"><span class="glyphicon glyphicon-time"></span>
+                        </span>
+                    </div>
+           </div>
+        </div>
+
+        <div class="row" style="padding-top:5px;">
+           <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>End Time:</h5></div>
+           <div class="col-md-8" style="padding-left: 0;">
+                    <div class='input-group date' id='datetimepicker2'>
+                        <input id="Etime" style="height: 36px;width: 145px;" type='text' class="form-control" />
+                        <span class="input-group-addon" style="height: 36px;width: 36px;padding: 0;"><span class="glyphicon glyphicon-time"></span>
+                        </span>
+                    </div>
+           </div>
+        </div>
+
+    	<div class="row" style="padding-top:5px;display: none">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Time:</h5></div>
             <div class="col-md-4" style="padding-left: 0;padding-right: 1px;">
             	<select id='hour' name = 'hour' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="90%">

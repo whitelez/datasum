@@ -1,0 +1,369 @@
+{% extends "traffic/base.html" %}
+
+{% load staticfiles %}
+
+{% block title %}
+Power of 32 RTIS - Incidents
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+<link rel="stylesheet" href="{% static 'traffic/leaflet.draw.css' %}">
+{% endblock %}
+
+
+{% block map %}
+	<div id="map"></div>
+	<div id="chart">
+{#     	<div id="chart1" style="height:250px;width:97%;margin-left: 20px;margin-right: 20px "></div>#}
+        <p style="margin-left: 20px;margin-top: 20px">
+            <mark style="background:#762a83">&nbsp;&nbsp;&nbsp;</mark> Hubs & Buildings &nbsp;
+            <mark style="background:#1f78b4">&nbsp;&nbsp;&nbsp;</mark> ITS Devices &nbsp;
+            <mark style="background:#a6d96a">&nbsp;&nbsp;&nbsp;</mark> Detour Route Signals (Bucks, Chester, Delaware, Montgomery)&nbsp;
+            <mark style="background:#33a02c">&nbsp;&nbsp;&nbsp;</mark> Detour Route Signals (Philadelphia)&nbsp;
+            <mark style="background:#fb9a99">&nbsp;&nbsp;&nbsp;</mark> CCTV&nbsp;
+            <mark style="background:#e31a1c">&nbsp;&nbsp;&nbsp;</mark> DMS&nbsp;
+            <mark style="background:#fdbf6f">&nbsp;&nbsp;&nbsp;</mark> VIDS&nbsp;
+            <mark style="background:#ff7f00">&nbsp;&nbsp;&nbsp;</mark> Tag Readers
+            <mark style="background:#cab2d6">&nbsp;&nbsp;&nbsp;</mark> RTMS
+            <mark style="background:#a65628">&nbsp;&nbsp;&nbsp;</mark> Ramp Meters
+            <mark style="background:blue">&nbsp;&nbsp;&nbsp;</mark> Regional Fiber
+        </p>
+	</div>
+{% endblock %}
+	
+	
+
+{% block script %}
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script type="text/javascript" src="{% static 'traffic/leaflet.draw.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/devices_geoJson.js' %}"></script>
+
+<script>
+     $('.selectpicker').selectpicker({
+      style: 'btn-inverse',
+      size: 10
+     });
+</script>
+
+<script>
+	
+	var map = L.map('map').setView([40.03, -75.163945], 11);
+    
+	// add an OpenStreetMap tile layer
+	var basemap = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+	}).addTo(map);
+
+	
+		
+    function getColor(d) {
+        return d == 'Hubs & Buildings'?'#762a83':
+               d == 'ITS Devices'? '#1f78b4':
+               d == 'Detour Route Signals (Bucks, Chester, Delaware, Montgomery)'? '#a6d96a':
+               d == 'Detour Route Signals (Philadelphia)'?'#33a02c':
+               d == 'CCTV'? '#fb9a99':
+               d == 'DMS'? '#e31a1c':
+               d == 'VIDS'? '#fdbf6f':
+               d == 'Tag Readers'? '#ff7f00':
+               d == 'RTMS'? '#cab2d6':
+               d == 'Ramp Meters'? '#a65628':
+               d == 'Regional Fiber'? '#999999':
+               '#000000';
+    }
+
+		function style(feature) {
+			return {
+				radius: 6,
+				//opacity: 1,
+				//dashArray: '3',
+				fillColor: getColor(feature.properties.type),
+                weight:0.5,
+                fillOpacity:1
+			};
+		}
+
+
+		function onEachFeature(feature, layer) {
+			layer.bindPopup("<b>Name: </b>" + feature.properties.name
+				+ "<br><b>ID: </b>" + feature.properties.id
+				+ "<br><b>Type: </b>" + feature.properties.type);
+			}
+	
+	var hubLayer = L.geoJson(),
+		itsLayer = L.geoJson(),
+		detourOthersLayer = L.geoJson(),
+		detourPhilLayer = L.geoJson(),
+		cctvLayer = L.geoJson(),
+		dmsLayer = L.geoJson(),
+		vidsLayer = L.geoJson(),
+        tagReaderLayer = L.geoJson(),
+        rtmsLayer = L.geoJson(),
+        rampMeterLayer = L.geoJson(),
+        fiberLayer = L.geoJson(),
+		control = L.control.layers({'Base Map':basemap},null,{collapsed:false});
+		control.addTo(map);
+
+	function removeLayers(){
+		if(hubLayer)
+		{
+			control.removeLayer(hubLayer);
+			if(map.hasLayer(hubLayer)){
+				map.removeLayer(hubLayer);
+			}
+		}
+		
+		if(itsLayer)
+		{
+			control.removeLayer(itsLayer);
+			if(map.hasLayer(itsLayer)){
+				map.removeLayer(itsLayer);
+			}
+		}
+		
+		if(detourOthersLayer)
+		{
+			control.removeLayer(detourOthersLayer);
+			if(map.hasLayer(detourOthersLayer)){
+				map.removeLayer(detourOthersLayer);
+			}
+		}
+		
+		if(detourPhilLayer)
+		{
+			control.removeLayer(detourPhilLayer);
+			if(map.hasLayer(detourPhilLayer)){
+				map.removeLayer(detourPhilLayer);
+			}
+		}
+		
+		if(cctvLayer)
+		{
+			control.removeLayer(cctvLayer);
+			if(map.hasLayer(cctvLayer)){
+				map.removeLayer(cctvLayer);
+			}
+		}
+		
+		if(dmsLayer)
+		{
+			control.removeLayer(dmsLayer);
+			if(map.hasLayer(dmsLayer)){
+				map.removeLayer(dmsLayer);
+			}
+		}
+		
+		if(vidsLayer)
+		{
+			control.removeLayer(vidsLayer);
+			if(map.hasLayer(vidsLayer)){
+				map.removeLayer(vidsLayer);
+			}
+		}
+
+        if(tagReaderLayer)
+		{
+			control.removeLayer(tagReaderLayer);
+			if(map.hasLayer(tagReaderLayer)){
+				map.removeLayer(tagReaderLayer);
+			}
+		}
+
+        if(rtmsLayer)
+		{
+			control.removeLayer(rtmsLayer);
+			if(map.hasLayer(rtmsLayer)){
+				map.removeLayer(rtmsLayer);
+			}
+		}
+
+        if(rampMeterLayer)
+		{
+			control.removeLayer(rampMeterLayer);
+			if(map.hasLayer(rampMeterLayer)){
+				map.removeLayer(rampMeterLayer);
+			}
+		}
+
+        if(fiberLayer)
+		{
+			control.removeLayer(fiberLayer);
+			if(map.hasLayer(fiberLayer)){
+				map.removeLayer(fiberLayer);
+			}
+		}
+
+	}
+	function show_data(data){
+		
+		removeLayers();
+		
+		hubLayer = L.geoJson(data,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return feature.properties.type == 'Hubs & Buildings';
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(hubLayer,'Hubs & Buildings');
+		
+		
+		itsLayer = L.geoJson(data,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return (feature.properties.type == 'ITS Devices');
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(itsLayer,'ITS Devices');
+		
+		
+		detourOthersLayer = L.geoJson(data,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return (feature.properties.type == 'Detour Route Signals (Bucks, Chester, Delaware, Montgomery)');
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(detourOthersLayer,'Detour Route Signals (Bucks, Chester, Delaware, Montgomery)');
+		
+		
+		detourPhilLayer = L.geoJson(data,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return (feature.properties.type == 'Detour Route Signals (Philadelphia)');
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(detourPhilLayer,'Detour Route Signals (Philadelphia)');
+		
+		
+		cctvLayer = L.geoJson(data,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return (feature.properties.type == 'CCTV');
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(cctvLayer,'CCTV');
+
+		
+		dmsLayer = L.geoJson(data,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return (feature.properties.type == 'DMS');
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(dmsLayer,'DMS');
+
+
+        vidsLayer = L.geoJson(data,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return (feature.properties.type == 'VIDS');
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(vidsLayer,'VIDS');
+
+
+        tagReaderLayer = L.geoJson(data,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return (feature.properties.type == 'Tag Readers');
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(tagReaderLayer,'Tag Readers');
+
+
+        rtmsLayer = L.geoJson(data,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return (feature.properties.type == 'RTMS');
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(rtmsLayer,'RTMS');
+
+        rampMeterLayer = L.geoJson(data,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return (feature.properties.type == 'Ramp Meters');
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(rampMeterLayer,'Ramp Meters');
+
+        fiberLayer = L.geoJson(data,{
+{#			pointToLayer:function(feature, latlng){#}
+{#				return L.circleMarker(latlng,style(feature));#}
+{#			},#}
+			filter: function(feature, latlng){
+				return (feature.properties.type == 'Regional Fiber');
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(fiberLayer,'Regional Fiber');
+	};
+
+    show_data(devices_geoJson);
+
+
+{#	$.get("../get_incidents_rcrs_area/", {s_date:sy+sm+sd, e_date:ey+em+ed, s_time:sh+smi, e_time:eh+emi, lon1:lon1, lat1:lat1, lon2:lon2, lat2:lat2}, function(data, textStatus){#}
+{#			 #}
+{#			 //draw incidents#}
+{#			 incidents = $.parseJSON(data["geoJson"]);#}
+{#			 show_incidents(incidents);#}
+{#		#}
+{#	});#}
+	
+	
+{#	var legend = L.control({position: 'bottomright'});#}
+{##}
+{#		legend.onAdd = function (map) {#}
+{##}
+{#			var div = L.DomUtil.create('div', 'info legend'),#}
+{#				grades = ['ACCIDENT','ROADWORK','FLOODING','POLICE ACTIVITY','WINTER WEATHER','OTHERS'],#}
+{#				labels =[];#}
+{#			for (var i = 0; i < grades.length; i++) {#}
+{#				labels.push(#}
+{#					'<i style="background:' + getColor(grades[i]) + '"></i> ' +#}
+{#					grades[i]);#}
+{#			}#}
+{##}
+{#			div.innerHTML = labels.join('<br><br>');#}
+{#			return div;#}
+{#		};#}
+{##}
+{#		legend.addTo(map);#}
+	
+
+	
+
+
+  </script>
+{% endblock %}
+
+

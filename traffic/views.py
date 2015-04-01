@@ -458,8 +458,6 @@ def get_travel_time(request):
         #avg = avg/n
         total += avg
         # By PXD
-
-
         difftime = {}
         for record in data:
             key = str(record.time)
@@ -479,7 +477,6 @@ def get_travel_time(request):
                 alltimeavg[key] += temp/len(s2)
                 alltime95[key] += s2[int(len(s2)*0.95)]
         freeflowtime += (tmc.miles/tmc.reference_speed)*60
-
         #End
 
     speed = miles/total*60
@@ -493,7 +490,6 @@ def get_travel_time(request):
         result += '{"key":"' + key + '","value":' + str(alltimeavg[key]) + '},'
     result["allavg"] =[{"key":key,"value":alltimeavg[key]} for key in alltimeavg.keys()]
     result["all95"] = [{"key":key,"value":alltime95[key]} for key in alltime95.keys()]
-
     #End
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
@@ -655,7 +651,7 @@ def get_stops(request):
 def transit(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
-    return render(request, 'traffic/transit.html',{'routes':routes})
+    return render(request, 'traffic/transit.html',{'routes':routes,"n":range(1,32)})
 
 def transit_metrics(request):
     #jackson
@@ -1116,4 +1112,5 @@ def TMC_GIS(request):
 def real_time_tt(request):
     return render(request, 'traffic/real_time_tt.html')
 
-
+def device_render(request):
+    return render(request, 'traffic/devices.html')
