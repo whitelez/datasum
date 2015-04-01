@@ -642,7 +642,7 @@ def get_stops(request):
 def transit(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
-    return render(request, 'traffic/transit.html',{'routes':routes})
+    return render(request, 'traffic/transit.html',{'routes':routes,"n":range(1,32)})
 
 def transit_metrics(request):
     #jackson
@@ -1103,4 +1103,5 @@ def TMC_GIS(request):
 def real_time_tt(request):
     return render(request, 'traffic/real_time_tt.html')
 
-
+def device_render(request):
+    return render(request, 'traffic/devices.html')
