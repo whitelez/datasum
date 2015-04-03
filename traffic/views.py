@@ -485,9 +485,6 @@ def get_travel_time(request):
     result = {"travel_time": total,"speed": speed,"truck_travel_time":truck_total ,"truck_speed":truck_speed,"tmc_geometry":tmc_geometry}
     #By PXD
     result["freeflowtime"] = freeflowtime
-    result += ',"freeflowtime":' + str(freeflowtime) + ',"allavg":['
-    for key in alltimeavg.keys():
-        result += '{"key":"' + key + '","value":' + str(alltimeavg[key]) + '},'
     result["allavg"] =[{"key":key,"value":alltimeavg[key]} for key in alltimeavg.keys()]
     result["all95"] = [{"key":key,"value":alltime95[key]} for key in alltime95.keys()]
     #End
