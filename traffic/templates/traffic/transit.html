@@ -9,9 +9,11 @@ Power of 32 RTIS - Transit
 {% block style %}
 <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
-link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
+<link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-datetimepicker.min.css' %}" />
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-switch.min.css' %}" />
+<link rel="stylesheet" href="{% static 'traffic/multiselect/bootstrap-multiselect.css' %}"  type="text/css"/>
+{#<link rel="stylesheet" href="{% static 'traffic/bootstrap-3.3.2/dist/css/bootstrap.min.css' %}"  type="text/css"/>#}
 {% endblock %}
 
 
@@ -39,21 +41,30 @@ link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
            </div>
         </div>
 
-		<div class="row" style="padding-top:5px;">
-            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Origin:</h5></div>
+        <div class="row" style="padding-top:5px;">
+            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Stops:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
-                <select id="select_stop1" name="select_stop1"  class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
-			    </select>
+                <select multiple="multiple" id = "select_stop">
+                </select>
+                <button id="stops_deselect_all" class="btn btn-default">Clean All</button>
             </div>
 	    </div>
 
-    	<div class="row" style="padding-top:5px;">
-            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Destination:</h5></div>
-            <div class="col-md-8" style="padding-left: 0;">
-                <select id="select_stop2" name="select_stop2"  class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
-			    </select>
-            </div>
-	    </div>
+{#		<div class="row" style="padding-top:5px;">#}
+{#            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Origin:</h5></div>#}
+{#            <div class="col-md-8" style="padding-left: 0;">#}
+{#                <select id="select_stop1" name="select_stop1"  class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">#}
+{#			    </select>#}
+{#            </div>#}
+{#	    </div>#}
+
+{#    	<div class="row" style="padding-top:5px;">#}
+{#            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Destination:</h5></div>#}
+{#            <div class="col-md-8" style="padding-left: 0;">#}
+{#                <select id="select_stop2" name="select_stop2"  class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">#}
+{#			    </select>#}
+{#            </div>#}
+{#	    </div>#}
 
         <div class="row" style="padding-top:5px;">
         	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Date:</h5></div>
@@ -311,7 +322,8 @@ link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
 {% block script %}
 <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
-
+<script type="text/javascript" src="{% static 'traffic/multiselect/bootstrap-multiselect.js' %}"></script>
+{#<script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/dist/js/bootstrap.min.js' %}"></script>#}
 <script>
      $('.selectpicker').selectpicker({
       style: 'btn-inverse',
@@ -320,7 +332,7 @@ link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
 </script>
 
 <script>
-	$(function(){
+{#	$(function(){#}
 	var map = L.map('map').setView([40.300, -79.000], 8);
     
 	// add an OpenStreetMap tile layer
@@ -397,29 +409,30 @@ link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
 		}
 		
 		var selected = 1;
-		function zoomToFeature(e) {
+		function clickFeature(e) {
 			var layer = e.target;
 			//var weather;
 			//map.fitBounds(layer.getBounds()); // zoom to the layer
-			selected = (selected+1)%2;
-			var update = '#select_stop' + (selected+1);
-			$(update +' option:selected').removeAttr('selected');
-            $(update +' option:selected').selectpicker('refresh');
-			$(update).find("option[value='" + layer.feature.properties.stop_id +"']").attr('selected', true);
-            $(update).selectpicker('refresh');
-			$(update).trigger('change');
-            $(update).selectpicker('refresh');
+{#			selected = (selected+1)%2;#}
+{#			var update = '#select_stop' + (selected+1);#}
+{#			$(update +' option:selected').removeAttr('selected');#}
+{#            $(update +' option:selected').selectpicker('refresh');#}
+{#			$(update).find("option[value='" + layer.feature.properties.stop_id +"']").attr('selected', true);#}
+{#            $(update).selectpicker('refresh');#}
+{#			$(update).trigger('change');#}
+{#            $(update).selectpicker('refresh');#}
 			//var order = '#order' + (selected+1);
 			//$(update).text(layer.feature.properties.name);
 			//$(order).text(layer.feature.properties.order);
-			
+			$('option[value=' + layer.feature.properties.stop_id + ']', $('#select_stop')).prop("selected", true);
+            $('#select_stop').multiselect('refresh');
 		}
 
 		function onEachFeature(feature, layer) {
 			layer.on({
 				mouseover: highlightFeature,
 				mouseout:resetHighlight,
-				click:zoomToFeature
+				click:clickFeature
 			});
 			layer.bindPopup('<b>' + feature.properties.name + '</b>');
 			}
@@ -463,8 +476,8 @@ link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
 		
 		$.get("../get_stops/", {route:route, direction:direction}, function(data, textStatus){
 			
-		  $('#select_stop1').empty();
-		  $('#select_stop2').empty();
+		  $('#select_stop').empty();
+		  //$('#select_stop2').empty();
 		  if(stopsLayer){
 			 	control.removeLayer(stopsLayer);
 			 	if(map.hasLayer(stopsLayer)){
@@ -480,12 +493,30 @@ link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
 					onEachFeature:onEachFeature
 					}).addTo(map);
 			control.addOverlay(stopsLayer,'Stops');
+
 			for(var i=0;i<stops_geoJson.features.length;i++){
-				$("#select_stop1").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");
-                $("#select_stop1").selectpicker('refresh');
-				$("#select_stop2").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");
-                $("#select_stop2").selectpicker('refresh');
+				$("#select_stop").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");
+{#                $("#select_stop1").selectpicker('refresh');#}
+{#				$("#select_stop2").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");#}
+{#                $("#select_stop2").selectpicker('refresh');#}
 			}
+            //Initialize multiselect
+            if ( $('#stops_multiselect').length == 0) {
+                $('#select_stop').multiselect({
+                    buttonContainer: '<div class="btn-group" id = "stops_multiselect"/>',
+                    disableIfEmpty: true,
+                    maxHeight: 200,
+                    buttonWidth: '200px',
+                    nonSelectedText: 'Select Stops ...',
+                    numberDisplayed: 1,
+                    includeSelectAllOption: true,
+                    enableCaseInsensitiveFiltering: true
+                });
+            }
+            else{
+                $('#select_stop').multiselect("rebuild");
+            }
+
 		  }
 		  else{
 		  	$('#txtHint').text('Route ' + route + '-' + (direction == 'I'?'Inbound':'Outbound') + ' not found');
@@ -493,6 +524,12 @@ link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
 		},"json");
 		
 	}
+
+    $('#stops_deselect_all').on('click', function() {
+            $('#select_stop').multiselect('deselectAll', false);
+            $('#select_stop').multiselect('updateButtonText');
+    });
+
 	$('#select_route').change(getInfo);
 	$('.direction').click(getInfo);
 	function get_metrics(){
@@ -515,7 +552,7 @@ link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
 	$('#select_stop1').change(get_metrics);
 	$('#select_stop2').change(get_metrics);
 	$('#inbound').trigger('click');
-	});
+{#	});#}
 </script>
 {% endblock %}
 
