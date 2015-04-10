@@ -650,20 +650,46 @@ def transit(request):
     routes = routes.split(',')
     return render(request, 'traffic/transit.html',{'routes':routes,"n":range(1,32)})
 
+def bus_real_time(request):
+    route = request.GET["rt"]
+    url = "http://truetime.portauthority.org/bustime/api/v1/getvehicles?key=AX2AUxF9WBp8xdjHBTXEr8gn5&format=json&rt=" + route
+    link = urllib2.urlopen(url)
+    url_rsps = link.read()
+    vehicles = json.loads(url_rsps)
+    result = {"status":"","msg":"","geoJson":{}}
+    if "error" in vehicles["bustime-response"]:
+        result["status"] = "error"
+        result["msg"] = vehicles["bustime-response"]["error"]["msg"]
+    else:
+        result["status"] = "success"
+        geoJson = {"type":"FeatureCollection","features":[]}
+        if isinstance(vehicles["bustime-response"]["vehicle"],dict):
+            feature = {"type":"Feature","geometry":{"type":"Point","coordinates":[float(vehicles["bustime-response"]["vehicle"]["lon"]),float(vehicles["bustime-response"]["vehicle"]["lat"])]},"properties":vehicles["bustime-response"]["vehicle"]}
+            geoJson["features"].append(feature)
+        else:
+            for vehicle in vehicles["bustime-response"]["vehicle"]:
+                feature = {"type":"Feature","geometry":{"type":"Point","coordinates":[float(vehicle["lon"]),float(vehicle["lat"])]},"properties":vehicle}
+                geoJson["features"].append(feature)
+        result["geoJson"] = geoJson
+    response = json.dumps(result)
+    return HttpResponse(response, content_type='application/json')
+
+
 def transit_metrics(request):
-    #jackson
-    #test out filtering
-    #need two spaces before the stop ID, We should strip them out
-    all_trips_my_stop = Transit_data.objects.filter(qstopa='  E29105')
-    #pull out some data from object
 
-    #access first record, aname field is 10th element, giving error that list index is out of range
-    stop_name =  all_trips_my_stop[0][9]
+    # s_date = request.GET["s_datetime"]
+    # e_date = request.GET["e_datetime"]
+    # s_datetime = datetime(int(s_date[0:4]),int(s_date[4:6]),int(s_date[6:]))
+    # e_datetime = datetime(int(e_date[0:4]),int(e_date[4:6]),int(e_date[6:]))
+    s_datetime = datetime.strptime(request.GET["s_datetime"],"%Y-%m-%d %I:%M %p")
+    e_datetime = datetime.strptime(request.GET["e_datetime"],"%Y-%m-%d %I:%M %p")
 
-    #how many times did the bus stop at my stop
-    trip_count = all_trips_my_stop.count()
+    stops = request.GET["stops"].split(",")
 
-    return HttpResponse("The bus stopped at my stop " + str(trip_count) + " times. The stop name is " + stop_name + ".")
+    result = {"s_datetime":str(s_datetime),"e_datetime":str(e_datetime),"num":len(stops),"stops":",".join(stops)}
+
+    response = json.dumps(result)
+    return HttpResponse(response, content_type='application/json')
 
 def routing(request):
     return render(request,'traffic/routing.html',{'n':range(1,32)})

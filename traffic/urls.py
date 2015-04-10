@@ -46,4 +46,5 @@ urlpatterns = patterns('',
     url(r'^real_time_tt/$', views.real_time_tt, name='real_time_tt'),
     url(r'^tmc_gis/$', views.TMC_GIS, name='TMC_GIS'),
     url(r'^devices/$', views.device_render, name='devices'),
+    url(r'^bus_real_time/$', views.bus_real_time, name='bus_real_time'),
 )
