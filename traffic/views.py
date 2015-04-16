@@ -650,6 +650,21 @@ def transit(request):
     routes = routes.split(',')
     return render(request, 'traffic/transit.html',{'routes':routes,"n":range(1,32)})
 
+def transit_route_range(request):
+    routes = ','.join(route.short_name for route in Route.objects.all())
+    routes = routes.split(',')
+    return render(request, 'traffic/transit_route_range.html',{'routes':routes,"n":range(1,32)})
+
+def transit_stop_routes(request):
+    routes = ','.join(route.short_name for route in Route.objects.all())
+    routes = routes.split(',')
+    return render(request, 'traffic/transit_stop_routes.html',{'routes':routes,"n":range(1,32)})
+
+def transit_range_routes(request):
+    routes = ','.join(route.short_name for route in Route.objects.all())
+    routes = routes.split(',')
+    return render(request, 'traffic/transit_range_routes.html',{'routes':routes,"n":range(1,32)})
+
 def bus_real_time(request):
     route = request.GET["rt"]
     url = "http://truetime.portauthority.org/bustime/api/v1/getvehicles?key=AX2AUxF9WBp8xdjHBTXEr8gn5&format=json&rt=" + route
@@ -687,6 +702,41 @@ def transit_metrics(request):
     stops = request.GET["stops"].split(",")
 
     result = {"s_datetime":str(s_datetime),"e_datetime":str(e_datetime),"num":len(stops),"stops":",".join(stops)}
+
+    response = json.dumps(result)
+    return HttpResponse(response, content_type='application/json')
+
+def transit_metrics_route_range(request):
+
+# s_datetime:s_datetime, e_datetime:e_datetime, origin:origin,destination:destination,route:route,direction:direction
+    # s_date = request.GET["s_datetime"]
+    # e_date = request.GET["e_datetime"]
+    # s_datetime = datetime(int(s_date[0:4]),int(s_date[4:6]),int(s_date[6:]))
+    # e_datetime = datetime(int(e_date[0:4]),int(e_date[4:6]),int(e_date[6:]))
+    s_datetime = datetime.strptime(request.GET["s_datetime"],"%Y-%m-%d %I:%M %p")
+    e_datetime = datetime.strptime(request.GET["e_datetime"],"%Y-%m-%d %I:%M %p")
+    origin = request.GET["origin"]
+    destination = request.GET["destination"]
+    route_name = request.GET["route"]
+    direction = request.GET["direction"]
+
+    route = Route.objects.filter(short_name = route_name)[0]
+    if direction == 'I':
+        stops = route.inbound_stops_geoJson
+    else:
+        stops = route.outbound_stops_geoJson
+    stops = json.loads(stops)
+
+    origin_order = -1
+    destination_order = -1
+    for stop in stops["features"]:
+        if stop["properties"]["stop_id"] == origin:
+            origin_order = stop["properties"]["order"]
+        if stop["properties"]["stop_id"] == destination:
+            destination_order = stop["properties"]["order"]
+    num = destination_order - origin_order
+
+    result = {"ontime":str(s_datetime) + " " + str(e_datetime),"crowding":num,"waiting": route_name + " " + direction}
 
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')

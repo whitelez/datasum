@@ -46,7 +46,15 @@
                     <li id="nav-home"><a href="{% url 'traffic:index' %}">Home</a></li>
         	        <li id="nav-weather"><a href="{% url 'traffic:weather' %}">Weather</a></li>
                     <li id="nav-parking"><a href="{% url 'traffic:parking' %}">Parking</a></li>
-                    <li id="nav-transit"><a href="{% url 'traffic:transit' %}">Transit</a></li>
+                    <li id="nav-transit" class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Transit <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'traffic:transit' %}">Transit:Route Stops</a></li>
+							<li><a href="{% url 'traffic:transit_route_range' %}">Transit:Route Range</a></li>
+							<li><a href="{% url 'traffic:transit_stop_routes' %}">Transit: Stop Routes</a></li>
+							<li><a href="{% url 'traffic:transit_range_routes' %}">Transit: Range Routes</a></li>
+                        </ul>
+                    </li>
                     <li id="nav-cameras"><a href="{% url 'traffic:camera' %}">Cameras</a></li>
                     <li id="nav-trafficcounts"><a href="{% url 'traffic:count' %}">Traffic Counts</a></li>
                     <li id="nav-traveltime" class="dropdown">
