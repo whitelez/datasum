@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 
-from django.contrib import admin
+from django.contrib import admin,auth
 admin.autodiscover()
 
 urlpatterns = patterns('',
@@ -10,4 +10,7 @@ urlpatterns = patterns('',
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^traffic/', include('traffic.urls', namespace = 'traffic')),
+    # # Authentication
+    # url(r'^login/$', auth.views.login),
+    # url(r'^logout/$', auth.views.logout),
 )

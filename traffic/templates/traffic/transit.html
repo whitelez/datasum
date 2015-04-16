@@ -466,6 +466,11 @@ Power of 32 RTIS - Transit
             }
 
         }
+        function remove_all_stops_from_map(){
+            selected_stops_layerGroup.clearLayers();
+            elected_stops_dict = {};
+
+        }
 
 
 		function clickFeature(e) {
@@ -520,6 +525,7 @@ Power of 32 RTIS - Transit
                 }
             }
         }
+        remove_all_stops_from_map()
 
 		$.get("../get_route/", {route:route, direction:direction}, function(data, textStatus){
 			
