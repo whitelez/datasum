@@ -208,6 +208,12 @@ class Stop(models.Model):
     zone_id = models.CharField(max_length = 5)
     def __unicode__(self):
         return self.stop_id
+
+class Stop_route(models.Model):
+    stop_id =  models.CharField(max_length = 10, db_index = True)
+    route_id =  models.CharField(max_length = 10, db_index = True)
+    direction = models.CharField(max_length = 1)
+    order = models.PositiveSmallIntegerField()
     
 class Stop_time(models.Model):
     trip_id = models.ForeignKey(Trip)

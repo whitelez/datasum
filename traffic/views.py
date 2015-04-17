@@ -655,10 +655,50 @@ def transit_route_range(request):
     routes = routes.split(',')
     return render(request, 'traffic/transit_route_range.html',{'routes':routes,"n":range(1,32)})
 
+
 def transit_stop_routes(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
     return render(request, 'traffic/transit_stop_routes.html',{'routes':routes,"n":range(1,32)})
+
+def get_stop_routes(request):
+    stop_id = request.GET["stop"]
+    routes = Stop_route.objects.filter(stop_id = stop_id)
+    result = {"type":"FeatureCollection","features":[]}
+    for route in routes:
+        r = Route.objects.filter(route_id = route.route_id)
+        if route.direction == "I":
+            result["features"].append(r.inbound_geoJson)
+        else:
+            result["features"].append(r.outbound_geoJson)
+    response = json.dumps(result)
+    return HttpResponse(response, content_type='application/json')
+
+def get_range_routes(request):
+    stop1 = request.GET["stop1"]
+    stop2 = request.GET["stop2"]
+    routes1 = Stop_route.objects.filter(stop_id = stop1)
+    route_set1 = set()
+    for route in routes1:
+        route_set1.add(route.route_id+route.direction)
+    routes2 = Stop_route.objects.filter(stop_id = stop2)
+    route_set2 = set()
+    for route in routes2:
+        route_set2.add(route.route_id+route.direction)
+    routes = route_set1.intersection(route_set2)
+    result = {"type":"FeatureCollection","features":[]}
+    for route in routes:
+        route_id = route[:-1]
+        direction = route[-1]
+        r = Route.objects.filter(route_id = route_id)
+        if direction == "I":
+            result["features"].append(r.inbound_geoJson)
+        else:
+            result["features"].append(r.outbound_geoJson)
+    response = json.dumps(result)
+    return HttpResponse(response, content_type='application/json')
+
+
 
 def transit_range_routes(request):
     routes = ','.join(route.short_name for route in Route.objects.all())

@@ -37,8 +37,13 @@ urlpatterns = patterns('',
     url(r'^transit_data/$', views.transit_data, name='transit_data'),
     url(r'^transit/$', views.transit, name='transit'),
     url(r'^transit_route_range/$', views.transit_route_range, name='transit_route_range'),
+
     url(r'^transit_stop_routes/$', views.transit_stop_routes, name='transit_stop_routes'),
+    url(r'^get_stop_routes/$', views.get_stop_routes, name='get_stop_routes'),
+
     url(r'^transit_range_routes/$', views.transit_range_routes, name='transit_range_routes'),
+    url(r'^get_range_routes/$', views.get_range_routes, name='get_range_routes'),
+
     url(r'^bus_real_time/$', views.bus_real_time, name='bus_real_time'),
     url(r'^transit_metrics/$',views.transit_metrics, name = 'transit_metrics'),
     url(r'^transit_metrics_route_range/$',views.transit_metrics_route_range, name = 'transit_metrics_route_range'),
