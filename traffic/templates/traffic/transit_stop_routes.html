@@ -1,10 +1,620 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
+{% extends "traffic/base.html" %}
 
-</body>
-</html>
+{% load staticfiles %}
+
+{% block title %}
+Power of 32 RTIS - Transit
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+<link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
+<link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
+<link rel="stylesheet" href="{% static 'traffic/bootstrap-datetimepicker.min.css' %}" />
+<link rel="stylesheet" href="{% static 'traffic/bootstrap-switch.min.css' %}" />
+<link rel="stylesheet" href="{% static 'traffic/multiselect/bootstrap-multiselect.css' %}"  type="text/css"/>
+{#<link rel="stylesheet" href="{% static 'traffic/bootstrap-3.3.2/dist/css/bootstrap.min.css' %}"  type="text/css"/>#}
+{% endblock %}
+
+
+{% block content %}
+<div class="well" style="height:600px;">
+	<div class="container" style="width: inherit">
+
+
+        <div class="row" style="padding-top: 10px">
+        	<div class="col-md-4" style="padding-right: 0;">
+				<h5>Stop:</h5>
+            </div>
+            <div class="col-md-8" style="padding-left: 0;">
+                <span id = 'select_stop'>&emsp;&emsp;&emsp;</span>
+            </div>
+        </div>
+
+
+        <div class="row" style="padding-top:5px;">
+            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Routes:</h5></div>
+            <div class="col-md-8" style="padding-left: 0;">
+                <select multiple="multiple" id = "select_routes">
+                </select>
+                <button id="routes_deselect_all" class="btn btn-default">Clear All</button>
+            </div>
+	    </div>
+
+{#		<div class="row" style="padding-top:5px;">#}
+{#            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Origin:</h5></div>#}
+{#            <div class="col-md-8" style="padding-left: 0;">#}
+{#                <select id="select_stop1" name="select_stop1"  class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">#}
+{#			    </select>#}
+{#            </div>#}
+{#	    </div>#}
+
+{#    	<div class="row" style="padding-top:5px;">#}
+{#            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Destination:</h5></div>#}
+{#            <div class="col-md-8" style="padding-left: 0;">#}
+{#                <select id="select_stop2" name="select_stop2"  class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">#}
+{#			    </select>#}
+{#            </div>#}
+{#	    </div>#}
+
+        <div class="row" style="padding-top:5px;">
+        	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Date:</h5></div>
+            <div class="col-md-3" style="padding-left:0px;padding-right: 0px;">
+                <select id='syear' name = 'syear' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					<option value='2014'>2014</option>
+					<option value='2013'>2013</option>
+					<option value='2012'>2012</option>
+					<option value='2011'>2011</option>
+					<option value='2010'>2010</option>
+				</select>
+            </div>
+            <div class="col-md-2" style="padding-left: 0;padding-right: 1px;">
+				<select id='smonth' name = 'smonth' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					<option value='01'>Jan</option>
+					<option value='02'>Feb</option>
+					<option value='03'>Mar</option>
+					<option value='04'>Apr</option>
+					<option value='05'>May</option>
+					<option value='06'>Jun</option>
+					<option value='07'>Jul</option>
+					<option value='08'>Aug</option>
+					<option value='09'>Sep</option>
+					<option value='10'>Oct</option>
+					<option value='11'>Nov</option>
+					<option value='12'>Dec</option>
+				</select>
+            </div>
+            <div class="col-md-2" style="padding-left: 0;padding-right: 10px;">
+				<select id='sday' name = 'sday' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					{% for i in n%}
+						<option value={{i}}>{{i}}</option>
+					{% endfor %}
+				</select>
+            </div>
+	    </div>
+
+		<div class="row" style="padding-top:5px;">
+        	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>End Date:</h5></div>
+            <div class="col-md-3" style="padding-left:0px;padding-right: 0px;">
+                <select id='eyear' name = 'eyear' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					<option value='2014'>2014</option>
+					<option value='2013'>2013</option>
+					<option value='2012'>2012</option>
+					<option value='2011'>2011</option>
+					<option value='2010'>2010</option>
+				</select>
+            </div>
+            <div class="col-md-2" style="padding-left: 0;padding-right: 1px;">
+				<select id='emonth' name = 'emonth' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					<option value='01'>Jan</option>
+					<option value='02'>Feb</option>
+					<option value='03' selected="selected">Mar</option>
+					<option value='04'>Apr</option>
+					<option value='05'>May</option>
+					<option value='06'>Jun</option>
+					<option value='07'>Jul</option>
+					<option value='08'>Aug</option>
+					<option value='09'>Sep</option>
+					<option value='10'>Oct</option>
+					<option value='11'>Nov</option>
+					<option value='12'>Dec</option>
+				</select>
+            </div>
+            <div class="col-md-2" style="padding-left: 0;padding-right: 10px;">
+				<select id='eday' name = 'eday' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					{% for i in n%}
+						<option value={{i}}>{{i}}</option>
+					{% endfor %}
+				</select>
+            </div>
+	    </div>
+        <div class="row" style="padding-top:5px;">
+           <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Time:</h5></div>
+           <div class="col-md-8" style="padding-left: 0;">
+                    <div class='input-group date' id='datetimepicker'>
+                        <input id="s_time" type='text' style="height: 36px;width: 145px;" class="form-control" />
+                        <span class="input-group-addon" style="height: 36px;width: 36px;padding: 0;"><span class="glyphicon glyphicon-time"></span>
+                        </span>
+                    </div>
+           </div>
+        </div>
+
+        <div class="row" style="padding-top:5px;">
+           <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>End Time:</h5></div>
+           <div class="col-md-8" style="padding-left: 0;">
+                    <div class='input-group date' id='datetimepicker2'>
+                        <input id="e_time" style="height: 36px;width: 145px;" type='text' class="form-control" />
+                        <span class="input-group-addon" style="height: 36px;width: 36px;padding: 0;"><span class="glyphicon glyphicon-time"></span>
+                        </span>
+                    </div>
+           </div>
+        </div>
+
+         <div class="row" style="padding-top:5px;">
+           <div class="col-md-6" style="height: 36px;padding-right: 0;">
+               <button type="button" style="margin-top:10px;" class="btn btn-default btn-block" id="real_time">
+                    <span class="glyphicon glyphicon-search"> </span> &nbsp; Real Time
+                </button>
+           </div>
+           <div class="col-md-6" style="padding-left: 5px;">
+                <button type="button" style="margin-top:10px;" class="btn btn-default btn-block" id="historical">
+                    <span class="glyphicon glyphicon-search"> </span> &nbsp; Historical
+                </button>
+           </div>
+        </div>
+
+
+    </div>
+
+	<br> <div style="width:100%;height:2px;margin:0 auto;padding:0;background-color:#ddd;overflow:hidden;"></div>
+
+	<div class="container" style="width: inherit">
+        <div class="row" style="padding-top: 15px">
+			<h4> Result: </h4>
+        </div>
+        <div class="row" style="padding-top: 10px">
+        	<div class="col-md-7" style="padding-right: 0;">
+				Ontime Performance:
+            </div>
+            <div class="col-md-5" style="padding-left: 0;">
+                <span id = 'ontime'>&emsp;&emsp;&emsp;</span>
+            </div>
+        </div>
+        <div class="row" style="padding-top: 10px">
+            <div class="col-md-7" style="padding-right: 0;">
+				Crowding:
+            </div>
+            <div class="col-md-5" style="padding-left: 0;">
+                <span id = 'crowding'>&emsp;&emsp;&emsp;</span>
+            </div>
+        </div>
+        <div class="row" style="padding-top: 10px">
+            <div class="col-md-7" style="padding-right: 0;">
+				Waiting Time:
+            </div>
+            <div class="col-md-5" style="padding-left: 0;">
+                <span id = 'waiting'>&emsp;&emsp;&emsp;</span>
+            </div>
+        </div>
+    </div>
+
+{#</div>#}
+{#<p id="txtHint"></p>#}
+</div>
+{% endblock %}
+
+
+{% block map %}
+
+<div id="map"></div>
+
+{% endblock %}
+	
+	
+
+{% block script %}
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/multiselect/bootstrap-multiselect.js' %}"></script>
+{#<script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/dist/js/bootstrap.min.js' %}"></script>#}
+<script type="text/javascript" src="{% static 'traffic/moment.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/transition.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/collapse.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/bootstrap-datetimepicker.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/stops_geoJson.js' %}"></script>
+
+<script>
+     $('.selectpicker').selectpicker({
+      style: 'btn-inverse',
+      size: 10
+     });
+</script>
+
+
+<script type="text/javascript">
+      $(function () {
+          $('#datetimepicker').datetimepicker({
+              format: 'LT'
+          });
+      });
+      $(function () {
+          $('#datetimepicker2').datetimepicker({
+              format: 'LT'
+          });
+      });
+</script>
+
+<script>
+{#	$(function(){#}
+	var map = L.map('map').setView([40.400, -80.000], 11);
+    
+	// add an OpenStreetMap tile layer
+	var basemap = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+	}).addTo(map);
+	
+	control = L.control.layers({'Base Map':basemap},null,{collapsed:false}).addTo(map);
+	
+	map.addControl( new L.Control.Search({
+			url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',
+			jsonpParam: 'json_callback',
+			propertyName: 'display_name',
+			propertyLoc: ['lat','lon'],
+			markerLocation: true,
+			autoType: false,
+			autoCollapse: true,
+			minLength: 2,
+			zoom:10
+		}) );
+	
+	/*var info = L.control();
+
+		info.onAdd = function (map) {
+			this._div = L.DomUtil.create('div', 'info');
+			this._div.innerHTML = '<h4>Route Information</h4>'
+								+ "<br> <b>Route:</b><p id = 'info_route'></p>"
+								+ "<b>Direction:</b><p id = 'info_direction'></p>"
+								+ "<b>Stop 1:</b><p id = 'stop1'></p>"
+								+ "<b>Stop 1 Order:</b><p id = 'order1'></p>"
+								+ "<b>Stop 2:</b><p id = 'stop2'></p>"
+								+ "<b>Stop 2 Order:</b><p id = 'order2'></p>"
+								+ "<b>Metrics:</b><p id = 'metrics'></p>";
+			return this._div;
+		};
+
+		info.addTo(map);*/
+	
+	    var info = L.control();
+
+		info.onAdd = function (map) {
+			this._div = L.DomUtil.create('div', 'info');
+			this.update();
+			return this._div;
+		};
+
+		info.update = function (props) {
+			this._div.innerHTML = '<h4>Stop</h4>' +  (props ?
+				'<b>' + props.name + '</b>'
+				: 'Hover over a stop');
+		};
+
+		info.addTo(map);
+
+        var stopsLayer = L.geoJson();
+	    function highlightFeature(e) {
+			var layer = e.target;
+
+			/*layer.setStyle({
+				weight: 5,
+				color: '#666',
+				dashArray: '',
+				fillOpacity: 0.7
+			});*/
+
+			if (!L.Browser.ie && !L.Browser.opera) {
+				layer.bringToFront();
+			}
+
+			info.update(layer.feature.properties);
+		}
+
+		function resetHighlight(e) {
+			info.update();
+		}
+
+        var selected_stopLayer;
+        //control.addOverlay(selected_stops_layerGroup,"Selected Stops");
+		function add_stop_to_map(stop_id){
+            if(selected_stopLayer){
+			 	control.removeLayer(selected_stopLayer);
+			 	if(map.hasLayer(selected_stopLayer)){
+			 		map.removeLayer(selected_stopLayer);
+			 	}
+			 }
+            var num = stops_geoJson.features.length;
+            for (var i = 0; i < num; i++) {
+                if (stops_geoJson.features[i].properties.stop_id == stop_id) {
+                    selected_stopLayer = L.geoJson(stops_geoJson.features[i]).bindPopup("<strong>" + stops_geoJson.features[i].properties.name + "</strong>").addTo(map);
+                    control.addOverlay(selected_stopLayer,"Selected Stops");
+                    break;
+                }
+            }
+        }
+
+        var selected_stop = "";
+        function clickFeature(e) {
+			var layer = e.target;
+			$("#select_stop").text(layer.feature.properties.name);
+            selected_stop = layer.feature.properties.stop_id;
+            add_stop_to_map(layer.feature.properties.stop_id);
+            getInfo();
+		}
+
+        function onEachFeature(feature, layer) {
+			layer.on({
+				mouseover: highlightFeature,
+				mouseout:resetHighlight,
+				click:clickFeature
+			});
+			layer.bindPopup('<b>' + feature.properties.name + '</b>');
+		}
+
+
+        stopsLayer = L.geoJson(stops_geoJson, {
+					pointToLayer:function(feature, latlng){
+							return L.circleMarker(latlng,{radius:4,fillOpacity:0.5,weight:0});
+					},
+					onEachFeature:onEachFeature
+					}).addTo(map);
+        control.addOverlay(stopsLayer,'Stops');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//old code
+
+
+
+{#		function clickFeature(e) {#}
+{#			var layer = e.target;#}
+{#			//var weather;#}
+{#			//map.fitBounds(layer.getBounds()); // zoom to the layer#}
+{#			selected = (selected+1)%2;#}
+{#			var update = '#select_stop' + (selected+1);#}
+{#			$(update +' option:selected').removeAttr('selected');#}
+{#            $(update +' option:selected').selectpicker('refresh');#}
+{#			$(update).find("option[value='" + layer.feature.properties.stop_id +"']").attr('selected', true);#}
+{#            $(update).selectpicker('refresh');#}
+{#			$(update).trigger('change');#}
+{#            $(update).selectpicker('refresh');#}
+{#			//var order = '#order' + (selected+1);#}
+{#			//$(update).text(layer.feature.properties.name);#}
+{#			//$(order).text(layer.feature.properties.order);#}
+{#			$('option[value=' + layer.feature.properties.stop_id + ']', $('#select_stop')).prop("selected", true);#}
+{#            $('#select_stop').multiselect('refresh');#}
+{#            add_stop_to_map(layer.feature.properties.stop_id,true);#}
+{#		}#}
+
+
+    $('#select_routes').multiselect({
+        buttonContainer: '<div class="btn-group" id = "routes_multiselect"/>',
+        disableIfEmpty: true,
+        maxHeight: 200,
+        buttonWidth: '195px',
+        nonSelectedText: 'Select Routes ...',
+        numberDisplayed: 1,
+        enableCaseInsensitiveFiltering: true,
+        checkboxName: 'route'
+        //onChange: multiselect_on_change
+        //includeSelectAllOption: true,
+        //selectAllValue: 'select-all-value'
+    });
+	
+
+	var routeLayer = L.geoJson(),
+        busLayer   = L.geoJson();
+    var route_geoJson;
+    var routes_featureGroup = L.featureGroup();
+    var routes = [];
+    var colors = ['rgb(228,26,28)','rgb(77,175,74)','rgb(152,78,163)','rgb(255,127,0)','rgb(255,255,51)','rgb(166,86,40)','rgb(247,129,191)','rgb(153,153,153)','rgb(178,223,138)','rgb(51,160,44)','rgb(251,154,153)','rgb(227,26,28)','rgb(253,191,111)','rgb(255,127,0)','rgb(202,178,214)'];
+	function onEachRouteFeature(feature,layer){
+        if(feature.properties && feature.properties.short_name){
+            layer.bindPopup(feature.properties.short_name);
+        }
+    }
+    function getInfo(){
+		//var route = $("#route").val();
+		$('#ontime').text('');
+		$('#crowding').text('');
+		$('#waiting').text('');
+		$('#txtHint').text('');
+
+        //clear real time buses, declaration of buses_LayerGroup is at below
+        buses_layerGroup.clearLayers();
+
+		$.get("../get_stop_routes/", {stop:selected_stop}, function(data, textStatus){
+
+{#			if(routeLayer){#}
+{#			 	control.removeLayer(routeLayer);#}
+{#			 	if(map.hasLayer(routeLayer)){#}
+{#			 		map.removeLayer(routeLayer);#}
+{#			 	}#}
+{#			 }#}
+            routes_featureGroup.clearLayers();
+            for(var i = 0; i < routes.length; i++){
+                map.removeLayer(routes[i]);
+                control.removeLayer(routes[i]);
+            }
+			if(data){
+                route_geoJson = data;
+                var route_num = data.features.length;
+                for(var i = 0; i < route_num; i++) {
+                    routeLayer = L.geoJson(data.features[i], {style: {color: colors[i],weight:6,opacity:0.9}, onEachFeature: onEachRouteFeature}).addTo(map);
+                    control.addOverlay(routeLayer, data.features[i].properties.short_name);
+                    routes.push(routeLayer);
+                    routes_featureGroup.addLayer(routeLayer);
+
+                }
+                map.fitBounds(routes_featureGroup.getBounds());
+                $("#select_routes").empty();
+                for(var i=0;i<route_geoJson.features.length;i++){
+                    $("#select_routes").append("<option value="+route_geoJson.features[i].properties.short_name+">"+ route_geoJson.features[i].properties.short_name +"</option>");
+                }
+                //Initialize multiselect
+                $('#select_routes').multiselect("rebuild");
+
+
+			}
+		    else{
+		  	    $('#txtHint').text("No route passes " + selected_stop);
+		    }
+		},"json");
+
+
+{#        function multiselect_on_change(option, checked, select) {#}
+{#            add_stop_to_map(option.val(),checked);#}
+{#        }#}
+
+
+
+	}
+
+    $('#routes_deselect_all').on('click', function() {
+        $('#select_routes').multiselect('deselectAll', false);
+        $('#select_routes').multiselect('updateButtonText');
+    });
+
+
+    function get_metrics() {
+        //generate some random metrics for now
+        var selected_routes = $('#routes_multiselect ul li.active [name= "route"]');
+        var routes_number = selected_routes.length;
+        if (routes_number == 0) {
+            alert("Please select at least 1 route.");
+            return;
+        }
+
+        var routes_array = new Array(routes_number);
+        for (var i = 0; i < routes_number; i++) {
+            routes_array[i] = selected_routes[i].value;
+        }
+        var selected_routes_str = routes_array.join();
+
+        var s_datetime = $("#syear option:selected").val() + "-" + $("#smonth option:selected").val() + "-" + ($("#sday option:selected").val().length == 1 ? "0" + $("#sday option:selected").val() : $("#sday option:selected").val()) + " " + $("#s_time").val();
+        var e_datetime = $("#eyear option:selected").val() + "-" + $("#emonth option:selected").val() + "-" + ($("#eday option:selected").val().length == 1 ? "0" + $("#eday option:selected").val() : $("#eday option:selected").val()) + " " + $("#e_time").val();
+        alert(s_datetime + "<br>" + e_datetime + "<br>" + selected_routes_str);
+        $.get("../transit_metrics_stop_routes/", {
+            s_datetime: s_datetime,
+            e_datetime: e_datetime,
+            stop: selected_stop,
+            routes: selected_routes_str
+        }, function (data, textStatus) {
+            $('#ontime').text(data["ontime"]);
+            $('#crowding').text(data["crowding"]);
+            $('#waiting').text(data["waiting"]);
+        });
+    }
+
+    $("#historical").click(get_metrics);
+
+
+    function busMarkerOptions(spd)  {
+        return {
+            radius: 9,
+            fillColor:  spd >= 30?"green":
+                        spd >= 10?"yellow":
+                                  "red",
+            color: "white",
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.8
+        }
+    };
+
+    function onEachBusFeature(feature, layer) {
+        if (feature.properties) {
+            layer.bindPopup("<strong>" + feature.properties.rt + "</strong>"
+                            + "<br>Speed: " + feature.properties.spd +" mph"
+                            + "<br>Destination: " + feature.properties.des);
+        }
+    }
+
+    var buses_layerGroup = L.layerGroup().addTo(map);
+    control.addOverlay(buses_layerGroup,"Buses");
+
+    function get_bus_real_time(){
+        var selected_routes = $('#routes_multiselect ul li.active [name= "route"]');
+        var routes_num = selected_routes.length;
+        if(routes_num == 0){
+            alert("Please Select At Least 1 Route.");
+            return;
+        }
+        buses_layerGroup.clearLayers();
+        for(var i = 0; i < routes_num; i++) {
+
+            $.get("../bus_real_time/", {rt: selected_routes[i].value}, function (data, textStatus) {
+
+                if (data["status"] == "success") {
+                    busLayer = L.geoJson(data["geoJson"], {
+                        pointToLayer: function (feature, latlng) {
+                            return L.circleMarker(latlng, busMarkerOptions(feature.properties.spd));
+                        },
+                        onEachFeature: onEachBusFeature
+
+                    });
+                    buses_layerGroup.addLayer(busLayer);
+                }
+                else {
+                    alert(data["msg"]);
+                }
+            }, "json");
+        }
+    }
+
+    $("#real_time").click(get_bus_real_time);
+
+{##}
+{#	$('#select_route').change({flag:"route"},getInfo);#}
+{#	$('.direction').click({flag:"direction"},getInfo);#}
+{#	function get_metrics(){#}
+{#		//generate some random metrics for now#}
+{#		var h = 1;#}
+{#		if (parseInt($('#hour option:selected').attr('value')) < Math.floor($('#select_stop1 option:selected').attr('value').charCodeAt(0)/10) || parseInt($('#hour option:selected').attr('value')) > 17 + Math.floor($('#select_stop1 option:selected').attr('value').charCodeAt(0)/15)){#}
+{#			h = 0;#}
+{#		}#}
+{#		var seed = ($('#select_stop1 option:selected').attr('value').charCodeAt(2) + $('#select_stop2 option:selected').attr('value').charCodeAt(2)- 85 + Math.abs(parseInt($('#minute option:selected').attr('value'))-30) + Math.abs(parseInt($('#hour option:selected').attr('value'))-15)*h)/75;#}
+{#		var ontime_performance = (''+ ((seed) * 20 + 50)*h).substr(0,5) + '%',#}
+{#		    crowding = (''+ seed * 1.5*h).substr(0,4),#}
+{#		    waiting_time = (''+ (1-seed) * 25 * h).substr(0,4) + ' minutes';#}
+{#		$('#ontime').text(ontime_performance);#}
+{#		$('#crowding').text(crowding);#}
+{#		$('#waiting').text(waiting_time);#}
+{#		 #}
+{#	}#}
+
+
+
+{#	$('#minute').change(get_metrics);#}
+{#	$('#hour').change(get_metrics);#}
+{#	$('#select_stop1').change(get_metrics);#}
+{#	$('#select_stop2').change(get_metrics);#}
+{#	$('#inbound').trigger('click');#}
+{#	});#}
+</script>
+{% endblock %}
+
+
