@@ -175,7 +175,7 @@ Power of 32 RTIS - Transit
 
 
     </div>
-\
+
 	<br> <div style="width:100%;height:2px;margin:0 auto;padding:0;background-color:#ddd;overflow:hidden;"></div>
 
 	<div class="container" style="width: inherit">
@@ -329,42 +329,42 @@ Power of 32 RTIS - Transit
 			info.update();
 		}
 
-        var selected_stops_dict = {};
-        var selected_stops_layerGroup = L.layerGroup().addTo(map);
-        control.addOverlay(selected_stops_layerGroup,"Selected Stops");
-		function add_stop_to_map(stop_id,flag){
-            if(flag) {
-                if(selected_stops_dict[stop_id]){
-                    return;
-                }
-                var num = stops_geoJson.features.length;
-                for (var i = 0; i < num; i++) {
-                    if (stops_geoJson.features[i].properties.stop_id == stop_id) {
-                        selected_stops_dict[stop_id] = L.geoJson(stops_geoJson.features[i]).bindPopup("<strong>" + stops_geoJson.features[i].properties.name + "</strong>");
-                        selected_stops_layerGroup.addLayer(selected_stops_dict[stop_id]);
-                        break;
-                    }
-                }
-            }
-            else{
-                if(selected_stops_dict[stop_id]){
-                    selected_stops_layerGroup.removeLayer(selected_stops_dict[stop_id]);
-                    delete selected_stops_dict[stop_id];
-                }
-            }
+{#        var selected_stops_dict = {};#}
+{#        var selected_stops_layerGroup = L.layerGroup().addTo(map);#}
+{#        control.addOverlay(selected_stops_layerGroup,"Selected Stops");#}
+{#		function add_stop_to_map(stop_id,flag){#}
+{#            if(flag) {#}
+{#                if(selected_stops_dict[stop_id]){#}
+{#                    return;#}
+{#                }#}
+{#                var num = stops_geoJson.features.length;#}
+{#                for (var i = 0; i < num; i++) {#}
+{#                    if (stops_geoJson.features[i].properties.stop_id == stop_id) {#}
+{#                        selected_stops_dict[stop_id] = L.geoJson(stops_geoJson.features[i]).bindPopup("<strong>" + stops_geoJson.features[i].properties.name + "</strong>");#}
+{#                        selected_stops_layerGroup.addLayer(selected_stops_dict[stop_id]);#}
+{#                        break;#}
+{#                    }#}
+{#                }#}
+{#            }#}
+{#            else{#}
+{#                if(selected_stops_dict[stop_id]){#}
+{#                    selected_stops_layerGroup.removeLayer(selected_stops_dict[stop_id]);#}
+{#                    delete selected_stops_dict[stop_id];#}
+{#                }#}
+{#            }#}
+{##}
+{#        }#}
+{#        function remove_all_stops_from_map(){#}
+{#            selected_stops_layerGroup.clearLayers();#}
+{#            elected_stops_dict = {};#}
+{##}
+{#        }#}
 
-        }
-        function remove_all_stops_from_map(){
-            selected_stops_layerGroup.clearLayers();
-            elected_stops_dict = {};
 
-        }
-
-
-		function clickFeature(e) {
-			var layer = e.target;
-			//var weather;
-			//map.fitBounds(layer.getBounds()); // zoom to the layer
+{#		function clickFeature(e) {#}
+{#			var layer = e.target;#}
+{#			//var weather;#}
+{#			//map.fitBounds(layer.getBounds()); // zoom to the layer#}
 {#			selected = (selected+1)%2;#}
 {#			var update = '#select_stop' + (selected+1);#}
 {#			$(update +' option:selected').removeAttr('selected');#}
@@ -373,19 +373,19 @@ Power of 32 RTIS - Transit
 {#            $(update).selectpicker('refresh');#}
 {#			$(update).trigger('change');#}
 {#            $(update).selectpicker('refresh');#}
-			//var order = '#order' + (selected+1);
-			//$(update).text(layer.feature.properties.name);
-			//$(order).text(layer.feature.properties.order);
-			$('option[value=' + layer.feature.properties.stop_id + ']', $('#select_stop')).prop("selected", true);
-            $('#select_stop').multiselect('refresh');
-            add_stop_to_map(layer.feature.properties.stop_id,true);
-		}
+{#			//var order = '#order' + (selected+1);#}
+{#			//$(update).text(layer.feature.properties.name);#}
+{#			//$(order).text(layer.feature.properties.order);#}
+{#			$('option[value=' + layer.feature.properties.stop_id + ']', $('#select_stop')).prop("selected", true);#}
+{#            $('#select_stop').multiselect('refresh');#}
+{#            add_stop_to_map(layer.feature.properties.stop_id,true);#}
+{#		}#}
 
 		function onEachFeature(feature, layer) {
 			layer.on({
 				mouseover: highlightFeature,
-				mouseout:resetHighlight,
-				click:clickFeature
+				mouseout:resetHighlight
+{#				click:clickFeature#}
 			});
 			layer.bindPopup('<b>' + feature.properties.name + '</b>');
 			}
@@ -413,7 +413,7 @@ Power of 32 RTIS - Transit
 {#                }#}
 {#            }#}
 {#        }#}
-        remove_all_stops_from_map()
+{#        remove_all_stops_from_map()#}
 
 		$.get("../get_route/", {route:route, direction:direction}, function(data, textStatus){
 			
