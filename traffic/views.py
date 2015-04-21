@@ -673,6 +673,7 @@ def get_stop_routes(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+#range_routes
 def transit_range_routes(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
@@ -694,14 +695,15 @@ def get_range_routes(request):
     for route in routes:
         route_id = route[:-1]
         direction = route[-1]
-        r = Route.objects.filter(route_id = route_id)
+        r = Route.objects.filter(route_id = route_id)[0]
         if direction == "I":
-            result["features"].append(r.inbound_geoJson)
+            result["features"].append(json.loads(r.inbound_geoJson))
         else:
-            result["features"].append(r.outbound_geoJson)
+            result["features"].append(json.loads(r.outbound_geoJson))
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+#bus_real_time
 def bus_real_time(request):
     route = request.GET["rt"]
     url = "http://truetime.portauthority.org/bustime/api/v1/getvehicles?key=AX2AUxF9WBp8xdjHBTXEr8gn5&format=json&rt=" + route
@@ -787,6 +789,19 @@ def transit_metrics_stop_routes(request):
     routes = request.GET["routes"]
 
     result = {"ontime":stop,"crowding":routes,"waiting": str(s_datetime) + " to " + str(e_datetime)}
+
+    response = json.dumps(result)
+    return HttpResponse(response, content_type='application/json')
+
+def transit_metrics_range_routes(request):
+    "function for calculate stop_routes metrics"
+    s_datetime = datetime.strptime(request.GET["s_datetime"],"%Y-%m-%d %I:%M %p")
+    e_datetime = datetime.strptime(request.GET["e_datetime"],"%Y-%m-%d %I:%M %p")
+    stop1 = request.GET["stop1"]
+    stop2 = request.GET["stop2"]
+    routes = request.GET["routes"]
+
+    result = {"ontime":stop1 + " " + stop2,"crowding":routes,"waiting": str(s_datetime) + " to " + str(e_datetime)}
 
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')

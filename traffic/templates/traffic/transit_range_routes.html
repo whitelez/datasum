@@ -24,13 +24,21 @@ Power of 32 RTIS - Transit
 
         <div class="row" style="padding-top: 10px">
         	<div class="col-md-4" style="padding-right: 0;">
-				<h5>Stop:</h5>
+				<h5>Stop1:</h5>
             </div>
             <div class="col-md-8" style="padding-left: 0;">
-                <span id = 'select_stop'>&emsp;&emsp;&emsp;</span>
+                <span id = 'select_stop1'>&emsp;&emsp;&emsp;</span>
             </div>
         </div>
 
+        <div class="row" style="padding-top: 10px">
+        	<div class="col-md-4" style="padding-right: 0;">
+				<h5>Stop2:</h5>
+            </div>
+            <div class="col-md-8" style="padding-left: 0;">
+                <span id = 'select_stop2'>&emsp;&emsp;&emsp;</span>
+            </div>
+        </div>
 
         <div class="row" style="padding-top:5px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Routes:</h5></div>
@@ -323,30 +331,37 @@ Power of 32 RTIS - Transit
 		}
 
         var selected_stopLayer;
-        //control.addOverlay(selected_stops_layerGroup,"Selected Stops");
+        var selected_stops_layerGroup = L.layerGroup().addTo(map);
+        control.addOverlay(selected_stops_layerGroup,"Selected Stops");
 		function add_stop_to_map(stop_id){
-            if(selected_stopLayer){
-			 	control.removeLayer(selected_stopLayer);
-			 	if(map.hasLayer(selected_stopLayer)){
-			 		map.removeLayer(selected_stopLayer);
-			 	}
-			 }
             var num = stops_geoJson.features.length;
             for (var i = 0; i < num; i++) {
                 if (stops_geoJson.features[i].properties.stop_id == stop_id) {
                     selected_stopLayer = L.geoJson(stops_geoJson.features[i]).bindPopup("<strong>" + stops_geoJson.features[i].properties.name + "</strong>").addTo(map);
-                    control.addOverlay(selected_stopLayer,"Selected Stops");
+                    selected_stops_layerGroup.addLayer(selected_stopLayer);
                     break;
                 }
             }
         }
 
-        var selected_stop = "";
+        function remove_stop_from_map(){
+            selected_stops_layerGroup.clearLayers();
+        }
+
+        var selected_stop = Array(2);
+        var selected_stop_flag = 0;
         function clickFeature(e) {
 			var layer = e.target;
-			$("#select_stop").text(layer.feature.properties.name);
-            selected_stop = layer.feature.properties.stop_id;
-            add_stop_to_map(layer.feature.properties.stop_id);
+			$("#select_stop"+(selected_stop_flag+1)).text(layer.feature.properties.name);
+            selected_stop_flag = (selected_stop_flag+1)%2;
+            selected_stop[selected_stop_flag] = layer.feature.properties.stop_id;
+            remove_stop_from_map();
+            if(selected_stop[0]) {
+                add_stop_to_map(selected_stop[0]);
+            }
+            if(selected_stop[1]) {
+                add_stop_to_map(selected_stop[1]);
+            }
             getInfo();
 		}
 
@@ -438,6 +453,9 @@ Power of 32 RTIS - Transit
     }
     function getInfo(){
 		//var route = $("#route").val();
+        if(!selected_stop[0] || !selected_stop[1]){
+            return;
+        }
 		$('#ontime').text('');
 		$('#crowding').text('');
 		$('#waiting').text('');
@@ -446,7 +464,7 @@ Power of 32 RTIS - Transit
         //clear real time buses, declaration of buses_LayerGroup is at below
         buses_layerGroup.clearLayers();
 
-		$.get("../get_stop_routes/", {stop:selected_stop}, function(data, textStatus){
+		$.get("../get_range_routes/", {stop1:selected_stop[0],stop2:selected_stop[1]}, function(data, textStatus){
 
 {#			if(routeLayer){#}
 {#			 	control.removeLayer(routeLayer);#}
@@ -469,9 +487,11 @@ Power of 32 RTIS - Transit
                     routes_featureGroup.addLayer(routeLayer);
 
                 }
-                map.fitBounds(routes_featureGroup.getBounds());
+                if(route_num) {
+                    map.fitBounds(routes_featureGroup.getBounds());
+                }
                 $("#select_routes").empty();
-                for(var i=0;i<route_geoJson.features.length;i++){
+                for(var i=0;i<route_num;i++){
                     $("#select_routes").append("<option value="+route_geoJson.features[i].properties.short_name+">"+ route_geoJson.features[i].properties.short_name +"</option>");
                 }
                 //Initialize multiselect
@@ -517,10 +537,11 @@ Power of 32 RTIS - Transit
         var s_datetime = $("#syear option:selected").val() + "-" + $("#smonth option:selected").val() + "-" + ($("#sday option:selected").val().length == 1 ? "0" + $("#sday option:selected").val() : $("#sday option:selected").val()) + " " + $("#s_time").val();
         var e_datetime = $("#eyear option:selected").val() + "-" + $("#emonth option:selected").val() + "-" + ($("#eday option:selected").val().length == 1 ? "0" + $("#eday option:selected").val() : $("#eday option:selected").val()) + " " + $("#e_time").val();
         //alert(s_datetime + "<br>" + e_datetime + "<br>" + selected_routes_str);
-        $.get("../transit_metrics_stop_routes/", {
+        $.get("../transit_metrics_range_routes/", {
             s_datetime: s_datetime,
             e_datetime: e_datetime,
-            stop: selected_stop,
+            stop1: selected_stop[0],
+            stop2: selected_stop[1],
             routes: selected_routes_str
         }, function (data, textStatus) {
             $('#ontime').text(data["ontime"]);

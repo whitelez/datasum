@@ -48,6 +48,7 @@ urlpatterns = patterns('',
 
     url(r'^transit_range_routes/$', views.transit_range_routes, name='transit_range_routes'),
     url(r'^get_range_routes/$', views.get_range_routes, name='get_range_routes'),
+    url(r'^transit_metrics_range_routes/$',views.transit_metrics_range_routes, name = 'transit_metrics_range_routes'),
 
     url(r'^bus_real_time/$', views.bus_real_time, name='bus_real_time'),
 
