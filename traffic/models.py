@@ -18,14 +18,14 @@ class Parking(models.Model):
 	    return self.date.ctime()
 # Create your models here.
 
-class Street(models.Model):
+class Street(models.Model):   ## useful, street and their coordinate
     sid = models.CharField(max_length = 20, primary_key = True)
     street_name = models.CharField(max_length = 100)
     coordinate = models.TextField()
     def __unicode__(self):
         return self.sid
 
-class Streetparking(models.Model):
+class Streetparking(models.Model):  ## useful, street and their coordinate
     street = models.ForeignKey(Street)
     date = models.DateField(db_index = True)
     occupancy = models.TextField()
@@ -313,20 +313,20 @@ class Closed_roads(models.Model):
     wkday_hrsfull = models.CharField(max_length=50)  #store the closure hours on weekdays, split by"," two fields as a time range
     wkend_hrsfull = models.CharField(max_length=50)
 
-    backfill = models.BooleanField()
-    coordinate = models.BooleanField()
-    traffic_ctl = models.BooleanField()
-    closure = models.BooleanField()
-    onelane = models.BooleanField()
-    postno = models.BooleanField()
-    pat = models.BooleanField()
-    ctl_plan = models.BooleanField()
-    emerge = models.BooleanField()
-    buss = models.BooleanField()
-    ped_clean = models.BooleanField()
-    off_police = models.BooleanField()
-    flagper = models.BooleanField()
-    penndot = models.BooleanField()
+    backfill = models.BooleanField(default=True)
+    coordinate = models.BooleanField(default=True)
+    traffic_ctl = models.BooleanField(default=True)
+    closure = models.BooleanField(default=True)
+    onelane = models.BooleanField(default=True)
+    postno = models.BooleanField(default=True)
+    pat = models.BooleanField(default=True)
+    ctl_plan = models.BooleanField(default=True)
+    emerge = models.BooleanField(default=True)
+    buss = models.BooleanField(default=True)
+    ped_clean = models.BooleanField(default=True)
+    off_police = models.BooleanField(default=True)
+    flagper = models.BooleanField(default=True)
+    penndot = models.BooleanField(default=True)
     rdline = models.CharField(max_length=50000)
 
     def __unicode__(self):

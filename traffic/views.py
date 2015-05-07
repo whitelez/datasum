@@ -22,7 +22,7 @@ def index(request):
     return render(request, 'traffic/index.html')
 
 def parking(request):
-    return render(request, 'traffic/parking.html',{'n':range(1,32)})
+    return render(request, 'traffic/parking.html', {'n': range(1, 32)})
 
 def camera(request):
     return render(request, 'traffic/camera.html')
@@ -32,7 +32,7 @@ def count(request):
 
 def ajaxtest(request):
     message = request.GET['time']
-    result = {'message':message}
+    result = {'message': message}
     j = json.dumps(result)
     return HttpResponse(j, content_type='application/json')
 
@@ -56,12 +56,13 @@ def street_parking_geojson(request):
         else:
             p = t.streetparking_set.filter(date__range=(start, end), date__week_day=weekday)
         if p:
+            sn = t.streetparking_set.all()
             n = p.count()
             c = [0]*intervals
             for day in p:
                 dc = day.occupancy.split(',')
                 for i in range(intervals):
-                    c[i]+=float(dc[i])/n
+                    c[i] += float(dc[i])/n
             result += '''{"type":"Feature","properties":{"streetID":"''' + t.sid + '''","street":"''' + t.street_name + '''","occupancy":[''' + ",".join(str(ic) for ic in c) + ''']},"geometry":{"type":"LineString","coordinates":''' + t.coordinate + "}},"
     result = result.rstrip(',')
     result += "]}"
@@ -974,7 +975,7 @@ def parking_lots(request):
         p = urllib2.urlopen(url)
         info = p.read()
         info = json.loads(info)
-        this_lot = {"type":"Feature","geometry":{"type":"Point","coordinates":[]},"properties":{}}
+        this_lot = {"type": "Feature", "geometry": {"type": "Point", "coordinates": []}, "properties": {}}
         if 'id' in info:
             this_lot['geometry']['coordinates'] = [info['lon'] , info['lat']]
             this_lot['properties'] = info
