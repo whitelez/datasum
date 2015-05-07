@@ -8,11 +8,11 @@ a.btn {
 	letter-spacing: 2px;
 	font-size: 12px;
 	padding: 10px 30px;
-	border-radius: 5px;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border: 1px solid rgba(0,0,0,0.3);
-	border-bottom-width: 3px;
+	border-radius: 1px;
+	-moz-border-radius: 1px;
+	-webkit-border-radius: 3px;
+	border: 0px solid rgba(0,0,0,0.3);
+	border-bottom-width: 0px;
 }
 
 a.btn:hover {
