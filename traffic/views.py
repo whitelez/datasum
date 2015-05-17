@@ -70,15 +70,30 @@ def street_parking_geojson(request):
     return HttpResponse(response, content_type='application/json')
 
 def street_parking_geojson_prediction(request):
+    stpdate = date(2014, 1, 1)
+    edpdate = date(2014, 4, 30)
     intervals = 144
-    py = 2014
+    py = request.GET['py']
     pm = request.GET['pm']
     pd = request.GET['pd']
-    pdate = date(py, int(pm), int(pd))
+    pdate = date(int(py), int(pm), int(pd))
+    ##########
+    py1 = request.GET['py1']
+    pm1 = request.GET['pm1']
+    pd1 = request.GET['pd1']
+    pdate1 = date(int(py1), int(pm1), int(pd1))
+    ###############
     weekday = (pdate.weekday()+1)%7+1
     result = '''{"type":"FeatureCollection","features":['''
     for t in Street.objects.all():
-        p = t.streetparking_set.filter(date__week_day=weekday)
+        p = 0
+        if not (pdate > edpdate or pdate1 < stpdate):
+            p = t.streetparking_set.filter(date__range=(pdate, pdate1))
+        if not p:
+            if (pdate1 != pdate):
+                p = t.streetparking_set.filter(date__week_day=weekday)
+            else:
+                p = t.streetparking_set.all()
         if p:
             n = p.count()
             c = [0]*intervals
