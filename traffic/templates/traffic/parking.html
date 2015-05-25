@@ -258,7 +258,7 @@
                             plotcontent = [line.slice(0, index), line.slice(index-1)];
                         }
                         $.jqplot('chart1', plotcontent, {
-                            series: [{lineWidth: 3, markerOptions: {show: false}},{lineWidth: 4, markerOptions: {show: false}},{lineWidth: 6, markerOptions: {show: false}}],
+                            series: [{lineWidth: 3, markerOptions: {show: false}},{lineWidth: 5, markerOptions: {show: false}},{lineWidth: 6, markerOptions: {show: false}}],
                             title: 'Average Occupancy estimation of selected streets',
                             axes: {
                                 xaxis: {renderer: $.jqplot.DateAxisRenderer, tickOptions: {formatString: '%H:%M'}},
@@ -270,7 +270,7 @@
                                 gridLineColor: '#cccccc',    // *Color of the grid lines.
                                 background: '#FFFFFF'
                             },
-                            seriesColors: ["#999598", "#986AAF", "#FF0066"]
+                            seriesColors: ["#999598", "#3f51b5", "#FF0066"]
 
                         });
                 ////////////////////////////////
@@ -536,7 +536,7 @@
             },
             onEachFeature: function (feature, layer) {
                 if (feature.properties && feature.properties.street) {
-                    layer.bindPopup("Street : " + feature.properties.street);
+                    layer.bindPopup("Street : " + feature.properties.street + '<br>'+"Meter ID : " + feature.properties.terminalID);
                 }
             }
             }).addTo(map);
@@ -591,11 +591,11 @@
 
         function parkingMarkerStyle() {
             return {
-                radius: 5,
-                fillColor: 'white',
-                color: 'blue',
+                radius: 4,
+                fillColor: "#3f51b5",
+                color: "#3f51b5",
                 weight: 1,
-                opacity: 1,
+                opacity: 0.9,
                 fillOpacity: 0.9
             };
         }
@@ -893,7 +893,7 @@
                         }
 
                         $.jqplot('chart1', plotcontent, {
-                            series: [{lineWidth: 3, markerOptions: {show: false}},{lineWidth: 4, markerOptions: {show: false}},{lineWidth: 6, markerOptions: {show: false}}],
+                            series: [{lineWidth: 3, markerOptions: {show: false}},{lineWidth: 5, markerOptions: {show: false}},{lineWidth: 6, markerOptions: {show: false}}],
                             title: 'Occupancy Distribution of ' + feature.properties.street + ' : Car',
                             axes: {
                                 xaxis: {renderer: $.jqplot.DateAxisRenderer, tickOptions: {formatString: '%H:%M'}},
@@ -905,7 +905,7 @@
                                 gridLineColor: '#cccccc',    // *Color of the grid lines.
                                 background: '#FFFFFF'
                             },
-                            seriesColors: ["#999598", "#986AAF", "#FF0066"]
+                            seriesColors: ["#999598", "#3f51b5", "#FF0066"]
                         });
                     }
                 });
@@ -999,7 +999,7 @@
                             plotcontent = [line.slice(0, index), line.slice(index-1)];
                         }
                         var plot1 = $.jqplot('chart1', plotcontent, {
-                            series: [{lineWidth: 3, markerOptions: {show: false}},{lineWidth: 4, markerOptions: {show: false}},{lineWidth: 6, markerOptions: {show: false}}],
+                            series: [{lineWidth: 3, markerOptions: {show: false}},{lineWidth: 5, markerOptions: {show: false}},{lineWidth: 6, markerOptions: {show: false}}],
                             title: 'Occupancy Distribution of ' + feature.properties.street + ' : Truck',
                             axes: {
                                 xaxis: {renderer: $.jqplot.DateAxisRenderer, tickOptions: {formatString: '%H:%M'}},
@@ -1011,7 +1011,7 @@
                                 gridLineColor: '#cccccc',    // *Color of the grid lines.
                                 background: '#FFFFFF'
                             },
-                            seriesColors: ["#999598", "#986AAF", "#FF0066"]
+                            seriesColors: ["#999598", "#3f51b5", "#FF0066"]
                         });
                     }
                 });
@@ -1085,7 +1085,7 @@
             },
             onEachFeature: function (feature, layer) {
                 if (feature.properties && feature.properties.street) {
-                    layer.bindPopup("Street : " + feature.properties.street);
+                    layer.bindPopup("Street : " + feature.properties.street + '<br>'+"Meter ID : " + feature.properties.terminalID);
                 }
             }
         }).addTo(map);
