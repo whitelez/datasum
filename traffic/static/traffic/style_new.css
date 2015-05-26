@@ -7,27 +7,21 @@ body{
 	padding-bottom: 200px;
 	background: white;
 }
-
 .jumbotron {
 	padding: 10px 40px;
 	margin-bottom: 0px;
 	background: transparent;
 	background-color: #B30303;
 }
-
 .container{
 padding-left: 0px; padding-right: 0px;	margin-right: 0px; margin-left: 0px;
 }
-
-
 .navbar-inverse{
 	margin: 0px 0px;
 }
-
 form{
 	margin: 0px;
 }
-
 #lw,#rw{
 	min-height: 0px;
 }
@@ -35,23 +29,77 @@ form{
 	padding: 0px;
 	border-right: 0px solid lightgray;
 }
-
-#lw-bottom{
-
-}
+#lw-bottom{}
 #rw{
 	padding-right: 0px;
 }
-
 .container h1{
 	float: left;
 	color: white;font-size:36px;margin-top:10px;
 }
 .container img{
 	float: right;margin-top:8px;
-
 }
-
 #map-placeholder img{
 	margin: 10 50px;	
-}#map{width:auto;height:600px;box-shadow: 0 0 10px rgba(0,0,0,0.5);}.well{margin-bottom: 0px;border-radius: 0px;padding-left: 25px;padding-right: 25px;}.nav{padding-left: 15px;}.btn{padding: 7px 12px;font-size: 12px;font-weight: 400;}.form-control{height:30px;}.btn-default{background-color:#4e4f4a;}
+}
+#map{
+	width:auto;height:600px;box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+.well{
+	margin-bottom: 0px;border-radius: 0px;padding-left: 25px;padding-right: 25px;
+}
+.nav{
+	padding-left: 15px;
+}
+.btn{
+	padding: 7px 12px;font-size: 12px;font-weight: 400;
+}
+.form-control{
+	height:30px;
+}
+.btn-default{
+	background-color:#4e4f4a;
+}
+.dropdown-submenu {
+    position:relative;
+}
+.dropdown-submenu>.dropdown-menu {
+    top:0;
+    left:100%;
+    margin-top:-6px;
+    margin-left:-1px;
+    -webkit-border-radius:0 6px 6px 6px;
+    -moz-border-radius:0 6px 6px 6px;
+    border-radius:0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+    display:block;
+}
+.dropdown-submenu>a:after {
+    display:block;
+    content:" ";
+    float:right;
+    width:0;
+    height:0;
+    border-color:transparent;
+    border-style:solid;
+    border-width:5px 0 5px 5px;
+    border-left-color:#cccccc;
+    margin-top:5px;
+    margin-right:-10px;
+}
+.dropdown-submenu:hover>a:after {
+    border-left-color:#ffffff;
+}
+.dropdown-submenu.pull-left {
+    float:none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+    left:-100%;
+    margin-left:10px;
+    -webkit-border-radius:6px 0 6px 6px;
+    -moz-border-radius:6px 0 6px 6px;
+    border-radius:6px 0 6px 6px;
+}
+
