@@ -30,6 +30,9 @@
 
 		<nav class="navbar navbar-default navbar-static-top" role="navigation">
 			<div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right" style="margin-right: 20px;">
+                    <li id="nav-download"><a href="{% url 'traffic:download' %}"><span class="glyphicon glyphicon-download-alt"> </span> &nbsp;Download</a></li>
+                </ul>
 				<ul class="nav navbar-nav">
                     <li id="nav-home"><a href="{% url 'traffic:index' %}">Home</a></li>
         	        <li id="nav-weather"><a href="{% url 'traffic:weather' %}">Weather</a></li>
@@ -42,20 +45,20 @@
                             <li class="dropdown dropdown-submenu">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown"> On-Time Performance &nbsp;&nbsp; </a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="{% url 'traffic:transit' %}"> Query by Route </a></li>
-                                    <li><a href="{% url 'traffic:transit_stop_routes' %}"> Query by Stop </a></li>
+                                    <li><a href="{% url 'traffic:transit_ontimeperformance_byroute' %}"> Query by Route </a></li>
+                                    <li><a href="{% url 'traffic:transit_ontimeperformance_bystop' %}"> Query by Stop </a></li>
                                 </ul>
                             </li>
                             <li class="dropdown dropdown-submenu">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown"> Waiting Time </a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="{% url 'traffic:transit' %}"> Query by Route </a></li>
-                                    <li><a href="{% url 'traffic:transit_stop_routes' %}"> Query by Stop </a></li>
+                                    <li><a href="{% url 'traffic:transit_waitingtime_byroute' %}"> Query by Route </a></li>
+                                    <li><a href="{% url 'traffic:transit_waitingtime_bystop' %}"> Query by Stop </a></li>
                                 </ul>
                             </li>
-                            <li><a href="{% url 'traffic:transit' %}">Crowding Level</a></li>
-							<li><a href="{% url 'traffic:transit_route_range' %}">Bus Bunching</a></li>
-							<li><a href="{% url 'traffic:transit_range_routes' %}">Bus Travel Time</a></li>
+                            <li><a href="{% url 'traffic:transit_crowding' %}">Crowding Level</a></li>
+							<li><a href="{% url 'traffic:transit_busbunching' %}">Bus Bunching</a></li>
+							<li><a href="{% url 'traffic:transit_bustraveltime' %}">Bus Travel Time</a></li>
                         </ul>
                     </li>
                     <li id="nav-traveltime" class="dropdown">
@@ -69,7 +72,6 @@
                     </li>
                     <li id="nav-incidents"><a href="{% url 'traffic:incidents' %}">Incidents</a></li>
                     <li id="nav-evstation"><a href="{% url 'traffic:ev_stations' %}">EV Stations</a></li>
-                    <li id="nav-download"><a href="{% url 'traffic:download' %}">Download</a></li>
 				</ul>
 			</div>
 		</nav>

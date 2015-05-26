@@ -594,6 +594,8 @@ def incidents(request):
 def download(request):
     return render(request, 'traffic/download.html',{'months':range(1,13), 'months14': range(1,9) ,'days':range(1,32)})
 
+
+# +++++++++++++++++++++++++++++++++++++  Views for Transit function begin here:  +++++++++++++++++++++++++++++++++++++++++++
 def transit_data(request):
     for route in Route.objects.all():
         print route.route_id
@@ -637,7 +639,7 @@ def get_route(request):
 def get_stops(request):
     route_name = request.GET['route']
     direction = request.GET['direction']
-    route = Route.objects.filter(short_name = route_name)[0]
+    route = Route.objects.filter(short_name=route_name)[0]
     if direction == 'I':
         result = route.inbound_stops_geoJson
     else:
@@ -645,27 +647,59 @@ def get_stops(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+def transit_ontimeperformance_byroute(request):
+    routes = ','.join(route.short_name for route in Route.objects.all())
+    routes = routes.split(',')
+    return render(request, 'traffic/transit_ontimeperformance_byroute.html', {'routes': routes, "n": range(1, 32)})
+
+def transit_ontimeperformance_bystop(request):
+    stops = [{"stop_id": stop.stop_id, "stop_name": stop.name} for stop in Stop.objects.all()]
+    return render(request, 'traffic/transit_ontimeperformance_bystop.html', {'stops': stops, "n": range(1, 32)})
+
+def transit_waitingtime_byroute(request):
+    routes = ','.join(route.short_name for route in Route.objects.all())
+    routes = routes.split(',')
+    return render(request, 'traffic/transit_waitingtime_byroute.html', {'routes': routes, "n": range(1, 32)})
+
+def transit_waitingtime_bystop(request):
+    stops = [{"stop_id": stop.stop_id, "stop_name": stop.name} for stop in Stop.objects.all()]
+    return render(request, 'traffic/transit_waitingtime_bystop.html', {'stops': stops, "n": range(1, 32)})
+
+def transit_crowding(request):
+    routes = ','.join(route.short_name for route in Route.objects.all())
+    routes = routes.split(',')
+    return render(request, 'traffic/transit_crowding.html', {'routes': routes, "n": range(1, 32)})
+
+def transit_bunching(request):
+    routes = ','.join(route.short_name for route in Route.objects.all())
+    routes = routes.split(',')
+    return render(request, 'traffic/transit_bunching.html', {'routes': routes, "n": range(1, 32)})
+
+def transit_bustraveltime(request):
+    routes = ','.join(route.short_name for route in Route.objects.all())
+    routes = routes.split(',')
+    return render(request, 'traffic/transit_bustraveltime.html', {'routes': routes, "n": range(1, 32)})
+
 def transit(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
-    return render(request, 'traffic/transit.html',{'routes':routes,"n":range(1,32)})
+    return render(request, 'traffic/transit.html', {'routes': routes, "n": range(1, 32)})
 
 def transit_route_range(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
-    return render(request, 'traffic/transit_route_range.html',{'routes':routes,"n":range(1,32)})
-
+    return render(request, 'traffic/transit_route_range.html', {'routes': routes, "n": range(1, 32)})
 
 def transit_stop_routes(request):
-    stops =[{"stop_id" : stop.stop_id, "stop_name" : stop.name} for stop in Stop.objects.all()]
-    return render(request, 'traffic/transit_stop_routes.html',{'stops':stops,"n":range(1,32)})
+    stops = [{"stop_id": stop.stop_id, "stop_name": stop.name} for stop in Stop.objects.all()]
+    return render(request, 'traffic/transit_stop_routes.html', {'stops': stops, "n": range(1, 32)})
 
 def get_stop_routes(request):
     stop_id = request.GET["stop"]
-    routes = Stop_route.objects.filter(stop_id = stop_id)
-    result = {"type":"FeatureCollection","features":[]}
+    routes = Stop_route.objects.filter(stop_id=stop_id)
+    result = {"type": "FeatureCollection", "features": []}
     for route in routes:
-        r = Route.objects.filter(route_id = route.route_id)[0]
+        r = Route.objects.filter(route_id=route.route_id)[0]
         if route.direction == "I":
             result["features"].append(json.loads(r.inbound_geoJson))
         else:
@@ -677,7 +711,7 @@ def get_stop_routes(request):
 def transit_range_routes(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
-    return render(request, 'traffic/transit_range_routes.html',{'routes':routes,"n":range(1,32)})
+    return render(request, 'traffic/transit_range_routes.html', {'routes': routes, "n": range(1, 32)})
 
 def get_range_routes(request):
     stop1 = request.GET["stop1"]
@@ -691,7 +725,7 @@ def get_range_routes(request):
     for route in routes2:
         route_set2.add(route.route_id+route.direction)
     routes = route_set1.intersection(route_set2)
-    result = {"type":"FeatureCollection","features":[]}
+    result = {"type": "FeatureCollection", "features": []}
     for route in routes:
         route_id = route[:-1]
         direction = route[-1]
@@ -805,6 +839,7 @@ def transit_metrics_range_routes(request):
 
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
+# ++++++++++++++++++++++++++++++++++++++++++++  Views of Transit Function End  +++++++++++++++++++++++++++++++++++++++++++++++
 
 
 #routing
@@ -1191,7 +1226,6 @@ def real_time_incidents_rcrs(request):
     response = json.dumps(events)
     return HttpResponse(response, content_type='application/json')
 
-# Create your views here.
 
 def real_time_tmc(request):
     token_url = "http://api.inrix.com/Traffic/Inrix.ashx?action=getsecuritytoken&Vendorid=1346213929&consumerid=30c227fe-93ab-4f30-9408-362645f33730"
