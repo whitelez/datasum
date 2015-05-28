@@ -46,7 +46,7 @@
             opacity: 0.93;
             top: 0px;
             margin-left:1%;
-            height : 100px;
+            height : 110px;
             text-align: center;
             width : 93%;
             z-index: 10;
@@ -106,7 +106,7 @@
             <a type="button" class="btn btn-purple" id="check_btn" align="middle" style="margin-top:10px;width:90%;">
                 <span class="glyphicon glyphicon-search"> </span> &nbsp; Inquiry </a> <br>
             {#<input type="button" value="Update" />#}
-            <div align="middle" style="height: 1px;  text-align: left"><span style=" top: -2px;"><h4>
+            <div align="middle" style="height: 1px;  text-align: middle"><span style=" top: -2px;"><h4>
                 --------------------------Or------------------------</h4></span></div>
             <br>
 
@@ -167,6 +167,8 @@
         var weekday1;
         var hour1;
         var minu1;
+        ////////////
+        var wkdy = [1,1,1,1,1,1,1]
         ////////////
         var inquirytype;//0: one slot; 1: in one day; 2 multidays
         var streetLayer, truckLayer;
@@ -231,6 +233,20 @@
             else {
                 inquirytype = 1;
             }
+            /////
+            var wkdynew = document.forms[0];
+            var wkdysnew = [0, 0, 0, 0, 0, 0, 0]
+            var i;
+            for (i = 0; i < wkdynew.length; i++) {
+                if (wkdynew[i].checked) {
+                    wkdysnew[i] = 1;
+                }
+            }
+            if(wkdysnew !=wkdy){
+                sameday = false;
+            }
+            wkdy = wkdysnew;
+            //////
             return sameday;
         }
 
@@ -285,7 +301,7 @@
                             seriesColors: ["#999598", "#3f51b5", "#FF0066"]
 
                         });
-                ////////////////////////////////
+                //////////////////////////////////
                 var layer = suggestRDfe.target;
                 layer.setStyle({
                     color: '#3f51b5',
@@ -357,16 +373,6 @@
                 spinner = new Spinner(spinneropts).spin(target);
                 target = document.getElementById('chart');
                 target.style.opacity= '0';
-                /////////////////
-                var wkdy = document.forms[0];
-                var wkdys = [0, 0, 0, 0, 0, 0, 0]
-                var i;
-                for (i = 0; i < wkdy.length; i++) {
-                    if (wkdy[i].checked) {
-                        wkdys[i] = 1;
-                    }
-                }
-                ////////////////////
                 $.get("../parking_geoJSON_prediction/", {
                     pd: dd,
                     pm: mm,
@@ -374,7 +380,7 @@
                     pd1: dd1,
                     pm1: mm1,
                     py1: yy1,
-                    'wkdys': wkdys  //// Sun -Sat
+                    'wkdys': wkdy  //// Sun -Sat
                 }, function (data, textStatus) {
                     streets = $.parseJSON(data);
                     showOcp();
@@ -415,16 +421,6 @@
                 spinner = new Spinner(spinneropts).spin(target);
                 target = document.getElementById('chart');
                 target.style.opacity= '0';
-                /////////////////
-                var wkdy = document.forms[0];
-                var wkdys = [0, 0, 0, 0, 0, 0, 0]
-                var i;
-                for (i = 0; i < wkdy.length; i++) {
-                    if (wkdy[i].checked) {
-                        wkdys[i] = 1;
-                    }
-                }
-                ////////////////////
                 $.get("../parking_geoJSON_prediction/", {
                     pd: dd,
                     pm: mm,
@@ -432,7 +428,7 @@
                     pd1: dd,
                     pm1: mm,
                     py1: yy,
-                    'wkdys': wkdys  //// Sun -Sat
+                    'wkdys': wkdy  //// Sun -Sat
 
                 }, function (data, textStatus) {
                     streets = $.parseJSON(data);
@@ -473,6 +469,14 @@
 
         $(document).ready(function () {
             ////////////date
+
+            ///////////////////
+            var tmppp = document.forms[0];
+            var i;
+            for (i = 0; i < 7; i++) {
+                tmppp[i].disabled = true;
+            }
+            /////////////////////
             $("#datepicker").kendoDatePicker({
                 value: new Date()
             });
@@ -480,9 +484,24 @@
             datepicker.bind("change", function() {
                 var early = this.value();
                 var late = new Date($("#datepicker1").data("kendoDatePicker").value());
+
                 if (early > late){
                     $("#datepicker1").data("kendoDatePicker").value(early);
                 }
+                late = new Date($("#datepicker1").data("kendoDatePicker").value());
+                if (early.getDate() != late.getDate() || early.getFullYear() != late.getFullYear() ||early.getMonth()!=late.getMonth()) {
+                    var tmp = document.forms[0];
+                    var i;
+                    for (i = 0; i < 7; i++) {
+                        tmp[i].disabled = false;
+                    };
+                } else {
+                    var tmp = document.forms[0];
+                    var i;
+                    for (i = 0; i < 7; i++) {
+                        tmp[i].disabled = true;
+                    };
+                };
             });
 
             $("#datepicker1").kendoDatePicker({
@@ -495,6 +514,20 @@
                 if (early > late){
                     $("#datepicker").data("kendoDatePicker").value(late);
                 }
+                early = new Date($("#datepicker").data("kendoDatePicker").value());
+                if (early.getDate() != late.getDate() || early.getFullYear() != late.getFullYear() ||early.getMonth()!=late.getMonth()) {
+                    var tmp = document.forms[0];
+                    var i;
+                    for (i = 0; i < 7; i++) {
+                        tmp[i].disabled = false;
+                    };
+                } else {
+                    var tmp = document.forms[0];
+                    var i;
+                    for (i = 0; i < 7; i++) {
+                        tmp[i].disabled = true;
+                    };
+                };
             });
             /////////////time
             $("#timepicker").kendoTimePicker({
@@ -668,7 +701,7 @@
             }
 
             else if (inquirytype == 2){
-                timecontent = " <br>Date range of inquiry:<b> " + yy+'/'+mm+'/'+dd + " to "  + + yy1+'/'+mm1+'/'+dd1+ '</b><br>Estimated Occupancy: <b>'
+                timecontent = " <br>Date range of inquiry:<b><br> " + yy+'/'+mm+'/'+dd + " to "  + + yy1+'/'+mm1+'/'+dd1+ " <br></b>Time range of inquiry:<b> " + hourr + ":" + min + " to " + hourr1 + ":"+min1 + '</b><br>Estimated Occupancy: <b>'
             }
 
             else {
@@ -716,7 +749,7 @@
             }
 
             else if (inquirytype == 2){
-                timecontent = " <br>Date range of inquiry:<b> " + yy+'/'+mm+'/'+dd + " to "  + + yy1+'/'+mm1+'/'+dd1+ '</b><br>Estimated Average Occupancy: <b>'
+                timecontent = " <br>Date range of inquiry:<b><br> " + yy+'/'+mm+'/'+dd + " to "  + + yy1+'/'+mm1+'/'+dd1+ " <br></b>Time range of inquiry:<b> " + hourr + ":" + min + " to " + hourr1 + ":"+min1 + '</b><br>Estimated Occupancy: <b>'
             }
 
             else {
@@ -758,7 +791,7 @@
             }
 
             else if (inquirytype == 2){
-                timecontent = " <br>Date range of inquiry:<b> " + yy+'/'+mm+'/'+dd + " to "  + + yy1+'/'+mm1+'/'+dd1+ '</b><br>Estimated Occupancy: <b>'
+                timecontent = " <br>Date range of inquiry:<b><br> " + yy+'/'+mm+'/'+dd + " to "  + + yy1+'/'+mm1+'/'+dd1+ " <br></b>Time range of inquiry:<b> " + hourr + ":" + min + " to " + hourr1 + ":"+min1 + '</b><br>Estimated Occupancy: <b>'
             }
 
             else {
