@@ -39,7 +39,7 @@
         }
     #p1{
             background: #ffffff;
-            border: 3px solid;
+            border: 2px solid;
             border-radius: 10px;
             border-color: #3f51b5;
             position: relative;
@@ -48,7 +48,7 @@
             margin-left:1%;
             height : 110px;
             text-align: center;
-            width : 93%;
+            width : 97%;
             z-index: 10;
 
     }
@@ -74,44 +74,44 @@
     <div id="user_input" class="well" style="height: 600px;">
 
         <div class="container" style="width: inherit">
-            <div class="row" style="margin-top:3px;text-align: center"><h2>Parking info</h2></div>
+            <div class="row" style="margin-top:3px;text-align: center"><h3>Parking info</h3></div>
                         <div align="mid" class="row" id="p1"><h5>Hover over a street to check occupancy</h5><br><br></div>
 
-            <div class="row" id ="plzwait" style="margin-top:10px;margin-right:auto;margin-left: 0px;"><h5><b>Select date and time range for inquiry: </b></h5></div>
+            <div class="row" id ="plzwait" style="margin-top:10px;margin-right:auto;margin-left: 0px;"><h6><b>Select date and time range for inquiry: </b></h6></div>
             <div id="datepick">
                 <div id="to-do" align="left" style="width:110%;">
-                    <label for="datepicker"><h6><i>From: </i></h6></label> <input style = "width : 125px"  id="datepicker"/>
-                    <label for="datepicker1"><h6><i>To: </i></h6></label> <input style = "width : 125px" id="datepicker1"/>
+                    <label for="datepicker"><h6><i>From: </i></h6></label> <input style = "width : 115px"  id="datepicker"/>
+                    <label for="datepicker1"><h6><i>To: </i></h6></label> <input style = "width : 115px" id="datepicker1"/>
                 </div>
             </div>
             <div class="row" style="margin-top:10px;margin-right:auto;margin-left: 0px;"></div>
             <div id="timepick">
                 <div id="to-do" align="left" style="width:110%;">
-                    <label for="timepicker"><h6><i>From: </i></h6></label> <input style = "width : 125px"  id="timepicker"/>
-                    <label for="timepicker1"><h6><i>To: </i></h6></label> <input style = "width : 125px" id="timepicker1"/>
+                    <label for="timepicker"><h6><i>From: </i></h6></label> <input style = "width : 115px"  id="timepicker"/>
+                    <label for="timepicker1"><h6><i>To: </i></h6></label> <input style = "width : 115px" id="timepicker1"/>
                 </div>
             </div>
             <div id = "weekday">
-                <h5><b>Select weekdays for inquiry:</b></h5>
+                <h6><b>Select weekdays for inquiry:</b></h6>
                 <form action="form_action.asp">
-                    <label><input type="checkbox"  name="vehicle" value="Sun" checked="True"> Sun </label>
+                    <h6>
+                    <label><input type="checkbox" name="vehicle" value="Sun" checked="True"> Sun </label>
                     <label><input type="checkbox" name="vehicle" value="Mon" checked="True"> Mon </label>
                     <label><input type="checkbox" name="vehicle" value="Tue" checked="True"> Tue </label>
                     <label><input type="checkbox" name="vehicle" value="Wed" checked="True"> Wed </label>
                     <label><input type="checkbox" name="vehicle" value="Thr" checked="True"> Thr </label>
                     <label><input type="checkbox" name="vehicle" value="Fri" checked="True"> Fri </label>
                     <label><input type="checkbox" name="vehicle" value="Sat" checked="True"> Sat </label>
+                    </h6>
                 </form>
             </div>
-            <a type="button" class="btn btn-purple" id="check_btn" align="middle" style="margin-top:10px;width:90%;">
+            <a type="button" class="btn btn-purple" id="check_btn" align="middle" style="margin-top:5px;width:90%;">
                 <span class="glyphicon glyphicon-search"> </span> &nbsp; Inquiry </a> <br>
             {#<input type="button" value="Update" />#}
-            <div align="middle" style="height: 1px;  text-align: middle"><span style=" top: -2px;"><h4>
-                --------------------------Or------------------------</h4></span></div>
-            <br>
-
-            <div class="row" id="future22" style="margin-top:10px;margin-left:4px;" align="left"><h5><b> Check future
-                occupancy: </b><i>slide to pick a delay </i></h5></div>
+            <div align="middle" style="height: 1px;  text-align: middle"><span style=" top: -2px;"><h5>
+                --------------------------Or------------------------</h5></span></div>
+            <div class="row" id="future22" style="margin-top:10px;margin-left:4px;" align="left"><h6><b> Check future
+                occupancy: </b><i>slide to pick a delay </i></h6></div>
 
             <input type="range" min="0" max="90" value="10" step="10" id='rangebar' oninput="showValue(this.value)"
                    onchange="changeclk(this.value)"/>
