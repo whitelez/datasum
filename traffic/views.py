@@ -1,6 +1,8 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.core import serializers
+from django.http import HttpResponse, QueryDict
 from django.db.models import Q
+from django.template import RequestContext, loader
 
 import json
 import urllib2,urllib
@@ -20,7 +22,7 @@ def index(request):
     return render(request, 'traffic/index.html')
 
 def parking(request):
-    return render(request, 'traffic/parking.html',{'n':range(1,32)})
+    return render(request, 'traffic/parking.html', {'n': range(1, 32)})
 
 def camera(request):
     return render(request, 'traffic/camera.html')
@@ -30,7 +32,7 @@ def count(request):
 
 def ajaxtest(request):
     message = request.GET['time']
-    result = {'message':message}
+    result = {'message': message}
     j = json.dumps(result)
     return HttpResponse(j, content_type='application/json')
 
@@ -54,12 +56,13 @@ def street_parking_geojson(request):
         else:
             p = t.streetparking_set.filter(date__range=(start, end), date__week_day=weekday)
         if p:
+            sn = t.streetparking_set.all()
             n = p.count()
             c = [0]*intervals
             for day in p:
                 dc = day.occupancy.split(',')
                 for i in range(intervals):
-                    c[i]+=float(dc[i])/n
+                    c[i] += float(dc[i])/n
             result += '''{"type":"Feature","properties":{"streetID":"''' + t.sid + '''","street":"''' + t.street_name + '''","occupancy":[''' + ",".join(str(ic) for ic in c) + ''']},"geometry":{"type":"LineString","coordinates":''' + t.coordinate + "}},"
     result = result.rstrip(',')
     result += "]}"
@@ -67,17 +70,49 @@ def street_parking_geojson(request):
     return HttpResponse(response, content_type='application/json')
 
 def street_parking_geojson_prediction(request):
+    print request
+    stpdate = date(2014, 1, 1)
+    edpdate = date(2014, 4, 30)
     intervals = 144
-    py = 2014
+    py = request.GET['py']
     pm = request.GET['pm']
     pd = request.GET['pd']
-    pdate = date(py, int(pm), int(pd))
-    weekday = (pdate.weekday()+1)%7+1
+    pdate = date(int(py), int(pm), int(pd))
+    ##########
+    py1 = request.GET['py1']
+    pm1 = request.GET['pm1']
+    pd1 = request.GET['pd1']
+    pdate1 = date(int(py1), int(pm1), int(pd1))
+    ###############
+    weekday = (pdate.weekday()+1) % 7 + 1
+    wkdys = request.GET.getlist('wkdys[]')
+    print wkdys
+    print int(wkdys[1])
+    cr = []
+    for i in range(7):
+        cr.append(0)
+    for i in range(7):
+        if int(wkdys[i]) != 1:
+            cr[i] = Q(date__week_day=(i+1))
+        else:
+            cr[i] = Q(date__week_day=0)
+    #################
+
     result = '''{"type":"FeatureCollection","features":['''
     for t in Street.objects.all():
-        p = t.streetparking_set.filter(date__week_day=weekday)
+        p = 0
+        if not (pdate > edpdate or pdate1 < stpdate):  # use historical data
+            p = t.streetparking_set.filter(date__range=(pdate, pdate1))
+            if pdate != pdate1:   # historical date range
+                p = p.filter(cr[0] | cr[1] | cr[2] | cr[3] | cr[4] | cr[5] | cr[6])
+        if (not p) or (p == 0):   # No historical data, use prediction
+            if pdate1 == pdate:   # same day
+                p = t.streetparking_set.filter(date__week_day=weekday)
+            else:   # Day ranges
+                p = t.streetparking_set.filter(cr[0] | cr[1] | cr[2] | cr[3] | cr[4] | cr[5] | cr[6])
         if p:
             n = p.count()
+            #print n
             c = [0]*intervals
             for day in p:
                 dc = day.occupancy.split(',')
@@ -1143,7 +1178,7 @@ def parking_lots(request):
         p = urllib2.urlopen(url)
         info = p.read()
         info = json.loads(info)
-        this_lot = {"type":"Feature","geometry":{"type":"Point","coordinates":[]},"properties":{}}
+        this_lot = {"type": "Feature", "geometry": {"type": "Point", "coordinates": []}, "properties": {}}
         if 'id' in info:
             this_lot['geometry']['coordinates'] = [info['lon'] , info['lat']]
             this_lot['properties'] = info
@@ -1286,5 +1321,45 @@ def TMC_GIS(request):
 def real_time_tt(request):
     return render(request, 'traffic/real_time_tt.html')
 
+
 def device_render(request):
     return render(request, 'traffic/devices.html')
+
+
+
+#SGYang
+def closure(request):
+    return render(request, 'traffic/closure.html')
+
+
+def get_road_closure_query(request):
+    #eee = Closed_roads.objects.filter(location__icontains='FORBES AVE')
+    #print eee.rdline
+    if request.GET['first'] == '1':
+        entry = Closed_roads.objects.exclude(type__in=[0])
+    else:
+        weekday = request.GET['weekday']
+        hour = int(request.GET['hour'])
+        datin = date(int(request.GET['yy']), int(request.GET['mm']), int(request.GET['dd']))
+        entry = Closed_roads.objects.filter(start_date__lte=datin, end_date__gte=datin).exclude(type__in=[0])
+        print len(entry)
+        throw = []
+        for t in entry:
+            timeslot = []
+            within = False
+            if weekday == '0':
+                timeslot = t.wkend_hrs.split('-')
+            else:
+                timeslot = t.wkday_hrs.split('-')
+            for i in range(len(timeslot)/2):
+                if (float(timeslot[2*i]) <= hour and float(timeslot[2*i+1]) >= hour):
+                    within = True
+            if not within:
+                throw.append(t.perm_no)
+            entry = Closed_roads.objects.filter(start_date__lte=datin, end_date__gte=datin).exclude(perm_no__in=throw).exclude(type__in=[0])
+
+    datarender = '{ "points" : '+ serializers.serialize('json', entry) + '}'
+    datarender = datarender.replace('\n', '')
+    print len(entry)
+    return HttpResponse(datarender, content_type='application/json')
+

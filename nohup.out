@@ -319,3 +319,57 @@ Traceback (most recent call last):
   File "/usr/lib64/python2.6/socket.py", line 303, in flush
     self._sock.sendall(buffer(data, write_offset, buffer_size))
 error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "manage.py", line 10, in <module>
+    execute_from_command_line(sys.argv)
+  File "/usr/lib/python2.6/site-packages/django/core/management/__init__.py", line 399, in execute_from_command_line
+    utility.execute()
+  File "/usr/lib/python2.6/site-packages/django/core/management/__init__.py", line 392, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "/usr/lib/python2.6/site-packages/django/core/management/__init__.py", line 261, in fetch_command
+    commands = get_commands()
+  File "/usr/lib/python2.6/site-packages/django/core/management/__init__.py", line 107, in get_commands
+    apps = settings.INSTALLED_APPS
+  File "/usr/lib/python2.6/site-packages/django/conf/__init__.py", line 54, in __getattr__
+    self._setup(name)
+  File "/usr/lib/python2.6/site-packages/django/conf/__init__.py", line 49, in _setup
+    self._wrapped = Settings(settings_module)
+  File "/usr/lib/python2.6/site-packages/django/conf/__init__.py", line 132, in __init__
+    % (self.SETTINGS_MODULE, e)
+ImportError: Could not import settings 'dataproject.settings' (Is it on sys.path? Is there an import error in the settings file?): No module named celery
+Traceback (most recent call last):
+  File "manage.py", line 10, in <module>
+    execute_from_command_line(sys.argv)
+  File "/usr/lib/python2.6/site-packages/django/core/management/__init__.py", line 399, in execute_from_command_line
+    utility.execute()
+  File "/usr/lib/python2.6/site-packages/django/core/management/__init__.py", line 392, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "/usr/lib/python2.6/site-packages/django/core/management/__init__.py", line 261, in fetch_command
+    commands = get_commands()
+  File "/usr/lib/python2.6/site-packages/django/core/management/__init__.py", line 107, in get_commands
+    apps = settings.INSTALLED_APPS
+  File "/usr/lib/python2.6/site-packages/django/conf/__init__.py", line 54, in __getattr__
+    self._setup(name)
+  File "/usr/lib/python2.6/site-packages/django/conf/__init__.py", line 49, in _setup
+    self._wrapped = Settings(settings_module)
+  File "/usr/lib/python2.6/site-packages/django/conf/__init__.py", line 132, in __init__
+    % (self.SETTINGS_MODULE, e)
+ImportError: Could not import settings 'dataproject.settings' (Is it on sys.path? Is there an import error in the settings file?): No module named celery
+Traceback (most recent call last):
+  File "manage.py", line 10, in <module>
+    execute_from_command_line(sys.argv)
+  File "/usr/lib/python2.6/site-packages/django/core/management/__init__.py", line 399, in execute_from_command_line
+    utility.execute()
+  File "/usr/lib/python2.6/site-packages/django/core/management/__init__.py", line 392, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "/usr/lib/python2.6/site-packages/django/core/management/__init__.py", line 261, in fetch_command
+    commands = get_commands()
+  File "/usr/lib/python2.6/site-packages/django/core/management/__init__.py", line 107, in get_commands
+    apps = settings.INSTALLED_APPS
+  File "/usr/lib/python2.6/site-packages/django/conf/__init__.py", line 54, in __getattr__
+    self._setup(name)
+  File "/usr/lib/python2.6/site-packages/django/conf/__init__.py", line 49, in _setup
+    self._wrapped = Settings(settings_module)
+  File "/usr/lib/python2.6/site-packages/django/conf/__init__.py", line 132, in __init__
+    % (self.SETTINGS_MODULE, e)
+ImportError: Could not import settings 'dataproject.settings' (Is it on sys.path? Is there an import error in the settings file?): No module named celery

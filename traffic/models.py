@@ -18,14 +18,14 @@ class Parking(models.Model):
 	    return self.date.ctime()
 # Create your models here.
 
-class Street(models.Model):
+class Street(models.Model):   ## useful, street and their coordinate
     sid = models.CharField(max_length = 20, primary_key = True)
     street_name = models.CharField(max_length = 100)
     coordinate = models.TextField()
     def __unicode__(self):
         return self.sid
 
-class Streetparking(models.Model):
+class Streetparking(models.Model):  ## useful, street and their coordinate
     street = models.ForeignKey(Street)
     date = models.DateField(db_index = True)
     occupancy = models.TextField()
@@ -304,11 +304,45 @@ class Real_time_tmc_data(models.Model):
             return self.tmc
 
 
+class Closed_roads(models.Model):
+    perm_no = models.PositiveIntegerField(primary_key=True)
+    type = models.SmallIntegerField()
+    location = models.CharField(max_length=100)
+    neighbor = models.CharField(max_length=100)
+    lat = models.FloatField()
+    lng = models.FloatField()
+    note = models.CharField(max_length=500)
+    start_date = models.DateField()  #in format mm/dd/yy
+    end_date = models.DateField()
+    wkday_hrs = models.CharField(max_length=30)  #store the closure hours on weekdays, split by"," two fields as a time range
+    wkend_hrs = models.CharField(max_length=30)
+    wkday_hrsfull = models.CharField(max_length=50)  #store the closure hours on weekdays, split by"," two fields as a time range
+    wkend_hrsfull = models.CharField(max_length=50)
 
+    backfill = models.BooleanField(default=True)
+    coordinate = models.BooleanField(default=True)
+    traffic_ctl = models.BooleanField(default=True)
+    closure = models.BooleanField(default=True)
+    onelane = models.BooleanField(default=True)
+    postno = models.BooleanField(default=True)
+    pat = models.BooleanField(default=True)
+    ctl_plan = models.BooleanField(default=True)
+    emerge = models.BooleanField(default=True)
+    buss = models.BooleanField(default=True)
+    ped_clean = models.BooleanField(default=True)
+    off_police = models.BooleanField(default=True)
+    flagper = models.BooleanField(default=True)
+    penndot = models.BooleanField(default=True)
+    rdline = models.CharField(max_length=50000)
 
+    def __unicode__(self):
+        return self.perm_no
 
     
     
+
+
+
 
 
 

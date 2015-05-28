@@ -7,6 +7,7 @@
 <head>
 	<meta charset="UTF-8">
 	<title>{% block title %}{% endblock %} </title>
+
 	<link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap-Sandstone.min.css'%}">
 	<link rel="stylesheet" type="text/css" href="{% static 'traffic/style_new.css'%}">
 	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.min.css">
@@ -37,6 +38,9 @@
                     <li id="nav-home"><a href="{% url 'traffic:index' %}">Home</a></li>
         	        <li id="nav-weather"><a href="{% url 'traffic:weather' %}">Weather</a></li>
                     <li id="nav-parking"><a href="{% url 'traffic:parking' %}">Parking</a></li>
+
+               
+                    <li id="nav-closure"><a href="{% url 'traffic:closure' %}">Closure</a></li>      <!Added by SGYang>
                     <li id="nav-cameras"><a href="{% url 'traffic:camera' %}">Cameras</a></li>
                     <li id="nav-trafficcounts"><a href="{% url 'traffic:count' %}">Traffic Counts</a></li>
                     <li id="nav-transit" class="dropdown">
