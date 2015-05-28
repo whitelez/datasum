@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.core import serializers
-from django.http import HttpResponse
+from django.http import HttpResponse, QueryDict
 from django.db.models import Q
 from django.template import RequestContext, loader
 
@@ -70,6 +70,7 @@ def street_parking_geojson(request):
     return HttpResponse(response, content_type='application/json')
 
 def street_parking_geojson_prediction(request):
+    print request
     stpdate = date(2014, 1, 1)
     edpdate = date(2014, 4, 30)
     intervals = 144
@@ -83,19 +84,35 @@ def street_parking_geojson_prediction(request):
     pd1 = request.GET['pd1']
     pdate1 = date(int(py1), int(pm1), int(pd1))
     ###############
-    weekday = (pdate.weekday()+1)%7+1
+    weekday = (pdate.weekday()+1) % 7 + 1
+    wkdys = request.GET.getlist('wkdys[]')
+    print wkdys
+    print int(wkdys[1])
+    cr = []
+    for i in range(7):
+        cr.append(0)
+    for i in range(7):
+        if int(wkdys[i]) != 1:
+            cr[i] = Q(date__week_day=(i+1))
+        else:
+            cr[i] = Q(date__week_day=0)
+    #################
+
     result = '''{"type":"FeatureCollection","features":['''
     for t in Street.objects.all():
         p = 0
-        if not (pdate > edpdate or pdate1 < stpdate):
+        if not (pdate > edpdate or pdate1 < stpdate):  # use historical data
             p = t.streetparking_set.filter(date__range=(pdate, pdate1))
-        if not p:
-            if (pdate1 != pdate):
+            if pdate != pdate1:   # historical date range
+                p = p.filter(cr[0] | cr[1] | cr[2] | cr[3] | cr[4] | cr[5] | cr[6])
+        if (not p) or (p == 0):   # No historical data, use prediction
+            if pdate1 == pdate:   # same day
                 p = t.streetparking_set.filter(date__week_day=weekday)
-            else:
-                p = t.streetparking_set.all()
+            else:   # Day ranges
+                p = t.streetparking_set.filter(cr[0] | cr[1] | cr[2] | cr[3] | cr[4] | cr[5] | cr[6])
         if p:
             n = p.count()
+            #print n
             c = [0]*intervals
             for day in p:
                 dc = day.occupancy.split(',')

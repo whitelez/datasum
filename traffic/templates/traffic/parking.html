@@ -91,6 +91,18 @@
                     <label for="timepicker1"><h6><i>To: </i></h6></label> <input style = "width : 125px" id="timepicker1"/>
                 </div>
             </div>
+            <div id = "weekday">
+                <h5><b>Select weekdays for inquiry:</b></h5>
+                <form action="form_action.asp">
+                    <label><input type="checkbox"  name="vehicle" value="Sun" checked="True"> Sun </label>
+                    <label><input type="checkbox" name="vehicle" value="Mon" checked="True"> Mon </label>
+                    <label><input type="checkbox" name="vehicle" value="Tue" checked="True"> Tue </label>
+                    <label><input type="checkbox" name="vehicle" value="Wed" checked="True"> Wed </label>
+                    <label><input type="checkbox" name="vehicle" value="Thr" checked="True"> Thr </label>
+                    <label><input type="checkbox" name="vehicle" value="Fri" checked="True"> Fri </label>
+                    <label><input type="checkbox" name="vehicle" value="Sat" checked="True"> Sat </label>
+                </form>
+            </div>
             <a type="button" class="btn btn-purple" id="check_btn" align="middle" style="margin-top:10px;width:90%;">
                 <span class="glyphicon glyphicon-search"> </span> &nbsp; Inquiry </a> <br>
             {#<input type="button" value="Update" />#}
@@ -278,7 +290,8 @@
                 layer.setStyle({
                     color: '#3f51b5',
                     opacity: 1,
-                    weight: 13
+                    weight: 10,
+                    dashArray: "3,15"
             });
                 if (!L.Browser.ie && !L.Browser.opera) {
                     layer.bringToFront();
@@ -344,13 +357,24 @@
                 spinner = new Spinner(spinneropts).spin(target);
                 target = document.getElementById('chart');
                 target.style.opacity= '0';
+                /////////////////
+                var wkdy = document.forms[0];
+                var wkdys = [0, 0, 0, 0, 0, 0, 0]
+                var i;
+                for (i = 0; i < wkdy.length; i++) {
+                    if (wkdy[i].checked) {
+                        wkdys[i] = 1;
+                    }
+                }
+                ////////////////////
                 $.get("../parking_geoJSON_prediction/", {
                     pd: dd,
                     pm: mm,
                     py: yy,
                     pd1: dd1,
                     pm1: mm1,
-                    py1: yy1
+                    py1: yy1,
+                    'wkdys': wkdys  //// Sun -Sat
                 }, function (data, textStatus) {
                     streets = $.parseJSON(data);
                     showOcp();
@@ -391,13 +415,24 @@
                 spinner = new Spinner(spinneropts).spin(target);
                 target = document.getElementById('chart');
                 target.style.opacity= '0';
+                /////////////////
+                var wkdy = document.forms[0];
+                var wkdys = [0, 0, 0, 0, 0, 0, 0]
+                var i;
+                for (i = 0; i < wkdy.length; i++) {
+                    if (wkdy[i].checked) {
+                        wkdys[i] = 1;
+                    }
+                }
+                ////////////////////
                 $.get("../parking_geoJSON_prediction/", {
                     pd: dd,
                     pm: mm,
                     py: yy,
                     pd1: dd,
                     pm1: mm,
-                    py1: yy
+                    py1: yy,
+                    'wkdys': wkdys  //// Sun -Sat
 
                 }, function (data, textStatus) {
                     streets = $.parseJSON(data);
@@ -463,7 +498,10 @@
             });
             /////////////time
             $("#timepicker").kendoTimePicker({
-                value: new Date()
+                value: new Date(),
+                max: new Date(2000, 0, 1, 8, 0, 0),
+                max: new Date(2000, 0, 1, 22, 0, 0),
+                interval: 10
             });
             var Timepicker = $("#timepicker").data("kendoTimePicker");
             Timepicker.bind("change", function() {
@@ -475,7 +513,11 @@
             });
 
             $("#timepicker1").kendoTimePicker({
-                value: new Date()
+                value: new Date(),
+                max: new Date(2000, 0, 1, 8, 0, 0),
+                max: new Date(2000, 0, 1, 22, 0, 0),
+                interval: 10
+
             });
             var timepicker1 = $("#timepicker1").data("kendoTimePicker");
             timepicker1.bind("change", function() {
@@ -515,7 +557,10 @@
             target.style.opacity= '0';
             ////////////////////
 
-            $.get("../parking_geoJSON_prediction/", {pd: dd, pm: mm, py:yy, pd1: dd, pm1: mm, py1:yy}, function (data, textStatus) {
+            $.get("../parking_geoJSON_prediction/", {
+                pd: dd, pm: mm, py:yy, pd1: dd, pm1: mm, py1:yy,
+                'wkdys': [1, 2, 3, 5, 6, 7, 8]  //// Sun -Sat
+            }, function (data, textStatus) {
                 streets = $.parseJSON(data);
                 //$('#txtHint').text(terminals);
                 showOcp();
@@ -591,7 +636,7 @@
 
         function parkingMarkerStyle() {
             return {
-                radius: 4,
+                radius: 3,
                 fillColor: "#3f51b5",
                 color: "#3f51b5",
                 weight: 1,
