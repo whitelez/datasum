@@ -77,7 +77,7 @@
             <div class="row" style="margin-top:3px;text-align: center"><h3>Parking info</h3></div>
                         <div align="mid" class="row" id="p1"><h5>Hover over a street to check occupancy</h5><br><br></div>
 
-            <div class="row" id ="plzwait" style="margin-top:10px;margin-right:auto;margin-left: 0px;"><h6><b>Select date and time range for inquiry: </b></h6></div>
+            <div class="row" id ="plzwait" style="margin-top:10px;margin-right:auto;margin-left: 0px;"><h5><b>Select date and time range for inquiry: </b></h5></div>
             <div id="datepick">
                 <div id="to-do" align="left" style="width:120%;margin-left: -15px;">
                     <label for="datepicker"><h6><i>From: </i></h6></label> <input style = "width : 120px"  id="datepicker"/>
@@ -111,8 +111,8 @@
             <div align="middle" style="height: 1px;  text-align: left; left:-10px;"><span style=" top: -2px;"><h5>
                 ------------------------------Or---------------------------</h5></span></div>
             <br>
-            <div class="row" id="future22" style="margin-top:10px;margin-left:4px;" align="left"><h6><b> Check future
-                occupancy: </b><i>slide to pick a delay </i></h6></div>
+            <div class="row" id="future22" style="margin-top:10px;margin-left:-10px;" align="left"><h5><b> Check future
+                occupancy: </b><i>slide to pick a delay </i></h5></div>
 
             <input type="range" min="0" max="90" value="10" step="10" id='rangebar' oninput="showValue(this.value)"
                    onchange="changeclk(this.value)"/>
@@ -767,7 +767,7 @@
                     content = ('' + sum).substr(0, 5) + '%'
                 }
             }
-            content = content +"</b> <br>Parking Suggest: <b>" + suggestRD+"</b>";
+            content = content +"</b> <br>Parking Suggest: <b><font color='#3f51b5'>" + suggestRD+"</font></b>";
             document.getElementById("p1").innerHTML = '<b>Selected Streets</b>' +  timecontent + content;
 
         };
