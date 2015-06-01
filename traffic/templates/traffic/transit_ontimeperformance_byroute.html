@@ -10,16 +10,15 @@ Power of 32 RTIS - Transit - On-Time Performance
 <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
-<link rel="stylesheet" href="{% static 'traffic/bootstrap-datetimepicker.min.css' %}" />
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-switch.min.css' %}" />
-<link rel="stylesheet" href="{% static 'traffic/multiselect/bootstrap-multiselect.css' %}"  type="text/css"/>
+<link rel="stylesheet" href="{% static 'traffic/bootstrap-datetimepicker.min.css' %}" />
 {% endblock %}
 
 
 {% block content %}
 <div class="well" style="height:600px;">
 	<div class="container" style="width: inherit">
-    	<div class="row"><h3>Transit </h3></div>
+    	<div class="row"><h4>On-Time Performance </h4></div>
 		<div class="row" style="padding-top:5px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Route:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
@@ -43,21 +42,23 @@ Power of 32 RTIS - Transit - On-Time Performance
         <div class="row" style="padding-top:5px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Stops:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
-                <select multiple="multiple" id = "select_stop">
+                <select id = "select_stop" class="selectpicker show-tick show-menu-arrow" multiple data-live-search="true" data-width="100%">
                 </select>
-                <button id="stops_deselect_all" class="btn btn-default">Clear All</button>
             </div>
 	    </div>
 
+
+            <button id="stops_deselect_all" class="btn btn-default btn-block" style="margin-top: 10px">
+                <span class="glyphicon glyphicon-remove"> </span> &nbsp; Clear All
+            </button><br>
+
         <div class="row" style="padding-top:5px;">
         	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Date:</h5></div>
-            <div class="col-md-3" style="padding-left:0px;padding-right: 0px;">
+            <div class="col-md-3" style="padding-left:0;padding-right: 1px;">
                 <select id='syear' name = 'syear' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
 					<option value='2014'>2014</option>
 					<option value='2013'>2013</option>
 					<option value='2012'>2012</option>
-					<option value='2011'>2011</option>
-					<option value='2010'>2010</option>
 				</select>
             </div>
             <div class="col-md-2" style="padding-left: 0;padding-right: 1px;">
@@ -76,7 +77,7 @@ Power of 32 RTIS - Transit - On-Time Performance
 					<option value='12'>Dec</option>
 				</select>
             </div>
-            <div class="col-md-2" style="padding-left: 0;padding-right: 10px;">
+            <div class="col-md-2" style="padding-left: 0;">
 				<select id='sday' name = 'sday' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
 					{% for i in n%}
 						<option value={{i}}>{{i}}</option>
@@ -87,7 +88,7 @@ Power of 32 RTIS - Transit - On-Time Performance
 
 		<div class="row" style="padding-top:5px;">
         	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>End Date:</h5></div>
-            <div class="col-md-3" style="padding-left:0px;padding-right: 0px;">
+            <div class="col-md-3" style="padding-left:0;padding-right: 1px;">
                 <select id='eyear' name = 'eyear' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
 					<option value='2014'>2014</option>
 					<option value='2013'>2013</option>
@@ -96,7 +97,7 @@ Power of 32 RTIS - Transit - On-Time Performance
 					<option value='2010'>2010</option>
 				</select>
             </div>
-            <div class="col-md-2" style="padding-left: 0;padding-right: 1px;">
+            <div class="col-md-2" style="padding-left:0;padding-right: 1px;">
 				<select id='emonth' name = 'emonth' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
 					<option value='01'>Jan</option>
 					<option value='02'>Feb</option>
@@ -112,7 +113,7 @@ Power of 32 RTIS - Transit - On-Time Performance
 					<option value='12'>Dec</option>
 				</select>
             </div>
-            <div class="col-md-2" style="padding-left: 0;padding-right: 10px;">
+            <div class="col-md-2" style="padding-left: 0;">
 				<select id='eday' name = 'eday' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
 					{% for i in n%}
 						<option value={{i}}>{{i}}</option>
@@ -120,6 +121,7 @@ Power of 32 RTIS - Transit - On-Time Performance
 				</select>
             </div>
 	    </div>
+
         <div class="row" style="padding-top:5px;">
            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Time:</h5></div>
            <div class="col-md-8" style="padding-left: 0;">
@@ -155,22 +157,6 @@ Power of 32 RTIS - Transit - On-Time Performance
            </div>
         </div>
     </div>
-
-	<br> <div style="width:100%;height:2px;margin:0 auto;padding:0;background-color:#ddd;overflow:hidden;"></div>
-
-	<div class="container" style="width: inherit">
-        <div class="row" style="padding-top: 15px">
-			<h4> Result: </h4>
-        </div>
-        <div class="row" style="padding-top: 10px">
-        	<div class="col-md-7" style="padding-right: 0;">
-				Ontime Performance:
-            </div>
-            <div class="col-md-5" style="padding-left: 0;">
-                <span id = 'ontime'>&emsp;&emsp;&emsp;</span>
-            </div>
-        </div>
-    </div>
 </div>
 {% endblock %}
 
@@ -184,12 +170,12 @@ Power of 32 RTIS - Transit - On-Time Performance
 {% block script %}
 <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'traffic/multiselect/bootstrap-multiselect.js' %}"></script>
-{#<script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/dist/js/bootstrap.min.js' %}"></script>#}
+
 <script type="text/javascript" src="{% static 'traffic/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/transition.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/collapse.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-datetimepicker.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/bootstrap-switch.min.js' %}"></script>
 
 <script>
      $('.selectpicker').selectpicker({
@@ -423,29 +409,12 @@ Power of 32 RTIS - Transit - On-Time Performance
 
 			for(var i=0;i<stops_geoJson.features.length;i++){
 				$("#select_stop").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");
+                $('#select_stop').selectpicker('refresh');
 {#                $("#select_stop1").selectpicker('refresh');#}
 {#				$("#select_stop2").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");#}
 {#                $("#select_stop2").selectpicker('refresh');#}
 			}
-            //Initialize multiselect
-            if ( $('#stops_multiselect').length == 0) {
-                $('#select_stop').multiselect({
-                    buttonContainer: '<div class="btn-group" id = "stops_multiselect"/>',
-                    disableIfEmpty: true,
-                    maxHeight: 200,
-                    buttonWidth: '195px',
-                    nonSelectedText: 'Select Stops ...',
-                    numberDisplayed: 1,
-                    enableCaseInsensitiveFiltering: true,
-                    checkboxName: 'stop',
-                    onChange: multiselect_on_change
-                    //includeSelectAllOption: true,
-                    //selectAllValue: 'select-all-value'
-                });
-            }
-            else{
-                $('#select_stop').multiselect("rebuild");
-            }
+
 		  }
 		  else{
 		  	$('#txtHint').text('Route ' + route + '-' + (direction == 'I'?'Inbound':'Outbound') + ' not found');
