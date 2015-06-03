@@ -70,8 +70,8 @@ def street_parking_geojson(request):
     return HttpResponse(response, content_type='application/json')
 
 def street_parking_geojson_prediction(request):
-    stpdate = date(2014, 1, 1)
-    edpdate = date(2014, 4, 30)
+    stpdate = date(2013, 1, 1)
+    edpdate = date(2014, 8, 30)
     intervals = 144
     py = request.GET['py']
     pm = request.GET['pm']
@@ -95,7 +95,6 @@ def street_parking_geojson_prediction(request):
             cr[i] = Q(date__week_day=0)
     #################
     print "New Request"
-
     result = '''{"type":"FeatureCollection","features":['''
     for t in Street.objects.all():
         p = 0
@@ -105,11 +104,10 @@ def street_parking_geojson_prediction(request):
                 p = p.filter(cr[0] | cr[1] | cr[2] | cr[3] | cr[4] | cr[5] | cr[6])
         if (not p) or (p == 0):   # No historical data, use prediction
             if pdate1 == pdate:   # same day
-                p = t.streetparking_set.filter(date__week_day=weekday)
+                p = t.streetpre_set.filter(date__week_day=weekday)
             else:   # Day ranges
-                p = t.streetparking_set.filter(cr[0] | cr[1] | cr[2] | cr[3] | cr[4] | cr[5] | cr[6])
+                p = t.streetpre_set.filter(cr[0] | cr[1] | cr[2] | cr[3] | cr[4] | cr[5] | cr[6])
         if p:
-            #print "There is data"
             n = p.count()
             c = [0]*intervals
             for day in p:
