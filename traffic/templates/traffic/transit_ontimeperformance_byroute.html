@@ -328,10 +328,9 @@ Power of 32 RTIS - Transit - On-Time Performance
 			}
 		},"json");
 
-
-        function multiselect_on_change(option, checked, select) {
-            add_stop_to_map(option.val(),checked);
-        }
+{#        function multiselect_on_change(option, checked, select) {#}
+{#            add_stop_to_map(option.val(),checked);#}
+{#        }#}
 		
 		$.get("../get_stops/", {route:route, direction:direction}, function(data, textStatus){
 		    $('#select_stop').empty();
