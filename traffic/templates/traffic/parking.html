@@ -680,8 +680,8 @@
             var legend = L.control({position: 'bottomright'});
             legend.onAdd = function () {
                 var div = L.DomUtil.create('div', 'info legend');
-                div.innerHTML += '<i style="background:green' + '"></i> ' + "Occupancy < 50%"+ "<br>";
-                div.innerHTML += '<j style="background:yellow' +  '"></j> ' + "Occupancy < 70%"+ "<br>";
+                div.innerHTML += '<i style="background:green' + '"></i> ' + "Occupancy &le; 50%"+ "<br>";
+                div.innerHTML += '<j style="background:yellow' +  '"></j> ' + "Occupancy &le; 70%"+ "<br>";
                 div.innerHTML += '<k style="background:red' +  '"></k> ' + "Occupancy > 70%"+ "<br>";
 
                 return div;
