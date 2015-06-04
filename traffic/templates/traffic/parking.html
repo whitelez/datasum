@@ -54,8 +54,8 @@
     }
     .legend1 {
         line-height: 18px;
-        height:50px;
         width:250px;
+        height:1px;
         top: -70px;
         left: 40px;
         opacity: 1;
@@ -236,6 +236,7 @@
         var suggRDcnt = 1000000;
         var mouseposi = [0,0]; //detect click but not drag
         var suggestRDfe; //to store the feature of the road.
+        var underlayer;//To store under later
         var spinneropts;
         var spinner;
 
@@ -354,12 +355,19 @@
                         });
                 //////////////////////////////////
                 var layer = suggestRDfe.target;
-                layer.setStyle({
+
+                var geojs = suggestRDfe.target.toGeoJSON()
+                underlayer = L.geoJson(geojs, {
+                style: {
+                    weight: 13,
+                    color: '#805DFC',
+                    opacity: 1
+                }}).addTo(map);
+               layer.setStyle({
                     //lineCap: 'square',
-                    opacity: 1,
-                    weight: 10,
-                    dashArray: '2, 12'
-            });
+                    opacity: 0.9,
+                    weight: 7
+                });
                 if (!L.Browser.ie && !L.Browser.opera) {
                     layer.bringToFront();
                 }
@@ -370,6 +378,9 @@
             }
             else if(e.keyCode == 13){ //empty plot
                 $("#chart1").empty();
+                if(underlayer){
+                    map.removeLayer(underlayer);
+                };
                 var element = document.getElementById('map');
                 element.style.zIndex = "100";
                 highlight = [];
@@ -391,13 +402,14 @@
         mapelement.addEventListener("mousedown", function(e){
             mouseposi = [e.clientX, e.clientY]
         }, false);
-
-
          mapelement.addEventListener("click", function(e){
               console.log("[" + map.mouseEventToLatLng(e).lat + "," + map.mouseEventToLatLng(e).lng+"]");
             var diff = Math.abs(mouseposi[0]- e.clientX)+Math.abs(mouseposi[1]- e.clientY);
             if(diff<6) {
                 $("#chart1").empty();
+                if(underlayer){
+                    map.removeLayer(underlayer);
+                };
                 var element = document.getElementById('map');
                 element.style.zIndex = "100";
                 combinemod = false;
@@ -1057,7 +1069,7 @@
         function onEachFeatureT(feature, layer) {
             layer.on({
                 mouseover: highlightFeatureT,
-                mouseout: resetHighlightT,
+                mouseout: resetHighlightT
             });
 
             if (feature.properties && feature.properties.street && feature.properties.occupancy) {
@@ -1165,7 +1177,9 @@
             var cell = hour * 6 + parseInt(minu / 10);
             var st_in_map = true;
             var tr_in_map = false;
-
+            if(underlayer){
+                map.removeLayer(underlayer);
+            }
             if (streetLayer) {
                 control.removeLayer(streetLayer);
                 if (map.hasLayer(streetLayer)) {
