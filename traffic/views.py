@@ -147,9 +147,9 @@ def get_weather(request):
         if now.hour != county.update_time.hour:
             url = 'http://api.wunderground.com/api/fa32a501f6cdbc7c/hourly/q/' + county.state + '/' + urllib.quote(county.api) + '.json'
             f = urllib2.urlopen(url)
-            i=i+1
-            if i%5==0:
-                the_time.sleep(60)
+            #i=i+1
+            #if i%5==0:
+                #the_time.sleep(60)
             weather_info = f.read()
             weather_info = weather_info.split()
             weather_info = ''.join(item for item in weather_info)
