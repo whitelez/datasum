@@ -25,6 +25,13 @@ class Street(models.Model):   ## useful, street and their coordinate
     def __unicode__(self):
         return self.sid
 
+class Streetpre(models.Model):   ## useful, street and their coordinate
+    street = models.ForeignKey(Street)
+    date = models.DateField(db_index = True)
+    occupancy = models.TextField()
+    def __unicode__(self):
+	    return self.date.ctime()
+
 class Streetparking(models.Model):  ## useful, street and their coordinate
     street = models.ForeignKey(Street)
     date = models.DateField(db_index = True)

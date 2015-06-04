@@ -466,7 +466,7 @@ var terminals = [
 {"type":"Feature","properties":{"terminalID":"408232-FORBES3907","sid":"FORBES3907","street":"FORBES AVE"},"geometry":{"type":"Point","coordinates":[-79.95416432619095,40.44309013966765]}},
 {"type":"Feature","properties":{"terminalID":"408233-SBQUET0101","sid":"SBQUET0101","street":"S BOUQUET ST"},"geometry":{"type":"Point","coordinates":[-79.95726495981216,40.44247162384565]}},
 {"type":"Feature","properties":{"terminalID":"408234-SBQUET0102","sid":"SBQUET0102","street":"S BOUQUET ST"},"geometry":{"type":"Point","coordinates":[-79.95711743831635,40.4422654506403]}},
-{"type":"Feature","properties":{"terminalID":"408235-SBQUET0202","sid":"SBQUET0202","street":"S BOUQUET ST"},"geometry":{"type":"Point","coordinates":[79.95623767375946,40.44179900694607]}},
+{"type":"Feature","properties":{"terminalID":"408235-SBQUET0202","sid":"SBQUET0202","street":"S BOUQUET ST"},"geometry":{"type":"Point","coordinates":[-79.95623767375946,40.44179900694607]}},
 {"type":"Feature","properties":{"terminalID":"408236-5THAVE4001","sid":"5THAVE4001","street":"FIFTH AVE"},"geometry":{"type":"Point","coordinates":[-79.9561760949291,40.443504975179636]}},
 {"type":"Feature","properties":{"terminalID":"408327-SENNOT3702","sid":"SENNOT3702","street":"SENNOTT ST"},"geometry":{"type":"Point","coordinates":[-79.9566051363945,40.440585421644734]}},
 {"type":"Feature","properties":{"terminalID":"408328-SENNOT3802","sid":"SENNOT3802","street":"SENNOTT ST"},"geometry":{"type":"Point","coordinates":[-79.95577096939087,40.441195789404404]}},
