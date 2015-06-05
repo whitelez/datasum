@@ -45,12 +45,12 @@
             position: relative;
             opacity: 0.93;
             top: 0px;
+            margin-bottom: -8px;
             margin-left:1%;
-            height : 110px;
+            height : 120px;
             text-align: center;
             width : 97%;
             z-index: 10;
-
     }
     .legend1 {
         line-height: 18px;
@@ -69,7 +69,7 @@
         border-radius: 5px;
         background: white;
         box-shadow: -2px -2px 2px #CCCCCC;
-        opacity: 0.8;
+        opacity: 0.9;
     }
     .legend i {
         width: 28px;
@@ -121,7 +121,7 @@
     <div id="user_input" class="well" style="height: 600px;">
 
         <div class="container" style="width: inherit">
-            <div class="row" id="title" style="margin-top:3px;text-align: center"><h3>Parking info</h3></div>
+            <div class="row" id="title" style="margin-top:0px;text-align: center"><h3>Parking info</h3></div>
                         <div align="mid" class="row" id="p1"><h5>Hover over a street to check occupancy</h5><br><br></div>
 
             <div class="row" id ="plzwait" style="margin-top:10px;margin-right:auto;margin-left: 0px;"><h5><b>Select date and time range for inquiry: </b></h5></div>
@@ -152,7 +152,7 @@
                     </h6>
                 </form>
             </div>
-            <a type="button" class="btn btn-purple" id="check_btn" align="middle" style="margin-top:5px;width:90%;">
+            <a type="button" class="btn btn-purple" id="check_btn" align="middle" style="margin-top:0px;width:90%;">
                 <span class="glyphicon glyphicon-search"> </span> &nbsp; Inquiry </a> <br>
             {#<input type="button" value="Update" />#}
             <div align="middle" style="height: 1px;  text-align: left; left:-10px;"><span style=" top: -2px;"><h5>
@@ -842,7 +842,7 @@
                     content = ('' + sum).substr(0, 5) + '%'
                 }
             }
-            content = content +"</b> <br>Parking Suggest: <b><font color='#3f51b5'>" + suggestRD+"</font></b>";
+            content = content +"</b> <br>Parking Suggestion: <b><font color='#3f51b5'>" + suggestRD+"</font></b>";
             document.getElementById("p1").innerHTML = '<b>Selected Streets</b>' +  timecontent + content;
 
         };
