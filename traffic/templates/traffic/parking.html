@@ -681,6 +681,7 @@
                 }
             }
             }).addTo(map);
+
             var legend1 = L.control({position: 'topleft'});
             legend1.onAdd = function () {
             var div = L.DomUtil.create('div', 'info legend1');
@@ -903,21 +904,35 @@
 //////////////////////////////////
         function highlightFeature(e) {
             var layer = e.target;
-            layer.setStyle({
-                weight: 10
-            });
+
+            if (layer.feature.geometry.type != "Point"){
+                    layer.setStyle({
+                    weight: 10
+                    });
+            } else{
+                layer.setStyle({
+                    radius: 10
+                });
+            }
+
             if (!L.Browser.ie && !L.Browser.opera) {
                 layer.bringToFront();
             }
-
             info.update(layer.feature.properties);
         }
 
         function highlightFeatureT(e) {
             var layer = e.target;
-            layer.setStyle({
-                weight: 10
-            });
+
+            if (layer.feature.geometry.type != "Point"){
+                    layer.setStyle({
+                    weight: 10
+                    });
+            } else{
+                layer.setStyle({
+                    radius: 10
+                });
+            }
 
             if (!L.Browser.ie && !L.Browser.opera) {
                 layer.bringToFront();
@@ -962,7 +977,7 @@
         function onEachFeature(feature, layer) {
             layer.on({
                 mouseover: highlightFeature,
-                mouseout: resetHighlight,
+                mouseout: resetHighlight
             });
 
             if (feature.properties && feature.properties.street && feature.properties.occupancy) {
@@ -1009,8 +1024,8 @@
                                 suggestRD = feature.properties.street;
                             }
                         }
-
                     }
+
                     ////////////////////////
                     else {
                         element.style.zIndex = "1";
@@ -1200,13 +1215,21 @@
 
             streetLayer = L.geoJson(streets, {
                 style: function (feature) {
-                    if (feature.properties.occupancy[cell] < 0.5) {
-                        return {weight: 7, color: 'green', opacity: 0.9};
-                    } else if (feature.properties.occupancy[cell] < 0.7) {
-                        return {weight: 7, color: 'yellow', opacity: 0.9};
-                    } else {
-                        return {weight: 7, color: 'red', opacity: 0.9};
+                    if (feature.geometry.type != "Point") {
+                        if (feature.properties.occupancy[cell] < 0.5) {
+                            return {weight: 7, color: 'green', opacity: 0.9};
+                        } else if (feature.properties.occupancy[cell] < 0.7) {
+                            return {weight: 7, color: 'yellow', opacity: 0.9};
+                        } else {
+                            return {weight: 7, color: 'red', opacity: 0.9};
+                        }
                     }
+                    else {
+                        return {radius: 7};
+                    }
+                },
+                pointToLayer: function (feature, latlng) {
+                    return L.circleMarker(latlng, lotsMarkerStyle(feature.properties.occupancy[cell]));
                 },
                 onEachFeature: onEachFeature
             });
@@ -1218,13 +1241,21 @@
 
             truckLayer = L.geoJson(streets, {
                 style: function (feature) {
-                    if (feature.properties.occupancy[cell] * 1.5 < 0.5) {
-                        return {weight: 7, color: 'green', opacity: 0.9};
-                    } else if (feature.properties.occupancy[cell] * 1.5 < 0.7) {
-                        return {weight: 7, color: 'yellow', opacity: 0.9};
-                    } else {
-                        return {weight: 7, color: 'red', opacity: 0.9};
+                    if (feature.geometry.type != "Point") {
+                        if (feature.properties.occupancy[cell]*1.5 < 0.5) {
+                            return {weight: 7, color: 'green', opacity: 0.9};
+                        } else if (feature.properties.occupancy[cell]*1.5 < 0.7) {
+                            return {weight: 7, color: 'yellow', opacity: 0.9};
+                        } else {
+                            return {weight: 7, color: 'red', opacity: 0.9};
+                        }
                     }
+                    else {
+                        return {radius: 7};
+                    }
+                },
+                pointToLayer: function (feature, latlng) {
+                    return L.circleMarker(latlng, lotsMarkerStyle(feature.properties.occupancy[cell]*1.5));
                 },
                 onEachFeature: onEachFeatureT
             });
@@ -1249,10 +1280,9 @@
         control.addOverlay(terminalLayer, 'Terminals');
 
         function getColorLots(d) {
-            return d >= 100 ? '#008000' :
-                    d >= 20 ? '#FFFF66' :
-                            d > 0 ? '#FF9900' :
-                                    '#FF0000';
+            return d <= 0.5 ? '#008000' :
+                    d <= 0.7 ? '#FFFF66' :
+                                '#FF0000';
         }
 
         function lotsMarkerStyle(d) {
@@ -1269,10 +1299,11 @@
         function onEachFeatureLot(feature, layer) {
             layer.on({
                 mouseover: highlightFeatureLot,
-                mouseout: resetHighlightLot,
+                mouseout: resetHighlightLot
             });
             if (feature.properties) {
-                layer.bindPopup(feature.properties.long_name + '<br>' + feature.properties.address1 + ' ' + feature.properties.address2 + '<br>Availiable Spots: ' + feature.properties.available_spots + '<br>Hours: ' + feature.properties.hours);
+                layer.bindPopup(feature.properties.long_name + '<br>' + feature.properties.address1 + ' ' + feature.properties.address2 +
+                '<br>Availiable Spots: ' + feature.properties.available_spots + '<br>Maximum Spots: ' +feature.properties.max_spots +'<br>Hours: ' + feature.properties.hours);
             }
         }
 
@@ -1289,7 +1320,8 @@
                 }
                 lotLayer = L.geoJson(data, {
                             pointToLayer: function (feature, latlng) {
-                                return L.circleMarker(latlng, lotsMarkerStyle(feature.properties.available_spots));
+                                var d = feature.properties.available_spots/feature.properties.max_spots;
+                                return L.circleMarker(latlng, lotsMarkerStyle(d));
                             },
                             onEachFeature: onEachFeatureLot
                         }

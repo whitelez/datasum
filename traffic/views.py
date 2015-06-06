@@ -114,7 +114,11 @@ def street_parking_geojson_prediction(request):
                 dc = day.occupancy.split(',')
                 for i in range(intervals):
                     c[i]+=float(dc[i])/n
-            result += '''{"type":"Feature","properties":{"streetID":"''' + t.sid + '''","street":"''' + t.street_name + '''","occupancy":[''' + ",".join(str(ic) for ic in c) + ''']},"geometry":{"type":"LineString","coordinates":''' + t.coordinate + "}},"
+
+            if (len(t.coordinate.replace(" ","").split("],["))==1):
+                result += '''{"type":"Feature","properties":{"streetID":"''' + t.sid + '''","street":"''' + t.street_name + '''","occupancy":[''' + ",".join(str(ic) for ic in c) + ''']},"geometry":{"type":"Point","coordinates":''' + t.coordinate + "}},"
+            else:
+                result += '''{"type":"Feature","properties":{"streetID":"''' + t.sid + '''","street":"''' + t.street_name + '''","occupancy":[''' + ",".join(str(ic) for ic in c) + ''']},"geometry":{"type":"LineString","coordinates":''' + t.coordinate + "}},"
     result = result.rstrip(',')
     result += "]}"
     response = json.dumps(result)
