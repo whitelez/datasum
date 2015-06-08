@@ -7,6 +7,16 @@ Power of 32 RTIS - Transit - On-Time Performance
 {% endblock %}
 
 {% block style %}
+<style>
+    .leaflet-control{
+        line-height: 18px;
+        border-radius: 5px;
+        background: white;
+        box-shadow: -2px -2px 2px #CCCCCC;
+        opacity: 0.8;
+        padding: 5px 5px 5px 5px;
+    }
+</style>
 <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
@@ -110,7 +120,7 @@ Power of 32 RTIS - Transit - On-Time Performance
 
 
 {% block map %}
-<div id="map"></div>
+    <div id="map"></div>
 {% endblock %}
 	
 	
@@ -204,52 +214,55 @@ Power of 32 RTIS - Transit - On-Time Performance
 				: 'Hover over a stop');
 		};
 		info.addTo(map);
+
 	    function highlightFeature(e) {
 			var layer = e.target;
-			/*layer.setStyle({
-				weight: 5,
-				color: '#666',
-				dashArray: '',
-				fillOpacity: 0.7
-			});*/
+			layer.setStyle({
+				color: 'blue',
+                radius:8,
+				fillOpacity: 0.9
+			});
 			if (!L.Browser.ie && !L.Browser.opera) {
 				layer.bringToFront();
 			}
 			info.update(layer.feature.properties);
 		}
 		function resetHighlight(e) {
+            var layer = e.target;
+            layer.setStyle({
+                color: 'blue',
+                radius:5,
+                fillOpacity:0.9
+			});
 			info.update();
 		}
 
 
-{#======================================= Spinner ===========================================#}
+{#======================================= Spinner Options ===========================================#}
         var spinneropts = {
-            lines: 13, // The number of lines to draw
+            lines: 9, // The number of lines to draw
             length: 20, // The length of each line
-            width: 10, // The line thickness
+            width: 15, // The line thickness
             radius: 30, // The radius of the inner circle
             corners: 1, // Corner roundness (0..1)
             rotate: 0, // The rotation offset
             direction: 1, // 1: clockwise, -1: counterclockwise
-            color: '#000', // #rgb or #rrggbb or array of colors
+            color: '#111', // #rgb or #rrggbb or array of colors
             speed: 1, // Rounds per second
             trail: 60, // Afterglow percentage
-            shadow: false, // Whether to render a shadow
+            shadow: true, // Whether to render a shadow
             hwaccel: false, // Whether to use hardware acceleration
             className: 'spinner', // The CSS class to assign to the spinner
             zIndex: 2e9, // The z-index (defaults to 2000000000)
-            top: '60%', // Top position relative to parent
-            left: '63%' // Left position relative to parent
+            top: '50%', // Top position relative to parent
+            left: '50%' // Left position relative to parent
         };
-{#        var target2 = document.getElementById('map');#}
-{#        spinner = new Spinner(spinneropts).spin(target2);#}
-{#        target2.style.zIndex = "110";#}
-{#        target2.style.opacity = '0.2';#}
-
+{#=============================================== End ================================================#}
 
         var selected_stops_dict = {};
         var selected_stops_layerGroup = L.layerGroup().addTo(map);
         control.addOverlay(selected_stops_layerGroup,"Selected Stops");
+
 		function add_stop_to_map(stop_id,flag){
             if(flag) {
                 if(selected_stops_dict[stop_id]){
@@ -271,11 +284,11 @@ Power of 32 RTIS - Transit - On-Time Performance
                 }
             }
         }
+
         function remove_all_stops_from_map(){
             selected_stops_layerGroup.clearLayers();
             selected_stops_dict = {};
         }
-
 
 		function clickFeature(e) {
 			var layer = e.target;
@@ -298,19 +311,23 @@ Power of 32 RTIS - Transit - On-Time Performance
 		stopsLayer = L.geoJson(),
         busLayer   = L.geoJson();
     var stops_geoJson, route_geoJson;
-	function getInfo(event){
+	function getInfo(){
 		var route = $('#select_route option:selected').attr('value');
         var direction = $('#inout').bootstrapSwitch('state');
         if (direction){direction = 'I'} else {direction = 'O'}
 
-        if(event.data.flag == "route") {
-            if (busLayer) {
-                control.removeLayer(busLayer);
-                if (map.hasLayer(busLayer)) {
-                    map.removeLayer(busLayer);
-                }
-            }
-        }
+        var target = document.getElementById('map');
+        spinner = new Spinner(spinneropts).spin(target);
+        target.style.opacity = '0.15';
+
+{#        if(event.data.flag == "route") {#}
+{#            if (busLayer) {#}
+{#                control.removeLayer(busLayer);#}
+{#                if (map.hasLayer(busLayer)) {#}
+{#                    map.removeLayer(busLayer);#}
+{#                }#}
+{#            }#}
+{#        }#}
         remove_all_stops_from_map();
 
 		$.get("../get_route/", {route:route, direction:direction}, function(data, textStatus){
@@ -319,18 +336,16 @@ Power of 32 RTIS - Transit - On-Time Performance
 			 	if(map.hasLayer(routeLayer)){
 			 		map.removeLayer(routeLayer);
 			 	}
-			 }
+            }
 			if(data){
-			 route_geoJson = $.parseJSON(data);
-			 routeLayer = L.geoJson(route_geoJson,{style:{color:'green'}}).addTo(map);
-			 map.fitBounds(routeLayer.getBounds());
-			 control.addOverlay(routeLayer,'Route '+route);
-			}
+                route_geoJson = $.parseJSON(data);
+                routeLayer = L.geoJson(route_geoJson,{style:{color:'green'}}).addTo(map);
+                map.fitBounds(routeLayer.getBounds());
+                control.addOverlay(routeLayer,'Route '+route);
+			}else{
+                alert('No ROUTE information found, please select another route or direction!');
+            }
 		},"json");
-
-{#        function multiselect_on_change(option, checked, select) {#}
-{#            add_stop_to_map(option.val(),checked);#}
-{#        }#}
 		
 		$.get("../get_stops/", {route:route, direction:direction}, function(data, textStatus){
 		    $('#select_stop').empty();
@@ -354,27 +369,44 @@ Power of 32 RTIS - Transit - On-Time Performance
                     $('#select_stop').selectpicker('refresh');
 			    }
 		    }else{
-                $('#txtHint').text('Route ' + route + '-' + (direction == 'I'?'Inbound':'Outbound') + ' not found');
+                alert('No STOP information found, please select another route or direction!');
 		    }
+
+            ///////Spinner Stop
+                spinner.stop();
+                var target = document.getElementById('map');
+                target.style.opacity = '1';
+            ///////////////////
 		},"json");
 	}
 
-	$('#select_route').change({flag:"route"},getInfo);
-	$('#inout').on('switchChange.bootstrapSwitch',{flag:"direction"},getInfo);
+    getInfo();
+	$('#select_route').change(getInfo);
+	$('#inout').on('switchChange.bootstrapSwitch',getInfo);
+
+    $('#select_stop').change(function() {
+        remove_all_stops_from_map();
+        var selected_stops = $('#select_stop option:selected');
+        var stops_number = selected_stops.length;
+        for (var i = 0; i < stops_number; i++) {
+            add_stop_to_map(selected_stops[i].value, true);
+        }
+    });
 
     $('#stops_deselect_all').click(function(){
-        var selected_stops = $('#select_stop option:selected').attr('value');
+        var selected_stops = $('#select_stop option:selected');
         var stops_number = selected_stops.length;
         for(var i = 0; i < stops_number; i++){
             add_stop_to_map(selected_stops[i].value, false);
         }
-        $('#select_stop').selectpicker('deselectAll');
+        $("#select_stop option:selected").removeAttr("selected");
+        $('#select_stop').selectpicker('refresh');
     });
+
 
 {#=================================================== Get Metrics Begin Here =======================================#}
     function get_metrics(){
-		//generate some random metrics for now
-		var selected_stops = $('#stops_multiselect ul li.active [name= "stop"]');
+		var selected_stops = $('#select_stop option:selected');
         var stops_number = selected_stops.length;
         if (stops_number == 0 ){
             alert("Please select at least 1 stop.");
@@ -387,16 +419,21 @@ Power of 32 RTIS - Transit - On-Time Performance
         }
         var selected_stops_str = stops_array.join();
 
-        var s_datetime = $("#syear option:selected").val() + "-" + $("#smonth option:selected").val() + "-" + ($("#sday option:selected").val().length == 1 ? "0"+ $("#sday option:selected").val() : $("#sday option:selected").val()) + " " + $("#s_time").val();
-        var e_datetime = $("#eyear option:selected").val() + "-" + $("#emonth option:selected").val() + "-" + ($("#eday option:selected").val().length == 1 ? "0"+ $("#eday option:selected").val() : $("#eday option:selected").val()) + " " + $("#e_time").val();
-{#        alert(s_date+"<br>"+e_date+"<br>"+selected_stops_str);#}
-        $.get("../transit_metrics/", {s_datetime:s_datetime, e_datetime:e_datetime, stops: selected_stops_str}, function(data, textStatus){
-            $('#ontime').text(data["s_datetime"]);
-            $('#crowding').text(data["e_datetime"]);
-		    $('#waiting').text(data["num"]);
-        });
-	}
+        var s_date = $("#s_date").val();
+        var e_date = $("#e_date").val();
+        var s_time = $("#s_time").val();
+        var e_time = $("#e_time").val();
+        alert(s_date+"\n"+e_date+"\n"+s_time+"\n"+e_time+"\n"+selected_stops_str);
 
+        $.get("../transit_metrics_op_byroute/", {s_date:s_date, e_date:e_date, s_time:s_time, e_time:e_time, stops:selected_stops_str}, function(data, textStatus){
+
+
+        }, "json");
+	}
+{#=========================================================== End =====================================================#}
+
+
+{#=================================================== Realtime Bus Begin Here =======================================#}
     function busMarkerOptions(spd)  {
         return {
             radius: 9,
@@ -442,10 +479,10 @@ Power of 32 RTIS - Transit - On-Time Performance
             }
 		},"json");
     }
+{#=========================================================== End =====================================================#}
 
     $("#historical").click(get_metrics);
     $("#real_time").click(get_bus_real_time);
-	$('#inbound').trigger('click');
 
 </script>
 {% endblock %}
