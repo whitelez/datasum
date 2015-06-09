@@ -659,7 +659,7 @@ def transit_data(request):
 def get_route(request):
     route_name = request.GET['route']
     direction = request.GET['direction']
-    route = Route.objects.filter(short_name = route_name)[0]
+    route = Route.objects.filter(short_name=route_name)[0]
     if direction == 'I':
         result = route.inbound_geoJson
     else:
@@ -775,19 +775,19 @@ def bus_real_time(request):
     link = urllib2.urlopen(url)
     url_rsps = link.read()
     vehicles = json.loads(url_rsps)
-    result = {"status":"","msg":"","geoJson":{}}
+    result = {"status": "", "msg": "", "geoJson": {}}
     if "error" in vehicles["bustime-response"]:
         result["status"] = "error"
         result["msg"] = vehicles["bustime-response"]["error"]["msg"]
     else:
         result["status"] = "success"
-        geoJson = {"type":"FeatureCollection","features":[]}
-        if isinstance(vehicles["bustime-response"]["vehicle"],dict):
-            feature = {"type":"Feature","geometry":{"type":"Point","coordinates":[float(vehicles["bustime-response"]["vehicle"]["lon"]),float(vehicles["bustime-response"]["vehicle"]["lat"])]},"properties":vehicles["bustime-response"]["vehicle"]}
+        geoJson = {"type": "FeatureCollection", "features": []}
+        if isinstance(vehicles["bustime-response"]["vehicle"], dict):
+            feature = {"type": "Feature", "geometry": {"type": "Point", "coordinates": [float(vehicles["bustime-response"]["vehicle"]["lon"]), float(vehicles["bustime-response"]["vehicle"]["lat"])]}, "properties": vehicles["bustime-response"]["vehicle"]}
             geoJson["features"].append(feature)
         else:
             for vehicle in vehicles["bustime-response"]["vehicle"]:
-                feature = {"type":"Feature","geometry":{"type":"Point","coordinates":[float(vehicle["lon"]),float(vehicle["lat"])]},"properties":vehicle}
+                feature = {"type": "Feature", "geometry": {"type": "Point", "coordinates": [float(vehicle["lon"]), float(vehicle["lat"])]}, "properties": vehicle}
                 geoJson["features"].append(feature)
         result["geoJson"] = geoJson
     response = json.dumps(result)
@@ -795,19 +795,69 @@ def bus_real_time(request):
 
 
 def transit_metrics_op_byroute(request):
+    # Build a map from Route Name to Route Number which is used in database
+    routedict={}
+    for i in range(1, 93):
+        routedict[str(i)] = str(i)
+    routedict["19L"] = "191"
+    routedict["28X"] = "281"
+    routedict["51L"] = "511"
+    routedict["52L"] = "521"
+    routedict["53L"] = "531"
+    routedict["61A"] = "611"
+    routedict["61B"] = "612"
+    routedict["61C"] = "613"
+    routedict["61D"] = "614"
+    routedict["71A"] = "711"
+    routedict["71B"] = "712"
+    routedict["71C"] = "713"
+    routedict["71D"] = "714"
+    routedict["G2"] = "900"
+    routedict["G3"] = "903"
+    routedict["G31"] = "931"
+    routedict["O1"] = "801"
+    routedict["O5"] = "805"
+    routedict["O12"] = "812"
+    routedict["P1"] = "444"
+    routedict["P2"] = "555"
+    routedict["P3"] = "666"
+    routedict["P7"] = "907"
+    routedict["P10"] = "910"
+    routedict["P12"] = "912"
+    routedict["P13"] = "913"
+    routedict["P16"] = "716"
+    routedict["P17"] = "717"
+    routedict["P67"] = "767"
+    routedict["P68"] = "768"
+    routedict["P69"] = "769"
+    routedict["P71"] = "771"
+    routedict["P76"] = "776"
+    routedict["P78"] = "978"
+    routedict["Y1"] = "401"
+    routedict["Y45"] = "445"
+    routedict["Y46"] = "946"
+    routedict["Y47"] = "947"
+    routedict["Y49"] = "949"
+    # ================================== End =================================
+    route = request.GET["rt"]
+    direction = request.GET["dir"]
     s_date = request.GET["s_date"]
     e_date = request.GET["e_date"]
-    s_time = request.GET["s_time"]
-    e_time = request.GET["e_time"]
-    # s_datetime = datetime(int(s_date[0:4]),int(s_date[4:6]),int(s_date[6:]))
-    # e_datetime = datetime(int(e_date[0:4]),int(e_date[4:6]),int(e_date[6:]))
-    s_datetime = datetime.strptime(request.GET["s_datetime"], "%Y-%m-%d %I:%M %p")
-    e_datetime = datetime.strptime(request.GET["e_datetime"], "%Y-%m-%d %I:%M %p")
+    s_time = int(request.GET["s_time"])
+    e_time = int(request.GET["e_time"])
+    s_date = date(int(s_date[6:10]),int(s_date[0:2]),int(s_date[3:5]))
+    e_date = date(int(e_date[6:10]),int(e_date[0:2]),int(e_date[3:5]))
     stops = request.GET["stops"].split(",")
-    for stop in stops:
-        data = TMC_data.objects.filter(tmc_id=tmc.tmc, date__range=(start_date, end_date))
 
-    result = {"num": len(stops), "stops": ",".join(stops)}
+    result = {}
+    for stopid in stops:
+        result[stopid] = []
+        return HttpResponse((stopid, ' ', type(stopid), '\n', route, ' ', type(route), '\n', direction, ' ', type(direction)), content_type='application/json')
+        data = Transit_data.objects.filter(qstopa=stopid, route=route, dir=direction, date__range=(s_date, e_date))
+        for item in data:
+            if item.schtim > s_time and item.schtim < e_time:
+                if item.schdev != 99:
+                    result[stopid].append(item.schdev)
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 

@@ -181,6 +181,8 @@ class Weather(models.Model):
     def __unicode__(self):
         return self.county
 
+
+# ============================================== Models for Transit BEGIN =============================================
 class Route(models.Model):
     route_id = models.CharField(max_length = 10, primary_key = True)
     agency_id = models.CharField(max_length = 10)
@@ -272,6 +274,7 @@ class Transit_data(models.Model):
     artime = models.FloatField()
     def __unicode__(self):
         return self.route + ' ' + self.tripa
+# =============================================== Models for Transit END ===============================================
 
 class GIS_links(models.Model):
     link_id = models.CharField(max_length = 20, primary_key = True)
