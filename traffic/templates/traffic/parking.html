@@ -14,7 +14,6 @@
         #map{
             z-index: 100;
             position: relative;
-            top: -331px;
         }
         #chart {
             background: #ffffff;
@@ -23,7 +22,7 @@
             box-shadow:8px 8px 13px #CCCCCC;
             position: relative;
             opacity: 0.93;
-            top: 0px;
+            top: -600px;
             left: 25%;
             z-index: 10;
         }
@@ -187,12 +186,11 @@
 
     <div id='overlaycon'>
         <div id = 'foo'></div>
-
-        <div id="chart">
+        <div id="map" ; style="opacity: 1"></div>
+        <div id="chart" >
             <div id="chart1" ></div>
             <div id="chart2" ></div>
         </div>
-        <div id="map" ; style="opacity: 1"></div>
     </div>
 {% endblock %}
 
@@ -348,6 +346,8 @@
                             index = 1;
                             plotcontent = [line.slice(0, index), line.slice(index-1)];
                         }
+                        var element = document.getElementById('chart2');
+                        element.style.display = 'none';
                         $.jqplot('chart1', plotcontent, {
                             series: [{lineWidth: 3, markerOptions: {show: false}},{lineWidth: 5, markerOptions: {show: false}},{lineWidth: 6, markerOptions: {show: false}}],
                             title: 'Average Occupancy estimation of selected streets',
@@ -1344,6 +1344,8 @@
                 truckLayer.addTo(map);
             }
             control.addOverlay(truckLayer, 'Truck Parking');
+            var element = document.getElementById('chart2');
+            element.style.display = '';
         }
 
 
