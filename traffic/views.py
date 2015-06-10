@@ -131,7 +131,6 @@ def street_parking_geojson_prediction(request):
     result = result.rstrip(',')
     result += "]}"
     response = json.dumps(result)
-    print "finish"
     return HttpResponse(response, content_type='application/json')
 
 

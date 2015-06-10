@@ -810,10 +810,11 @@
                     content = ('' + sum).substr(0, 5) + '%'
                 }
             }
+            var ratecontent = "<br> Current Rate:<b> $"+ props.rate[(hour*2+parseInt(minu / 30))]+"/hr </b>"
             var element = document.getElementById('map');
             if (element.style.zIndex != "1") {//deprecated if
                 document.getElementById("p1").innerHTML = (props ?
-                '<b>' + props.street + '</b>' +  timecontent + content +'</b>'
+                '<b>' + props.street + '</b>' +  timecontent + content +'</b>'+ ratecontent
                         : '<h5>Hover over a street to check occupancy</h5><br><br>');
             }
         };
