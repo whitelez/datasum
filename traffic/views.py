@@ -852,9 +852,12 @@ def transit_metrics_op_byroute(request):
     result = {}
     for stopid in stops:
         result[stopid] = []
-        return HttpResponse((stopid, ' ', type(stopid), '\n', route, ' ', type(route), '\n', direction, ' ', type(direction)), content_type='application/json')
-        data = Transit_data.objects.filter(qstopa=stopid, route=route, dir=direction, date__range=(s_date, e_date))
+        # return HttpResponse((stopid, ' ', type(stopid), '\n', route, ' ', type(route), '\n', direction, ' ', type(direction)), content_type='application/json')
+        data = Transit_data.objects.filter(qstopa='  '+str(stopid), route=str(route), dir=str(direction), date__range=(s_date, e_date))
+        # data = Transit_data.objects.filter(qstopa='  '+str(stopid))
+        # return HttpResponse(data, content_type='application/json')
         for item in data:
+            # return HttpResponse(item, content_type='application/json')
             if item.schtim > s_time and item.schtim < e_time:
                 if item.schdev != 99:
                     result[stopid].append(item.schdev)

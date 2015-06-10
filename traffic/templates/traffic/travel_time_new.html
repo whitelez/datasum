@@ -195,9 +195,6 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
 				}
         $.get('../get_node_info_for_one_corridor/', {cornum:cornum}, function(data, textStatus){
             nodes = $.parseJSON(data);
-            var latmean, longmean;
-            latmean = 0;
-            longmean = 0;
             $('#SNode').append("<option selected='selected'></option>");
             $('#ENode').append("<option selected='selected'></option>");
             for (var i=0;i<nodes.features.length;i++){
@@ -205,12 +202,7 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
                 $('#SNode').selectpicker('refresh');
                 $('#ENode').append("<option value="+nodes.features[i].properties.Node_Number + ">" + nodes.features[i].properties.Node_Number + " - " + nodes.features[i].properties.Node_Name + "</option>");
                 $('#ENode').selectpicker('refresh');
-            	latmean += nodes.features[i].geometry.coordinates[1];
-                longmean += nodes.features[i].geometry.coordinates[0];
             }
-            latmean /= i;
-            longmean /= i;
-            map.setView([latmean, longmean], 11);
 
 			nodelayer = L.geoJson(nodes,{
                  pointToLayer: function (feature, latlng) {
@@ -232,6 +224,7 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
 						}
             }).addTo(map);
 			control.addOverlay(nodelayer, "Corridor " + String(cornum));
+            map.fitBounds(nodelayer.getBounds());
         }, 'json');
 
         $.get('../get_spc_years/', {cornum:cornum}, function(data, textStatus){
@@ -285,7 +278,7 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
                         			+ feature.geometry.coordinates[1] + "<br>Longitude : " + feature.geometry.coordinates[0]);
 						}
         }).addTo(map);
-        map.setView([resultSnode.geometry.coordinates[1], resultSnode.geometry.coordinates[0]], 12);
+        map.setView([resultSnode.geometry.coordinates[1], resultSnode.geometry.coordinates[0]], 15);
         control.addOverlay(Snodelayer, "Start Node: " + Snodenum);
     }
 
@@ -330,7 +323,7 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
                         			+ feature.geometry.coordinates[1] + "<br>Longitude : " + feature.geometry.coordinates[0]);
 						}
         }).addTo(map);
-        map.setView([resultEnode.geometry.coordinates[1], resultEnode.geometry.coordinates[0]], 12);
+        map.setView([resultEnode.geometry.coordinates[1], resultEnode.geometry.coordinates[0]], 15);
         control.addOverlay(Enodelayer, "End Node: " + Enodenum);
     }
 

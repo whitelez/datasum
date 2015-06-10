@@ -159,10 +159,8 @@ Power of 32 RTIS - Transit - On-Time Performance
 {% endblock %}
 
 {% block map %}
-    <div id="map"></div>
-    <div id="chartcontainer">
-        <div id="chart1" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px;margin-top: 20px; "></div>
-    </div>
+    <div id="map"> </div>
+    <div id="chartcontainer"> </div>
 {% endblock %}
 	
 
@@ -181,6 +179,7 @@ Power of 32 RTIS - Transit - On-Time Performance
 <script type="text/javascript" src={% static 'traffic/jqplot/plugins/jqplot.barRenderer.min.js' %}></script>
 <script type="text/javascript" src={% static 'traffic/jqplot/plugins/jqplot.categoryAxisRenderer.min.js' %}></script>
 <script type="text/javascript" src={% static 'traffic/jqplot/plugins/jqplot.pointLabels.min.js' %}></script>
+<script type="text/javascript" src={% static 'traffic/jqplot/plugins/jqplot.highlighter.min.js' %}></script>
 
 <script>
      $('.selectpicker').selectpicker({
@@ -303,10 +302,10 @@ Power of 32 RTIS - Transit - On-Time Performance
             corners: 1, // Corner roundness (0..1)
             rotate: 0, // The rotation offset
             direction: 1, // 1: clockwise, -1: counterclockwise
-            color: '#111', // #rgb or #rrggbb or array of colors
+            color: '#000', // #rgb or #rrggbb or array of colors
             speed: 1, // Rounds per second
             trail: 60, // Afterglow percentage
-            shadow: true, // Whether to render a shadow
+            shadow: false, // Whether to render a shadow
             hwaccel: false, // Whether to use hardware acceleration
             className: 'spinner', // The CSS class to assign to the spinner
             zIndex: 2e9, // The z-index (defaults to 2000000000)
@@ -460,7 +459,7 @@ Power of 32 RTIS - Transit - On-Time Performance
 
 
 {#=================================================== Get Metrics Begin Here =======================================#}
-    function plot(stopid, route, direction, dev){
+    function plot(stopid, route, direction, dev, chartname){
             var s = [];
             for (var i=0; i < 24; i++){s[i]=0}
             for (var i=0; i < dev.length; i++){
@@ -477,23 +476,32 @@ Power of 32 RTIS - Transit - On-Time Performance
             }
 			if (direction == 1){direction = 'Inbound'}else{direction = 'Outbound'}
             var ticks = ['-12','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','12'];
-			var plot = $.jqplot(chart1, [s], {
-    			title: 'Schedule deviation distribution of Route ' + route + ' (' + direction + ')at Stop ' + stopid + ' in selected date and time range' ,
+			var plot = $.jqplot(chartname, [s], {
+    			title: 'Schedule deviation distribution of Route ' + route + ' (' + direction + ') at Stop ' + stopid + ' in selected date and time range' ,
                 seriesDefaults: {
-                    pointLabels: { show:false, formatString: "%#.2f" }
+                    pointLabels: { show:false, formatString: "%#.2f" },
+                    renderer:$.jqplot.BarRenderer,
+                    rendererOptions: {fillToZero: true}
                 },
     			axes: {
                     // Use a category axis on the x axis and use our custom ticks.
                     xaxis: {
+                        label:'Schedule deviation (min)',
                         renderer: $.jqplot.CategoryAxisRenderer,
                         ticks: ticks
                     },
                     // Pad the y axis just a little so bars can get close to, but
                     // not touch, the grid boundaries.  1.2 is the default padding.
                     yaxis: {
+                        label:'Count',
                         pad: 1.05,
-                        tickOptions: {formatString: '$%d'}
+                        tickOptions: {formatString: '%d'}
                     }
+                },
+                highlighter: {
+                    show: true,
+                    tooltipAxes: 'y',
+                    sizeAdjust: 0
                 }
   			});
     }
@@ -531,15 +539,31 @@ Power of 32 RTIS - Transit - On-Time Performance
             alert("Start Time must be earlier than End Time!\n\nPlease re-select.");
             return;
         }
-        alert(route+"\n"+direction+"\n"+s_date+"\n"+e_date+"\n"+stime+"\n"+etime+"\n"+selected_stops_str);
+{#        alert(route+"\n"+direction+"\n"+s_date+"\n"+e_date+"\n"+stime+"\n"+etime+"\n"+selected_stops_str);#}
+
+        var target = document.getElementById('map');
+        spinner = new Spinner(spinneropts).spin(target);
+        target.style.opacity = '0.15';
+
+        $('#chartcontainer').empty();
 
         $.get("../transit_metrics_op_byroute/", {rt:route, dir:direction, s_date:s_date, e_date:e_date, s_time:stime, e_time:etime, stops:selected_stops_str}, function(data, textStatus){
             for (var i=0;i < stops_number; i++){
-                if (data[stops_array[i]] == []){
-                    alert("No data found or Not a Timepoint, please select another stop!")
-                    break;
-                }else{plot(stops_array[i], route, direction, data[stops_array[i]])}
+                var temp = document.createElement('div');
+                temp.id = 'chart'+stops_array[i];
+                temp.style.height = "auto";
+                temp.style.width = "97%";
+                temp.style.marginLeft = "20px";
+                temp.style.marginRight = "20px";
+                temp.style.marginTop = "20px";
+                $('#chartcontainer').append(temp);
+                plot(stops_array[i], route, direction, data[stops_array[i]], temp.id);
             }
+            ///////Spinner Stop
+                spinner.stop();
+                var target = document.getElementById('map');
+                target.style.opacity = '1';
+            ///////////////////
         }, "json");
 	}
 {#=========================================================== End =====================================================#}
