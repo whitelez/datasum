@@ -400,7 +400,7 @@ Power of 32 RTIS - Transit - On-Time Performance
                 alert('No ROUTE information found, please select another route or direction!');
             }
 		},"json");
-		
+
 		$.get("../get_stops/", {route:route, direction:direction}, function(data, textStatus){
 		    $('#select_stop').empty();
 		    if(stopsLayer){
@@ -420,12 +420,11 @@ Power of 32 RTIS - Transit - On-Time Performance
 			    control.addOverlay(stopsLayer,'Stops');
 			    for(var i=0;i<stops_geoJson.features.length;i++){
 				    $("#select_stop").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");
-                    $('#select_stop').selectpicker('refresh');
 			    }
+                $('#select_stop').selectpicker('refresh');
 		    }else{
                 alert('No STOP information found, please select another route or direction!');
 		    }
-
             ///////Spinner Stop
                 spinner.stop();
                 var target = document.getElementById('map');
@@ -459,7 +458,7 @@ Power of 32 RTIS - Transit - On-Time Performance
 
 
 {#=================================================== Get Metrics Begin Here =======================================#}
-    function plot(stopid, route, direction, dev, chartname){
+    function plot(stopid, name, route, direction, dev, chartname){
             var s = [];
             for (var i=0; i < 24; i++){s[i]=0}
             for (var i=0; i < dev.length; i++){
@@ -477,7 +476,7 @@ Power of 32 RTIS - Transit - On-Time Performance
 			if (direction == 1){direction = 'Inbound'}else{direction = 'Outbound'}
             var ticks = ['-12','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','12'];
 			var plot = $.jqplot(chartname, [s], {
-    			title: 'Schedule deviation distribution of Route ' + route + ' (' + direction + ') at Stop ' + stopid + ' in selected date and time range' ,
+    			title: 'Schedule deviation distribution of Route ' + route + ' (' + direction + ') at Stop: ' + name + ' (' + stopid + ').' ,
                 seriesDefaults: {
                     pointLabels: { show:false, formatString: "%#.2f" },
                     renderer:$.jqplot.BarRenderer,
@@ -517,20 +516,26 @@ Power of 32 RTIS - Transit - On-Time Performance
             return;
         }
 
-        var stops_array = new Array(stops_number);
+        var stops_array = new Array(stops_number),
+            stopsname_array = new Array(stops_number);
         for(var i = 0; i < stops_number; i++){
             stops_array[i] = selected_stops[i].value;
+            stopsname_array[i] = selected_stops[i].text;
         }
         var selected_stops_str = stops_array.join();
 
         var s_date = $("#s_date").val();
+        if (s_date==''){alert("Please select a Start Date!");return;}
         var e_date = $("#e_date").val();
+        if (e_date==''){alert("Please select a End Date!");return;}
         if ((parseInt(s_date.slice(-4)) > parseInt(e_date.slice(-4))) || (parseInt(s_date.slice(-4)) == parseInt(e_date.slice(-4))&&(parseInt(s_date.substr(0,2)) > parseInt(e_date.substr(0,2)))) || (parseInt(s_date.slice(-4)) == parseInt(e_date.slice(-4))&&(parseInt(s_date.substr(0,2)) == parseInt(e_date.substr(0,2)))&&(parseInt(s_date.substr(3,2)) > parseInt(e_date.substr(3,2)))) ){
             alert("Start Date must be no later than End Date!\n\nPlease re-select.");
             return;
         }
         var s_time = $("#s_time").val();
+        if (s_time==''){alert("Please select a Start Time!");return;}
         var e_time = $("#e_time").val();
+        if (e_time==''){alert("Please select a End Time!");return;}
         var stime = parseInt(s_time.substr(-5,2)) + parseInt(s_time.slice(0,-6))*100;
         var etime = parseInt(e_time.substr(-5,2)) + parseInt(e_time.slice(0,-6))*100;
         if (s_time.slice(-2) == "PM"){stime += 1200}
@@ -539,25 +544,49 @@ Power of 32 RTIS - Transit - On-Time Performance
             alert("Start Time must be earlier than End Time!\n\nPlease re-select.");
             return;
         }
-{#        alert(route+"\n"+direction+"\n"+s_date+"\n"+e_date+"\n"+stime+"\n"+etime+"\n"+selected_stops_str);#}
 
         var target = document.getElementById('map');
         spinner = new Spinner(spinneropts).spin(target);
         target.style.opacity = '0.15';
 
         $('#chartcontainer').empty();
-
         $.get("../transit_metrics_op_byroute/", {rt:route, dir:direction, s_date:s_date, e_date:e_date, s_time:stime, e_time:etime, stops:selected_stops_str}, function(data, textStatus){
             for (var i=0;i < stops_number; i++){
+                $('#chartcontainer').append("<div class='row' style='padding-top:5px;'><div class='col-md-10' style='height: auto;'" +
+                "id = 'col1" + stops_array[i] + "'></div><div class='col-md-2' style='height: auto;' id = 'col2" + stops_array[i] +
+                "'></div></div>");
+
                 var temp = document.createElement('div');
                 temp.id = 'chart'+stops_array[i];
-                temp.style.height = "auto";
-                temp.style.width = "97%";
                 temp.style.marginLeft = "20px";
-                temp.style.marginRight = "20px";
+{#                temp.style.marginRight = "20px";#}
                 temp.style.marginTop = "20px";
-                $('#chartcontainer').append(temp);
-                plot(stops_array[i], route, direction, data[stops_array[i]], temp.id);
+                $('#col1'+stops_array[i]).append(temp);
+                var tempright = document.createElement('div');
+                tempright.id = 'stat'+stops_array[i];
+                tempright.style.height = "300px";
+                tempright.style.marginRight = "20px";
+                tempright.style.marginTop = "20px";
+                $('#col2'+stops_array[i]).append(tempright);
+
+                plot(stops_array[i], stopsname_array[i], route, direction, data[stops_array[i]], temp.id);
+
+                if (data[stops_array[i]].length == 0){
+                    document.getElementById('stat'+stops_array[i]).innerHTML = "<h4> No data found for this stop.<br>Please re-select!</h4>"
+                }else{
+                    var avg = 0;
+                    for (var j=0; j < data[stops_array[i]].length; j++){
+                        avg += data[stops_array[i]][j]
+                    }
+                    avg /= data[stops_array[i]].length;
+                    var sd = 0;
+                    for (var j=0; j < data[stops_array[i]].length; j++){
+                        sd += Math.pow(data[stops_array[i]][j] - avg, 2)
+                    }
+                    sd = Math.sqrt(sd/data[stops_array[i]].length);
+                    document.getElementById('stat'+stops_array[i]).innerHTML = "<h4> Mean: <br>" + avg.toFixed(2) + " Minutes<br>Standard Deviation: <br>" + sd.toFixed(2) + " Minutes<br>"
+                            + "On-time Performance: <br></h4>";
+                }
             }
             ///////Spinner Stop
                 spinner.stop();

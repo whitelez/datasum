@@ -248,10 +248,10 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
             $('#ENode').append("<option selected='selected'></option>");
             for (var i=0;i<nodes.features.length;i++){
                 $('#SNode').append("<option value="+nodes.features[i].properties.Node_Number + ">" + nodes.features[i].properties.Node_Number + " - " + nodes.features[i].properties.Node_Name + "</option>");
-                $('#SNode').selectpicker('refresh');
                 $('#ENode').append("<option value="+nodes.features[i].properties.Node_Number + ">" + nodes.features[i].properties.Node_Number + " - " + nodes.features[i].properties.Node_Name + "</option>");
-                $('#ENode').selectpicker('refresh');
             }
+            $('#SNode').selectpicker('refresh');
+            $('#ENode').selectpicker('refresh');
 
 			nodelayer = L.geoJson(nodes,{
                  pointToLayer: function (feature, latlng) {

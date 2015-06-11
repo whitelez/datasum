@@ -456,8 +456,8 @@ Power of 32 RTIS - Travel Time: Interstates
 				road_tmc= data;
 				for(var i=0;i<road_tmc.features.length;i++){
 					$("#select_tmc2").append("<option value="+road_tmc.features[i].properties.TMC+">"+ road_tmc.features[i].properties.road + ' - ' + road_tmc.features[i].properties.direction + ' - ' + road_tmc.features[i].properties.intersection + "</option>");
-                    $("#select_tmc2").selectpicker('refresh');
 				}
+                $("#select_tmc2").selectpicker('refresh');
 				selectionLayer = L.geoJson(road_tmc,{
 					pointToLayer:function(feature, latlng){
 								return L.circleMarker(latlng,{radius:6,fillOpacity:0.9});
