@@ -187,7 +187,7 @@
     <div id='overlaycon'>
         <div id = 'foo'></div>
         <div id="map" ; style="opacity: 1"></div>
-        <div id="chart" >
+        <div id="chart" style="display: none">
             <div id="chart1" ></div>
             <div id="chart2" ></div>
         </div>
@@ -666,6 +666,7 @@
             target.style.opacity = '0.2';
             target = document.getElementById('chart');
             target.style.opacity= '0';
+            target.style.display = '';
             ////////////////////
 
             $.get("../parking_geoJSON_prediction/", {
