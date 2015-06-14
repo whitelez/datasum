@@ -7,6 +7,56 @@ Power of 32 RTIS - Travel Time: Interstates
 {% endblock %}
 
 {% block style %}
+<style>
+    .leaflet-control{
+        line-height: 18px;
+        border-radius: 5px;
+        background: white;
+        box-shadow: -2px -2px 2px #CCCCCC;
+        opacity: 0.8;
+        padding: 2px 8px 8px 8px;
+    }
+    .legend {
+        line-height: 18px;
+        height:80px;
+        width:120px;
+        right: -10px;
+        bottom: -10px;
+        border-radius: 5px;
+        background: white;
+        box-shadow: -2px -2px 2px #CCCCCC;
+        opacity: 0.8;
+    }
+    .legend i {
+        width: 12px;
+        height: 12px;
+        float: left;
+        border-radius: 6px;
+        margin-right: 7px;
+        margin-left: 6px;
+        margin-top: 6px;
+        opacity: 0.9;
+    }
+    .legend j {
+        width: 12px;
+        height: 12px;
+        float: left;
+        border-radius: 6px;
+        margin-right: 7px;
+        margin-left: 6px;
+        margin-top: 3px;
+        opacity: 0.9;
+    }.legend k {
+        width: 12px;
+        height: 12px;
+        float: left;
+        border-radius: 6px;
+        margin-right: 7px;
+        margin-left: 6px;
+        margin-top: 3px;
+        opacity: 0.9;
+    }
+</style>
 <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
@@ -253,6 +303,7 @@ Power of 32 RTIS - Travel Time: Interstates
 <script type="text/javascript" src="{% static 'traffic/jquery.jqplot.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/jqplot.dateAxisRenderer.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/jqplot.pointLabels.min.js' %}"></script>
+<script type="text/javascript" src={% static 'traffic/jqplot/plugins/jqplot.highlighter.min.js' %}></script>
 
 <script type="text/javascript" src="{% static 'traffic/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/transition.js' %}"></script>
@@ -405,8 +456,8 @@ Power of 32 RTIS - Travel Time: Interstates
 				road_tmc= data;
 				for(var i=0;i<road_tmc.features.length;i++){
 					$("#select_tmc2").append("<option value="+road_tmc.features[i].properties.TMC+">"+ road_tmc.features[i].properties.road + ' - ' + road_tmc.features[i].properties.direction + ' - ' + road_tmc.features[i].properties.intersection + "</option>");
-                    $("#select_tmc2").selectpicker('refresh');
 				}
+                $("#select_tmc2").selectpicker('refresh');
 				selectionLayer = L.geoJson(road_tmc,{
 					pointToLayer:function(feature, latlng){
 								return L.circleMarker(latlng,{radius:6,fillOpacity:0.9});
@@ -527,6 +578,10 @@ Power of 32 RTIS - Travel Time: Interstates
                     location: 'se',     // compass direction, nw, n, ne, e, se, s, sw, w.
                     xoffset: 12,        // pixel offset of the legend box from the x (or x2) axis.
                     yoffset: 12        // pixel offset of the legend box from the y (or y2) axis.
+                },
+                highlighter: {
+                    show: true,
+                    sizeAdjust: 7.5
                 }
   			});
 	}
@@ -696,17 +751,11 @@ Power of 32 RTIS - Travel Time: Interstates
 			var div = L.DomUtil.create('div', 'info legend'),
 				grades = [0, 20, 50],
 				labels =[];
-			labels.push('<strong>Speed(mph)</strong>');
-			for (var i = 0; i < grades.length-1; i++) {
-				labels.push(
-					'<i style="background:' + getColorS(grades[i]) + '"></i> ' +
-					grades[i] + ' - ' + grades[i+1]);
-			}
-			labels.push(
-					'<i style="background:' + getColorS(grades[grades.length-1]) + '"></i> ' +
-					grades[grades.length-1] + ' + ');
-
-			div.innerHTML = labels.join('<br><br>');
+			labels.push('<strong>Speed(mph)</strong>:');
+			labels.push('<i style="background:red' + '"></i>' + grades[0] + ' - ' + grades[1]);
+			labels.push('<j style="background:yellow' + '"></j>' + grades[1] + ' - ' + grades[2]);
+			labels.push('<k style="background:green' + '"></k>' + grades[2] + ' + ');
+			div.innerHTML = labels.join('<br>');
 			return div;
 		};
 		legend.addTo(map);

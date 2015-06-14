@@ -7,12 +7,23 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
 {% endblock %}
 
 {% block style %}
+<style>
+    .leaflet-control{
+        line-height: 18px;
+        border-radius: 5px;
+        background: white;
+        box-shadow: -2px -2px 2px #CCCCCC;
+        opacity: 0.8;
+        padding: 2px 8px 8px 8px;
+    }
+</style>
+
 <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-datetimepicker.min.css' %}" />
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-switch.min.css' %}" />
-<link rel="stylesheet" href="{% static 'traffic/multiselect/bootstrap-multiselect.css' %}"  type="text/css"/>
+<link rel="stylesheet" href="{% static 'traffic/slider/css/slider.css' %}" />
 {% endblock %}
 
 
@@ -25,90 +36,48 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
 				<h5>Stop:</h5>
             </div>
             <div class="col-md-8" style="padding-left: 0;">
-                <span id = 'select_stop'>&emsp;&emsp;&emsp;</span>
+                <select id='select_stop' name = 'select_stop' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+			  	    {% for stop in stops%}
+						<option value={{stop.stop_id}}>{{stop.name}}</option>
+					{% endfor %}
+			    </select>
             </div>
         </div>
 
         <div class="row" style="padding-top:5px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Routes:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
-                <select multiple="multiple" id = "select_routes">
+                <select id = "select_routes" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
                 </select>
-                <button id="routes_deselect_all" class="btn btn-default">Clear All</button>
             </div>
 	    </div>
 
+        <button id="routes_deselect_all" class="btn btn-default btn-block" style="margin-top: 10px">
+            <span class="glyphicon glyphicon-remove"> </span> &nbsp; Clear All
+        </button><br>
+
         <div class="row" style="padding-top:5px;">
         	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Date:</h5></div>
-            <div class="col-md-3" style="padding-left:0px;padding-right: 0px;">
-                <select id='syear' name = 'syear' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
-					<option value='2014'>2014</option>
-					<option value='2013'>2013</option>
-					<option value='2012'>2012</option>
-					<option value='2011'>2011</option>
-					<option value='2010'>2010</option>
-				</select>
-            </div>
-            <div class="col-md-2" style="padding-left: 0;padding-right: 1px;">
-				<select id='smonth' name = 'smonth' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
-					<option value='01'>Jan</option>
-					<option value='02'>Feb</option>
-					<option value='03'>Mar</option>
-					<option value='04'>Apr</option>
-					<option value='05'>May</option>
-					<option value='06'>Jun</option>
-					<option value='07'>Jul</option>
-					<option value='08'>Aug</option>
-					<option value='09'>Sep</option>
-					<option value='10'>Oct</option>
-					<option value='11'>Nov</option>
-					<option value='12'>Dec</option>
-				</select>
-            </div>
-            <div class="col-md-2" style="padding-left: 0;padding-right: 10px;">
-				<select id='sday' name = 'sday' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
-					{% for i in n%}
-						<option value={{i}}>{{i}}</option>
-					{% endfor %}
-				</select>
+            <div class="col-md-8" style="padding-left: 0;">
+                    <div class='input-group date' id='datepicker'>
+                        <input id="s_date" type='text' style="height: 36px;width: 145px;" class="form-control" />
+                        <span class="input-group-addon" style="height: 36px;width: 36px;padding: 0;"><span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
             </div>
 	    </div>
 
 		<div class="row" style="padding-top:5px;">
         	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>End Date:</h5></div>
-            <div class="col-md-3" style="padding-left:0px;padding-right: 0px;">
-                <select id='eyear' name = 'eyear' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
-					<option value='2014'>2014</option>
-					<option value='2013'>2013</option>
-					<option value='2012'>2012</option>
-					<option value='2011'>2011</option>
-					<option value='2010'>2010</option>
-				</select>
-            </div>
-            <div class="col-md-2" style="padding-left: 0;padding-right: 1px;">
-				<select id='emonth' name = 'emonth' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
-					<option value='01'>Jan</option>
-					<option value='02'>Feb</option>
-					<option value='03' selected="selected">Mar</option>
-					<option value='04'>Apr</option>
-					<option value='05'>May</option>
-					<option value='06'>Jun</option>
-					<option value='07'>Jul</option>
-					<option value='08'>Aug</option>
-					<option value='09'>Sep</option>
-					<option value='10'>Oct</option>
-					<option value='11'>Nov</option>
-					<option value='12'>Dec</option>
-				</select>
-            </div>
-            <div class="col-md-2" style="padding-left: 0;padding-right: 10px;">
-				<select id='eday' name = 'eday' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
-					{% for i in n%}
-						<option value={{i}}>{{i}}</option>
-					{% endfor %}
-				</select>
+            <div class="col-md-8" style="padding-left: 0;">
+                    <div class='input-group date' id='datepicker2'>
+                        <input id="e_date" type='text' style="height: 36px;width: 145px;" class="form-control" />
+                        <span class="input-group-addon" style="height: 36px;width: 36px;padding: 0;"><span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
             </div>
 	    </div>
+
         <div class="row" style="padding-top:5px;">
            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Time:</h5></div>
            <div class="col-md-8" style="padding-left: 0;">
@@ -131,7 +100,15 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
            </div>
         </div>
 
-         <div class="row" style="padding-top:5px;">
+        <div class="row" style="padding-top:30px;">
+            <div class="col-md-2" style="height:20px;padding-right: 0;"><p>-12</p></div>
+            <div class="col-md-9" style="padding-left: 0;padding-right: 0;">
+                <input  style="width: 100%" id="slider" type="text" class="span2" value="" data-slider-value="[-3,3]" data-slider-min="-12" data-slider-max="12" data-slider-step="1"/>
+            </div>
+            <div class="col-md-1" style="height:20px;padding-left: 0;"><p>12</p></div>
+        </div>
+
+        <div class="row" style="padding-top:5px;">
            <div class="col-md-6" style="height: 36px;padding-right: 0;">
                <button type="button" style="margin-top:10px;" class="btn btn-default btn-block" id="real_time">
                     <span class="glyphicon glyphicon-search"> </span> &nbsp; Real Time
@@ -143,61 +120,74 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
                 </button>
            </div>
         </div>
-    </div>
 
-	<br> <div style="width:100%;height:2px;margin:0 auto;padding:0;background-color:#ddd;overflow:hidden;"></div>
-
-	<div class="container" style="width: inherit">
-        <div class="row" style="padding-top: 15px">
-			<h4> Result: </h4>
-        </div>
-        <div class="row" style="padding-top: 10px">
-        	<div class="col-md-7" style="padding-right: 0;">
-				On-Time Performance:
-            </div>
-            <div class="col-md-5" style="padding-left: 0;">
-                <span id = 'ontime'>&emsp;&emsp;&emsp;</span>
-            </div>
-        </div>
     </div>
 </div>
 {% endblock %}
 
 
 {% block map %}
-<div id="map"></div>
+<div id="map"> </div>
+<div id="chartcontainer"> </div>
 {% endblock %}
 	
 
 {% block script %}
 <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'traffic/multiselect/bootstrap-multiselect.js' %}"></script>
+
 <script type="text/javascript" src="{% static 'traffic/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/transition.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/collapse.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-datetimepicker.min.js' %}"></script>
+
+<script type="text/javascript" src="{% static 'traffic/bootstrap-switch.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/spinner.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/slider/js/bootstrap-slider.js' %}"></script>
+
+<script type="text/javascript" src={% static 'traffic/jquery.jqplot.min.js' %}></script>
+<script type="text/javascript" src={% static 'traffic/jqplot/plugins/jqplot.barRenderer.js' %}></script>
+<script type="text/javascript" src={% static 'traffic/jqplot/plugins/jqplot.categoryAxisRenderer.js' %}></script>
+<script type="text/javascript" src={% static 'traffic/jqplot/plugins/jqplot.pointLabels.js' %}></script>
+<script type="text/javascript" src={% static 'traffic/jqplot/plugins/jqplot.highlighter.js' %}></script>
+
 <script type="text/javascript" src="{% static 'traffic/stops_geoJson.js' %}"></script>
 
+
 <script>
-     $('.selectpicker').selectpicker({
-      style: 'btn-inverse',
-      size: 10
-     });
+    $('.selectpicker').selectpicker({
+        style: 'btn-inverse',
+        size: 10
+    });
+
+    $("#slider").slider({
+	    tooltip: 'show'
+    });
 </script>
 
-
 <script type="text/javascript">
-      $(function () {
-          $('#datetimepicker').datetimepicker({
-              format: 'LT'
-          });
-      });
-      $(function () {
-          $('#datetimepicker2').datetimepicker({
-              format: 'LT'
-          });
-      });
+    $(function () {
+        $('#datepicker').datetimepicker({
+            viewMode: 'years',
+            format: 'MM/DD/YYYY'
+        });
+    });
+    $(function () {
+        $('#datepicker2').datetimepicker({
+            viewMode: 'years',
+            format: 'MM/DD/YYYY'
+        });
+    });
+    $(function () {
+        $('#datetimepicker').datetimepicker({
+            format: 'LT'
+        });
+    });
+    $(function () {
+        $('#datetimepicker2').datetimepicker({
+            format: 'LT'
+        });
+    });
 </script>
 
 <script>
@@ -223,60 +213,39 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
 			zoom:10
 		}) );
 	
-	/*var info = L.control();
-
-		info.onAdd = function (map) {
-			this._div = L.DomUtil.create('div', 'info');
-			this._div.innerHTML = '<h4>Route Information</h4>'
-								+ "<br> <b>Route:</b><p id = 'info_route'></p>"
-								+ "<b>Direction:</b><p id = 'info_direction'></p>"
-								+ "<b>Stop 1:</b><p id = 'stop1'></p>"
-								+ "<b>Stop 1 Order:</b><p id = 'order1'></p>"
-								+ "<b>Stop 2:</b><p id = 'stop2'></p>"
-								+ "<b>Stop 2 Order:</b><p id = 'order2'></p>"
-								+ "<b>Metrics:</b><p id = 'metrics'></p>";
-			return this._div;
-		};
-
-		info.addTo(map);*/
-	
 	    var info = L.control();
-
 		info.onAdd = function (map) {
 			this._div = L.DomUtil.create('div', 'info');
 			this.update();
 			return this._div;
 		};
-
 		info.update = function (props) {
 			this._div.innerHTML = '<h4>Stop</h4>' +  (props ?
-				'<b>' + props.name + '</b>'
+				'<b>' + props.name + '</b>'';lkl;llnbnobb' +
+                    ']]' +
+                    ''
 				: 'Hover over a stop');
 		};
-
 		info.addTo(map);
 
         var stopsLayer = L.geoJson();
 	    function highlightFeature(e) {
 			var layer = e.target;
-
-			/*layer.setStyle({
+			layer.setStyle({
 				weight: 5,
 				color: '#666',
 				dashArray: '',
 				fillOpacity: 0.7
-			});*/
-
+			});
 			if (!L.Browser.ie && !L.Browser.opera) {
 				layer.bringToFront();
 			}
-
 			info.update(layer.feature.properties);
 		}
-
 		function resetHighlight(e) {
 			info.update();
 		}
+
 
         var selected_stopLayer;
         //control.addOverlay(selected_stops_layerGroup,"Selected Stops");
@@ -324,41 +293,28 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
 					}).addTo(map);
         control.addOverlay(stopsLayer,'Stops');
 
-//old code
-{#		function clickFeature(e) {#}
-{#			var layer = e.target;#}
-{#			//var weather;#}
-{#			//map.fitBounds(layer.getBounds()); // zoom to the layer#}
-{#			selected = (selected+1)%2;#}
-{#			var update = '#select_stop' + (selected+1);#}
-{#			$(update +' option:selected').removeAttr('selected');#}
-{#            $(update +' option:selected').selectpicker('refresh');#}
-{#			$(update).find("option[value='" + layer.feature.properties.stop_id +"']").attr('selected', true);#}
-{#            $(update).selectpicker('refresh');#}
-{#			$(update).trigger('change');#}
-{#            $(update).selectpicker('refresh');#}
-{#			//var order = '#order' + (selected+1);#}
-{#			//$(update).text(layer.feature.properties.name);#}
-{#			//$(order).text(layer.feature.properties.order);#}
-{#			$('option[value=' + layer.feature.properties.stop_id + ']', $('#select_stop')).prop("selected", true);#}
-{#            $('#select_stop').multiselect('refresh');#}
-{#            add_stop_to_map(layer.feature.properties.stop_id,true);#}
-{#		}#}
 
-    $('#select_routes').multiselect({
-        buttonContainer: '<div class="btn-group" id = "routes_multiselect"/>',
-        disableIfEmpty: true,
-        maxHeight: 200,
-        buttonWidth: '195px',
-        nonSelectedText: 'Select Routes ...',
-        numberDisplayed: 1,
-        enableCaseInsensitiveFiltering: true,
-        checkboxName: 'route'
-        //onChange: multiselect_on_change
-        //includeSelectAllOption: true,
-        //selectAllValue: 'select-all-value'
-    });
-	
+{#======================================= Spinner Options ===========================================#}
+        var spinneropts = {
+            lines: 9, // The number of lines to draw
+            length: 20, // The length of each line
+            width: 15, // The line thickness
+            radius: 30, // The radius of the inner circle
+            corners: 1, // Corner roundness (0..1)
+            rotate: 0, // The rotation offset
+            direction: 1, // 1: clockwise, -1: counterclockwise
+            color: '#000', // #rgb or #rrggbb or array of colors
+            speed: 1, // Rounds per second
+            trail: 60, // Afterglow percentage
+            shadow: false, // Whether to render a shadow
+            hwaccel: false, // Whether to use hardware acceleration
+            className: 'spinner', // The CSS class to assign to the spinner
+            zIndex: 2e9, // The z-index (defaults to 2000000000)
+            top: '50%', // Top position relative to parent
+            left: '50%' // Left position relative to parent
+        };
+{#=============================================== End ================================================#}
+
 
 	var routeLayer = L.geoJson(),
         busLayer   = L.geoJson();
@@ -373,10 +329,6 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
     }
     function getInfo(){
 		//var route = $("#route").val();
-		$('#ontime').text('');
-		$('#crowding').text('');
-		$('#waiting').text('');
-		$('#txtHint').text('');
 
         //clear real time buses, declaration of buses_LayerGroup is at below
         buses_layerGroup.clearLayers();
@@ -417,11 +369,11 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
 	}
 
     $('#routes_deselect_all').on('click', function() {
-        $('#select_routes').multiselect('deselectAll', false);
-        $('#select_routes').multiselect('updateButtonText');
+
     });
 
 
+{#=================================================== Get Metrics Begin Here =======================================#}
     function get_metrics() {
         //generate some random metrics for now
         var selected_routes = $('#routes_multiselect ul li.active [name= "route"]');
@@ -454,6 +406,10 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
 
     $("#historical").click(get_metrics);
 
+{#=========================================================== End =====================================================#}
+
+
+{#=================================================== Realtime Bus Begin Here =======================================#}
     function busMarkerOptions(spd)  {
         return {
             radius: 9,

@@ -134,6 +134,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 <script type="text/javascript" src="{% static 'traffic/jquery.jqplot.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/jqplot.dateAxisRenderer.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/jqplot.pointLabels.min.js' %}"></script>
+<script type="text/javascript" src={% static 'traffic/jqplot/plugins/jqplot.highlighter.min.js' %}></script>
 
 <script type="text/javascript" src="{% static 'traffic/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/transition.js' %}"></script>
@@ -243,22 +244,14 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 				}
         $.get('../get_node_info_2013to2015/', {cornum:cornum}, function(data, textStatus){
             nodes = $.parseJSON(data);
-            var latmean, longmean;
-            latmean = 0;
-            longmean = 0;
             $('#SNode').append("<option selected='selected'></option>");
             $('#ENode').append("<option selected='selected'></option>");
             for (var i=0;i<nodes.features.length;i++){
                 $('#SNode').append("<option value="+nodes.features[i].properties.Node_Number + ">" + nodes.features[i].properties.Node_Number + " - " + nodes.features[i].properties.Node_Name + "</option>");
-                $('#SNode').selectpicker('refresh');
                 $('#ENode').append("<option value="+nodes.features[i].properties.Node_Number + ">" + nodes.features[i].properties.Node_Number + " - " + nodes.features[i].properties.Node_Name + "</option>");
-                $('#ENode').selectpicker('refresh');
-            	latmean += nodes.features[i].geometry.coordinates[1];
-                longmean += nodes.features[i].geometry.coordinates[0];
             }
-            latmean /= i;
-            longmean /= i;
-            map.setView([latmean, longmean], 11);
+            $('#SNode').selectpicker('refresh');
+            $('#ENode').selectpicker('refresh');
 
 			nodelayer = L.geoJson(nodes,{
                  pointToLayer: function (feature, latlng) {
@@ -280,6 +273,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 						}
             }).addTo(map);
 			control.addOverlay(nodelayer, "Corridor " + String(cornum));
+            map.fitBounds(nodelayer.getBounds());
         }, 'json');
     }
 
@@ -305,7 +299,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 					if(map.hasLayer(Snodelayer)){
 						map.removeLayer(Snodelayer);
 					}
-				}
+        }
         $('#spctravel_time_car').text('');
 		$('#spctravel_delay').text('');
 		$('#spctravel_TTI').text('');
@@ -328,7 +322,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
                         			+ feature.geometry.coordinates[1] + "<br>Longitude : " + feature.geometry.coordinates[0]);
 						}
         }).addTo(map);
-        map.setView([resultSnode.geometry.coordinates[1], resultSnode.geometry.coordinates[0]], 12);
+        map.setView([resultSnode.geometry.coordinates[1], resultSnode.geometry.coordinates[0]], 15);
         control.addOverlay(Snodelayer, "Start Node: " + Snodenum);
     }
 
@@ -376,7 +370,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
                         			+ feature.geometry.coordinates[1] + "<br>Longitude : " + feature.geometry.coordinates[0]);
 						}
         }).addTo(map);
-        map.setView([resultEnode.geometry.coordinates[1], resultEnode.geometry.coordinates[0]], 12);
+        map.setView([resultEnode.geometry.coordinates[1], resultEnode.geometry.coordinates[0]], 15);
         control.addOverlay(Enodelayer, "End Node: " + Enodenum);
     }
 
@@ -423,9 +417,13 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
                     location: 'se',     // compass direction, nw, n, ne, e, se, s, sw, w.
                     xoffset: 12,        // pixel offset of the legend box from the x (or x2) axis.
                     yoffset: 12        // pixel offset of the legend box from the y (or y2) axis.
+                },
+                highlighter: {
+                    show: true,
+                    sizeAdjust: 7.5
                 }
   			});
-		}
+    }
 
     function getrange(time){
         temp = time.split(' ')[0];
