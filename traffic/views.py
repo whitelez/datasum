@@ -681,49 +681,49 @@ def get_stops(request):
 def transit_ontimeperformance_byroute(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
-    return render(request, 'traffic/transit_ontimeperformance_byroute.html', {'routes': routes, "n": range(1, 32)})
+    return render(request, 'traffic/transit_ontimeperformance_byroute.html', {'routes': routes})
 
 def transit_ontimeperformance_bystop(request):
     stops = [{"stop_id": stop.stop_id, "stop_name": stop.name} for stop in Stop.objects.all()]
-    return render(request, 'traffic/transit_ontimeperformance_bystop.html', {'stops': stops, "n": range(1, 32)})
+    return render(request, 'traffic/transit_ontimeperformance_bystop.html', {'stops': stops})
 
 def transit_waitingtime_byroute(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
-    return render(request, 'traffic/transit_waitingtime_byroute.html', {'routes': routes, "n": range(1, 32)})
+    return render(request, 'traffic/transit_waitingtime_byroute.html', {'routes': routes})
 
 def transit_waitingtime_bystop(request):
     stops = [{"stop_id": stop.stop_id, "stop_name": stop.name} for stop in Stop.objects.all()]
-    return render(request, 'traffic/transit_waitingtime_bystop.html', {'stops': stops, "n": range(1, 32)})
+    return render(request, 'traffic/transit_waitingtime_bystop.html', {'stops': stops})
 
 def transit_crowding(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
-    return render(request, 'traffic/transit_crowding.html', {'routes': routes, "n": range(1, 32)})
+    return render(request, 'traffic/transit_crowding.html', {'routes': routes})
 
 def transit_bunching(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
-    return render(request, 'traffic/transit_bunching.html', {'routes': routes, "n": range(1, 32)})
+    return render(request, 'traffic/transit_bunching.html', {'routes': routes})
 
 def transit_bustraveltime(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
-    return render(request, 'traffic/transit_bustraveltime.html', {'routes': routes, "n": range(1, 32)})
+    return render(request, 'traffic/transit_bustraveltime.html', {'routes': routes})
 
 def transit(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
-    return render(request, 'traffic/transit.html', {'routes': routes, "n": range(1, 32)})
+    return render(request, 'traffic/transit.html', {'routes': routes})
 
 def transit_route_range(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
-    return render(request, 'traffic/transit_route_range.html', {'routes': routes, "n": range(1, 32)})
+    return render(request, 'traffic/transit_route_range.html', {'routes': routes})
 
 def transit_stop_routes(request):
     stops = [{"stop_id": stop.stop_id, "stop_name": stop.name} for stop in Stop.objects.all()]
-    return render(request, 'traffic/transit_stop_routes.html', {'stops': stops, "n": range(1, 32)})
+    return render(request, 'traffic/transit_stop_routes.html', {'stops': stops})
 
 def get_stop_routes(request):
     stop_id = request.GET["stop"]
@@ -742,7 +742,7 @@ def get_stop_routes(request):
 def transit_range_routes(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
-    return render(request, 'traffic/transit_range_routes.html', {'routes': routes, "n": range(1, 32)})
+    return render(request, 'traffic/transit_range_routes.html', {'routes': routes})
 
 def get_range_routes(request):
     stop1 = request.GET["stop1"]
@@ -839,14 +839,14 @@ def transit_metrics_op_byroute(request):
     routedict["Y47"] = "947"
     routedict["Y49"] = "949"
     # ================================== End =================================
-    route = request.GET["rt"]
+    route = routedict[request.GET["rt"]]
     direction = request.GET["dir"]
     s_date = request.GET["s_date"]
     e_date = request.GET["e_date"]
     s_time = int(request.GET["s_time"])
     e_time = int(request.GET["e_time"])
-    s_date = date(int(s_date[6:10]),int(s_date[0:2]),int(s_date[3:5]))
-    e_date = date(int(e_date[6:10]),int(e_date[0:2]),int(e_date[3:5]))
+    s_date = date(int(s_date[6:10]), int(s_date[0:2]), int(s_date[3:5]))
+    e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
     stops = request.GET["stops"].split(",")
 
     result = {}
