@@ -7,6 +7,11 @@
 {% endblock %}
 
 {% block style %}
+    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.common-material.min.css" />
+    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.material.min.css" />
+    <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+    <link rel="stylesheet" href="{% static 'traffic/style_closure.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic/slider/css/slider.css' %}" />
     <style>
         #overlaycon {
             height: 600px;
@@ -117,10 +122,27 @@
         font-size: 12px;
         font-family: Arial, Helvetica, sans-serif;
     }</style>
-    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.common-material.min.css" />
-    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.material.min.css" />
-    <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
-    <link rel="stylesheet" href="{% static 'traffic/style_closure.css' %}">
+    <style>
+        .slider.slider-horizontal {
+            width: 240px;
+            height: 18px;
+        }
+        .slider-selection {
+  background-image: -moz-linear-gradient(top, #FFA1A1, #FFA1A1);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#FFA1A1), to(#FFA1A1));
+  background-image: -webkit-linear-gradient(top, #FFA1A1, #FFA1A1);
+  background-image: -o-linear-gradient(top, #FFA1A1, #FFA1A1);
+  background-image: linear-gradient(to bottom, #FFA1A1, #FFA1A1);
+}
+    .slider-handle {
+        background-color: #FF6262;
+        background-image: -moz-linear-gradient(top, #FF6262, #FF6262);
+        background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#FF6262), to(#FF6262));
+        background-image: -webkit-linear-gradient(top, #FF6262, #FF6262);
+        background-image: -o-linear-gradient(top, #FF6262, #FF6262);
+        background-image: linear-gradient(to bottom, #FF6262, #FF6262);
+    }</style>
+
 
 {% endblock %}
 
@@ -169,9 +191,8 @@
             <br>
             <div class="row" id="future22" style="margin-top:10px;margin-left:-10px;" align="left"><h5><b> Check future
                 occupancy: </b><i>slide to pick a delay </i></h5></div>
+            <input  style="width: 100%" id="rangebar" type="text" class="span" value="" data-slider-value="30" data-slider-min="0" data-slider-max="90" data-slider-step="10"/>
 
-            <input type="range" min="0" max="90" value="10" step="10" id='rangebar' oninput="showValue(this.value)"
-                   onchange="changeclk(this.value)"/>
 
             <a href="#" type="button" class="btn btn-red" id="reset_btn"
                style="margin-top:10px; margin-right:10px;width:90%;">
@@ -204,6 +225,7 @@
     <!--<script type="text/javascript" src="{% static 'traffic/jqplot.cursor.js' %}"></script>-->
     <script type="text/javascript" src="{% static 'traffic/jqplot.dateAxisRenderer.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'traffic/spinner.js' %}"></script>
+    <script type="text/javascript" src="{% static 'traffic/slider/js/slider_park.js' %}"></script>
 
 
     <script>
@@ -478,7 +500,7 @@
         $('#reset_btn').click(function () {
             $("#chart1").empty();
             $("#chart2").empty();
-            var offset = $("#rangebar").val()
+            var offset = $("#rangebar").slider('getValue').value;
             var datetime = new Date()
             var timeinsec = datetime.getTime()
             datetime = new Date(timeinsec + offset * 60000)
@@ -532,6 +554,8 @@
         }
 
         function changeclk(newValue) {
+                        console.log("chnage");
+
             document.getElementById("reset_btn").innerHTML = "<span class='glyphicon glyphicon-search' > </span> &nbsp; Check " + newValue + " min later"
             var datetime = new Date()
             var timeinsec = datetime.getTime()
@@ -543,8 +567,6 @@
             updateime();
         }
 
-        /////////////////////////////////////////
-
         $(document).ready(function () {
             ////////////date
 
@@ -554,7 +576,13 @@
             for (i = 0; i < 7; i++) {
                 tmppp[i].disabled = true;
             }
-            /////////////////////
+
+            /////////////////slider:
+            $("#rangebar").slider({
+                tooltip: 'show'
+            });
+            ////////////////////time picker
+
             $("#datepicker").kendoDatePicker({
                 value: new Date()
             });
@@ -777,11 +805,13 @@
 
         info.update = function (props) {
             var content = '< 10%'
+            var ratecontent = "<br> Current Rate:<b> $0/hr </b>"
             if (props) {
                 var cell = hour * 6 + parseInt(minu / 10);
                 if (cell > 48 && cell < 108) {
                     content = ('' + props.occupancy[cell] * 100).substr(0, 5) + '%'
                 }
+                ratecontent = "<br> Current Rate:<b> $"+ props.rate[(hour*2+parseInt(minu / 30))]+"/hr </b>"
             }
             var hourr = (hour < 10 ? "0" : "") + hour;
             var min = (minu < 10 ? "0" : "") + minu;
@@ -811,7 +841,6 @@
                     content = ('' + sum).substr(0, 5) + '%'
                 }
             }
-            var ratecontent = "<br> Current Rate:<b> $"+ props.rate[(hour*2+parseInt(minu / 30))]+"/hr </b>"
             var element = document.getElementById('map');
             if (element.style.zIndex != "1") {//deprecated if
                 document.getElementById("p1").innerHTML = (props ?
