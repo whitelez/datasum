@@ -737,7 +737,7 @@
             var legend = L.control({position: 'bottomright'});
             legend.onAdd = function () {
                 var div = L.DomUtil.create('div', 'info legend');
-                div.innerHTML += '<i style="background:green' + '"></i> ' + "Occupancy &le; 50%"+ "<br>";
+                div.innerHTML += '<i style="background:green' + '"></i> ' + "Occupancy &le; 60%"+ "<br>";
                 div.innerHTML += '<j style="background:yellow' +  '"></j> ' + "Occupancy &le; 85%"+ "<br>";
                 div.innerHTML += '<k style="background:red' +  '"></k> ' + "Occupancy > 85%"+ "<br>";
 
@@ -781,12 +781,6 @@
          };*/
 
         var control = L.control.layers(baseMaps, null, {collapsed: false}).addTo(map);
-
-        function getColor(d) {
-            return d > 0.6 ? '#FF0000' :
-                    d > 0.5 ? '#FFFF00' :
-                            '#008000';
-        }
 
         function parkingMarkerStyle() {
             return {
@@ -1327,7 +1321,7 @@
             streetLayer = L.geoJson(streets, {
                 style: function (feature) {
                     if (feature.geometry.type != "Point") {
-                        if (feature.properties.occupancy[cell] < 0.5) {
+                        if (feature.properties.occupancy[cell] < 0.6) {
                             return {weight: 7, color: 'green', opacity: 0.9};
                         } else if (feature.properties.occupancy[cell] < 0.85) {
                             return {weight: 7, color: 'yellow', opacity: 0.9};
@@ -1353,7 +1347,7 @@
             truckLayer = L.geoJson(streets, {
                 style: function (feature) {
                     if (feature.geometry.type != "Point") {
-                        if (feature.properties.occupancy[cell]*1.5 < 0.5) {
+                        if (feature.properties.occupancy[cell]*1.5 < 0.6) {
                             return {weight: 7, color: 'green', opacity: 0.9};
                         } else if (feature.properties.occupancy[cell]*1.5 < 0.85) {
                             return {weight: 7, color: 'yellow', opacity: 0.9};
@@ -1393,7 +1387,7 @@
         control.addOverlay(terminalLayer, 'Terminals');
 
         function getColorLots(d) {
-            return d <= 0.5 ? '#008000' :
+            return d <= 0.6 ? '#008000' :
                     d <= 0.85 ? '#FFFF66' :
                                 '#FF0000';
         }
