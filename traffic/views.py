@@ -1323,6 +1323,17 @@ def real_time_tt(request):
 def device_render(request):
     return render(request, 'traffic/devices.html')
 
+def sensors_counts(request):
+    stime = request.GET['stime']
+    etime = request.GET['etime']
+    sensors_data = {"type":"FeatureCollection","features":[]}
+    sensors = Counts_sensors.objects.all()
+    features = [0]*len(sensors)
+    for i, sensor in enumerate(sensors):
+        features[i] = {"type":"Feature","geometry":{"type":"Point","coordinates":json.loads(sensor.coordinates.strip())},"properties":{"sid":sensor.sid,"data":-1}}
+    sensors_data["features"] = features
+    response = json.dumps(sensors_data)
+    return HttpResponse(response,content_type = "application/json")
 
 
 #SGYang

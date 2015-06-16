@@ -72,6 +72,10 @@ urlpatterns = patterns('',
     url(r'^tmc_gis/$', views.TMC_GIS, name='TMC_GIS'),
 
     url(r'^devices/$', views.device_render, name='devices'),
+
+#counts
+    url(r'^sensors_counts/$', views.sensors_counts, name='sensors_counts'),
+
 #SGYang
     url(r'^road_closure/$', views.closure, name='closure'),
     url(r'^get_road_closure_query/$', views.get_road_closure_query, name='get_road_closure_query'),
