@@ -738,8 +738,8 @@
             legend.onAdd = function () {
                 var div = L.DomUtil.create('div', 'info legend');
                 div.innerHTML += '<i style="background:green' + '"></i> ' + "Occupancy &le; 50%"+ "<br>";
-                div.innerHTML += '<j style="background:yellow' +  '"></j> ' + "Occupancy &le; 70%"+ "<br>";
-                div.innerHTML += '<k style="background:red' +  '"></k> ' + "Occupancy > 70%"+ "<br>";
+                div.innerHTML += '<j style="background:yellow' +  '"></j> ' + "Occupancy &le; 85%"+ "<br>";
+                div.innerHTML += '<k style="background:red' +  '"></k> ' + "Occupancy > 85%"+ "<br>";
 
                 return div;
             };
@@ -1329,7 +1329,7 @@
                     if (feature.geometry.type != "Point") {
                         if (feature.properties.occupancy[cell] < 0.5) {
                             return {weight: 7, color: 'green', opacity: 0.9};
-                        } else if (feature.properties.occupancy[cell] < 0.7) {
+                        } else if (feature.properties.occupancy[cell] < 0.85) {
                             return {weight: 7, color: 'yellow', opacity: 0.9};
                         } else {
                             return {weight: 7, color: 'red', opacity: 0.9};
@@ -1355,7 +1355,7 @@
                     if (feature.geometry.type != "Point") {
                         if (feature.properties.occupancy[cell]*1.5 < 0.5) {
                             return {weight: 7, color: 'green', opacity: 0.9};
-                        } else if (feature.properties.occupancy[cell]*1.5 < 0.7) {
+                        } else if (feature.properties.occupancy[cell]*1.5 < 0.85) {
                             return {weight: 7, color: 'yellow', opacity: 0.9};
                         } else {
                             return {weight: 7, color: 'red', opacity: 0.9};
@@ -1394,7 +1394,7 @@
 
         function getColorLots(d) {
             return d <= 0.5 ? '#008000' :
-                    d <= 0.7 ? '#FFFF66' :
+                    d <= 0.85 ? '#FFFF66' :
                                 '#FF0000';
         }
 
