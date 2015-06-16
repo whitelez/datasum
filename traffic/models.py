@@ -338,8 +338,18 @@ class Closed_roads(models.Model):
     def __unicode__(self):
         return self.perm_no
 
-    
-    
+class Counts_sensors(models.Model):
+    sid = models.CharField(max_length = 10, primary_key = True)
+    coordinates = models.TextField()
+    street_coordinates = models.TextField()
+
+    def __unicode__(self):
+        return self.sid
+
+class Counts(models.Model):
+    sid = models.ForeignKey(Counts_sensors)
+    counts = models.TextField()
+
 
 
 
