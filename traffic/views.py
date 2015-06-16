@@ -699,6 +699,11 @@ def transit_ontimeperformance_bystop(request):
     stops = [{"stop_id": stop.stop_id, "stop_name": stop.name} for stop in Stop.objects.all()]
     return render(request, 'traffic/transit_ontimeperformance_bystop.html', {'stops': stops})
 
+def transit_schedule(request):
+    routes = ','.join(route.short_name for route in Route.objects.all())
+    routes = routes.split(',')
+    return render(request, 'traffic/transit_schedule.html', {'routes': routes})
+
 def transit_waitingtime_byroute(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')

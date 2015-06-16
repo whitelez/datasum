@@ -3,16 +3,66 @@
 {% load staticfiles %}
 
 {% block title %}
-Power of 32 RTIS - Transit - Waiting Time
+Power of 32 RTIS - Transit - Waiting Time - By Route
 {% endblock %}
 
 {% block style %}
+<style>
+    .leaflet-control{
+        line-height: 18px;
+        border-radius: 5px;
+        background: white;
+        box-shadow: -2px -2px 2px #CCCCCC;
+        opacity: 0.8;
+        padding: 2px 8px 8px 8px;
+    }
+    .legend {
+        line-height: 18px;
+        height:60px;
+        width:160px;
+        right: -10px;
+        bottom: -10px;
+        border-radius: 5px;
+        background: white;
+        box-shadow: -2px -2px 2px #CCCCCC;
+        opacity: 0.8;
+    }
+    .legend i {
+        width: 12px;
+        height: 12px;
+        float: left;
+        border-radius: 6px;
+        margin-right: 7px;
+        margin-left: 6px;
+        margin-top: 6px;
+        opacity: 0.9;
+    }
+    .legend j {
+        width: 12px;
+        height: 12px;
+        float: left;
+        border-radius: 6px;
+        margin-right: 7px;
+        margin-left: 6px;
+        margin-top: 3px;
+        opacity: 0.9;
+    }.legend k {
+        width: 12px;
+        height: 12px;
+        float: left;
+        border-radius: 6px;
+        margin-right: 7px;
+        margin-left: 6px;
+        margin-top: 3px;
+        opacity: 0.9;
+    }
+</style>
 <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-datetimepicker.min.css' %}" />
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-switch.min.css' %}" />
-<link rel="stylesheet" href="{% static 'traffic/multiselect/bootstrap-multiselect.css' %}"  type="text/css"/>
+<link rel="stylesheet" href="{% static 'traffic/slider/css/slider.css' %}" />
 {% endblock %}
 
 

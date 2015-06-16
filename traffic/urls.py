@@ -41,6 +41,7 @@ urlpatterns = patterns('',
 
     url(r'^transit_ontimeperformance_byroute/$', views.transit_ontimeperformance_byroute, name='transit_ontimeperformance_byroute'),
     url(r'^transit_ontimeperformance_bystop/$', views.transit_ontimeperformance_bystop, name='transit_ontimeperformance_bystop'),
+    url(r'^transit_schedule/$', views.transit_schedule, name='transit_schedule'),
     url(r'^transit_waitingtime_byroute/$', views.transit_waitingtime_byroute, name='transit_waitingtime_byroute'),
     url(r'^transit_waitingtime_bystop/$', views.transit_waitingtime_bystop, name='transit_waitingtime_bystop'),
     url(r'^transit_crowding/$', views.transit_crowding, name='transit_crowding'),

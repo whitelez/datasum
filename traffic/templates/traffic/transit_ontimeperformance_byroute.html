@@ -3,7 +3,7 @@
 {% load staticfiles %}
 
 {% block title %}
-Power of 32 RTIS - Transit - On-Time Performance
+Power of 32 RTIS - Transit - On-Time Performance - By Route
 {% endblock %}
 
 {% block style %}
@@ -663,7 +663,7 @@ Power of 32 RTIS - Transit - On-Time Performance
                     },
                     onEachFeature:onEachBusFeature
                  }).addTo(map);
-                 control.addOverlay(busLayer,route);
+                 control.addOverlay(busLayer,"Realtime Buses");
 			}
             else{
                 alert(data["msg"]);
