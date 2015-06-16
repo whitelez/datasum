@@ -37,6 +37,7 @@ urlpatterns = patterns('',
     url(r'^get_route/$', views.get_route, name='get_route'),
     url(r'^get_stops/$', views.get_stops, name='get_stops'),
     url(r'^transit_data/$', views.transit_data, name='transit_data'),
+    url(r'^get_stop_routes/$', views.get_stop_routes, name='get_stop_route'),
 
     url(r'^transit_ontimeperformance_byroute/$', views.transit_ontimeperformance_byroute, name='transit_ontimeperformance_byroute'),
     url(r'^transit_ontimeperformance_bystop/$', views.transit_ontimeperformance_bystop, name='transit_ontimeperformance_bystop'),
@@ -46,11 +47,8 @@ urlpatterns = patterns('',
     url(r'^transit_busbunching/$', views.transit_bunching, name='transit_busbunching'),
     url(r'^transit_bustraveltime/$', views.transit_bustraveltime, name='transit_bustraveltime'),
 
-    url(r'^transit_metrics_op_byroute/$', views.transit_metrics_op_byroute, name='transit_metrics'),
-    url(r'^transit_metrics_route_range/$', views.transit_metrics_route_range, name='transit_metrics_route_range'),
-    url(r'^transit_metrics_stop_routes/$', views.transit_metrics_stop_routes, name='transit_metrics_stop_routes'),
-    url(r'^transit_metrics_range_routes/$', views.transit_metrics_range_routes, name='transit_metrics_range_routes'),
-    url(r'^get_stop_routes/$', views.get_stop_routes, name='get_stop_route'),
+    url(r'^transit_metrics_op_byroute/$', views.transit_metrics_op_byroute, name='transit_metrics_op_byroute'),
+    url(r'^transit_metrics_op_bystop/$', views.transit_metrics_op_bystop, name='transit_metrics_op_bystop'),
 
     url(r'^bus_real_time/$', views.bus_real_time, name='bus_real_time'),
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  End  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++

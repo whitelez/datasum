@@ -272,7 +272,7 @@ Power of 32 RTIS - Transit - On-Time Performance
 			return this._div;
 		};
 		info.update = function (props) {
-			this._div.innerHTML = '<h4>Stop</h4>' +  (props ?
+			this._div.innerHTML = '<h4>Info</h4>' +  (props ?
 				'<b>' + props.name + '</b>'
 				: 'Hover over a stop');
 		};
@@ -292,7 +292,7 @@ Power of 32 RTIS - Transit - On-Time Performance
 			var layer = e.target;
 			layer.setStyle({
 				color: 'blue',
-                radius:8,
+                radius: 8,
 				fillOpacity: 0.9
 			});
 			if (!L.Browser.ie && !L.Browser.opera) {
@@ -304,8 +304,8 @@ Power of 32 RTIS - Transit - On-Time Performance
             var layer = e.target;
             layer.setStyle({
                 color: 'blue',
-                radius:5,
-                fillOpacity:0.9
+                radius: 5,
+                fillOpacity: 0.9
 			});
 			info.update();
 		}
@@ -373,8 +373,8 @@ Power of 32 RTIS - Transit - On-Time Performance
 		function onEachFeature(feature, layer){
 			layer.on({
 				mouseover: highlightFeature,
-				mouseout:resetHighlight,
-				click:clickFeature
+				mouseout: resetHighlight,
+				click: clickFeature
 			});
 			layer.bindPopup('<b>' + feature.properties.name + '</b>');
         }
@@ -441,7 +441,7 @@ Power of 32 RTIS - Transit - On-Time Performance
 			    }
                 $('#select_stop').selectpicker('refresh');
 		    }else{
-                alert('No STOP information found, please select another route or direction!');
+                alert('No STOP information found. Please select another route or direction!');
 		    }
             ///////Spinner Stop
                 spinner.stop();
@@ -557,7 +557,9 @@ Power of 32 RTIS - Transit - On-Time Performance
         var stime = parseInt(s_time.substr(-5,2)) + parseInt(s_time.slice(0,-6))*100;
         var etime = parseInt(e_time.substr(-5,2)) + parseInt(e_time.slice(0,-6))*100;
         if (s_time.slice(-2) == "PM"){stime += 1200}
+        if (parseInt(s_time.slice(0,-6)) == 12){stime -= 1200}
         if (e_time.slice(-2) == "PM"){etime += 1200}
+        if (parseInt(e_time.slice(0,-6)) == 12){etime -= 1200}
         if (stime >= etime){
             alert("Start Time must be earlier than End Time!\n\nPlease re-select.");
             return;
@@ -581,7 +583,6 @@ Power of 32 RTIS - Transit - On-Time Performance
                 var temp = document.createElement('div');
                 temp.id = 'chart'+stops_array[i];
                 temp.style.marginLeft = "20px";
-{#                temp.style.marginRight = "20px";#}
                 temp.style.marginTop = "20px";
                 $('#col1'+stops_array[i]).append(temp);
                 var tempright = document.createElement('div');
