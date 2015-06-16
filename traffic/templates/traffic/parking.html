@@ -7,8 +7,8 @@
 {% endblock %}
 
 {% block style %}
-    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.common-material.min.css" />
-    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.material.min.css" />
+    <link rel="stylesheet" href="{% static 'traffic/css/kendo.common-material.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'traffic/css/kendo.material.min.css' %}" />
     <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
     <link rel="stylesheet" href="{% static 'traffic/style_closure.css' %}">
     <link rel="stylesheet" href="{% static 'traffic/slider/css/slider.css' %}" />
@@ -218,7 +218,7 @@
 
 {% block script %}
 
-    <script src="http://cdn.kendostatic.com/2014.3.1411/js/kendo.all.min.js"></script>
+    <script type="text/javascript" src="{% static 'traffic/js/kendo.all.min.js' %}"></script>
     <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
     <script type="text/javascript" src="{% static 'traffic/terminals_geoJSON.js' %}"></script>
     <script type="text/javascript" src="{% static 'traffic/jquery.jqplot.min.js' %}"></script>
@@ -939,7 +939,6 @@
             props.long_name + '<br>' + props.address1 + ' ' + props.address2 + '<br>Availiable Spots: ' + props.available_spots + '<br>Hours: ' + props.hours
                     : '<h5>Hover over a street to check occupancy</h5><br><br>');
         };
-        info.addTo(map);
 
 //////////////////////////////////
         function highlightFeature(e) {
@@ -1076,7 +1075,7 @@
                         var line = [];
                         var Xmax = 109;
                         if (feature.properties.occupancy[112]>0.20){
-                            Xmax = 133;
+                            Xmax = 144;
                         }
                         var Xlen = Xmax-48-1;
                         for (var i = 48; i < Xmax; i++) {
@@ -1088,7 +1087,6 @@
                             var point = ["" + hour + ":" + minute, feature.properties.occupancy[i]];
                             line.push(point);
                         }
-
                         //check if the time period is in one day
                         var d = datime;
                         var index = parseInt(d.getHours() * 6) + parseInt(d.getMinutes() / 10) - 48;
@@ -1106,7 +1104,7 @@
                             index = 1;
                             plotcontent = [line.slice(0, index), line.slice(index-1)];
                         }
-
+                        console.log(plotcontent[0].length+plotcontent[1].length);
                         $.jqplot('chart1', plotcontent, {
                             series: [{lineWidth: 3, markerOptions: {show: false}},{lineWidth: 5, markerOptions: {show: false}},{lineWidth: 6, markerOptions: {show: false}}],
                             title: 'Occupancy Distribution of ' + feature.properties.street + ' : Car',
@@ -1215,7 +1213,7 @@
                         var line = [];
                         var Xmax = 109;
                         if (feature.properties.occupancy[112]>0.20){
-                            Xmax = 133
+                            Xmax = 144
                         }
                         var Xlen = Xmax-48-1;
                         for (var i = 0; i < Xmax; i++) {
