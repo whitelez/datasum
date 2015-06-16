@@ -554,8 +554,6 @@
         }
 
         function changeclk(newValue) {
-                        console.log("chnage");
-
             document.getElementById("reset_btn").innerHTML = "<span class='glyphicon glyphicon-search' > </span> &nbsp; Check " + newValue + " min later"
             var datetime = new Date()
             var timeinsec = datetime.getTime()
@@ -1104,7 +1102,6 @@
                             index = 1;
                             plotcontent = [line.slice(0, index), line.slice(index-1)];
                         }
-                        console.log(plotcontent[0].length+plotcontent[1].length);
                         $.jqplot('chart1', plotcontent, {
                             series: [{lineWidth: 3, markerOptions: {show: false}},{lineWidth: 5, markerOptions: {show: false}},{lineWidth: 6, markerOptions: {show: false}}],
                             title: 'Occupancy Distribution of ' + feature.properties.street + ' : Car',
