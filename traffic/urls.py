@@ -74,7 +74,8 @@ urlpatterns = patterns('',
     url(r'^devices/$', views.device_render, name='devices'),
 
 #counts
-    url(r'^sensors_counts/$', views.sensors_counts, name='sensors_counts'),
+    url(r'^get_sensors_counts/$', views.get_sensors_counts, name='get_sensors_counts'),
+    url(r'^sensors_counts/$', views.sensors_counts_webpage, name='sensors_counts_webpage'),
 
 #SGYang
     url(r'^road_closure/$', views.closure, name='closure'),
