@@ -977,8 +977,18 @@ def get_trips(request):
     routedict["Y49"] = "949"
 # ================================== End =================================
     route = routedict[request.GET["route"]]
-    direction = request.GET["direction"]
+    if request.GET["direction"] == 'I':
+        direction = '1'
+    else:
+        direction = '0'
     result = {}
+
+    data = Transit_data.objects.filter(route=route, dir=direction)
+    for item in data:
+
+            if item.schtim >= s_time and item.schtim <= e_time:
+                if item.schdev != 99:
+                    result[route].append(item.schdev)
 
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
