@@ -728,20 +728,6 @@ def transit_bustraveltime(request):
     routes = routes.split(',')
     return render(request, 'traffic/transit_bustraveltime.html', {'routes': routes})
 
-def transit(request):
-    routes = ','.join(route.short_name for route in Route.objects.all())
-    routes = routes.split(',')
-    return render(request, 'traffic/transit.html', {'routes': routes})
-
-def transit_route_range(request):
-    routes = ','.join(route.short_name for route in Route.objects.all())
-    routes = routes.split(',')
-    return render(request, 'traffic/transit_route_range.html', {'routes': routes})
-
-def transit_stop_routes(request):
-    stops = [{"stop_id": stop.stop_id, "stop_name": stop.name} for stop in Stop.objects.all()]
-    return render(request, 'traffic/transit_stop_routes.html', {'stops': stops})
-
 def get_stop_routes(request):
     stop_id = request.GET["stop"]
     routes = Stop_route.objects.filter(stop_id=stop_id)
@@ -759,12 +745,7 @@ def get_stop_routes(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
-#range_routes
-def transit_range_routes(request):
-    routes = ','.join(route.short_name for route in Route.objects.all())
-    routes = routes.split(',')
-    return render(request, 'traffic/transit_range_routes.html', {'routes': routes})
-
+# Temporarily no use ################################################
 def get_range_routes(request):
     stop1 = request.GET["stop1"]
     stop2 = request.GET["stop2"]
@@ -788,6 +769,7 @@ def get_range_routes(request):
             result["features"].append(json.loads(r.outbound_geoJson))
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
+#####################################################################
 
 #bus_real_time
 def bus_real_time(request):
@@ -950,6 +932,7 @@ def transit_metrics_op_bystop(request):
     return HttpResponse(response, content_type='application/json')
 
 
+# Temporarily no use ################################################
 def transit_metrics_route_range(request):
 # s_datetime:s_datetime, e_datetime:e_datetime, origin:origin,destination:destination,route:route,direction:direction
     # s_date = request.GET["s_datetime"]
@@ -983,32 +966,8 @@ def transit_metrics_route_range(request):
 
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
+#####################################################################
 
-
-def transit_metrics_stop_routes(request):
-    "function for calculate stop_routes metrics"
-    s_datetime = datetime.strptime(request.GET["s_datetime"],"%Y-%m-%d %I:%M %p")
-    e_datetime = datetime.strptime(request.GET["e_datetime"],"%Y-%m-%d %I:%M %p")
-    stop = request.GET["stop"]
-    routes = request.GET["routes"]
-
-    result = {"ontime":stop,"crowding":routes,"waiting": str(s_datetime) + " to " + str(e_datetime)}
-
-    response = json.dumps(result)
-    return HttpResponse(response, content_type='application/json')
-
-def transit_metrics_range_routes(request):
-    "function for calculate stop_routes metrics"
-    s_datetime = datetime.strptime(request.GET["s_datetime"],"%Y-%m-%d %I:%M %p")
-    e_datetime = datetime.strptime(request.GET["e_datetime"],"%Y-%m-%d %I:%M %p")
-    stop1 = request.GET["stop1"]
-    stop2 = request.GET["stop2"]
-    routes = request.GET["routes"]
-
-    result = {"ontime":stop1 + " " + stop2,"crowding":routes,"waiting": str(s_datetime) + " to " + str(e_datetime)}
-
-    response = json.dumps(result)
-    return HttpResponse(response, content_type='application/json')
 # ++++++++++++++++++++++++++++++++++++++++++++  Views of Transit Function End  +++++++++++++++++++++++++++++++++++++++++++++++
 
 
