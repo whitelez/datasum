@@ -26,6 +26,8 @@ form{
 	min-height: 0px;
 }
 #lw{
+    width:25%;
+    height:auto;
 	padding: 0px;
 	border-right: 0px solid lightgray;
 }
@@ -41,7 +43,7 @@ form{
 	float: right;margin-top:8px;
 }
 #map-placeholder img{
-	margin: 10 50px;	
+	margin: 10 50px;
 }
 #map{
 	width:auto;height:600px;box-shadow: 0 0 10px rgba(0,0,0,0.5);
