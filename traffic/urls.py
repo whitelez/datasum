@@ -36,6 +36,7 @@ urlpatterns = patterns('',
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++  Transit  +++++++++++++++++++++++++++++++++++++++++++++++++++++++
     url(r'^get_route/$', views.get_route, name='get_route'),
     url(r'^get_stops/$', views.get_stops, name='get_stops'),
+    url(r'^get_trips/$', views.get_trips, name='get_trips'),
     url(r'^transit_data/$', views.transit_data, name='transit_data'),
     url(r'^get_stop_routes/$', views.get_stop_routes, name='get_stop_route'),
 

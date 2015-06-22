@@ -89,9 +89,9 @@ Power of 32 RTIS - Transit - Schedule Optimization
         </div>
 
         <div class="row" style="padding-top:5px;">
-            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Trips:</h5></div>
+            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Trip:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
-                <select id = "select_trip" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
+                <select id = "select_trip" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
                 </select>
             </div>
 	    </div>
@@ -454,11 +454,23 @@ Power of 32 RTIS - Transit - Schedule Optimization
                 }else{
                     alert('No STOP information found. Please select another route or direction!');
                 }
-                ///////Spinner Stop
-                    spinner.stop();
-                    var target = document.getElementById('map');
-                    target.style.opacity = '1';
-                ///////////////////
+
+                $.get("../get_trips/", {route: route, direction: direction}, function(data, textstatus){
+                    $('#select_trip').empty();
+                    if(data){
+
+
+{#                        for(var i=0;i<stops_geoJson.features.length;i++){#}
+{#                            $("#select_stop").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");#}
+{#                        }#}
+                        $('#select_trip').selectpicker('refresh');
+                    }
+                    ///////Spinner Stop
+                        spinner.stop();
+                        var target = document.getElementById('map');
+                        target.style.opacity = '1';
+                    ///////////////////
+                }, "json");
             },"json");
 		},"json");
 	}
