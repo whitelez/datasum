@@ -33,14 +33,8 @@ a.btn.btn-blue {
 	text-shadow: 0 1px 0 rgba(0,0,0,0.5);
 	color: #FFF;
 }
-a.btn.btn-purple {
-	background-color: #3f51b5;
-	border-color: rgba(0,0,0,0.3);
-	text-shadow: 0 1px 0 rgba(0,0,0,0.5);
-	color: #FFF;
-}
 
-a.btn.btn-blue:hover {
+    a.btn.btn-blue:hover {
 		background-color: #4F87A2;
 		border-color: rgba(0,0,0,0.5);
 	}
@@ -49,7 +43,24 @@ a.btn.btn-blue:hover {
 		background-color: #3C677B;
 		border-color: rgba(0,0,0,0.9);
 	}
+/* purple button */
 
+a.btn.btn-purple {
+	background-color: #5262BC;
+	border-color: rgba(0,0,0,0.3);
+	text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+	color: #FFF;
+}
+
+    a.btn.btn-purple:hover {
+		background-color: #3f51b5;
+		border-color: rgba(0,0,0,0.5);
+	}
+
+	a.btn.btn-purple:active {
+		background-color: #394584;
+		border-color: rgba(0,0,0,0.9);
+	}
 /* red button */
 
 a.btn.btn-red {

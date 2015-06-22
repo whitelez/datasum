@@ -4,7 +4,7 @@ body{
 .mainpage{
     height: 100vh;
 	margin: 0 auto;
-	padding-bottom: 10px;
+	padding-bottom: 6px;
 }
 .jumbotron {
     display: none;
@@ -13,12 +13,12 @@ body{
 
 #lw,#rw{
     width:320px;
-    height:87vh;
+    height:89vh;
 	min-height: 0px;
 }
 
 #map{
-	width:auto;height:87vh;box-shadow: 0 0 10px rgba(0,0,0,0.5);
+	width:auto;height:89vh;box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
 .well{
     height:100%;
@@ -36,9 +36,9 @@ body{
 }
 .navbar-nav li a {
     float: top;
-    height: 6vh;
-    padding-top: 1.5vh;
-    padding-bottom: 1.5vh;
+    height: 38px;
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 .navbar-default .navbar-nav > li > a {
     color:   #ffffff;
@@ -52,10 +52,10 @@ body{
 .navbar-default .navbar-nav  li  a:hover, .navbar-default .navbar-nav > li > a:focus {
     color: #ffffff;
     background-color:  #48A30B;
-    padding-top: 1.8vh;
+    padding-top: 11px;
 }
 .navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:hover, .navbar-default.navbar-nav>.active>a:focus {
     background-color:  #009933;
     color: #ffffff;
-    padding-top: 1.8vh;
+    padding-top: 11px;
 }

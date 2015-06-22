@@ -267,6 +267,7 @@
 				.data('value', val)
 				.prop('value', val);
             showValue(val);
+            sliderminu = val;
 			return false;
 		},
 
@@ -288,7 +289,7 @@
 			if (this.over == false) {
 				this.hideTooltip();
 			}
-			this.element;
+            this.layout();
 			var val = this.calculateValue();
 			this.element
 				.trigger({
@@ -298,6 +299,7 @@
 				.data('value', val)
 				.prop('value', val);
             changeclk(val);
+            sliderminu = val;
 			return false;
 		},
 

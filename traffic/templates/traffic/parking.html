@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="{% static 'traffic/slider/css/slider.css' %}" />
     <style>
         #overlaycon {
-            height: 87vh;
+            height: 89vh;
         }
         #map{
             z-index: 100;
@@ -28,7 +28,7 @@
             box-shadow:8px 8px 13px #CCCCCC;
             position: relative;
             opacity: 0.93;
-            top: -87vh;
+            top: -89vh;
             left: 320px;
             z-index: 10;
         }
@@ -172,7 +172,7 @@
             </div>
             <div id = "weekday">
                 <h6><b>Select weekdays for inquiry:</b></h6>
-                <form action="form_action.asp">
+                <form action="form_action.asp"  style="margin-left: -10px; margin-right: -20px;">
                     <h6>
                     <label><input type="checkbox" name="vehicle" value="Sun" checked="True"> Sun </label>
                     <label><input type="checkbox" name="vehicle" value="Mon" checked="True"> Mon </label>
@@ -181,6 +181,7 @@
                     <label><input type="checkbox" name="vehicle" value="Thr" checked="True"> Thr </label>
                     <label><input type="checkbox" name="vehicle" value="Fri" checked="True"> Fri </label>
                     <label><input type="checkbox" name="vehicle" value="Sat" checked="True"> Sat </label>
+
                     </h6>
                 </form>
             </div>
@@ -188,16 +189,14 @@
                 <span class="glyphicon glyphicon-search"> </span> &nbsp; Inquiry </a> <br>
             {#<input type="button" value="Update" />#}
             <div align="middle" style="height: 1px;  text-align: left; left:-10px;"><span style=" top: -2px;"><h5>
-                ------------------------------Or---------------------------</h5></span></div>
+                -----------------------------Or-----------------------------</h5></span></div>
             <br>
             <div class="row" id="future22" style="margin-top:10px;margin-left:-10px;" align="left"><h5><b> Check future
                 occupancy: </b><i>Pick a delay </i></h5></div>
-            <input  style="width: 100%" id="rangebar" type="text" class="span" value="" data-slider-value="30" data-slider-min="0" data-slider-max="90" data-slider-step="10"/>
-
-
+            <input  style="width: 100%" id="rangebar" type="text" class="span" value="" data-slider-value="20" data-slider-min="0" data-slider-max="90" data-slider-step="10"/>
             <a href="#" type="button" class="btn btn-red" id="reset_btn"
                style="margin-top:10px; margin-right:10px;width:90%;">
-                <span class="glyphicon glyphicon-search" id='future'> </span> &nbsp; Check 10 min later </a> <br>
+                <span class="glyphicon glyphicon-search" id='future'> </span> &nbsp; Check 20 min later </a> <br>
             <br>
 
         </div>
@@ -250,6 +249,7 @@
         var weekday1;
         var hour1;
         var minu1;
+        var sliderminu = 10;
         ////////////
         var wkdy = [1,1,1,1,1,1,1]
         ////////////
@@ -501,7 +501,7 @@
         $('#reset_btn').click(function () {
             $("#chart1").empty();
             $("#chart2").empty();
-            var offset = $("#rangebar").slider('getValue').value;
+            var offset = sliderminu;
             var datetime = new Date()
             var timeinsec = datetime.getTime()
             datetime = new Date(timeinsec + offset * 60000)
