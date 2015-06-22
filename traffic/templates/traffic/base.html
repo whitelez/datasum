@@ -28,19 +28,16 @@
 				<img src="http://www.powerof32.org/images/powerof32-logo.png">
 			</div>
 		</div>
-
 		<nav class="navbar navbar-default navbar-static-top" role="navigation">
 			<div class="collapse navbar-collapse">
-                <ul class="nav navbar-nav navbar-right" style="margin-right: 20px;">
+                    <ul class="nav navbar-nav navbar-right" style="margin-right: 20px;">
                     <li id="nav-download"><a href="{% url 'traffic:download' %}"><span class="glyphicon glyphicon-download-alt"> </span> &nbsp;Download</a></li>
                 </ul>
 				<ul class="nav navbar-nav">
                     <li id="nav-home"><a href="{% url 'traffic:index' %}">Home</a></li>
         	        <li id="nav-weather"><a href="{% url 'traffic:weather' %}">Weather</a></li>
                     <li id="nav-parking"><a href="{% url 'traffic:parking' %}">Parking</a></li>
-
-               
-                    <li id="nav-closure"><a href="{% url 'traffic:closure' %}">Closure</a></li>      <!Added by SGYang>
+                    <li id="nav-closure"><a href="{% url 'traffic:closure' %}">Closure</a></li>
                     <li id="nav-cameras"><a href="{% url 'traffic:camera' %}">Cameras</a></li>
                     <li id="nav-trafficcounts"><a href="{% url 'traffic:count' %}">Traffic Counts</a></li>
                     <li id="nav-transit" class="dropdown">
@@ -80,7 +77,6 @@
 				</ul>
 			</div>
 		</nav>
-
       <div id="lw" style="float: left;">
           {% block content %}{% endblock %}
       </div>
@@ -89,7 +85,9 @@
 
       <div style="width:100%;height:2px;margin:0 auto;padding:0;background-color:#ddd;overflow:hidden;"></div>
       <footer>
-       <p class="footer_content" style="text-align:center;padding-top: 10px"><a href="http://www.cmu.edu/index.shtml" target="_blank">Carnegie Mellon University</a> | <a href="http://www.benedum.org/" target="_blank">Benedum Foundation</a> | <a href="http://heinz.cmu.edu/index.aspx" target="_blank">Heinz College</a> | <a href="http://traffic21.heinz.cmu.edu/" target="_blank">Traffic21</a> | contact us </p>
+       <p class="footer_content" style="text-align:center;padding-top: 10px"><a href="http://www.powerof32.org/"><img src="http://www.powerof32.org/images/powerof32-logo.png" border='10' width='100' height='25' ></a> |
+<a href="http://www.cmu.edu/index.shtml" target="_blank">Carnegie Mellon University</a> | <a href="http://www.benedum.org/" target="_blank">Benedum Foundation</a> | <a href="http://heinz.cmu.edu/index.aspx" target="_blank">Heinz College</a> | <a href="http://traffic21.heinz.cmu.edu/" target="_blank">Traffic21</a> | contact us </p>
+          </li>
       </footer>
 
 	</div>
