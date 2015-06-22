@@ -7,8 +7,9 @@ Power of 32 RTIS - Camera
 {% endblock %}
 
 {% block style %}
-<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
-<link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css'%}">
+    <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+    <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
     <style>
     #lw,#rw{
     width:0px;

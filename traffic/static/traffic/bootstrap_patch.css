@@ -45,11 +45,17 @@ body{
 }
 .navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
     color: #ffffff;
-        background-color:  #48A30B;
+    background-color:  #48A30B;
 
 }
 
-.navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:hover, .navbar-default.navbar-nav>.active>a:focus {
-        background-color:  #009933;
+.navbar-default .navbar-nav  li  a:hover, .navbar-default .navbar-nav > li > a:focus {
     color: #ffffff;
+    background-color:  #48A30B;
+    padding-top: 1.8vh;
+}
+.navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:hover, .navbar-default.navbar-nav>.active>a:focus {
+    background-color:  #009933;
+    color: #ffffff;
+    padding-top: 1.8vh;
 }
