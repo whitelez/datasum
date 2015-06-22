@@ -15,7 +15,6 @@ import xml.etree.ElementTree as XMLET
 
 from django.db.models import Avg
 
-
 import csv
 
 def index(request):
@@ -700,6 +699,11 @@ def transit_ontimeperformance_bystop(request):
     stops = [{"stop_id": stop.stop_id, "stop_name": stop.name} for stop in Stop.objects.all()]
     return render(request, 'traffic/transit_ontimeperformance_bystop.html', {'stops': stops})
 
+def transit_schedule(request):
+    routes = ','.join(route.short_name for route in Route.objects.all())
+    routes = routes.split(',')
+    return render(request, 'traffic/transit_schedule.html', {'routes': routes})
+
 def transit_waitingtime_byroute(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
@@ -745,9 +749,13 @@ def get_stop_routes(request):
     for route in routes:
         r = Route.objects.filter(route_id=route.route_id)[0]
         if route.direction == "I":
-            result["features"].append(json.loads(r.inbound_geoJson))
+            load = json.loads(r.inbound_geoJson)
+            load["properties"]["dir"] = "Inbound"
+            result["features"].append(load)
         else:
-            result["features"].append(json.loads(r.outbound_geoJson))
+            load = json.loads(r.outbound_geoJson)
+            load["properties"]["dir"] = "Outbound"
+            result["features"].append(load)
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
@@ -806,10 +814,9 @@ def bus_real_time(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
-
 def transit_metrics_op_byroute(request):
-    # Build a map from Route Name to Route Number which is used in database
-    routedict={}
+# Build a map from Route Name to Route Number which is used in database
+    routedict = {}
     for i in range(1, 93):
         routedict[str(i)] = str(i)
     routedict["19L"] = "191"
@@ -851,7 +858,7 @@ def transit_metrics_op_byroute(request):
     routedict["Y46"] = "946"
     routedict["Y47"] = "947"
     routedict["Y49"] = "949"
-    # ================================== End =================================
+# ================================== End =================================
     route = routedict[request.GET["rt"]]
     direction = request.GET["dir"]
     s_date = request.GET["s_date"]
@@ -861,19 +868,84 @@ def transit_metrics_op_byroute(request):
     s_date = date(int(s_date[6:10]), int(s_date[0:2]), int(s_date[3:5]))
     e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
     stops = request.GET["stops"].split(",")
-
     result = {}
     for stopid in stops:
         result[stopid] = []
-        # return HttpResponse((stopid, ' ', type(stopid), '\n', route, ' ', type(route), '\n', direction, ' ', type(direction)), content_type='application/json')
         data = Transit_data.objects.filter(qstopa='  '+str(stopid), route=str(route), dir=str(direction), date__range=(s_date, e_date))
-        # data = Transit_data.objects.filter(qstopa='  '+str(stopid))
-        # return HttpResponse(data, content_type='application/json')
         for item in data:
-            # return HttpResponse(item, content_type='application/json')
-            if item.schtim > s_time and item.schtim < e_time:
+            if item.schtim >= s_time and item.schtim <= e_time:
                 if item.schdev != 99:
                     result[stopid].append(item.schdev)
+    response = json.dumps(result)
+    return HttpResponse(response, content_type='application/json')
+
+def transit_metrics_op_bystop(request):
+# Build a map from Route Name to Route Number which is used in database
+    routedict = {}
+    for i in range(1, 93):
+        routedict[str(i)] = str(i)
+    routedict["19L"] = "191"
+    routedict["28X"] = "281"
+    routedict["51L"] = "511"
+    routedict["52L"] = "521"
+    routedict["53L"] = "531"
+    routedict["61A"] = "611"
+    routedict["61B"] = "612"
+    routedict["61C"] = "613"
+    routedict["61D"] = "614"
+    routedict["71A"] = "711"
+    routedict["71B"] = "712"
+    routedict["71C"] = "713"
+    routedict["71D"] = "714"
+    routedict["G2"] = "900"
+    routedict["G3"] = "903"
+    routedict["G31"] = "931"
+    routedict["O1"] = "801"
+    routedict["O5"] = "805"
+    routedict["O12"] = "812"
+    routedict["P1"] = "444"
+    routedict["P2"] = "555"
+    routedict["P3"] = "666"
+    routedict["P7"] = "907"
+    routedict["P10"] = "910"
+    routedict["P12"] = "912"
+    routedict["P13"] = "913"
+    routedict["P16"] = "716"
+    routedict["P17"] = "717"
+    routedict["P67"] = "767"
+    routedict["P68"] = "768"
+    routedict["P69"] = "769"
+    routedict["P71"] = "771"
+    routedict["P76"] = "776"
+    routedict["P78"] = "978"
+    routedict["Y1"] = "401"
+    routedict["Y45"] = "445"
+    routedict["Y46"] = "946"
+    routedict["Y47"] = "947"
+    routedict["Y49"] = "949"
+# ================================== End =================================
+    routes = request.GET["routes"].split(",")
+    stopid = request.GET["stop"]
+    s_date = request.GET["s_date"]
+    e_date = request.GET["e_date"]
+    s_time = int(request.GET["s_time"])
+    e_time = int(request.GET["e_time"])
+    s_date = date(int(s_date[6:10]), int(s_date[0:2]), int(s_date[3:5]))
+    e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
+    result = {}
+    for route in routes:
+        routename = routedict[route.split("-")[0]]
+        direction = route.split("-")[1]
+        if direction == "Inbound":
+            direction = "1"
+        else:
+            direction = "0"
+        result[route] = []
+        data = Transit_data.objects.filter(qstopa='  '+str(stopid), route=str(routename), dir=str(direction), date__range=(s_date, e_date))
+        for item in data:
+            if item.schtim >= s_time and item.schtim <= e_time:
+                if item.schdev != 99:
+                    result[route].append(item.schdev)
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 

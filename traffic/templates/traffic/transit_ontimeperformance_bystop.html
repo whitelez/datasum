@@ -3,7 +3,7 @@
 {% load staticfiles %}
 
 {% block title %}
-Power of 32 RTIS - Transit - On-Time Performance (by stop)
+Power of 32 RTIS - Transit - On-Time Performance - By Stop
 {% endblock %}
 
 {% block style %}
@@ -15,6 +15,46 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
         box-shadow: -2px -2px 2px #CCCCCC;
         opacity: 0.8;
         padding: 2px 8px 8px 8px;
+    }
+    .legend {
+        line-height: 18px;
+        height:60px;
+        width:160px;
+        right: -10px;
+        bottom: -10px;
+        border-radius: 5px;
+        background: white;
+        box-shadow: -2px -2px 2px #CCCCCC;
+        opacity: 0.8;
+    }
+    .legend i {
+        width: 12px;
+        height: 12px;
+        float: left;
+        border-radius: 6px;
+        margin-right: 7px;
+        margin-left: 6px;
+        margin-top: 6px;
+        opacity: 0.9;
+    }
+    .legend j {
+        width: 12px;
+        height: 12px;
+        float: left;
+        border-radius: 6px;
+        margin-right: 7px;
+        margin-left: 6px;
+        margin-top: 3px;
+        opacity: 0.9;
+    }.legend k {
+        width: 12px;
+        height: 12px;
+        float: left;
+        border-radius: 6px;
+        margin-right: 7px;
+        margin-left: 6px;
+        margin-top: 3px;
+        opacity: 0.9;
     }
 </style>
 
@@ -31,20 +71,16 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
 <div class="well" style="height:600px;">
 	<div class="container" style="width: inherit">
         <div class="row"><h4>On-Time Performance </h4></div>
-        <div class="row" style="padding-top: 10px">
+        <div class="row" style="padding-top: 20px">
         	<div class="col-md-4" style="padding-right: 0;">
 				<h5>Stop:</h5>
             </div>
             <div class="col-md-8" style="padding-left: 0;">
-                <select id='select_stop' name = 'select_stop' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
-			  	    {% for stop in stops%}
-						<option value={{stop.stop_id}}>{{stop.name}}</option>
-					{% endfor %}
-			    </select>
+                <h5 id = "select_stop" style=""> &nbsp; Select 1 Stop on Map. </h5>
             </div>
         </div>
 
-        <div class="row" style="padding-top:5px;">
+        <div class="row" style="padding-top:10px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Routes:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
                 <select id = "select_routes" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
@@ -52,11 +88,11 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
             </div>
 	    </div>
 
-        <button id="routes_deselect_all" class="btn btn-default btn-block" style="margin-top: 10px">
+        <button id="routes_deselect_all" class="btn btn-default btn-block" style="margin-top: 20px">
             <span class="glyphicon glyphicon-remove"> </span> &nbsp; Clear All
         </button><br>
 
-        <div class="row" style="padding-top:5px;">
+        <div class="row" style="padding-top:25px;">
         	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Date:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
                     <div class='input-group date' id='datepicker'>
@@ -67,7 +103,7 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
             </div>
 	    </div>
 
-		<div class="row" style="padding-top:5px;">
+		<div class="row" style="padding-top:8px;">
         	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>End Date:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
                     <div class='input-group date' id='datepicker2'>
@@ -78,7 +114,7 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
             </div>
 	    </div>
 
-        <div class="row" style="padding-top:5px;">
+        <div class="row" style="padding-top:8px;">
            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Time:</h5></div>
            <div class="col-md-8" style="padding-left: 0;">
                     <div class='input-group date' id='datetimepicker'>
@@ -89,7 +125,7 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
            </div>
         </div>
 
-        <div class="row" style="padding-top:5px;">
+        <div class="row" style="padding-top:8px;">
            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>End Time:</h5></div>
            <div class="col-md-8" style="padding-left: 0;">
                     <div class='input-group date' id='datetimepicker2'>
@@ -108,7 +144,7 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
             <div class="col-md-1" style="height:20px;padding-left: 0;"><p>12</p></div>
         </div>
 
-        <div class="row" style="padding-top:5px;">
+        <div class="row" style="padding-top:15px;">
            <div class="col-md-6" style="height: 36px;padding-right: 0;">
                <button type="button" style="margin-top:10px;" class="btn btn-default btn-block" id="real_time">
                     <span class="glyphicon glyphicon-search"> </span> &nbsp; Real Time
@@ -192,16 +228,16 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
 
 <script>
 {#	$(function(){#}
-	var map = L.map('map').setView([40.400, -80.000], 11);
-    
-	// add an OpenStreetMap tile layer
-	var basemap = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-	}).addTo(map);
+        var map = L.map('map').setView([40.400, -80.000], 11);
+
+        // add an OpenStreetMap tile layer
+        var basemap = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        control = L.control.layers({'Base Map':basemap},null,{collapsed:false}).addTo(map);
 	
-	control = L.control.layers({'Base Map':basemap},null,{collapsed:false}).addTo(map);
-	
-	map.addControl( new L.Control.Search({
+	    map.addControl( new L.Control.Search({
 			url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',
 			jsonpParam: 'json_callback',
 			propertyName: 'display_name',
@@ -211,7 +247,7 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
 			autoCollapse: true,
 			minLength: 2,
 			zoom:10
-		}) );
+        }) );
 	
 	    var info = L.control();
 		info.onAdd = function (map) {
@@ -219,80 +255,100 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
 			this.update();
 			return this._div;
 		};
-		info.update = function (props) {
-			this._div.innerHTML = '<h4>Stop</h4>' +  (props ?
-				'<b>' + props.name + '</b>'';lkl;llnbnobb' +
-                    ']]' +
-                    ''
-				: 'Hover over a stop');
+		info.update = function (props){
+			this._div.innerHTML = '<h4>Info</h4>' +  (props ?
+				'<b>' + props + '</b>'
+				: 'Hover over a Stop or Route');
 		};
 		info.addTo(map);
+
+        var legend = L.control({position: 'bottomright'});
+        legend.onAdd = function () {
+            var div = L.DomUtil.create('div', 'info legend');
+            div.innerHTML += '<i style="background:green' + '"></i> ' + "Speed &ge; 30 MPH"+ "<br>";
+            div.innerHTML += '<j style="background:yellow' +  '"></j> ' + "Speed &ge; 10 MPH"+ "<br>";
+            div.innerHTML += '<k style="background:red' +  '"></k> ' + "Speed < 10 MPH"+ "<br>";
+            return div;
+        };
+        legend.addTo(map);
 
         var stopsLayer = L.geoJson();
 	    function highlightFeature(e) {
 			var layer = e.target;
 			layer.setStyle({
-				weight: 5,
-				color: '#666',
-				dashArray: '',
-				fillOpacity: 0.7
+				radius: 9,
+                fillOpacity: 1.0
 			});
 			if (!L.Browser.ie && !L.Browser.opera) {
 				layer.bringToFront();
 			}
-			info.update(layer.feature.properties);
+			info.update(layer.feature.properties.name.replace(/['"]+/g,'') );
 		}
 		function resetHighlight(e) {
+            var layer = e.target;
+            layer.setStyle({
+                radius: 4,
+                fillOpacity: 0.6
+			});
 			info.update();
 		}
 
-
         var selected_stopLayer;
-        //control.addOverlay(selected_stops_layerGroup,"Selected Stops");
 		function add_stop_to_map(stop_id){
             if(selected_stopLayer){
 			 	control.removeLayer(selected_stopLayer);
 			 	if(map.hasLayer(selected_stopLayer)){
 			 		map.removeLayer(selected_stopLayer);
 			 	}
-			 }
+            }
             var num = stops_geoJson.features.length;
             for (var i = 0; i < num; i++) {
                 if (stops_geoJson.features[i].properties.stop_id == stop_id) {
-                    selected_stopLayer = L.geoJson(stops_geoJson.features[i]).bindPopup("<strong>" + stops_geoJson.features[i].properties.name + "</strong>").addTo(map);
-                    control.addOverlay(selected_stopLayer,"Selected Stops");
+                    selected_stopLayer = L.geoJson(stops_geoJson.features[i]).bindPopup("<strong>" + stops_geoJson.features[i].properties.name.replace(/['"]+/g,'') + "</strong>").addTo(map);
+                    control.addOverlay(selected_stopLayer,"Selected Stop");
                     break;
                 }
             }
         }
 
-        var selected_stop = "";
+        var selected_stop = "",
+            selected_stop_name = "";
         function clickFeature(e) {
 			var layer = e.target;
-			$("#select_stop").text(layer.feature.properties.name);
+            layer.setStyle({
+                radius: 4,
+                fillOpacity: 0.6
+			});
+			$("#select_stop").text(layer.feature.properties.name.replace(/['"]+/g,''));
             selected_stop = layer.feature.properties.stop_id;
+            selected_stop_name = layer.feature.properties.name;
             add_stop_to_map(layer.feature.properties.stop_id);
             getInfo();
+            map.removeLayer(stopsLayer);
 		}
 
         function onEachFeature(feature, layer) {
 			layer.on({
 				mouseover: highlightFeature,
-				mouseout:resetHighlight,
-				click:clickFeature
+				mouseout: resetHighlight,
+				click: clickFeature
 			});
-			layer.bindPopup('<b>' + feature.properties.name + '</b>');
+			layer.bindPopup('<b>' + feature.properties.name.replace(/['"]+/g,'') + '</b>');
 		}
 
-
         stopsLayer = L.geoJson(stops_geoJson, {
-					pointToLayer:function(feature, latlng){
-							return L.circleMarker(latlng,{radius:4,fillOpacity:0.5,weight:0});
-					},
-					onEachFeature:onEachFeature
-					}).addTo(map);
-        control.addOverlay(stopsLayer,'Stops');
-
+            pointToLayer: function (feature, latlng) {
+                return L.circleMarker(latlng, {
+                    radius: 4,
+                    fillColor: '#9ba7ff',
+                    fillOpacity: 0.6,
+                    color: 'blue',
+                    weight: 1
+                });
+            },
+            onEachFeature: onEachFeature
+        }).addTo(map);
+        control.addOverlay(stopsLayer, 'Stops');
 
 {#======================================= Spinner Options ===========================================#}
         var spinneropts = {
@@ -318,67 +374,157 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
 
 	var routeLayer = L.geoJson(),
         busLayer   = L.geoJson();
-    var route_geoJson;
     var routes_featureGroup = L.featureGroup();
     var routes = [];
     var colors = ['rgb(228,26,28)','rgb(77,175,74)','rgb(152,78,163)','rgb(255,127,0)','rgb(255,255,51)','rgb(166,86,40)','rgb(247,129,191)','rgb(153,153,153)','rgb(178,223,138)','rgb(51,160,44)','rgb(251,154,153)','rgb(227,26,28)','rgb(253,191,111)','rgb(255,127,0)','rgb(202,178,214)'];
-	function onEachRouteFeature(feature,layer){
+    function highlightRoute(e) {
+        var layer = e.target;
+        layer.setStyle({
+            weight:10,
+            opacity:0.9
+        });
+        if (!L.Browser.ie && !L.Browser.opera) {
+            layer.bringToFront();
+        }
+        info.update("Route " + layer.feature.properties.short_name + ": " + layer.feature.properties.long_name + " (" + layer.feature.properties.dir + ")");
+    }
+
+    function resetHighlightRoute(e) {
+        var layer = e.target;
+        layer.setStyle({
+            weight: 6,
+            opacity:0.7
+        });
+        info.update();
+    }
+
+    function clickRoute(e) {
+			var layer = e.target;
+			$('option[value=' + layer.feature.properties.short_name + '-' + layer.feature.properties.dir + ']', $('#select_routes')).prop("selected", true);
+            $('#select_routes').selectpicker('refresh');
+	}
+
+    function onEachRouteFeature(feature,layer){
+        layer.on({
+				mouseover: highlightRoute,
+				mouseout: resetHighlightRoute,
+				click: clickRoute
+        });
         if(feature.properties && feature.properties.short_name){
-            layer.bindPopup(feature.properties.short_name);
+            layer.bindPopup("Route " + feature.properties.short_name + ": " + feature.properties.long_name + " (" + feature.properties.dir + ")");
         }
     }
-    function getInfo(){
-		//var route = $("#route").val();
 
+    function getInfo(){
         //clear real time buses, declaration of buses_LayerGroup is at below
         buses_layerGroup.clearLayers();
 
 		$.get("../get_stop_routes/", {stop:selected_stop}, function(data, textStatus){
-{#			if(routeLayer){#}
-{#			 	control.removeLayer(routeLayer);#}
-{#			 	if(map.hasLayer(routeLayer)){#}
-{#			 		map.removeLayer(routeLayer);#}
-{#			 	}#}
-{#			 }#}
             routes_featureGroup.clearLayers();
             for(var i = 0; i < routes.length; i++){
                 map.removeLayer(routes[i]);
                 control.removeLayer(routes[i]);
             }
 			if(data){
-                route_geoJson = data;
                 var route_num = data.features.length;
                 for(var i = 0; i < route_num; i++) {
-                    routeLayer = L.geoJson(data.features[i], {style: {color: colors[i],weight:6,opacity:0.9}, onEachFeature: onEachRouteFeature}).addTo(map);
-                    control.addOverlay(routeLayer, data.features[i].properties.short_name);
+                    routeLayer = L.geoJson(data.features[i], {style: {color: colors[i],weight:6,opacity:0.7}, onEachFeature: onEachRouteFeature}).addTo(map);
+                    control.addOverlay(routeLayer, data.features[i].properties.short_name + ' (' + data.features[i].properties.dir + ')');
                     routes.push(routeLayer);
                     routes_featureGroup.addLayer(routeLayer);
                 }
                 map.fitBounds(routes_featureGroup.getBounds());
+
                 $("#select_routes").empty();
-                for(var i=0;i<route_geoJson.features.length;i++){
-                    $("#select_routes").append("<option value="+route_geoJson.features[i].properties.short_name+">"+ route_geoJson.features[i].properties.short_name +"</option>");
+                for(var i=0;i<data.features.length;i++){
+                    $("#select_routes").append("<option value="+data.features[i].properties.short_name + '-' + data.features[i].properties.dir+">"+ data.features[i].properties.short_name + " (" + data.features[i].properties.dir + ")" + "</option>");
                 }
-                //Initialize multiselect
-                $('#select_routes').multiselect("rebuild");
+                $('#select_routes').selectpicker("refresh");
 			}
 		    else{
-		  	    $('#txtHint').text("No route passes " + selected_stop);
+		  	    alert("No route passes " + selected_stop + ". Please select another stop!");
 		    }
 		},"json");
 	}
 
     $('#routes_deselect_all').on('click', function() {
-
+        buses_layerGroup.clearLayers();
+        routes_featureGroup.clearLayers();
+        for(var i = 0; i < routes.length; i++){
+                map.removeLayer(routes[i]);
+                control.removeLayer(routes[i]);
+        }
+        routes = [];
+        $("#select_routes").empty();
+        $('#select_routes').selectpicker('refresh');
+        $("#select_stop").text('Select 1 stop on map.');
+        selected_stop = "";
+        selected_stop_name = "";
+        if(selected_stopLayer){
+			 	control.removeLayer(selected_stopLayer);
+			 	if(map.hasLayer(selected_stopLayer)){
+			 		map.removeLayer(selected_stopLayer);
+			 	}
+        }
+        map.addLayer(stopsLayer);
     });
 
 
 {#=================================================== Get Metrics Begin Here =======================================#}
+    function plot(route, stopid, dev, chartname, name){
+            var s = [];
+            for (var i=0; i < 24; i++){s[i]=0}
+            for (var i=0; i < dev.length; i++){
+                var temp = 0;
+                if (dev[i]<=0){
+                    temp = Math.floor(dev[i]);
+                    if (temp < -12){temp = -12}
+                }else{
+                    temp = Math.ceil(dev[i]);
+                    if (temp > 12){temp = 12}
+                }
+                if (temp < 0){temp += 12}else{temp += 11}
+                s[temp] += 1;
+            }
+            var ticks = ['<-11','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','>11'];
+			var plot = $.jqplot(chartname, [s], {
+    			title: 'Schedule deviation distribution of Route ' + route + ' at Stop: ' + name + ' (' + stopid + ').' ,
+                seriesDefaults: {
+                    pointLabels: { show:false, formatString: "%#.2f" },
+                    renderer:$.jqplot.BarRenderer,
+                    rendererOptions: {fillToZero: true}
+                },
+    			axes: {
+                    // Use a category axis on the x axis and use our custom ticks.
+                    xaxis: {
+                        label:'Schedule deviation (min)',
+                        renderer: $.jqplot.CategoryAxisRenderer,
+                        ticks: ticks
+                    },
+                    // Pad the y axis just a little so bars can get close to, but
+                    // not touch, the grid boundaries.  1.2 is the default padding.
+                    yaxis: {
+                        label:'Count',
+                        pad: 1.05,
+                        tickOptions: {formatString: '%d'}
+                    }
+                },
+                highlighter: {
+                    show: true,
+                    tooltipAxes: 'y',
+                    sizeAdjust: 0
+                }
+  			});
+    }
+
     function get_metrics() {
-        //generate some random metrics for now
-        var selected_routes = $('#routes_multiselect ul li.active [name= "route"]');
+        if (selected_stop == ''){
+            alert("Please select 1 stop first.");
+            return;
+        }
+        var selected_routes = $('#select_routes option:selected');
         var routes_number = selected_routes.length;
-        if (routes_number == 0) {
+        if (routes_number == 0 ){
             alert("Please select at least 1 route.");
             return;
         }
@@ -389,23 +535,95 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
         }
         var selected_routes_str = routes_array.join();
 
-        var s_datetime = $("#syear option:selected").val() + "-" + $("#smonth option:selected").val() + "-" + ($("#sday option:selected").val().length == 1 ? "0" + $("#sday option:selected").val() : $("#sday option:selected").val()) + " " + $("#s_time").val();
-        var e_datetime = $("#eyear option:selected").val() + "-" + $("#emonth option:selected").val() + "-" + ($("#eday option:selected").val().length == 1 ? "0" + $("#eday option:selected").val() : $("#eday option:selected").val()) + " " + $("#e_time").val();
-        //alert(s_datetime + "<br>" + e_datetime + "<br>" + selected_routes_str);
-        $.get("../transit_metrics_stop_routes/", {
-            s_datetime: s_datetime,
-            e_datetime: e_datetime,
+        var s_date = $("#s_date").val();
+        if (s_date==''){alert("Please select a Start Date!");return;}
+        var e_date = $("#e_date").val();
+        if (e_date==''){alert("Please select a End Date!");return;}
+        if ((parseInt(s_date.slice(-4)) > parseInt(e_date.slice(-4))) || (parseInt(s_date.slice(-4)) == parseInt(e_date.slice(-4))&&(parseInt(s_date.substr(0,2)) > parseInt(e_date.substr(0,2)))) || (parseInt(s_date.slice(-4)) == parseInt(e_date.slice(-4))&&(parseInt(s_date.substr(0,2)) == parseInt(e_date.substr(0,2)))&&(parseInt(s_date.substr(3,2)) > parseInt(e_date.substr(3,2)))) ){
+            alert("Start Date must be no later than End Date!\n\nPlease re-select.");
+            return;
+        }
+        var s_time = $("#s_time").val();
+        if (s_time==''){alert("Please select a Start Time!");return;}
+        var e_time = $("#e_time").val();
+        if (e_time==''){alert("Please select a End Time!");return;}
+        var stime = parseInt(s_time.substr(-5,2)) + parseInt(s_time.slice(0,-6))*100;
+        var etime = parseInt(e_time.substr(-5,2)) + parseInt(e_time.slice(0,-6))*100;
+        if (s_time.slice(-2) == "PM"){stime += 1200}
+        if (parseInt(s_time.slice(0,-6)) == 12){stime -= 1200}
+        if (e_time.slice(-2) == "PM"){etime += 1200}
+        if (parseInt(e_time.slice(0,-6)) == 12){etime -= 1200}
+        if (stime >= etime){
+            alert("Start Time must be earlier than End Time!\n\nPlease re-select.");
+            return;
+        }
+
+        var target = document.getElementById('map');
+        spinner = new Spinner(spinneropts).spin(target);
+        target.style.opacity = '0.15';
+
+        var low = $("#slider").slider('getValue')[0].value.split(",")[0];
+        var high = $("#slider").slider('getValue')[0].value.split(",")[1];
+
+        $('#chartcontainer').empty();
+
+        $.get("../transit_metrics_op_bystop/", {
             stop: selected_stop,
-            routes: selected_routes_str
-        }, function (data, textStatus) {
-            $('#ontime').text(data["ontime"]);
-            $('#crowding').text(data["crowding"]);
-            $('#waiting').text(data["waiting"]);
-        });
+            routes: selected_routes_str,
+            s_date:s_date,
+            e_date:e_date,
+            s_time:stime,
+            e_time:etime
+        }, function(data, textStatus){
+            for (var i=0;i < routes_number; i++){
+                $('#chartcontainer').append("<div class='row' style='padding-top:5px;'><div class='col-md-10' style='height: auto;'" +
+                "id = 'col1" + routes_array[i] + "'></div><div class='col-md-2' style='height: auto;' id = 'col2" + routes_array[i] +
+                "'></div></div>");
+
+                var temp = document.createElement('div');
+                temp.id = 'chart'+routes_array[i];
+                temp.style.marginLeft = "20px";
+                temp.style.marginTop = "20px";
+                $('#col1'+routes_array[i]).append(temp);
+                var tempright = document.createElement('div');
+                tempright.id = 'stat'+routes_array[i];
+                tempright.style.height = "300px";
+                tempright.style.marginRight = "20px";
+                tempright.style.marginTop = "20px";
+                $('#col2'+routes_array[i]).append(tempright);
+
+                plot(routes_array[i], selected_stop, data[routes_array[i]], temp.id, selected_stop_name);
+
+                if (data[routes_array[i]].length == 0){
+                    document.getElementById('stat'+routes_array[i]).innerHTML = "<br><br><br><br> <h4> No data found for this route. <br>Please re-select!</h4>"
+                }else{
+                    var avg = 0,
+                        proportion = 0;
+                    for (var j=0; j < data[routes_array[i]].length; j++){
+                        avg += data[routes_array[i]][j]
+                        if ((data[routes_array[i]][j] >= low)&&(data[routes_array[i]][j] <= high)){proportion += 1}
+                    }
+                    avg /= data[routes_array[i]].length;
+                    proportion /= data[routes_array[i]].length;
+
+                    var sd = 0;
+                    for (var j=0; j < data[routes_array[i]].length; j++){
+                        sd += Math.pow(data[routes_array[i]][j] - avg, 2)
+                    }
+                    sd = Math.sqrt(sd/data[routes_array[i]].length);
+                    document.getElementById('stat'+routes_array[i]).innerHTML = "<br><br><br><br> <h5> Mean: <br>" + avg.toFixed(2) + " Minutes<br><br>Standard Deviation: <br>" + sd.toFixed(2) + " Minutes<br><br>"
+                            + "On-time Performance: <br>" + proportion.toFixed(2) + "</h5>";
+                }
+            }
+            ///////Spinner Stop
+                spinner.stop();
+                var target = document.getElementById('map');
+                target.style.opacity = '1';
+            ///////////////////
+        }, "json");
     }
 
     $("#historical").click(get_metrics);
-
 {#=========================================================== End =====================================================#}
 
 
@@ -432,10 +650,10 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
     }
 
     var buses_layerGroup = L.layerGroup().addTo(map);
-    control.addOverlay(buses_layerGroup,"Buses");
+    control.addOverlay(buses_layerGroup,"Realtime Buses");
 
     function get_bus_real_time(){
-        var selected_routes = $('#routes_multiselect ul li.active [name= "route"]');
+        var selected_routes = $('#select_routes option:selected');
         var routes_num = selected_routes.length;
         if(routes_num == 0){
             alert("Please Select At Least 1 Route.");
@@ -443,16 +661,13 @@ Power of 32 RTIS - Transit - On-Time Performance (by stop)
         }
         buses_layerGroup.clearLayers();
         for(var i = 0; i < routes_num; i++) {
-
-            $.get("../bus_real_time/", {rt: selected_routes[i].value}, function (data, textStatus) {
-
+            $.get("../bus_real_time/", {rt: selected_routes[i].value.split("-")[0]}, function (data, textStatus) {
                 if (data["status"] == "success") {
                     busLayer = L.geoJson(data["geoJson"], {
                         pointToLayer: function (feature, latlng) {
                             return L.circleMarker(latlng, busMarkerOptions(feature.properties.spd));
                         },
                         onEachFeature: onEachBusFeature
-
                     });
                     buses_layerGroup.addLayer(busLayer);
                 }

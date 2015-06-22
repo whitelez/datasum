@@ -47,20 +47,21 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Transit <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                             <li class="dropdown dropdown-submenu">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"> On-Time Performance &nbsp;&nbsp; </a>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"> Bus On-Time Performance &nbsp;&nbsp; </a>
                                 <ul class="dropdown-menu">
                                     <li><a href="{% url 'traffic:transit_ontimeperformance_byroute' %}"> Query by Route </a></li>
                                     <li><a href="{% url 'traffic:transit_ontimeperformance_bystop' %}"> Query by Stop </a></li>
                                 </ul>
                             </li>
+                            <li><a href="{% url 'traffic:transit_schedule' %}">Schedule Optimization</a></li>
                             <li class="dropdown dropdown-submenu">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"> Waiting Time </a>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"> Passenger Waiting Time </a>
                                 <ul class="dropdown-menu">
                                     <li><a href="{% url 'traffic:transit_waitingtime_byroute' %}"> Query by Route </a></li>
                                     <li><a href="{% url 'traffic:transit_waitingtime_bystop' %}"> Query by Stop </a></li>
                                 </ul>
                             </li>
-                            <li><a href="{% url 'traffic:transit_crowding' %}">Crowding Level</a></li>
+                            <li><a href="{% url 'traffic:transit_crowding' %}">Bus Crowding Level</a></li>
 							<li><a href="{% url 'traffic:transit_busbunching' %}">Bus Bunching</a></li>
 							<li><a href="{% url 'traffic:transit_bustraveltime' %}">Bus Travel Time</a></li>
                         </ul>
