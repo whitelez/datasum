@@ -46,7 +46,8 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
         margin-left: 6px;
         margin-top: 3px;
         opacity: 0.9;
-    }.legend k {
+    }
+    .legend k {
         width: 12px;
         height: 12px;
         float: left;
@@ -291,9 +292,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
 	    function highlightFeature(e) {
 			var layer = e.target;
 			layer.setStyle({
-				color: 'blue',
-                radius: 8,
-				fillOpacity: 0.9
+                radius: 8
 			});
 			if (!L.Browser.ie && !L.Browser.opera) {
 				layer.bringToFront();
@@ -303,9 +302,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
 		function resetHighlight(e) {
             var layer = e.target;
             layer.setStyle({
-                color: 'blue',
-                radius: 5,
-                fillOpacity: 0.9
+                radius: 6
 			});
 			info.update();
 		}
@@ -411,7 +408,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
             }
 			if(data){
                 route_geoJson = $.parseJSON(data);
-                routeLayer = L.geoJson(route_geoJson,{style:{color:'green'}}).addTo(map);
+                routeLayer = L.geoJson(route_geoJson,{style:{color:'green', weight:'7', opacity:'0.7'}}).addTo(map);
                 map.fitBounds(routeLayer.getBounds());
                 control.addOverlay(routeLayer,'Route '+route);
 			}else{
@@ -431,7 +428,14 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
 			    stops_geoJson = $.parseJSON(data);
 			    stopsLayer = L.geoJson(stops_geoJson, {
 					pointToLayer:function(feature, latlng){
-							return L.circleMarker(latlng,{radius:5,fillOpacity:0.9});
+							return L.circleMarker(latlng,{
+                                radius:6,
+                                fillColor: '#9ba7ff',
+                                color: 'blue',
+                                weight: 1,
+                                opacity: 0.6,
+                                fillOpacity: 0.9
+                            });
 					},
 					onEachFeature:onEachFeature
                 }).addTo(map);

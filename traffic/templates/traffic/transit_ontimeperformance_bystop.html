@@ -71,7 +71,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
 <div class="well" style="height:600px;">
 	<div class="container" style="width: inherit">
         <div class="row"><h4>On-Time Performance </h4></div>
-        <div class="row" style="padding-top: 10px">
+        <div class="row" style="padding-top: 20px">
         	<div class="col-md-4" style="padding-right: 0;">
 				<h5>Stop:</h5>
             </div>
@@ -80,7 +80,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
             </div>
         </div>
 
-        <div class="row" style="padding-top:5px;">
+        <div class="row" style="padding-top:10px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Routes:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
                 <select id = "select_routes" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
@@ -88,11 +88,11 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
             </div>
 	    </div>
 
-        <button id="routes_deselect_all" class="btn btn-default btn-block" style="margin-top: 10px">
+        <button id="routes_deselect_all" class="btn btn-default btn-block" style="margin-top: 20px">
             <span class="glyphicon glyphicon-remove"> </span> &nbsp; Clear All
         </button><br>
 
-        <div class="row" style="padding-top:5px;">
+        <div class="row" style="padding-top:25px;">
         	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Date:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
                     <div class='input-group date' id='datepicker'>
@@ -103,7 +103,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
             </div>
 	    </div>
 
-		<div class="row" style="padding-top:5px;">
+		<div class="row" style="padding-top:8px;">
         	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>End Date:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
                     <div class='input-group date' id='datepicker2'>
@@ -114,7 +114,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
             </div>
 	    </div>
 
-        <div class="row" style="padding-top:5px;">
+        <div class="row" style="padding-top:8px;">
            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Time:</h5></div>
            <div class="col-md-8" style="padding-left: 0;">
                     <div class='input-group date' id='datetimepicker'>
@@ -125,7 +125,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
            </div>
         </div>
 
-        <div class="row" style="padding-top:5px;">
+        <div class="row" style="padding-top:8px;">
            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>End Time:</h5></div>
            <div class="col-md-8" style="padding-left: 0;">
                     <div class='input-group date' id='datetimepicker2'>
@@ -144,7 +144,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
             <div class="col-md-1" style="height:20px;padding-left: 0;"><p>12</p></div>
         </div>
 
-        <div class="row" style="padding-top:5px;">
+        <div class="row" style="padding-top:15px;">
            <div class="col-md-6" style="height: 36px;padding-right: 0;">
                <button type="button" style="margin-top:10px;" class="btn btn-default btn-block" id="real_time">
                     <span class="glyphicon glyphicon-search"> </span> &nbsp; Real Time
@@ -276,9 +276,8 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
 	    function highlightFeature(e) {
 			var layer = e.target;
 			layer.setStyle({
-				color: 'blue',
-				radius: 8,
-				fillOpacity: 0.7
+				radius: 9,
+                fillOpacity: 1.0
 			});
 			if (!L.Browser.ie && !L.Browser.opera) {
 				layer.bringToFront();
@@ -288,10 +287,8 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
 		function resetHighlight(e) {
             var layer = e.target;
             layer.setStyle({
-                color: 'blue',
                 radius: 4,
-                fillOpacity: 0.5,
-                weight: 0
+                fillOpacity: 0.6
 			});
 			info.update();
 		}
@@ -318,6 +315,10 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
             selected_stop_name = "";
         function clickFeature(e) {
 			var layer = e.target;
+            layer.setStyle({
+                radius: 4,
+                fillOpacity: 0.6
+			});
 			$("#select_stop").text(layer.feature.properties.name.replace(/['"]+/g,''));
             selected_stop = layer.feature.properties.stop_id;
             selected_stop_name = layer.feature.properties.name;
@@ -336,13 +337,18 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
 		}
 
         stopsLayer = L.geoJson(stops_geoJson, {
-					pointToLayer:function(feature, latlng){
-							return L.circleMarker(latlng,{radius:4,fillOpacity:0.5,weight:0});
-					},
-					onEachFeature:onEachFeature
+            pointToLayer: function (feature, latlng) {
+                return L.circleMarker(latlng, {
+                    radius: 4,
+                    fillColor: '#9ba7ff',
+                    fillOpacity: 0.6,
+                    color: 'blue',
+                    weight: 1
+                });
+            },
+            onEachFeature: onEachFeature
         }).addTo(map);
-        control.addOverlay(stopsLayer,'Stops');
-
+        control.addOverlay(stopsLayer, 'Stops');
 
 {#======================================= Spinner Options ===========================================#}
         var spinneropts = {
@@ -375,7 +381,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
         var layer = e.target;
         layer.setStyle({
             weight:10,
-            opacity:1.0
+            opacity:0.9
         });
         if (!L.Browser.ie && !L.Browser.opera) {
             layer.bringToFront();
@@ -387,7 +393,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
         var layer = e.target;
         layer.setStyle({
             weight: 6,
-            opacity:0.8
+            opacity:0.7
         });
         info.update();
     }
@@ -422,7 +428,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
 			if(data){
                 var route_num = data.features.length;
                 for(var i = 0; i < route_num; i++) {
-                    routeLayer = L.geoJson(data.features[i], {style: {color: colors[i],weight:6,opacity:0.8}, onEachFeature: onEachRouteFeature}).addTo(map);
+                    routeLayer = L.geoJson(data.features[i], {style: {color: colors[i],weight:6,opacity:0.7}, onEachFeature: onEachRouteFeature}).addTo(map);
                     control.addOverlay(routeLayer, data.features[i].properties.short_name + ' (' + data.features[i].properties.dir + ')');
                     routes.push(routeLayer);
                     routes_featureGroup.addLayer(routeLayer);
@@ -480,7 +486,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
                 if (temp < 0){temp += 12}else{temp += 11}
                 s[temp] += 1;
             }
-            var ticks = ['-12','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','12'];
+            var ticks = ['<-11','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','>11'];
 			var plot = $.jqplot(chartname, [s], {
     			title: 'Schedule deviation distribution of Route ' + route + ' at Stop: ' + name + ' (' + stopid + ').' ,
                 seriesDefaults: {

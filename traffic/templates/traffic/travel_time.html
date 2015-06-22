@@ -357,34 +357,6 @@ Power of 32 RTIS - Travel Time: Interstates
 			minLength: 2,
 			zoom:10
 		}) );
-	
-	/*var info = L.control();
-
-		info.onAdd = function (map) {
-			this._div = L.DomUtil.create('div', 'info');
-			this._div.innerHTML = '<h4>Selection</h4>'
-								+ "<br> <b>Road:</b><p id = 'road'></p>"
-								+ "<b>Direction:</b><p id = 'direction'></p>"
-								+ "<b>TMC 1:</b><p id = 'tmc1'></p>"
-								+ "<b>TMC 2:</b><p id = 'tmc2'></p>"
-								+ "<b>Travel Time:</b><p id = 'travel_time'></p>";
-			return this._div;
-		};
-		
-		
-		/*info.update1 = function (prop) {
-			this._div.innerHTML = '<h4>Selection</h4>'
-				+ "<br> <b>Road:</b>" + prop.road
-				+ "<br> <b>Direction:</b>" + prop.direction
-				+ "<br> <b>TMC 1:</b><p id = 'tmc1'>" +prop.TMC+"</p>";
-		};
-		
-		info.update2 = function (prop) {
-			this._div.innerHTML += 
-				+ "<br> <b>TMC 2:</b><p id = 'tmc2'>" +prop.TMC+"</p>";
-		};
-
-		info.addTo(map);*/
 		
 	var info = L.control();
 	info.onAdd = function (map) {
@@ -404,18 +376,23 @@ Power of 32 RTIS - Travel Time: Interstates
 	
 	function highlightFeature(e) {
 			var layer = e.target;
-
-			/*layer.setStyle({
-				weight: 5,
-				color: '#666',
-				dashArray: '',
-				fillOpacity: 0.7
-			});*/
-
+{#			layer.setStyle({#}
+{#				radius: 8,#}
+{#				color: '#666',#}
+{#				dashArray: '',#}
+{#				fillOpacity: 0.7#}
+{#			});#}
 			info.update(layer.feature.properties);
 		}
 
     function resetHighlight(e) {
+        var layer = e.target;
+{#        layer.setStyle({#}
+{#            radius: 6,#}
+{#			color: '#666',#}
+{#			dashArray: '',#}
+{#			fillOpacity: 0.7#}
+{#        });#}
 		info.update();
 	}
 
@@ -515,7 +492,7 @@ Power of 32 RTIS - Travel Time: Interstates
 			   							  '#d4b9da';
 	}
 
-	function parkingMarkerStyle(direction){
+	function MarkerStyle(direction){
 		return {
 			radius: 5,
 			fillColor: getColor(direction),
@@ -528,7 +505,7 @@ Power of 32 RTIS - Travel Time: Interstates
 	
 	tmcLayer = L.geoJson(tmc,{
 		pointToLayer:function(feature, latlng){
-			return L.circleMarker(latlng, parkingMarkerStyle(feature.properties.direction));
+			return L.circleMarker(latlng, MarkerStyle(feature.properties.direction));
 		},
 		onEachFeature:onEachFeature
 	}).addTo(map);

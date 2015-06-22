@@ -46,7 +46,8 @@ Power of 32 RTIS - Transit - Schedule Optimization
         margin-left: 6px;
         margin-top: 3px;
         opacity: 0.9;
-    }.legend k {
+    }
+    .legend k {
         width: 12px;
         height: 12px;
         float: left;
@@ -69,7 +70,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
 {% block content %}
 <div class="well" style="height:600px;">
 	<div class="container" style="width: inherit">
-    	<div class="row"><h4>On-Time Performance </h4></div>
+    	<div class="row"><h4> Schedule Optimization </h4></div>
 		<div class="row" style="padding-top:5px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Route:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
@@ -86,6 +87,14 @@ Power of 32 RTIS - Transit - Schedule Optimization
                <input type="checkbox" id="inout" name="inout" checked>
             </div>
         </div>
+
+        <div class="row" style="padding-top:5px;">
+            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Trips:</h5></div>
+            <div class="col-md-8" style="padding-left: 0;">
+                <select id = "select_trip" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
+                </select>
+            </div>
+	    </div>
 
         <div class="row" style="padding-top:5px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Stops:</h5></div>
@@ -291,9 +300,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
 	    function highlightFeature(e) {
 			var layer = e.target;
 			layer.setStyle({
-				color: 'blue',
                 radius: 8,
-				fillOpacity: 0.9
 			});
 			if (!L.Browser.ie && !L.Browser.opera) {
 				layer.bringToFront();
@@ -303,9 +310,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
 		function resetHighlight(e) {
             var layer = e.target;
             layer.setStyle({
-                color: 'blue',
-                radius: 5,
-                fillOpacity: 0.9
+                radius: 6,
 			});
 			info.update();
 		}
@@ -411,43 +416,50 @@ Power of 32 RTIS - Transit - Schedule Optimization
             }
 			if(data){
                 route_geoJson = $.parseJSON(data);
-                routeLayer = L.geoJson(route_geoJson,{style:{color:'green'}}).addTo(map);
+                routeLayer = L.geoJson(route_geoJson,{style:{color:'green', weight:'7', opacity:'0.7'}}).addTo(map);
                 map.fitBounds(routeLayer.getBounds());
                 control.addOverlay(routeLayer,'Route '+route);
 			}else{
                 alert('No ROUTE information found, please select another route or direction!');
             }
-		},"json");
 
-		$.get("../get_stops/", {route:route, direction:direction}, function(data, textStatus){
-		    $('#select_stop').empty();
-		    if(stopsLayer){
-			 	control.removeLayer(stopsLayer);
-			 	if(map.hasLayer(stopsLayer)){
-			 		map.removeLayer(stopsLayer);
-			 	}
-            }
-		    if(data){
-			    stops_geoJson = $.parseJSON(data);
-			    stopsLayer = L.geoJson(stops_geoJson, {
-					pointToLayer:function(feature, latlng){
-							return L.circleMarker(latlng,{radius:5,fillOpacity:0.9});
-					},
-					onEachFeature:onEachFeature
-                }).addTo(map);
-			    control.addOverlay(stopsLayer,'Stops');
-			    for(var i=0;i<stops_geoJson.features.length;i++){
-				    $("#select_stop").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");
-			    }
-                $('#select_stop').selectpicker('refresh');
-		    }else{
-                alert('No STOP information found. Please select another route or direction!');
-		    }
-            ///////Spinner Stop
-                spinner.stop();
-                var target = document.getElementById('map');
-                target.style.opacity = '1';
-            ///////////////////
+            $.get("../get_stops/", {route:route, direction:direction}, function(data, textStatus){
+                $('#select_stop').empty();
+                if(stopsLayer){
+                    control.removeLayer(stopsLayer);
+                    if(map.hasLayer(stopsLayer)){
+                        map.removeLayer(stopsLayer);
+                    }
+                }
+                if(data){
+                    stops_geoJson = $.parseJSON(data);
+                    stopsLayer = L.geoJson(stops_geoJson, {
+                        pointToLayer:function(feature, latlng){
+                                return L.circleMarker(latlng,{
+                                    radius:6,
+                                    fillColor: '#9ba7ff',
+                                    color: 'blue',
+                                    weight: 1,
+                                    opacity: 0.6,
+                                    fillOpacity: 0.9
+                                });
+                        },
+                        onEachFeature:onEachFeature
+                    }).addTo(map);
+                    control.addOverlay(stopsLayer,'Stops');
+                    for(var i=0;i<stops_geoJson.features.length;i++){
+                        $("#select_stop").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");
+                    }
+                    $('#select_stop').selectpicker('refresh');
+                }else{
+                    alert('No STOP information found. Please select another route or direction!');
+                }
+                ///////Spinner Stop
+                    spinner.stop();
+                    var target = document.getElementById('map');
+                    target.style.opacity = '1';
+                ///////////////////
+            },"json");
 		},"json");
 	}
 
