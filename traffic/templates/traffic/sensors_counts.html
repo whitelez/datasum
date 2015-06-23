@@ -1,0 +1,314 @@
+{% extends "traffic/base.html" %}
+
+{% load staticfiles %}
+
+{% block title %}
+    Power of 32 RTIS - Parking
+{% endblock %}
+
+{% block style %}
+    <style>
+        #overlaycon {
+            height: 600px;
+        }
+        #map{
+            z-index: 100;
+            position: relative;
+            top: -163px;
+        }
+        #chart {
+            background: #ffffff;
+            width:40%;
+            border-radius: 3px;
+            box-shadow:8px 8px 13px #CCCCCC;
+            position: relative;
+            opacity: 0.93;
+            top: 0px;
+            left: 25%;
+            z-index: 10;
+        }
+
+        #chart1 {
+            height:163px;
+            width:100%;
+            opacity: 0.93;
+            position: relative;
+            left: 5%;
+            z-index: 11;
+            width: 90%;
+        }
+    #p1{
+            background: #ffffff;
+            border: 2px solid;
+            border-radius: 10px;
+            border-color: #3f51b5;
+            position: relative;
+            opacity: 0.93;
+            top: 0px;
+            margin-left:1%;
+            height : 110px;
+            text-align: center;
+            width : 97%;
+            z-index: 10;
+
+    }
+
+    </style>
+    <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+    <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
+    <style>html {
+        font-size: 12px;
+        font-family: Arial, Helvetica, sans-serif;
+    }</style>
+    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.common-material.min.css" />
+    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.material.min.css" />
+    <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+    <link rel="stylesheet" href="{% static 'traffic/style_closure.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+
+    <div id="user_input" class="well" style="height: 600px;">
+
+        <div class="container" style="width: inherit">
+            <div class="row" style="margin-top:3px;text-align: center"><h3>Parking info</h3></div>
+                        <div align="mid" class="row" id="p1"><h5>Hover over a street to check occupancy</h5><br><br></div>
+
+            <div class="row" id ="plzwait" style="margin-top:10px;margin-right:auto;margin-left: 0px;"><h5><b>Select time for inquiry: </b></h5></div>
+
+            <div class="row" style="margin-top:10px;margin-right:auto;margin-left: 0px;"></div>
+            <div id="timepick">
+                <div id="to-do" align="center" style="width:120%;margin-left: -15px;">
+                    <label for="timepicker"><h6><i>Time: </i></h6></label> <input style = "width : 120px"  id="timepicker"/>
+                </div>
+            </div>
+
+{#            <a type="button" class="btn btn-purple" id="check_btn" align="middle" style="margin-top:5px;width:90%;">#}
+{#                <span class="glyphicon glyphicon-search"> </span> &nbsp; Inquiry </a> <br>#}
+            {#<input type="button" value="Update" />#}
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block map %}
+
+    <div id='overlaycon'>
+        <div id = 'foo'></div>
+
+        <div id="chart">
+            <div id="chart1" ></div>
+        </div>
+        <div id="map" ; style="opacity: 1"></div>
+    </div>
+{% endblock %}
+
+
+{% block script %}
+
+    <script src="http://cdn.kendostatic.com/2014.3.1411/js/kendo.all.min.js"></script>
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+    <script type="text/javascript" src="{% static 'traffic/terminals_geoJSON.js' %}"></script>
+    <script type="text/javascript" src="{% static 'traffic/jquery.jqplot.min.js' %}"></script>
+    <!--<script type="text/javascript" src="{% static 'traffic/jqplot.cursor.js' %}"></script>-->
+    <script type="text/javascript" src="{% static 'traffic/jqplot.dateAxisRenderer.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'traffic/spinner.js' %}"></script>
+
+
+    <script>
+        // create a map in the "map" div, set the view to a given place and zoom
+        //////////////////////////////data picker
+        "use strict";
+
+        var counts;
+        var countLayer = L.geoJson();
+              //map = L.map('map').setView([40.4407937, -80.0029874], 16);
+                // add an OpenStreetMap tile layer
+        var streets = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        });
+        var grayscale = L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
+                                    maxZoom: 18,
+                                    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+                                    '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                                    'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+                                    id: 'examples.map-20v6611k'
+        });
+        var map = L.map('map', {
+            center: [40.4407937, -80.0029874],
+            zoom: 16,
+            layers: [grayscale]
+        });
+
+        var baseMaps = {
+            "Grayscale": grayscale,
+            "Streets": streets
+        };
+
+        /*var overlayMaps = {
+         "Parking Terminals": terminalLayer
+         };*/
+
+        var control = L.control.layers(baseMaps, null, {collapsed: false}).addTo(map);
+
+        var info = L.control();
+
+
+        info.update = function (props, hour) {
+
+
+            if (props) {
+                var content = "<b>" + props.sid + "</b>";
+
+                if (props.data.length == 0 || props.data[hour] == -1)
+                    content += "<br> No Data";
+                else
+                    content += "<br> Estimated Count from " + hour + " to " + (hour + 1) + ": <br><b>" + props.data[hour] + "</b>";
+            }
+            document.getElementById("p1").innerHTML = (props ?
+                    content
+                    : '<h5>Hover over a meter to check count</h5><br><br>');
+
+        };
+
+
+        //info.addTo(map);
+
+        /////////////time
+        $("#timepicker").kendoTimePicker({
+            value: new Date(2002,1,1,10,0,0),
+            interval: 60,
+            change: function(){
+                showCount(map, info, control, counts, this.value().getHours());
+            }
+        });
+        var timepicker = $("#timepicker").data("kendoTimePicker");
+
+
+        /////////////spinner
+         var spinneropts = {
+             lines: 13, // The number of lines to draw
+             length: 20, // The length of each line
+             width: 10, // The line thickness
+             radius: 30, // The radius of the inner circle
+             corners: 1, // Corner roundness (0..1)
+             rotate: 0, // The rotation offset
+             direction: 1, // 1: clockwise, -1: counterclockwise
+             color: '#000', // #rgb or #rrggbb or array of colors
+             speed: 1, // Rounds per second
+             trail: 60, // Afterglow percentage
+             shadow: false, // Whether to render a shadow
+             hwaccel: false, // Whether to use hardware acceleration
+             className: 'spinner', // The CSS class to assign to the spinner
+             zIndex: 2e9, // The z-index (defaults to 2000000000)
+             top: '60%', // Top position relative to parent
+             left: '63%' // Left position relative to parent
+         };
+
+        var target = document.getElementById('foo');
+        var spinner = new Spinner(spinneropts).spin(target);
+        target.style.zIndex = "110";
+        var target = document.getElementById('map');
+        target.style.opacity = '0.2';
+        target = document.getElementById('chart');
+        target.style.opacity= '0';
+
+        // get counts data from server
+
+        $.get("../get_sensors_counts/",function(data,textStatus){
+            counts = data;
+            showCount(map,info,control, counts, timepicker.value().getHours());
+            spinner.stop();
+                var target = document.getElementById('foo');
+                target.style.zIndex = "1";
+                var mapper = document.getElementById('map');
+                mapper.style.opacity = '1';
+                target = document.getElementById('chart');
+                target.style.opacity= '1';
+        },"json");
+
+
+
+        function showCount(map, info, control, counts, hour) {
+
+            function onEachFeature(feature, layer) {
+
+                function highlightFeature(e) {
+                    var layer = e.target;
+{#                    layer.setStyle({#}
+{#                        weight: 10#}
+{#                    });#}
+                    if (!L.Browser.ie && !L.Browser.opera) {
+                        layer.bringToFront();
+                    }
+
+                    info.update(layer.feature.properties, hour);
+                }
+
+                function resetHighlight(e) {
+{#                    countLayer.resetStyle(e.target);#}
+                    info.update();
+                    //$('#chart1').empty();
+                }
+
+                layer.on({
+                    mouseover: highlightFeature,
+                    mouseout: resetHighlight,
+                });
+
+                if (feature.properties && feature.properties.sid && feature.properties.data) {
+                    var popup = "ID: <b>" + feature.properties.sid + "</b>";
+                    if (feature.properties.data.length != 0 && feature.properties.data[hour] != -1)
+                        popup += "<br>Counts: <b>" + feature.properties.data[hour] + "</b>";
+                    layer.bindPopup(popup);
+
+                }
+            }
+
+            if (countLayer) {
+                control.removeLayer(countLayer);
+                if (map.hasLayer(countLayer)) {
+                    map.removeLayer(countLayer);
+                }
+            }
+
+            countLayer = L.geoJson(counts, {
+                pointToLayer: function(feature, latlng) {
+                    var data = feature.properties.data;
+                    if (data.length == 0)
+                        return L.circleMarker(latlng, meterMarkerStyle(-1));
+                    else
+                        return L.circleMarker(latlng, meterMarkerStyle(data[hour]));
+                },
+                onEachFeature: onEachFeature
+            }).addTo(map);
+
+            control.addOverlay(countLayer, 'Counts Meters');
+
+        }
+
+
+        function getColorLots(d) {
+            return  d >= 100 ? 'red' :
+                    d >= 20 ? 'yellow' :
+                    d > 0 ? 'green' :
+                            'black'; // no data
+        }
+
+        function meterMarkerStyle(d) {
+            return {
+                radius: 5,
+                fillColor: getColorLots(d),
+                color: getColorLots(d),
+                weight: 5,
+                opacity: 0.3,
+                fillOpacity: 0.5
+            };
+        }
+
+    </script>
+
+{% endblock %}
