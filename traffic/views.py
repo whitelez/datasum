@@ -639,6 +639,8 @@ def download(request):
 
 
 # +++++++++++++++++++++++++++++++++++++  Views for Transit function begin here:  +++++++++++++++++++++++++++++++++++++++++++
+
+# Aggregate the shape and stop information of each bus route
 def transit_data(request):
     for route in Route.objects.all():
         print route.route_id
@@ -797,51 +799,12 @@ def bus_real_time(request):
     return HttpResponse(response, content_type='application/json')
 
 def transit_metrics_op_byroute(request):
-# Build a map from Route Name to Route Number which is used in database
-    routedict = {}
-    for i in range(1, 93):
-        routedict[str(i)] = str(i)
-    routedict["19L"] = "191"
-    routedict["28X"] = "281"
-    routedict["51L"] = "511"
-    routedict["52L"] = "521"
-    routedict["53L"] = "531"
-    routedict["61A"] = "611"
-    routedict["61B"] = "612"
-    routedict["61C"] = "613"
-    routedict["61D"] = "614"
-    routedict["71A"] = "711"
-    routedict["71B"] = "712"
-    routedict["71C"] = "713"
-    routedict["71D"] = "714"
-    routedict["G2"] = "900"
-    routedict["G3"] = "903"
-    routedict["G31"] = "931"
-    routedict["O1"] = "801"
-    routedict["O5"] = "805"
-    routedict["O12"] = "812"
-    routedict["P1"] = "444"
-    routedict["P2"] = "555"
-    routedict["P3"] = "666"
-    routedict["P7"] = "907"
-    routedict["P10"] = "910"
-    routedict["P12"] = "912"
-    routedict["P13"] = "913"
-    routedict["P16"] = "716"
-    routedict["P17"] = "717"
-    routedict["P67"] = "767"
-    routedict["P68"] = "768"
-    routedict["P69"] = "769"
-    routedict["P71"] = "771"
-    routedict["P76"] = "776"
-    routedict["P78"] = "978"
-    routedict["Y1"] = "401"
-    routedict["Y45"] = "445"
-    routedict["Y46"] = "946"
-    routedict["Y47"] = "947"
-    routedict["Y49"] = "949"
-# ================================== End =================================
-    route = routedict[request.GET["rt"]]
+    routedict = Route_dict.objects.all()
+    route = ''
+    for item in routedict:
+        if item.short_name == request.GET["rt"]:
+            route = item.route_number_in_APCAVL
+            break
     direction = request.GET["dir"]
     s_date = request.GET["s_date"]
     e_date = request.GET["e_date"]
@@ -862,50 +825,7 @@ def transit_metrics_op_byroute(request):
     return HttpResponse(response, content_type='application/json')
 
 def transit_metrics_op_bystop(request):
-# Build a map from Route Name to Route Number which is used in database
-    routedict = {}
-    for i in range(1, 93):
-        routedict[str(i)] = str(i)
-    routedict["19L"] = "191"
-    routedict["28X"] = "281"
-    routedict["51L"] = "511"
-    routedict["52L"] = "521"
-    routedict["53L"] = "531"
-    routedict["61A"] = "611"
-    routedict["61B"] = "612"
-    routedict["61C"] = "613"
-    routedict["61D"] = "614"
-    routedict["71A"] = "711"
-    routedict["71B"] = "712"
-    routedict["71C"] = "713"
-    routedict["71D"] = "714"
-    routedict["G2"] = "900"
-    routedict["G3"] = "903"
-    routedict["G31"] = "931"
-    routedict["O1"] = "801"
-    routedict["O5"] = "805"
-    routedict["O12"] = "812"
-    routedict["P1"] = "444"
-    routedict["P2"] = "555"
-    routedict["P3"] = "666"
-    routedict["P7"] = "907"
-    routedict["P10"] = "910"
-    routedict["P12"] = "912"
-    routedict["P13"] = "913"
-    routedict["P16"] = "716"
-    routedict["P17"] = "717"
-    routedict["P67"] = "767"
-    routedict["P68"] = "768"
-    routedict["P69"] = "769"
-    routedict["P71"] = "771"
-    routedict["P76"] = "776"
-    routedict["P78"] = "978"
-    routedict["Y1"] = "401"
-    routedict["Y45"] = "445"
-    routedict["Y46"] = "946"
-    routedict["Y47"] = "947"
-    routedict["Y49"] = "949"
-# ================================== End =================================
+    routedict = Route_dict.objects.all()
     routes = request.GET["routes"].split(",")
     stopid = request.GET["stop"]
     s_date = request.GET["s_date"]
@@ -916,7 +836,11 @@ def transit_metrics_op_bystop(request):
     e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
     result = {}
     for route in routes:
-        routename = routedict[route.split("-")[0]]
+        routename = ''
+        for item in routedict:
+            if item.short_name == route.split("-")[0]:
+                routename = item.route_number_in_APCAVL
+                break
         direction = route.split("-")[1]
         if direction == "Inbound":
             direction = "1"
@@ -932,51 +856,12 @@ def transit_metrics_op_bystop(request):
     return HttpResponse(response, content_type='application/json')
 
 def get_trips(request):
-# Build a map from Route Name to Route Number which is used in database
-    routedict = {}
-    for i in range(1, 93):
-        routedict[str(i)] = str(i)
-    routedict["19L"] = "191"
-    routedict["28X"] = "281"
-    routedict["51L"] = "511"
-    routedict["52L"] = "521"
-    routedict["53L"] = "531"
-    routedict["61A"] = "611"
-    routedict["61B"] = "612"
-    routedict["61C"] = "613"
-    routedict["61D"] = "614"
-    routedict["71A"] = "711"
-    routedict["71B"] = "712"
-    routedict["71C"] = "713"
-    routedict["71D"] = "714"
-    routedict["G2"] = "900"
-    routedict["G3"] = "903"
-    routedict["G31"] = "931"
-    routedict["O1"] = "801"
-    routedict["O5"] = "805"
-    routedict["O12"] = "812"
-    routedict["P1"] = "444"
-    routedict["P2"] = "555"
-    routedict["P3"] = "666"
-    routedict["P7"] = "907"
-    routedict["P10"] = "910"
-    routedict["P12"] = "912"
-    routedict["P13"] = "913"
-    routedict["P16"] = "716"
-    routedict["P17"] = "717"
-    routedict["P67"] = "767"
-    routedict["P68"] = "768"
-    routedict["P69"] = "769"
-    routedict["P71"] = "771"
-    routedict["P76"] = "776"
-    routedict["P78"] = "978"
-    routedict["Y1"] = "401"
-    routedict["Y45"] = "445"
-    routedict["Y46"] = "946"
-    routedict["Y47"] = "947"
-    routedict["Y49"] = "949"
-# ================================== End =================================
-    route = routedict[request.GET["route"]]
+    routedict = Route_dict.objects.all()
+    route = ''
+    for item in routedict:
+        if item.short_name == request.GET["route"]:
+            route = item.route_number_in_APCAVL
+            break
     if request.GET["direction"] == 'I':
         direction = '1'
     else:
@@ -985,10 +870,7 @@ def get_trips(request):
 
     data = Transit_data.objects.filter(route=route, dir=direction)
     for item in data:
-
-            if item.schtim >= s_time and item.schtim <= e_time:
-                if item.schdev != 99:
-                    result[route].append(item.schdev)
+        pass
 
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')

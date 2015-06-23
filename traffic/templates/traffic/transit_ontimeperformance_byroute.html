@@ -414,44 +414,44 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
 			}else{
                 alert('No ROUTE information found, please select another route or direction!');
             }
-		},"json");
 
-		$.get("../get_stops/", {route:route, direction:direction}, function(data, textStatus){
-		    $('#select_stop').empty();
-		    if(stopsLayer){
-			 	control.removeLayer(stopsLayer);
-			 	if(map.hasLayer(stopsLayer)){
-			 		map.removeLayer(stopsLayer);
-			 	}
-            }
-		    if(data){
-			    stops_geoJson = $.parseJSON(data);
-			    stopsLayer = L.geoJson(stops_geoJson, {
-					pointToLayer:function(feature, latlng){
-							return L.circleMarker(latlng,{
-                                radius:6,
-                                fillColor: '#9ba7ff',
-                                color: 'blue',
-                                weight: 1,
-                                opacity: 0.6,
-                                fillOpacity: 0.9
-                            });
-					},
-					onEachFeature:onEachFeature
-                }).addTo(map);
-			    control.addOverlay(stopsLayer,'Stops');
-			    for(var i=0;i<stops_geoJson.features.length;i++){
-				    $("#select_stop").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");
-			    }
-                $('#select_stop').selectpicker('refresh');
-		    }else{
-                alert('No STOP information found. Please select another route or direction!');
-		    }
-            ///////Spinner Stop
-                spinner.stop();
-                var target = document.getElementById('map');
-                target.style.opacity = '1';
-            ///////////////////
+            $.get("../get_stops/", {route:route, direction:direction}, function(data, textStatus){
+                $('#select_stop').empty();
+                if(stopsLayer){
+                    control.removeLayer(stopsLayer);
+                    if(map.hasLayer(stopsLayer)){
+                        map.removeLayer(stopsLayer);
+                    }
+                }
+                if(data){
+                    stops_geoJson = $.parseJSON(data);
+                    stopsLayer = L.geoJson(stops_geoJson, {
+                        pointToLayer:function(feature, latlng){
+                                return L.circleMarker(latlng,{
+                                    radius:6,
+                                    fillColor: '#9ba7ff',
+                                    color: 'blue',
+                                    weight: 1,
+                                    opacity: 0.6,
+                                    fillOpacity: 0.9
+                                });
+                        },
+                        onEachFeature:onEachFeature
+                    }).addTo(map);
+                    control.addOverlay(stopsLayer,'Stops');
+                    for(var i=0;i<stops_geoJson.features.length;i++){
+                        $("#select_stop").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");
+                    }
+                    $('#select_stop').selectpicker('refresh');
+                }else{
+                    alert('No STOP information found. Please select another route or direction!');
+                }
+                ///////Spinner Stop
+                    spinner.stop();
+                    var target = document.getElementById('map');
+                    target.style.opacity = '1';
+                ///////////////////
+            },"json");
 		},"json");
 	}
 
@@ -469,6 +469,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
     });
 
     $('#stops_deselect_all').click(function(){
+        $('#chartcontainer').empty();
         var selected_stops = $('#select_stop option:selected');
         var stops_number = selected_stops.length;
         for(var i = 0; i < stops_number; i++){
@@ -496,7 +497,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
                 s[temp] += 1;
             }
 			if (direction == 1){direction = 'Inbound'}else{direction = 'Outbound'}
-            var ticks = ['-12','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','12'];
+            var ticks = ['<-11','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','>11'];
 			var plot = $.jqplot(chartname, [s], {
     			title: 'Schedule deviation distribution of Route ' + route + ' (' + direction + ') at Stop: ' + name + ' (' + stopid + ').' ,
                 seriesDefaults: {

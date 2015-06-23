@@ -162,7 +162,7 @@ class TMC_data(models.Model):
     avg_speed = models.FloatField()
     travel_time = models.FloatField()
     class Meta:
-	index_together = [['tmc','date','time'],]
+        index_together = [['tmc','date','time'],]
 
 class Incidents(models.Model):
     eventid = models.CharField(max_length = 15, primary_key = True)
@@ -182,7 +182,7 @@ class Incidents(models.Model):
     def __unicode__(self):
         return self.eventid
     class Meta:
-	index_together = [['close_date','close_time'],]
+        index_together = [['close_date','close_time'],]
 
 class Weather(models.Model):
     county = models.CharField(max_length = 20, primary_key = True)
@@ -209,16 +209,24 @@ class Route(models.Model):
     def __unicode__(self):
         return self.route_id
 
+class Route_dict(models.Model):
+    short_name = models.CharField(max_length = 5, primary_key = True)
+    route_number_in_APCAVL = models.CharField(max_length = 5, unique = True)
+    def __unicode__(self):
+        return self.short_name
+
 class Trip(models.Model):
-    route_id = models.ForeignKey(Route)
+    route = models.ForeignKey(Route)
     service_id = models.CharField(max_length = 35)
     trip_id = models.CharField(max_length = 50, primary_key = True)
     headsign = models.CharField(max_length = 100)
     direction_id = models.CharField(max_length = 1)
-    block_id = models.PositiveIntegerField()
+    block_id = models.CharField(max_length = 20)
     shape_id = models.CharField(max_length = 10)
     def __unicode__(self):
         return self.trip_id
+    class Meta:
+        index_together = ['route']
 
 class Stop(models.Model):
     stop_id = models.CharField(max_length = 10, primary_key = True)
@@ -231,22 +239,24 @@ class Stop(models.Model):
     def __unicode__(self):
         return self.stop_id
 
-class Stop_route(models.Model):
-    stop_id =  models.CharField(max_length = 10, db_index = True)
-    route_id =  models.CharField(max_length = 10, db_index = True)
-    direction = models.CharField(max_length = 1)
-    order = models.PositiveSmallIntegerField()
-    
 class Stop_time(models.Model):
-    trip_id = models.ForeignKey(Trip)
+    trip = models.ForeignKey(Trip)
     arrival_time = models.CharField(max_length = 8)
     departure_time = models.CharField(max_length = 8)
-    stop_id = models.ForeignKey(Stop)
+    stop = models.ForeignKey(Stop)
     stop_sequence = models.PositiveSmallIntegerField()
     pickup_type = models.CharField(max_length = 1)
     drop_off_type = models.CharField(max_length = 1)
     def __unicode__(self):
         return self.arrival_time
+    class Meta:
+        unique_together = (("trip", "stop_sequence"),)
+
+class Stop_route(models.Model):
+    stop_id =  models.CharField(max_length = 10, db_index = True)
+    route_id =  models.CharField(max_length = 10, db_index = True)
+    direction = models.CharField(max_length = 1)
+    order = models.PositiveSmallIntegerField()
 
 class Transit_shape(models.Model):
     shape_id = models.CharField(max_length = 10, db_index = True)

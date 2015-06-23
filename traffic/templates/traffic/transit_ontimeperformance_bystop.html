@@ -448,6 +448,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
 	}
 
     $('#routes_deselect_all').on('click', function() {
+        $('#chartcontainer').empty();
         buses_layerGroup.clearLayers();
         routes_featureGroup.clearLayers();
         for(var i = 0; i < routes.length; i++){
