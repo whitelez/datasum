@@ -42,7 +42,13 @@
                
                     <li id="nav-closure"><a href="{% url 'traffic:closure' %}">Closure</a></li>      <!Added by SGYang>
                     <li id="nav-cameras"><a href="{% url 'traffic:camera' %}">Cameras</a></li>
-                    <li id="nav-trafficcounts"><a href="{% url 'traffic:count' %}">Traffic Counts</a></li>
+                    <li id="nav-trafficcounts" class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Traffic Counts <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'traffic:count' %}">Routes Counts</a></li>
+							<li><a href="{% url 'traffic:sensors_counts_webpage' %}">Sensors Counts</a></li>
+                        </ul>
+                    </li>
                     <li id="nav-transit" class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Transit <b class="caret"></b></a>
                         <ul class="dropdown-menu">

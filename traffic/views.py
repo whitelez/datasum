@@ -1331,7 +1331,7 @@ def get_sensors_counts(request):
     sensors = Counts_sensors.objects.all()
     features = [0]*len(sensors)
     for i, sensor in enumerate(sensors):
-        features[i] = {"type":"Feature","geometry":{"type":"Point","coordinates":json.loads(sensor.coordinates.strip())},"properties":{"sid":sensor.sid,"data":sensor.counts}}
+        features[i] = {"type":"Feature","geometry":{"type":"Point","coordinates":json.loads(sensor.coordinates.strip())},"properties":{"sid":sensor.sid,"data":[] if sensor.counts == "" else [float(num_str) for num_str in sensor.counts.split(",")]}} #some of the sensors do not have counts data
     sensors_data["features"] = features
     response = json.dumps(sensors_data)
     return HttpResponse(response,content_type = "application/json")
