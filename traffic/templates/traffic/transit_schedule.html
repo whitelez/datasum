@@ -71,24 +71,24 @@ Power of 32 RTIS - Transit - Schedule Optimization
 <div class="well" style="height:600px;">
 	<div class="container" style="width: inherit">
     	<div class="row"><h4> Schedule Optimization </h4></div>
-		<div class="row" style="padding-top:5px;">
+		<div class="row" style="margin-top:20px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Route:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
                 <select id='select_route' name = 'select_route' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
 			  	    {% for route in routes%}
-						<option value={{route}}>{{route}}</option>
+						<option value={{route.route_value}}>{{route.route_shortname}}</option>
 					{% endfor %}
 			    </select>
             </div>
 	    </div>
 
-        <div class="row" style="padding-top:5px;padding-bottom: 5px;">
+        <div class="row" style="padding-top:8px;">
             <div class="col-md-12" style="text-align: right;">
                <input type="checkbox" id="inout" name="inout" checked>
             </div>
         </div>
 
-        <div class="row" style="padding-top:5px;">
+        <div class="row" style="padding-top:8px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Trip:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
                 <select id = "select_trip" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
@@ -96,7 +96,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
             </div>
 	    </div>
 
-        <div class="row" style="padding-top:5px;">
+        <div class="row" style="padding-top:8px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Stops:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
                 <select id = "select_stop" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
@@ -104,11 +104,11 @@ Power of 32 RTIS - Transit - Schedule Optimization
             </div>
 	    </div>
 
-        <button id="stops_deselect_all" class="btn btn-default btn-block" style="margin-top: 10px">
+        <button id="stops_deselect_all" class="btn btn-default btn-block" style="margin-top: 15px">
             <span class="glyphicon glyphicon-remove"> </span> &nbsp; Clear All
         </button><br>
 
-        <div class="row" style="padding-top:5px;">
+        <div class="row" style="padding-top:25px;">
         	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Date:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
                     <div class='input-group date' id='datepicker'>
@@ -119,7 +119,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
             </div>
 	    </div>
 
-		<div class="row" style="padding-top:5px;">
+		<div class="row" style="padding-top:8px;">
         	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>End Date:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
                     <div class='input-group date' id='datepicker2'>
@@ -129,28 +129,6 @@ Power of 32 RTIS - Transit - Schedule Optimization
                     </div>
             </div>
 	    </div>
-
-        <div class="row" style="padding-top:5px;">
-           <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Time:</h5></div>
-           <div class="col-md-8" style="padding-left: 0;">
-                    <div class='input-group date' id='timepicker'>
-                        <input id="s_time" type='text' style="height: 36px;width: 145px;" class="form-control" />
-                        <span class="input-group-addon" style="height: 36px;width: 36px;padding: 0;"><span class="glyphicon glyphicon-time"></span>
-                        </span>
-                    </div>
-           </div>
-        </div>
-
-        <div class="row" style="padding-top:5px;">
-           <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>End Time:</h5></div>
-           <div class="col-md-8" style="padding-left: 0;">
-                    <div class='input-group date' id='timepicker2'>
-                        <input id="e_time" style="height: 36px;width: 145px;" type='text' class="form-control" />
-                        <span class="input-group-addon" style="height: 36px;width: 36px;padding: 0;"><span class="glyphicon glyphicon-time"></span>
-                        </span>
-                    </div>
-           </div>
-        </div>
 
 {#        <div class="row" style="padding-top:5px;">#}
 {#            <p>Select tolerance range (Unit: mins):</p>#}
@@ -238,16 +216,6 @@ Power of 32 RTIS - Transit - Schedule Optimization
         $('#datepicker2').datetimepicker({
             viewMode: 'years',
             format: 'MM/DD/YYYY'
-        });
-    });
-    $(function () {
-        $('#timepicker').datetimepicker({
-            format: 'LT'
-        });
-    });
-    $(function () {
-        $('#timepicker2').datetimepicker({
-            format: 'LT'
         });
     });
 </script>
@@ -390,6 +358,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
         busLayer   = L.geoJson();
     var stops_geoJson, route_geoJson;
 	function getInfo(){
+        // route = [shortname]+[id], so split by '+' can get each of them
 		var route = $('#select_route option:selected').attr('value');
         var direction = $('#inout').bootstrapSwitch('state');
         if (direction){direction = 'I'} else {direction = 'O'}
@@ -407,7 +376,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
 
         remove_all_stops_from_map();
 
-		$.get("../get_route/", {route:route, direction:direction}, function(data, textStatus){
+		$.get("../get_route/", {route:route.split('+')[0], direction:direction}, function(data, textStatus){
 			if(routeLayer){
 			 	control.removeLayer(routeLayer);
 			 	if(map.hasLayer(routeLayer)){
@@ -418,12 +387,12 @@ Power of 32 RTIS - Transit - Schedule Optimization
                 route_geoJson = $.parseJSON(data);
                 routeLayer = L.geoJson(route_geoJson,{style:{color:'green', weight:'7', opacity:'0.7'}}).addTo(map);
                 map.fitBounds(routeLayer.getBounds());
-                control.addOverlay(routeLayer,'Route '+route);
+                control.addOverlay(routeLayer,'Route '+route.split('+')[0]);
 			}else{
                 alert('No ROUTE information found, please select another route or direction!');
             }
 
-            $.get("../get_stops/", {route:route, direction:direction}, function(data, textStatus){
+            $.get("../get_stops/", {route:route.split('+')[0], direction:direction}, function(data, textStatus){
                 $('#select_stop').empty();
                 if(stopsLayer){
                     control.removeLayer(stopsLayer);
@@ -448,21 +417,21 @@ Power of 32 RTIS - Transit - Schedule Optimization
                     }).addTo(map);
                     control.addOverlay(stopsLayer,'Stops');
                     for(var i=0;i<stops_geoJson.features.length;i++){
-                        $("#select_stop").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");
+                        $("#select_stop").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+
+                                stops_geoJson.features[i].properties.name +"</option>");
                     }
                     $('#select_stop').selectpicker('refresh');
                 }else{
                     alert('No STOP information found. Please select another route or direction!');
                 }
 
-                $.get("../get_trips/", {route: route, direction: direction}, function(data, textstatus){
+                $.get("../get_trips/", {route: route.split('+')[1], direction: direction}, function(data, textstatus){
                     $('#select_trip').empty();
                     if(data){
-
-
-{#                        for(var i=0;i<stops_geoJson.features.length;i++){#}
-{#                            $("#select_stop").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");#}
-{#                        }#}
+                        for(var i=0;i<data.length;i++){
+                            $("#select_trip").append("<option value="+data[i].day_of_week+'+'+data[i].initial_time+'+'+
+                                    data[i].trip_id+">"+data[i].trip_id+", "+data[i].initial_time+", "+data[i].day_of_week+"</option>");
+                        }
                         $('#select_trip').selectpicker('refresh');
                     }
                     ///////Spinner Stop
@@ -516,7 +485,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
                 s[temp] += 1;
             }
 			if (direction == 1){direction = 'Inbound'}else{direction = 'Outbound'}
-            var ticks = ['-12','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','12'];
+            var ticks = ['<-11','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','>11'];
 			var plot = $.jqplot(chartname, [s], {
     			title: 'Schedule deviation distribution of Route ' + route + ' (' + direction + ') at Stop: ' + name + ' (' + stopid + ').' ,
                 seriesDefaults: {
@@ -551,6 +520,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
         var route = $('#select_route option:selected').attr('value');
         var direction = $('#inout').bootstrapSwitch('state');
         if (direction){direction = "1"} else {direction = "0"}
+        var trip = $('#select_trip option:selected').attr('value');
 		var selected_stops = $('#select_stop option:selected');
         var stops_number = selected_stops.length;
         if (stops_number == 0 ){
@@ -574,20 +544,6 @@ Power of 32 RTIS - Transit - Schedule Optimization
             alert("Start Date must be no later than End Date!\n\nPlease re-select.");
             return;
         }
-        var s_time = $("#s_time").val();
-        if (s_time==''){alert("Please select a Start Time!");return;}
-        var e_time = $("#e_time").val();
-        if (e_time==''){alert("Please select a End Time!");return;}
-        var stime = parseInt(s_time.substr(-5,2)) + parseInt(s_time.slice(0,-6))*100;
-        var etime = parseInt(e_time.substr(-5,2)) + parseInt(e_time.slice(0,-6))*100;
-        if (s_time.slice(-2) == "PM"){stime += 1200}
-        if (parseInt(s_time.slice(0,-6)) == 12){stime -= 1200}
-        if (e_time.slice(-2) == "PM"){etime += 1200}
-        if (parseInt(e_time.slice(0,-6)) == 12){etime -= 1200}
-        if (stime >= etime){
-            alert("Start Time must be earlier than End Time!\n\nPlease re-select.");
-            return;
-        }
 
         var target = document.getElementById('map');
         spinner = new Spinner(spinneropts).spin(target);
@@ -598,7 +554,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
 
         $('#chartcontainer').empty();
 
-        $.get("../transit_metrics_op_byroute/", {rt:route, dir:direction, s_date:s_date, e_date:e_date, s_time:stime, e_time:etime, stops:selected_stops_str}, function(data, textStatus){
+        $.get("../transit_metrics_schedule_opt/", {tripinfo:trip ,rt:route.split('+')[0], dir:direction, s_date:s_date, e_date:e_date, stops:selected_stops_str}, function(data, textStatus){
             for (var i=0;i < stops_number; i++){
                 $('#chartcontainer').append("<div class='row' style='padding-top:5px;'><div class='col-md-10' style='height: auto;'" +
                 "id = 'col1" + stops_array[i] + "'></div><div class='col-md-2' style='height: auto;' id = 'col2" + stops_array[i] +

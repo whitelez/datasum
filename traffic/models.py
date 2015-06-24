@@ -297,6 +297,8 @@ class Transit_data(models.Model):
     artime = models.FloatField()
     def __unicode__(self):
         return self.route + ' ' + self.tripa
+    class Meta:
+        index_together = [["route", "dir", "qstopa", "date"],]
 # =============================================== Models for Transit END ===============================================
 
 class GIS_links(models.Model):

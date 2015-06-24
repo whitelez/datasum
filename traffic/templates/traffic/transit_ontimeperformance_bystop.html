@@ -596,12 +596,12 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
                 plot(routes_array[i], selected_stop, data[routes_array[i]], temp.id, selected_stop_name);
 
                 if (data[routes_array[i]].length == 0){
-                    document.getElementById('stat'+routes_array[i]).innerHTML = "<br><br><br><br> <h4> No data found for this route. <br>Please re-select!</h4>"
+                    document.getElementById('stat'+routes_array[i]).innerHTML = "<br><br><br><br> <h4> No data found. <br>Please re-select!</h4>"
                 }else{
                     var avg = 0,
                         proportion = 0;
                     for (var j=0; j < data[routes_array[i]].length; j++){
-                        avg += data[routes_array[i]][j]
+                        avg += data[routes_array[i]][j];
                         if ((data[routes_array[i]][j] >= low)&&(data[routes_array[i]][j] <= high)){proportion += 1}
                     }
                     avg /= data[routes_array[i]].length;
