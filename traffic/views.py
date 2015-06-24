@@ -641,6 +641,8 @@ def download(request):
 # +++++++++++++++++++++++++++++++++++++  Views for Transit function begin here:  +++++++++++++++++++++++++++++++++++++++++++
 
 # Aggregate the shape and stop information of each bus route
+# To run this function: 1. Create a url and run it in explorer (will cause no response, just save in database)
+#                       2. Write If name == "__main__": run transit_data() and run this view.py
 def transit_data(request):
     for route in Route.objects.all():
         print route.route_id
