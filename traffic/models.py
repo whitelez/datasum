@@ -215,18 +215,37 @@ class Route_dict(models.Model):
     def __unicode__(self):
         return self.short_name
 
+class GTFS_calendar(models.Model):
+    service_id = models.CharField(max_length=50)
+    monday = models.CharField(max_length=1)
+    tuesday = models.CharField(max_length=1)
+    wednesday = models.CharField(max_length=1)
+    thursday = models.CharField(max_length=1)
+    friday = models.CharField(max_length=1)
+    saturday = models.CharField(max_length=1)
+    sunday = models.CharField(max_length=1)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    GTFS = models.CharField(max_length=50)
+    def __unicode__(self):
+        return self.GTFS + ": " + self.service_id
+    class Meta:
+        unique_together = (("service_id", "GTFS"),)
+
 class Trip(models.Model):
     route = models.ForeignKey(Route)
     service_id = models.CharField(max_length = 35)
-    trip_id = models.CharField(max_length = 50, primary_key = True)
+    trip_id = models.CharField(max_length = 50)
     headsign = models.CharField(max_length = 100)
     direction_id = models.CharField(max_length = 1)
     block_id = models.CharField(max_length = 20)
     shape_id = models.CharField(max_length = 10)
+    GTFS = models.CharField(max_length=50)
     def __unicode__(self):
         return self.trip_id
     class Meta:
-        index_together = ['route']
+        index_together = [['route', 'GTFS'],]
+        unique_together = (("trip_id", "GTFS"),)
 
 class Stop(models.Model):
     stop_id = models.CharField(max_length = 10, primary_key = True)
@@ -247,10 +266,11 @@ class Stop_time(models.Model):
     stop_sequence = models.PositiveSmallIntegerField()
     pickup_type = models.CharField(max_length = 1)
     drop_off_type = models.CharField(max_length = 1)
+    GTFS = models.CharField(max_length=50)
     def __unicode__(self):
         return self.arrival_time
     class Meta:
-        unique_together = (("trip", "stop_sequence"),)
+        unique_together = (("trip", "stop_sequence", "GTFS"),)
 
 class Stop_route(models.Model):
     stop_id =  models.CharField(max_length = 10, db_index = True)
