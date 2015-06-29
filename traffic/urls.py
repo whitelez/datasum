@@ -81,4 +81,7 @@ urlpatterns = patterns('',
     url(r'^road_closure/$', views.closure, name='closure'),
     url(r'^get_road_closure_query/$', views.get_road_closure_query, name='get_road_closure_query'),
 
+#map_displayer
+    url(r'^map_displayer/$', views.map_displayer, name='map_displayer'),
+
 )

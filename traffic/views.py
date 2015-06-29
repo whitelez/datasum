@@ -1530,3 +1530,5 @@ def get_road_closure_query(request):
     print len(entry)
     return HttpResponse(datarender, content_type='application/json')
 
+def map_displayer(request):
+    return render(request, 'traffic/map_displayer.html')
