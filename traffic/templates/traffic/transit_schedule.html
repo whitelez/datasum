@@ -71,7 +71,19 @@ Power of 32 RTIS - Transit - Schedule Optimization
 <div class="well" style="height:600px;">
 	<div class="container" style="width: inherit">
     	<div class="row"><h4> Schedule Optimization </h4></div>
-		<div class="row" style="margin-top:20px;">
+
+        <div class="row" style="margin-top:15px;">
+            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>GTFS:</h5></div>
+            <div class="col-md-8" style="padding-left: 0;">
+                <select id='select_gtfs' name = 'select_gtfs' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+			  	    {% for record in GTFS%}
+						<option value={{record}}>{{record}}</option>
+					{% endfor %}
+			    </select>
+            </div>
+	    </div>
+
+		<div class="row" style="margin-top:8px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Route:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
                 <select id='select_route' name = 'select_route' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
@@ -104,11 +116,11 @@ Power of 32 RTIS - Transit - Schedule Optimization
             </div>
 	    </div>
 
-        <button id="stops_deselect_all" class="btn btn-default btn-block" style="margin-top: 15px">
+        <button id="stops_deselect_all" class="btn btn-default btn-block" style="margin-top: 10px">
             <span class="glyphicon glyphicon-remove"> </span> &nbsp; Clear All
         </button><br>
 
-        <div class="row" style="padding-top:25px;">
+        <div class="row" style="padding-top:15px;">
         	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Date:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
                     <div class='input-group date' id='datepicker'>
@@ -203,20 +215,16 @@ Power of 32 RTIS - Transit - Schedule Optimization
         handleWidth: 101
     };
     $("[name='inout']").bootstrapSwitch(options);
-</script>
 
-<script type="text/javascript">
     $(function () {
-        $('#datepicker').datetimepicker({
-            viewMode: 'years',
-            format: 'MM/DD/YYYY'
-        });
-    });
-    $(function () {
-        $('#datepicker2').datetimepicker({
-            viewMode: 'years',
-            format: 'MM/DD/YYYY'
-        });
+            $('#datepicker').datetimepicker({
+                viewMode: 'years',
+                format: 'MM/DD/YYYY'
+            });
+            $('#datepicker2').datetimepicker({
+                viewMode: 'years',
+                format: 'MM/DD/YYYY'
+            });
     });
 </script>
 
@@ -361,7 +369,36 @@ Power of 32 RTIS - Transit - Schedule Optimization
         // route = [shortname]+[id], so split by '+' can get each of them
 		var route = $('#select_route option:selected').attr('value');
         var direction = $('#inout').bootstrapSwitch('state');
+        var GTFS = $('#select_gtfs option:selected').attr('value');
         if (direction){direction = 'I'} else {direction = 'O'}
+
+        $(function () {
+            var gtfs = $('#select_gtfs option:selected').attr('value');
+            var year = gtfs.split("_")[1].substr(0,4),
+                min = gtfs.split("_")[2].split("-")[0],
+                max = gtfs.split("_")[2].split("-")[1];
+            min = min.substr(0,2) + "/" + min.substr(2,2) + "/";
+            max = max.substr(0,2) + "/" + max.substr(2,2) + "/";
+            var mindate = min + year,
+                maxdate;
+            if (parseInt(min) > parseInt(max)){
+                maxdate = max + (parseInt(year)+1).toString()
+            }else{
+                maxdate = max + year
+            }
+            $('#datepicker').data("DateTimePicker").minDate(false);
+            $('#datepicker').data("DateTimePicker").maxDate(false);
+            $('#datepicker').data("DateTimePicker").minDate(mindate);
+            $('#datepicker').data("DateTimePicker").maxDate(maxdate);
+            $('#datepicker2').data("DateTimePicker").minDate(false);
+            $('#datepicker2').data("DateTimePicker").maxDate(false);
+            $('#datepicker2').data("DateTimePicker").minDate(mindate);
+            $('#datepicker2').data("DateTimePicker").maxDate(maxdate);
+            $('#datepicker').data("DateTimePicker").defaultDate(false);
+            $('#datepicker').data("DateTimePicker").defaultDate(mindate);
+            $('#datepicker2').data("DateTimePicker").defaultDate(false);
+            $('#datepicker2').data("DateTimePicker").defaultDate(maxdate);
+        });
 
         var target = document.getElementById('map');
         spinner = new Spinner(spinneropts).spin(target);
@@ -425,7 +462,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
                     alert('No STOP information found. Please select another route or direction!');
                 }
 
-                $.get("../get_trips/", {route: route.split('+')[1], direction: direction}, function(data, textstatus){
+                $.get("../get_trips/", {route: route.split('+')[1], direction: direction, gtfs_name: GTFS}, function(data, textstatus){
                     $('#select_trip').empty();
                     if(data){
                         for(var i=0;i<data.length;i++){
@@ -445,6 +482,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
 	}
 
     getInfo();
+	$('#select_gtfs').change(getInfo);
 	$('#select_route').change(getInfo);
 	$('#inout').on('switchChange.bootstrapSwitch',getInfo);
 
@@ -517,6 +555,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
     }
 
     function get_metrics(){
+        var GTFS = $('#select_gtfs option:selected').attr('value');
         var route = $('#select_route option:selected').attr('value');
         var direction = $('#inout').bootstrapSwitch('state');
         if (direction){direction = "1"} else {direction = "0"}
@@ -554,7 +593,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
 
         $('#chartcontainer').empty();
 
-        $.get("../transit_metrics_schedule_opt/", {tripinfo:trip ,rt:route.split('+')[0], dir:direction, s_date:s_date, e_date:e_date, stops:selected_stops_str}, function(data, textStatus){
+        $.get("../transit_metrics_schedule_opt/", {tripinfo:trip ,rt:route.split('+')[0], dir:direction, s_date:s_date, e_date:e_date, stops:selected_stops_str, gtfs_name:GTFS}, function(data, textStatus){
             for (var i=0;i < stops_number; i++){
                 $('#chartcontainer').append("<div class='row' style='padding-top:5px;'><div class='col-md-10' style='height: auto;'" +
                 "id = 'col1" + stops_array[i] + "'></div><div class='col-md-2' style='height: auto;' id = 'col2" + stops_array[i] +

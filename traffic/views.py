@@ -696,15 +696,20 @@ def get_stops(request):
 
 def get_trips(request):
     route = request.GET["route"]
+    gtfs_name = request.GET["gtfs_name"]
     if request.GET["direction"] == 'I':
         direction = '1'
     else:
         direction = '0'
     result = []
-    trip_data = Trip.objects.filter(route_id=route, direction_id=direction)
+    trip_data = Trip.objects.filter(route_id=route, direction_id=direction, GTFS=gtfs_name)
     for item in trip_data:
         temp = {}
-        temp["initial_time"] = Stop_time.objects.filter(trip_id=item.trip_id, stop_sequence=1)[0].departure_time
+        a = Stop_time.objects.filter(trip_id=item.trip_id, stop_sequence=1, GTFS=gtfs_name)[0]
+        if a:
+            temp["initial_time"] = a.departure_time
+        else:
+            temp["initial_time"] = 'N/A'
         temp["trip_id"] = item.trip_id
         if len(item.service_id) != 1:
             temp["day_of_week"] = item.service_id.split('-')[2]
@@ -729,8 +734,9 @@ def transit_ontimeperformance_bystop(request):
     return render(request, 'traffic/transit_ontimeperformance_bystop.html', {'stops': stops})
 
 def transit_schedule(request):
+    gtfs = [record['GTFS'] for record in GTFS_calendar.objects.all().values('GTFS').distinct()]
     routes = [{"route_value": route.short_name+"+"+route.route_id, "route_shortname": route.short_name} for route in Route.objects.all()]
-    return render(request, 'traffic/transit_schedule.html', {'routes': routes})
+    return render(request, 'traffic/transit_schedule.html', {'routes': routes, 'GTFS':gtfs})
 
 def transit_waitingtime_byroute(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
@@ -884,6 +890,7 @@ def transit_metrics_op_bystop(request):
     return HttpResponse(response, content_type='application/json')
 
 def transit_metrics_schedule_opt(request):
+    gtfs_name = request.GET["gtfs_name"]
     routedict = Route_dict.objects.all()
     route = ''
     for item in routedict:
@@ -909,16 +916,20 @@ def transit_metrics_schedule_opt(request):
     result = {}
     for stopid in stops:
         result[stopid] = []
-        temp = Stop_time.objects.filter(trip_id=tripid, stop_id=stopid)[0].departure_time
-        schtime = int(temp.split(":")[0])*3600 + int(temp.split(":")[1])*60 + int(temp.split(":")[2])
-        # the field qstopa now has 2 blank spaces in the beginning of every line, if database changed, remember to revise the filter condition!!
-        data = Transit_data.objects.filter(dow=day, tripa=time, qstopa='  '+str(stopid), route=str(route), dir=str(direction), date__range=(s_date, e_date))
-        for item in data:
-            # if 1st stop, deviation = departure_time - schedule_time; if not, dev = arrival_time - schedule time (in minutes)
-            if item.stopa == 1:
-                result[stopid].append((item.dhour*3600 + item.dminute*60 + item.dsecond - schtime)/60)
-            else:
-                result[stopid].append((item.hour*3600 + item.minute*60 + item.second - schtime)/60)
+        temp = Stop_time.objects.filter(trip_id=tripid, stop_id=stopid, GTFS=gtfs_name)[0]
+        if temp:
+            temp = temp.departure_time
+            schtime = int(temp.split(":")[0])*3600 + int(temp.split(":")[1])*60 + int(temp.split(":")[2])
+            # the field qstopa now has 2 blank spaces in the beginning of every line, if database changed, remember to revise the filter condition!!
+            data = Transit_data.objects.filter(dow=day, tripa=time, qstopa='  '+str(stopid), route=str(route), dir=str(direction), date__range=(s_date, e_date))
+            for item in data:
+                # if 1st stop, deviation = departure_time - schedule_time; if not, dev = arrival_time - schedule time (in minutes)
+                if item.stopa == 1:
+                    result[stopid].append((item.dhour*3600 + item.dminute*60 + item.dsecond - schtime)/60)
+                else:
+                    result[stopid].append((item.hour*3600 + item.minute*60 + item.second - schtime)/60)
+        else:
+            result[stopid].append("")
 
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')

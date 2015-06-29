@@ -244,7 +244,7 @@ class Trip(models.Model):
     def __unicode__(self):
         return self.trip_id
     class Meta:
-        index_together = [['route', 'GTFS'],]
+        index_together = [['route', 'GTFS', 'direction_id'],]
         unique_together = (("trip_id", "GTFS"),)
 
 class Stop(models.Model):
@@ -259,10 +259,10 @@ class Stop(models.Model):
         return self.stop_id
 
 class Stop_time(models.Model):
-    trip = models.ForeignKey(Trip)
+    trip_id = models.CharField(max_length = 50)
     arrival_time = models.CharField(max_length = 8)
     departure_time = models.CharField(max_length = 8)
-    stop = models.ForeignKey(Stop)
+    stop_id = models.CharField(max_length = 10)
     stop_sequence = models.PositiveSmallIntegerField()
     pickup_type = models.CharField(max_length = 1)
     drop_off_type = models.CharField(max_length = 1)
@@ -270,7 +270,7 @@ class Stop_time(models.Model):
     def __unicode__(self):
         return self.arrival_time
     class Meta:
-        unique_together = (("trip", "stop_sequence", "GTFS"),)
+        unique_together = (("trip_id", "stop_sequence", "GTFS"),)
 
 class Stop_route(models.Model):
     stop_id =  models.CharField(max_length = 10, db_index = True)
