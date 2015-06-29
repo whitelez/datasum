@@ -668,7 +668,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
 
     function get_bus_real_time(){
         var route = $('#select_route option:selected').attr('value');
-        $.get("../bus_real_time/", {rt:route}, function(data, textStatus){
+        $.get("../bus_real_time/", {rt:route.split('+')[0]}, function(data, textStatus){
             if(busLayer){
                 control.removeLayer(busLayer);
                 if(map.hasLayer(busLayer)){
