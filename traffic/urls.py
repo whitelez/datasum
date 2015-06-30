@@ -75,6 +75,7 @@ urlpatterns = patterns('',
 
 #counts
     url(r'^get_sensors_counts/$', views.get_sensors_counts, name='get_sensors_counts'),
+    url(r'^get_sensors_links/$', views.get_sensors_links, name='get_sensors_links'),
     url(r'^sensors_counts/$', views.sensors_counts_webpage, name='sensors_counts_webpage'),
 
 #SGYang

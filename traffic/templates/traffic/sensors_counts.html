@@ -177,8 +177,8 @@
         //////////////////////////////data picker
         "use strict";
 
-        var counts;
-        var countLayer = L.geoJson();
+        var counts, links;
+        var countLayer = L.geoJson(), linkLayer = L.geoJson();
               //map = L.map('map').setView([40.4407937, -80.0029874], 16);
                 // add an OpenStreetMap tile layer
         var streets = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
@@ -287,31 +287,31 @@
         $.get("../get_sensors_counts/",function(data,textStatus){
             counts = data;
             showCount(map,info,control, counts, timepicker.value().getHours());
-            spinner.stop();
-                var target = document.getElementById('foo');
-                target.style.zIndex = "1";
-                var mapper = document.getElementById('map');
-                mapper.style.opacity = '1';
-                target = document.getElementById('chart1');
-                target.style.opacity= '1';
+{#            spinner.stop();#}
+{#                var target = document.getElementById('foo');#}
+{#                target.style.zIndex = "1";#}
+{#                var mapper = document.getElementById('map');#}
+{#                mapper.style.opacity = '1';#}
+{#                target = document.getElementById('chart1');#}
+{#                target.style.opacity= '1';#}
         },"json");
 
+        // get links from server
 
-{#        var mapElement = $("#map");#}
-{#        var isDragging = false;#}
-{#        mapElement#}
-{#                .mousedown(function(e) {#}
-{#                    isDragging = false;#}
-{#                })#}
-{#                .mousemove(function(e) {#}
-{#                    isDragging = true;#}
-{#                })#}
-{#                .mouseup(function(e) {#}
-{#                    if (!isDragging) {#}
-{#                        $("#chart1").css("visibility", "hidden");#}
-{#                        isDragging = false;#}
-{#                    }#}
-{#                });#}
+        $.get("../get_sensors_links/",function(data,textStatus){
+            links = data;
+            showLinks(map,info,control, links);
+        },"json");
+
+        // stop spinner and reset map style
+        spinner.stop();
+        var target = document.getElementById('foo');
+        target.style.zIndex = "1";
+        var mapper = document.getElementById('map');
+        mapper.style.opacity = '1';
+        target = document.getElementById('chart1');
+        target.style.opacity= '1';
+
         // hide chart when map is clicked but not when map is dragged
         var isDragging = false;
         map.on("mousedown",function(e) {
@@ -337,6 +337,20 @@
             }
         });
 
+        function showLinks(map, info, control, links) {
+            function onEachFeature(feature, layer){
+                if (feature.properties && feature.properties.sid) {
+                    var popup = "ID: <b>" + feature.properties.sid + "</b>";
+                    layer.bindPopup(popup);
+                }
+            }
+            linkLayer = L.geoJson(links, {
+                style: {"color":"#9ba7ff"},
+                onEachFeature: onEachFeature
+            }).addTo(map);
+
+            control.addOverlay(linkLayer, 'Streets');
+        }
 
         function showCount(map, info, control, counts, hour) {
 
@@ -360,9 +374,41 @@
                     //$('#chart1').empty();
                 }
 
+                function showChart(e) {
+                    //info.update(layer.feature.properties, hour);
+                    //highlightFeature(e);
+                    $("#chart1").css("visibility","visible");
+                    $("#chart1").empty();
+                    if (feature.properties.data.length != 0) {
+                        var plotData = [];
+                        feature.properties.data.forEach(function(count, index){
+                            if (count >= 0)
+                                plotData.push(["" + index + ":00",count]);
+                        });
+                        $.jqplot('chart1', [plotData], {
+                            series: [{lineWidth: 3, markerOptions: {style: "filledCircle", size:5}}],
+                            title: 'Counts Distribution of Sensor ' + feature.properties.sid,
+                            axes: {
+                                xaxis: {renderer: $.jqplot.DateAxisRenderer, tickOptions: {formatString: '%H:%M'}, ticks:["0:00", "4:00", "8:00", "12:00", "16:00", "20:00", "24:00"]},
+                                yaxis: {min: 0}
+                            },
+
+                            grid: {
+                                drawGridLines: true,        // wether to draw lines across the grid or not.
+                                gridLineColor: '#cccccc',    // *Color of the grid lines.
+                                background: '#FFFFFF'
+                            },
+                            seriesColors: ["#ff9900","#FF0066", "#999598"]
+                        });
+                    }
+                    else
+                        $("#chart1").text("Sorry, no data available for this sensor.");
+                }
+
                 layer.on({
                     mouseover: highlightFeature,
                     mouseout: resetHighlight,
+                    click:showChart
                 });
 
                 if (feature.properties && feature.properties.sid && feature.properties.data) {
@@ -370,35 +416,36 @@
                     if (feature.properties.data.length != 0 && feature.properties.data[hour] != -1)
                         popup += "<br>Counts: <b>" + feature.properties.data[hour] + "</b>";
                     layer.bindPopup(popup);
-                    layer.on("click", function(e){
-                        //info.update(layer.feature.properties, hour);
-                        $("#chart1").css("visibility","visible");
-                        $("#chart1").empty();
-                        if (feature.properties.data.length != 0) {
-                            var plotData = [];
-                            feature.properties.data.forEach(function(count, index){
-                                if (count >= 0)
-                                    plotData.push(["" + index + ":00",count]);
-                            });
-                            $.jqplot('chart1', [plotData], {
-                                series: [{lineWidth: 3, markerOptions: {style: "filledCircle", size:5}}],
-                                title: 'Counts Distribution of Sensor ' + feature.properties.sid,
-                                axes: {
-                                    xaxis: {renderer: $.jqplot.DateAxisRenderer, tickOptions: {formatString: '%H:%M'}, ticks:["0:00", "4:00", "8:00", "12:00", "16:00", "20:00", "24:00"]},
-                                    yaxis: {min: 0}
-                                },
-
-                                grid: {
-                                    drawGridLines: true,        // wether to draw lines across the grid or not.
-                                    gridLineColor: '#cccccc',    // *Color of the grid lines.
-                                    background: '#FFFFFF'
-                                },
-                                seriesColors: ["#ff9900","#FF0066", "#999598"]
-                            });
-                        }
-                        else
-                            $("#chart1").text("Sorry, no data available for this sensor.");
-                    });
+{#                    layer.on("click", function(e){#}
+{#                        //info.update(layer.feature.properties, hour);#}
+{#                        //highlightFeature(e);#}
+{#                        $("#chart1").css("visibility","visible");#}
+{#                        $("#chart1").empty();#}
+{#                        if (feature.properties.data.length != 0) {#}
+{#                            var plotData = [];#}
+{#                            feature.properties.data.forEach(function(count, index){#}
+{#                                if (count >= 0)#}
+{#                                    plotData.push(["" + index + ":00",count]);#}
+{#                            });#}
+{#                            $.jqplot('chart1', [plotData], {#}
+{#                                series: [{lineWidth: 3, markerOptions: {style: "filledCircle", size:5}}],#}
+{#                                title: 'Counts Distribution of Sensor ' + feature.properties.sid,#}
+{#                                axes: {#}
+{#                                    xaxis: {renderer: $.jqplot.DateAxisRenderer, tickOptions: {formatString: '%H:%M'}, ticks:["0:00", "4:00", "8:00", "12:00", "16:00", "20:00", "24:00"]},#}
+{#                                    yaxis: {min: 0}#}
+{#                                },#}
+{##}
+{#                                grid: {#}
+{#                                    drawGridLines: true,        // wether to draw lines across the grid or not.#}
+{#                                    gridLineColor: '#cccccc',    // *Color of the grid lines.#}
+{#                                    background: '#FFFFFF'#}
+{#                                },#}
+{#                                seriesColors: ["#ff9900","#FF0066", "#999598"]#}
+{#                            });#}
+{#                        }#}
+{#                        else#}
+{#                            $("#chart1").text("Sorry, no data available for this sensor.");#}
+{#                    });#}
 
                 }
             }
