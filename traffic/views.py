@@ -639,6 +639,10 @@ def download(request):
 
 
 # +++++++++++++++++++++++++++++++++++++  Views for Transit function begin here:  +++++++++++++++++++++++++++++++++++++++++++
+
+# Aggregate the shape and stop information of each bus route
+# To run this function: 1. Create a url and run it in explorer (will cause no response, just save in database)
+#                       2. Write If name == "__main__": run transit_data() and run this view.py
 def transit_data(request):
     for route in Route.objects.all():
         print route.route_id
@@ -690,9 +694,38 @@ def get_stops(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+def get_trips(request):
+    route = request.GET["route"]
+    gtfs_name = request.GET["gtfs_name"]
+    if request.GET["direction"] == 'I':
+        direction = '1'
+    else:
+        direction = '0'
+    result = []
+    trip_data = Trip.objects.filter(route_id=route, direction_id=direction, GTFS=gtfs_name)
+    for item in trip_data:
+        temp = {}
+        a = Stop_time.objects.filter(trip_id=item.trip_id, stop_sequence=1, GTFS=gtfs_name)[0]
+        if a:
+            temp["initial_time"] = a.departure_time
+        else:
+            temp["initial_time"] = 'N/A'
+        temp["trip_id"] = item.trip_id
+        if len(item.service_id) != 1:
+            temp["day_of_week"] = item.service_id.split('-')[2]
+        else:
+            if item.service_id == 'W':
+                temp["day_of_week"] = "Weekday"
+            elif item.service_id == 'S':
+                temp["day_of_week"] = "Saturday"
+            else:
+                temp["day_of_week"] = "Sunday"
+        result.append(temp)
+    response = json.dumps(result)
+    return HttpResponse(response, content_type='application/json')
+
 def transit_ontimeperformance_byroute(request):
-    routes = ','.join(route.short_name for route in Route.objects.all())
-    routes = routes.split(',')
+    routes = [{"route_value": route.short_name+"+"+route.route_id, "route_shortname": route.short_name} for route in Route.objects.all()]
     return render(request, 'traffic/transit_ontimeperformance_byroute.html', {'routes': routes})
 
 def transit_ontimeperformance_bystop(request):
@@ -700,9 +733,9 @@ def transit_ontimeperformance_bystop(request):
     return render(request, 'traffic/transit_ontimeperformance_bystop.html', {'stops': stops})
 
 def transit_schedule(request):
-    routes = ','.join(route.short_name for route in Route.objects.all())
-    routes = routes.split(',')
-    return render(request, 'traffic/transit_schedule.html', {'routes': routes})
+    gtfs = [record['GTFS'] for record in GTFS_calendar.objects.all().values('GTFS').distinct()]
+    routes = [{"route_value": route.short_name+"+"+route.route_id, "route_shortname": route.short_name} for route in Route.objects.all()]
+    return render(request, 'traffic/transit_schedule.html', {'routes': routes, 'GTFS':gtfs})
 
 def transit_waitingtime_byroute(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
@@ -797,51 +830,13 @@ def bus_real_time(request):
     return HttpResponse(response, content_type='application/json')
 
 def transit_metrics_op_byroute(request):
-# Build a map from Route Name to Route Number which is used in database
-    routedict = {}
-    for i in range(1, 93):
-        routedict[str(i)] = str(i)
-    routedict["19L"] = "191"
-    routedict["28X"] = "281"
-    routedict["51L"] = "511"
-    routedict["52L"] = "521"
-    routedict["53L"] = "531"
-    routedict["61A"] = "611"
-    routedict["61B"] = "612"
-    routedict["61C"] = "613"
-    routedict["61D"] = "614"
-    routedict["71A"] = "711"
-    routedict["71B"] = "712"
-    routedict["71C"] = "713"
-    routedict["71D"] = "714"
-    routedict["G2"] = "900"
-    routedict["G3"] = "903"
-    routedict["G31"] = "931"
-    routedict["O1"] = "801"
-    routedict["O5"] = "805"
-    routedict["O12"] = "812"
-    routedict["P1"] = "444"
-    routedict["P2"] = "555"
-    routedict["P3"] = "666"
-    routedict["P7"] = "907"
-    routedict["P10"] = "910"
-    routedict["P12"] = "912"
-    routedict["P13"] = "913"
-    routedict["P16"] = "716"
-    routedict["P17"] = "717"
-    routedict["P67"] = "767"
-    routedict["P68"] = "768"
-    routedict["P69"] = "769"
-    routedict["P71"] = "771"
-    routedict["P76"] = "776"
-    routedict["P78"] = "978"
-    routedict["Y1"] = "401"
-    routedict["Y45"] = "445"
-    routedict["Y46"] = "946"
-    routedict["Y47"] = "947"
-    routedict["Y49"] = "949"
-# ================================== End =================================
-    route = routedict[request.GET["rt"]]
+    routedict = Route_dict.objects.all()
+    route = ''
+    for item in routedict:
+        if item.short_name == request.GET["rt"].split('+')[0]:
+            route = item.route_number_in_APCAVL
+            break
+    route_id = request.GET["rt"].split('+')[1]
     direction = request.GET["dir"]
     s_date = request.GET["s_date"]
     e_date = request.GET["e_date"]
@@ -850,62 +845,58 @@ def transit_metrics_op_byroute(request):
     s_date = date(int(s_date[6:10]), int(s_date[0:2]), int(s_date[3:5]))
     e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
     stops = request.GET["stops"].split(",")
+
+    # Build a list of all GTFS version name and their valid date range
+    gtfs = [record['GTFS'] for record in GTFS_calendar.objects.all().values('GTFS').distinct()]
+    gtfslist = []
+    for record in gtfs:
+        year = record.split("_")[1][:4]
+        min = record.split("_")[2].split("-")[0]
+        max = record.split("_")[2].split("-")[1]
+        mindate = year + min
+        if int(min) > int(max):
+            maxdate = str(int(year)+1) + max
+        else:
+            maxdate = year + max
+        mindate = date(int(mindate[:4]), int(mindate[4:6]), int(mindate[6:8]))
+        maxdate = date(int(maxdate[:4]), int(maxdate[4:6]), int(maxdate[6:8]))
+        gtfslist.append({"name": record, "start": mindate, "end": maxdate})
+
     result = {}
     for stopid in stops:
         result[stopid] = []
+        # the field qstopa now has 2 blank spaces in the beginning of every line, if database changed, remember to revise the filter condition!!
         data = Transit_data.objects.filter(qstopa='  '+str(stopid), route=str(route), dir=str(direction), date__range=(s_date, e_date))
         for item in data:
-            if item.schtim >= s_time and item.schtim <= e_time:
-                if item.schdev != 99:
-                    result[stopid].append(item.schdev)
+            if item.schtim >= s_time and item.schtim <= e_time and item.schdev != 99:
+                result[stopid].append(item.schdev)
+            else:
+                currentgtfs = ''
+                for record in gtfslist:
+                    if record["start"] <= item.date and record["end"] >= item.date:
+                        currentgtfs = record["name"]
+                        break
+                tripdata = Trip.objects.filter(route_id=route_id, direction_id=str(direction), GTFS=currentgtfs)
+                for record in tripdata:
+                    stop_timedata = Stop_time.objects.filter(trip_id=record.trip_id, stop_sequence=1, GTFS=currentgtfs)[0]
+                    if int(stop_timedata.departure_time.split(":")[0])*100+int(stop_timedata.departure_time.split(":")[1]) == int(item.tripa):
+                        temp = Stop_time.objects.filter(trip_id=record.trip_id, stop_id=stopid, GTFS=currentgtfs)[0]
+                        if temp:
+                            temp = temp.departure_time
+                            flag = int(temp.split(":")[0])*100 + int(temp.split(":")[1])
+                            if flag >= s_time and flag <= e_time:
+                                schtime = int(temp.split(":")[0])*3600 + int(temp.split(":")[1])*60 + int(temp.split(":")[2])
+                                if item.stopa == 1:
+                                    result[stopid].append(float(item.dhour*3600 + item.dminute*60 + item.dsecond - schtime)/60.0)
+                                else:
+                                    result[stopid].append(float(item.hour*3600 + item.minute*60 + item.second - schtime)/60.0)
+                        break
+
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
 def transit_metrics_op_bystop(request):
-# Build a map from Route Name to Route Number which is used in database
-    routedict = {}
-    for i in range(1, 93):
-        routedict[str(i)] = str(i)
-    routedict["19L"] = "191"
-    routedict["28X"] = "281"
-    routedict["51L"] = "511"
-    routedict["52L"] = "521"
-    routedict["53L"] = "531"
-    routedict["61A"] = "611"
-    routedict["61B"] = "612"
-    routedict["61C"] = "613"
-    routedict["61D"] = "614"
-    routedict["71A"] = "711"
-    routedict["71B"] = "712"
-    routedict["71C"] = "713"
-    routedict["71D"] = "714"
-    routedict["G2"] = "900"
-    routedict["G3"] = "903"
-    routedict["G31"] = "931"
-    routedict["O1"] = "801"
-    routedict["O5"] = "805"
-    routedict["O12"] = "812"
-    routedict["P1"] = "444"
-    routedict["P2"] = "555"
-    routedict["P3"] = "666"
-    routedict["P7"] = "907"
-    routedict["P10"] = "910"
-    routedict["P12"] = "912"
-    routedict["P13"] = "913"
-    routedict["P16"] = "716"
-    routedict["P17"] = "717"
-    routedict["P67"] = "767"
-    routedict["P68"] = "768"
-    routedict["P69"] = "769"
-    routedict["P71"] = "771"
-    routedict["P76"] = "776"
-    routedict["P78"] = "978"
-    routedict["Y1"] = "401"
-    routedict["Y45"] = "445"
-    routedict["Y46"] = "946"
-    routedict["Y47"] = "947"
-    routedict["Y49"] = "949"
-# ================================== End =================================
+    routedict = Route_dict.objects.all()
     routes = request.GET["routes"].split(",")
     stopid = request.GET["stop"]
     s_date = request.GET["s_date"]
@@ -916,13 +907,18 @@ def transit_metrics_op_bystop(request):
     e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
     result = {}
     for route in routes:
-        routename = routedict[route.split("-")[0]]
+        routename = ''
+        for item in routedict:
+            if item.short_name == route.split("-")[0]:
+                routename = item.route_number_in_APCAVL
+                break
         direction = route.split("-")[1]
         if direction == "Inbound":
             direction = "1"
         else:
             direction = "0"
         result[route] = []
+        # the field qstopa now has 2 blank spaces in the beginning of every line, if database changed, remember to revise the filter condition!!
         data = Transit_data.objects.filter(qstopa='  '+str(stopid), route=str(routename), dir=str(direction), date__range=(s_date, e_date))
         for item in data:
             if item.schtim >= s_time and item.schtim <= e_time:
@@ -931,67 +927,51 @@ def transit_metrics_op_bystop(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
-def get_trips(request):
-# Build a map from Route Name to Route Number which is used in database
-    routedict = {}
-    for i in range(1, 93):
-        routedict[str(i)] = str(i)
-    routedict["19L"] = "191"
-    routedict["28X"] = "281"
-    routedict["51L"] = "511"
-    routedict["52L"] = "521"
-    routedict["53L"] = "531"
-    routedict["61A"] = "611"
-    routedict["61B"] = "612"
-    routedict["61C"] = "613"
-    routedict["61D"] = "614"
-    routedict["71A"] = "711"
-    routedict["71B"] = "712"
-    routedict["71C"] = "713"
-    routedict["71D"] = "714"
-    routedict["G2"] = "900"
-    routedict["G3"] = "903"
-    routedict["G31"] = "931"
-    routedict["O1"] = "801"
-    routedict["O5"] = "805"
-    routedict["O12"] = "812"
-    routedict["P1"] = "444"
-    routedict["P2"] = "555"
-    routedict["P3"] = "666"
-    routedict["P7"] = "907"
-    routedict["P10"] = "910"
-    routedict["P12"] = "912"
-    routedict["P13"] = "913"
-    routedict["P16"] = "716"
-    routedict["P17"] = "717"
-    routedict["P67"] = "767"
-    routedict["P68"] = "768"
-    routedict["P69"] = "769"
-    routedict["P71"] = "771"
-    routedict["P76"] = "776"
-    routedict["P78"] = "978"
-    routedict["Y1"] = "401"
-    routedict["Y45"] = "445"
-    routedict["Y46"] = "946"
-    routedict["Y47"] = "947"
-    routedict["Y49"] = "949"
-# ================================== End =================================
-    route = routedict[request.GET["route"]]
-    if request.GET["direction"] == 'I':
-        direction = '1'
+def transit_metrics_schedule_opt(request):
+    gtfs_name = request.GET["gtfs_name"]
+    routedict = Route_dict.objects.all()
+    route = ''
+    for item in routedict:
+        if item.short_name == request.GET["rt"]:
+            route = item.route_number_in_APCAVL
+            break
+    day = request.GET["tripinfo"].split("+")[0]
+    if day == "Weekday":
+        day = "1"
+    elif day == "Saturday":
+        day = "2"
     else:
-        direction = '0'
+        day = "3"
+    time = request.GET["tripinfo"].split("+")[1]
+    time = str(int(time.split(":")[0])*100 + int(time.split(":")[1]))
+    tripid = request.GET["tripinfo"].split("+")[2]
+    direction = request.GET["dir"]
+    s_date = request.GET["s_date"]
+    e_date = request.GET["e_date"]
+    s_date = date(int(s_date[6:10]), int(s_date[0:2]), int(s_date[3:5]))
+    e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
+    stops = request.GET["stops"].split(",")
     result = {}
-
-    data = Transit_data.objects.filter(route=route, dir=direction)
-    for item in data:
-
-            if item.schtim >= s_time and item.schtim <= e_time:
-                if item.schdev != 99:
-                    result[route].append(item.schdev)
+    for stopid in stops:
+        result[stopid] = []
+        temp = Stop_time.objects.filter(trip_id=tripid, stop_id=stopid, GTFS=gtfs_name)[0]
+        if temp:
+            temp = temp.departure_time
+            schtime = int(temp.split(":")[0])*3600 + int(temp.split(":")[1])*60 + int(temp.split(":")[2])
+            # the field qstopa now has 2 blank spaces in the beginning of every line, if database changed, remember to revise the filter condition!!
+            data = Transit_data.objects.filter(dow=day, tripa=time, qstopa='  '+str(stopid), route=str(route), dir=str(direction), date__range=(s_date, e_date))
+            for item in data:
+                # if 1st stop, deviation = departure_time - schedule_time; if not, dev = arrival_time - schedule time (in minutes)
+                if item.stopa == 1:
+                    result[stopid].append(float(item.dhour*3600 + item.dminute*60 + item.dsecond - schtime)/60.0)
+                else:
+                    result[stopid].append(float(item.hour*3600 + item.minute*60 + item.second - schtime)/60.0)
+        else:
+            result[stopid].append("")
 
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
+
 
 # Temporarily no use ################################################
 def transit_metrics_route_range(request):

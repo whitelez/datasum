@@ -71,12 +71,12 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
 <div class="well" style="height:600px;">
 	<div class="container" style="width: inherit">
     	<div class="row"><h4>On-Time Performance </h4></div>
-		<div class="row" style="padding-top:5px;">
+		<div class="row" style="padding-top:15px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Route:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
                 <select id='select_route' name = 'select_route' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
 			  	    {% for route in routes%}
-						<option value={{route}}>{{route}}</option>
+						<option value={{route.route_value}}>{{route.route_shortname}}</option>
 					{% endfor %}
 			    </select>
             </div>
@@ -100,7 +100,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
             <span class="glyphicon glyphicon-remove"> </span> &nbsp; Clear All
         </button><br>
 
-        <div class="row" style="padding-top:5px;">
+        <div class="row" style="padding-top:10px;">
         	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Date:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
                     <div class='input-group date' id='datepicker'>
@@ -223,18 +223,25 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
     $(function () {
         $('#datepicker').datetimepicker({
             viewMode: 'years',
-            format: 'MM/DD/YYYY'
+            format: 'MM/DD/YYYY',
+            minDate: '2012-09-01',
+            maxDate: '2014-12-31',
+            defaultDate: '2013-01-01'
         });
     });
     $(function () {
         $('#datepicker2').datetimepicker({
             viewMode: 'years',
-            format: 'MM/DD/YYYY'
+            format: 'MM/DD/YYYY',
+            minDate: '2012-09-01',
+            maxDate: '2014-12-31',
+            defaultDate: '2013-01-10'
         });
     });
     $(function () {
         $('#timepicker').datetimepicker({
             format: 'LT'
+
         });
     });
     $(function () {
@@ -399,7 +406,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
 
         remove_all_stops_from_map();
 
-		$.get("../get_route/", {route:route, direction:direction}, function(data, textStatus){
+		$.get("../get_route/", {route:route.split('+')[0], direction:direction}, function(data, textStatus){
 			if(routeLayer){
 			 	control.removeLayer(routeLayer);
 			 	if(map.hasLayer(routeLayer)){
@@ -410,48 +417,48 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
                 route_geoJson = $.parseJSON(data);
                 routeLayer = L.geoJson(route_geoJson,{style:{color:'green', weight:'7', opacity:'0.7'}}).addTo(map);
                 map.fitBounds(routeLayer.getBounds());
-                control.addOverlay(routeLayer,'Route '+route);
+                control.addOverlay(routeLayer,'Route '+route.split('+')[0]);
 			}else{
                 alert('No ROUTE information found, please select another route or direction!');
             }
-		},"json");
 
-		$.get("../get_stops/", {route:route, direction:direction}, function(data, textStatus){
-		    $('#select_stop').empty();
-		    if(stopsLayer){
-			 	control.removeLayer(stopsLayer);
-			 	if(map.hasLayer(stopsLayer)){
-			 		map.removeLayer(stopsLayer);
-			 	}
-            }
-		    if(data){
-			    stops_geoJson = $.parseJSON(data);
-			    stopsLayer = L.geoJson(stops_geoJson, {
-					pointToLayer:function(feature, latlng){
-							return L.circleMarker(latlng,{
-                                radius:6,
-                                fillColor: '#9ba7ff',
-                                color: 'blue',
-                                weight: 1,
-                                opacity: 0.6,
-                                fillOpacity: 0.9
-                            });
-					},
-					onEachFeature:onEachFeature
-                }).addTo(map);
-			    control.addOverlay(stopsLayer,'Stops');
-			    for(var i=0;i<stops_geoJson.features.length;i++){
-				    $("#select_stop").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");
-			    }
-                $('#select_stop').selectpicker('refresh');
-		    }else{
-                alert('No STOP information found. Please select another route or direction!');
-		    }
-            ///////Spinner Stop
-                spinner.stop();
-                var target = document.getElementById('map');
-                target.style.opacity = '1';
-            ///////////////////
+            $.get("../get_stops/", {route:route.split('+')[0], direction:direction}, function(data, textStatus){
+                $('#select_stop').empty();
+                if(stopsLayer){
+                    control.removeLayer(stopsLayer);
+                    if(map.hasLayer(stopsLayer)){
+                        map.removeLayer(stopsLayer);
+                    }
+                }
+                if(data){
+                    stops_geoJson = $.parseJSON(data);
+                    stopsLayer = L.geoJson(stops_geoJson, {
+                        pointToLayer:function(feature, latlng){
+                                return L.circleMarker(latlng,{
+                                    radius:6,
+                                    fillColor: '#9ba7ff',
+                                    color: 'blue',
+                                    weight: 1,
+                                    opacity: 0.6,
+                                    fillOpacity: 0.9
+                                });
+                        },
+                        onEachFeature:onEachFeature
+                    }).addTo(map);
+                    control.addOverlay(stopsLayer,'Stops');
+                    for(var i=0;i<stops_geoJson.features.length;i++){
+                        $("#select_stop").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");
+                    }
+                    $('#select_stop').selectpicker('refresh');
+                }else{
+                    alert('No STOP information found. Please select another route or direction!');
+                }
+                ///////Spinner Stop
+                    spinner.stop();
+                    var target = document.getElementById('map');
+                    target.style.opacity = '1';
+                ///////////////////
+            },"json");
 		},"json");
 	}
 
@@ -469,6 +476,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
     });
 
     $('#stops_deselect_all').click(function(){
+        $('#chartcontainer').empty();
         var selected_stops = $('#select_stop option:selected');
         var stops_number = selected_stops.length;
         for(var i = 0; i < stops_number; i++){
@@ -496,7 +504,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
                 s[temp] += 1;
             }
 			if (direction == 1){direction = 'Inbound'}else{direction = 'Outbound'}
-            var ticks = ['-12','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','12'];
+            var ticks = ['<-11','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','>11'];
 			var plot = $.jqplot(chartname, [s], {
     			title: 'Schedule deviation distribution of Route ' + route + ' (' + direction + ') at Stop: ' + name + ' (' + stopid + ').' ,
                 seriesDefaults: {
@@ -596,15 +604,15 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
                 tempright.style.marginTop = "20px";
                 $('#col2'+stops_array[i]).append(tempright);
 
-                plot(stops_array[i], stopsname_array[i], route, direction, data[stops_array[i]], temp.id);
+                plot(stops_array[i], stopsname_array[i], route.split('+')[0], direction, data[stops_array[i]], temp.id);
 
                 if (data[stops_array[i]].length == 0){
-                    document.getElementById('stat'+stops_array[i]).innerHTML = "<br><br><br><br> <h4> No data found for this stop.<br>Please re-select!</h4>"
+                    document.getElementById('stat'+stops_array[i]).innerHTML = "<br><br><br><br> <h4> No data found.<br>Please re-select!</h4>"
                 }else{
                     var avg = 0,
                         proportion = 0;
                     for (var j=0; j < data[stops_array[i]].length; j++){
-                        avg += data[stops_array[i]][j]
+                        avg += data[stops_array[i]][j];
                         if ((data[stops_array[i]][j] >= low)&&(data[stops_array[i]][j] <= high)){proportion += 1}
                     }
                     avg /= data[stops_array[i]].length;
@@ -653,7 +661,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
 
     function get_bus_real_time(){
         var route = $('#select_route option:selected').attr('value');
-        $.get("../bus_real_time/", {rt:route}, function(data, textStatus){
+        $.get("../bus_real_time/", {rt:route.split('+')[0]}, function(data, textStatus){
             if(busLayer){
                 control.removeLayer(busLayer);
                 if(map.hasLayer(busLayer)){

@@ -51,6 +51,7 @@ urlpatterns = patterns('',
 
     url(r'^transit_metrics_op_byroute/$', views.transit_metrics_op_byroute, name='transit_metrics_op_byroute'),
     url(r'^transit_metrics_op_bystop/$', views.transit_metrics_op_bystop, name='transit_metrics_op_bystop'),
+    url(r'^transit_metrics_schedule_opt/$', views.transit_metrics_schedule_opt, name='transit_metrics_schedule_opt'),
 
     url(r'^bus_real_time/$', views.bus_real_time, name='bus_real_time'),
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  End  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -93,11 +93,11 @@
 .slider-selection {
   position: absolute;
   background-color: #C4C4C4;
-  background-image: -moz-linear-gradient(top, #3f51b5, #3f51b5);
-  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#3f51b5), to(#3f51b5));
-  background-image: -webkit-linear-gradient(top, #3f51b5, #3f51b5);
-  background-image: -o-linear-gradient(top, #3f51b5, #3f51b5);
-  background-image: linear-gradient(to bottom, #3f51b5, #3f51b5);
+  background-image: -moz-linear-gradient(top, #5BC0DE, #5BC0DE);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#5BC0DE), to(#5BC0DE));
+  background-image: -webkit-linear-gradient(top, #5BC0DE, #5BC0DE);
+  background-image: -o-linear-gradient(top, #5BC0DE, #5BC0DE);
+  background-image: linear-gradient(to bottom, #5BC0DE, #5BC0DE);
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff9f9f9', endColorstr='#fff5f5f5', GradientType=0);
   -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
@@ -114,12 +114,12 @@
         position: absolute;
         width: 18px;
         height: 18px;
-        background-color: #3f51b5;
-        background-image: -moz-linear-gradient(top, #3f51b5, #3f51b5);
-        background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#3f51b5), to(#3f51b5));
-        background-image: -webkit-linear-gradient(top, #3f51b5, #3f51b5);
-        background-image: -o-linear-gradient(top, #3f51b5, #3f51b5);
-        background-image: linear-gradient(to bottom, #3f51b5, #3f51b5);
+        background-color: #5BC0DE;
+        background-image: -moz-linear-gradient(top, #5BC0DE, #5BC0DE);
+        background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#5BC0DE), to(#5BC0DE));
+        background-image: -webkit-linear-gradient(top, #5BC0DE, #5BC0DE);
+        background-image: -o-linear-gradient(top, #5BC0DE, #5BC0DE);
+        background-image: linear-gradient(to bottom, #5BC0DE, #5BC0DE);
         background-repeat: repeat-x;
         opacity: 0.98;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff149bdf', endColorstr='#ff0480be', GradientType=0);

@@ -7,20 +7,71 @@ Power of 32 RTIS - Transit - Crowding Level
 {% endblock %}
 
 {% block style %}
+<style>
+    .leaflet-control{
+        line-height: 18px;
+        border-radius: 5px;
+        background: white;
+        box-shadow: -2px -2px 2px #CCCCCC;
+        opacity: 0.8;
+        padding: 2px 8px 8px 8px;
+    }
+    .legend {
+        line-height: 18px;
+        height:60px;
+        width:160px;
+        right: -10px;
+        bottom: -10px;
+        border-radius: 5px;
+        background: white;
+        box-shadow: -2px -2px 2px #CCCCCC;
+        opacity: 0.8;
+    }
+    .legend i {
+        width: 12px;
+        height: 12px;
+        float: left;
+        border-radius: 6px;
+        margin-right: 7px;
+        margin-left: 6px;
+        margin-top: 6px;
+        opacity: 0.9;
+    }
+    .legend j {
+        width: 12px;
+        height: 12px;
+        float: left;
+        border-radius: 6px;
+        margin-right: 7px;
+        margin-left: 6px;
+        margin-top: 3px;
+        opacity: 0.9;
+    }
+    .legend k {
+        width: 12px;
+        height: 12px;
+        float: left;
+        border-radius: 6px;
+        margin-right: 7px;
+        margin-left: 6px;
+        margin-top: 3px;
+        opacity: 0.9;
+    }
+</style>
 <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
-<link rel="stylesheet" href="{% static 'traffic/bootstrap-datetimepicker.min.css' %}" />
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-switch.min.css' %}" />
-<link rel="stylesheet" href="{% static 'traffic/multiselect/bootstrap-multiselect.css' %}"  type="text/css"/>
+<link rel="stylesheet" href="{% static 'traffic/bootstrap-datetimepicker.min.css' %}" />
+<link rel="stylesheet" href="{% static 'traffic/slider/css/slider.css' %}" />
 {% endblock %}
 
 
 {% block content %}
 <div class="well" style="height:600px;">
 	<div class="container" style="width: inherit">
-    	<div class="row"><h3>Transit </h3></div>
-		<div class="row" style="padding-top:5px;">
+    	<div class="row"><h4>Crowding Level </h4></div>
+		<div class="row" style="padding-top:15px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Route:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
                 <select id='select_route' name = 'select_route' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
@@ -31,99 +82,50 @@ Power of 32 RTIS - Transit - Crowding Level
             </div>
 	    </div>
 
-    	<div class="row" style="padding-top:5px;">
-           <div class="col-md-4" style="height: 30px;text-align: center;">
-               <input type="radio" name="direction" class="direction" value='I' checked="checked" id = 'inbound'/> Inbound
-           </div>
-           <div class="col-md-5" style="height: 30px;text-align: left;">
-               <input type="radio" name="direction" class="direction" value='O' /> Outbound <br>
-           </div>
+        <div class="row" style="padding-top:5px;padding-bottom: 5px;">
+            <div class="col-md-12" style="text-align: right;">
+               <input type="checkbox" id="inout" name="inout" checked>
+            </div>
         </div>
 
         <div class="row" style="padding-top:5px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Stops:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
-                <select multiple="multiple" id = "select_stop">
+                <select id = "select_stop" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
                 </select>
-                <button id="stops_deselect_all" class="btn btn-default">Clear All</button>
             </div>
 	    </div>
 
-        <div class="row" style="padding-top:5px;">
+        <button id="stops_deselect_all" class="btn btn-default btn-block" style="margin-top: 10px">
+            <span class="glyphicon glyphicon-remove"> </span> &nbsp; Clear All
+        </button><br>
+
+        <div class="row" style="padding-top:15px;">
         	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Date:</h5></div>
-            <div class="col-md-3" style="padding-left:0px;padding-right: 0px;">
-                <select id='syear' name = 'syear' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
-					<option value='2014'>2014</option>
-					<option value='2013'>2013</option>
-					<option value='2012'>2012</option>
-					<option value='2011'>2011</option>
-					<option value='2010'>2010</option>
-				</select>
-            </div>
-            <div class="col-md-2" style="padding-left: 0;padding-right: 1px;">
-				<select id='smonth' name = 'smonth' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
-					<option value='01'>Jan</option>
-					<option value='02'>Feb</option>
-					<option value='03'>Mar</option>
-					<option value='04'>Apr</option>
-					<option value='05'>May</option>
-					<option value='06'>Jun</option>
-					<option value='07'>Jul</option>
-					<option value='08'>Aug</option>
-					<option value='09'>Sep</option>
-					<option value='10'>Oct</option>
-					<option value='11'>Nov</option>
-					<option value='12'>Dec</option>
-				</select>
-            </div>
-            <div class="col-md-2" style="padding-left: 0;padding-right: 10px;">
-				<select id='sday' name = 'sday' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
-					{% for i in n%}
-						<option value={{i}}>{{i}}</option>
-					{% endfor %}
-				</select>
+            <div class="col-md-8" style="padding-left: 0;">
+                    <div class='input-group date' id='datepicker'>
+                        <input id="s_date" type='text' style="height: 36px;width: 145px;" class="form-control" />
+                        <span class="input-group-addon" style="height: 36px;width: 36px;padding: 0;"><span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
             </div>
 	    </div>
 
 		<div class="row" style="padding-top:5px;">
         	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>End Date:</h5></div>
-            <div class="col-md-3" style="padding-left:0px;padding-right: 0px;">
-                <select id='eyear' name = 'eyear' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
-					<option value='2014'>2014</option>
-					<option value='2013'>2013</option>
-					<option value='2012'>2012</option>
-					<option value='2011'>2011</option>
-					<option value='2010'>2010</option>
-				</select>
-            </div>
-            <div class="col-md-2" style="padding-left: 0;padding-right: 1px;">
-				<select id='emonth' name = 'emonth' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
-					<option value='01'>Jan</option>
-					<option value='02'>Feb</option>
-					<option value='03' selected="selected">Mar</option>
-					<option value='04'>Apr</option>
-					<option value='05'>May</option>
-					<option value='06'>Jun</option>
-					<option value='07'>Jul</option>
-					<option value='08'>Aug</option>
-					<option value='09'>Sep</option>
-					<option value='10'>Oct</option>
-					<option value='11'>Nov</option>
-					<option value='12'>Dec</option>
-				</select>
-            </div>
-            <div class="col-md-2" style="padding-left: 0;padding-right: 10px;">
-				<select id='eday' name = 'eday' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
-					{% for i in n%}
-						<option value={{i}}>{{i}}</option>
-					{% endfor %}
-				</select>
+            <div class="col-md-8" style="padding-left: 0;">
+                    <div class='input-group date' id='datepicker2'>
+                        <input id="e_date" type='text' style="height: 36px;width: 145px;" class="form-control" />
+                        <span class="input-group-addon" style="height: 36px;width: 36px;padding: 0;"><span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
             </div>
 	    </div>
+
         <div class="row" style="padding-top:5px;">
            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Time:</h5></div>
            <div class="col-md-8" style="padding-left: 0;">
-                    <div class='input-group date' id='datetimepicker'>
+                    <div class='input-group date' id='timepicker'>
                         <input id="s_time" type='text' style="height: 36px;width: 145px;" class="form-control" />
                         <span class="input-group-addon" style="height: 36px;width: 36px;padding: 0;"><span class="glyphicon glyphicon-time"></span>
                         </span>
@@ -134,7 +136,7 @@ Power of 32 RTIS - Transit - Crowding Level
         <div class="row" style="padding-top:5px;">
            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>End Time:</h5></div>
            <div class="col-md-8" style="padding-left: 0;">
-                    <div class='input-group date' id='datetimepicker2'>
+                    <div class='input-group date' id='timepicker2'>
                         <input id="e_time" style="height: 36px;width: 145px;" type='text' class="form-control" />
                         <span class="input-group-addon" style="height: 36px;width: 36px;padding: 0;"><span class="glyphicon glyphicon-time"></span>
                         </span>
@@ -142,7 +144,19 @@ Power of 32 RTIS - Transit - Crowding Level
            </div>
         </div>
 
-         <div class="row" style="padding-top:5px;">
+{#        <div class="row" style="padding-top:5px;">#}
+{#            <p>Select tolerance range (Unit: mins):</p>#}
+{#        <div>#}
+
+        <div class="row" style="padding-top:30px;">
+            <div class="col-md-2" style="height:20px;padding-right: 0;"><p>-12</p></div>
+            <div class="col-md-9" style="padding-left: 0;padding-right: 0;">
+                <input  style="width: 100%" id="slider" type="text" class="span2" value="" data-slider-value="[-3,3]" data-slider-min="-12" data-slider-max="12" data-slider-step="1"/>
+            </div>
+            <div class="col-md-1" style="height:20px;padding-left: 0;"><p>12</p></div>
+        </div>
+
+        <div class="row" style="padding-top:15px;">
            <div class="col-md-6" style="height: 36px;padding-right: 0;">
                <button type="button" style="margin-top:10px;" class="btn btn-default btn-block" id="real_time">
                     <span class="glyphicon glyphicon-search"> </span> &nbsp; Real Time
@@ -155,75 +169,92 @@ Power of 32 RTIS - Transit - Crowding Level
            </div>
         </div>
     </div>
-
-	<br> <div style="width:100%;height:2px;margin:0 auto;padding:0;background-color:#ddd;overflow:hidden;"></div>
-
-	<div class="container" style="width: inherit">
-        <div class="row" style="padding-top: 15px">
-			<h4> Result: </h4>
-        </div>
-        <div class="row" style="padding-top: 10px">
-        	<div class="col-md-7" style="padding-right: 0;">
-				Crowding Level:
-            </div>
-            <div class="col-md-5" style="padding-left: 0;">
-                <span id = 'ontime'>&emsp;&emsp;&emsp;</span>
-            </div>
-        </div>
-    </div>
 </div>
 {% endblock %}
 
-
 {% block map %}
-<div id="map"></div>
+    <div id="map"> </div>
+    <div id="chartcontainer"> </div>
 {% endblock %}
-	
 	
 
 {% block script %}
 <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'traffic/multiselect/bootstrap-multiselect.js' %}"></script>
-{#<script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/dist/js/bootstrap.min.js' %}"></script>#}
+
 <script type="text/javascript" src="{% static 'traffic/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/transition.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/collapse.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-datetimepicker.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/bootstrap-switch.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/spinner.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/slider/js/bootstrap-slider.js' %}"></script>
+
+<script type="text/javascript" src={% static 'traffic/jquery.jqplot.min.js' %}></script>
+<script type="text/javascript" src={% static 'traffic/jqplot/plugins/jqplot.barRenderer.js' %}></script>
+<script type="text/javascript" src={% static 'traffic/jqplot/plugins/jqplot.categoryAxisRenderer.js' %}></script>
+<script type="text/javascript" src={% static 'traffic/jqplot/plugins/jqplot.pointLabels.js' %}></script>
+<script type="text/javascript" src={% static 'traffic/jqplot/plugins/jqplot.highlighter.js' %}></script>
 
 <script>
-     $('.selectpicker').selectpicker({
-      style: 'btn-inverse',
-      size: 10
-     });
-</script>
+    $('.selectpicker').selectpicker({
+        style: 'btn-inverse',
+        size: 10
+    });
 
+    $("#slider").slider({
+	    tooltip: 'show'
+    });
+</script>
 
 <script type="text/javascript">
-      $(function () {
-          $('#datetimepicker').datetimepicker({
-              format: 'LT'
-          });
-      });
-      $(function () {
-          $('#datetimepicker2').datetimepicker({
-              format: 'LT'
-          });
-      });
+    var options = {
+        onColor: 'info',
+        offColor: 'warning',
+        onText: 'Inbound',
+        offText: 'Outbound',
+        labelWidth: 30,
+        handleWidth: 101
+    };
+    $("[name='inout']").bootstrapSwitch(options);
+</script>
+
+<script type="text/javascript">
+    $(function () {
+        $('#datepicker').datetimepicker({
+            viewMode: 'years',
+            format: 'MM/DD/YYYY'
+        });
+    });
+    $(function () {
+        $('#datepicker2').datetimepicker({
+            viewMode: 'years',
+            format: 'MM/DD/YYYY'
+        });
+    });
+    $(function () {
+        $('#timepicker').datetimepicker({
+            format: 'LT'
+        });
+    });
+    $(function () {
+        $('#timepicker2').datetimepicker({
+            format: 'LT'
+        });
+    });
 </script>
 
 <script>
-{#	$(function(){#}
-	var map = L.map('map').setView([40.300, -79.000], 8);
-    
-	// add an OpenStreetMap tile layer
-	var basemap = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-	}).addTo(map);
+        var map = L.map('map').setView([40.300, -79.000], 8);
+
+        // add an OpenStreetMap tile layer
+        var basemap = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 	
-	control = L.control.layers({'Base Map':basemap},null,{collapsed:false}).addTo(map);
+	    control = L.control.layers({'Base Map':basemap},null,{collapsed:false}).addTo(map);
 	
-	map.addControl( new L.Control.Search({
+	    map.addControl( new L.Control.Search({
 			url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',
 			jsonpParam: 'json_callback',
 			propertyName: 'display_name',
@@ -235,63 +266,73 @@ Power of 32 RTIS - Transit - Crowding Level
 			zoom:10
 		}) );
 	
-	/*var info = L.control();
-
-		info.onAdd = function (map) {
-			this._div = L.DomUtil.create('div', 'info');
-			this._div.innerHTML = '<h4>Route Information</h4>'
-								+ "<br> <b>Route:</b><p id = 'info_route'></p>"
-								+ "<b>Direction:</b><p id = 'info_direction'></p>"
-								+ "<b>Stop 1:</b><p id = 'stop1'></p>"
-								+ "<b>Stop 1 Order:</b><p id = 'order1'></p>"
-								+ "<b>Stop 2:</b><p id = 'stop2'></p>"
-								+ "<b>Stop 2 Order:</b><p id = 'order2'></p>"
-								+ "<b>Metrics:</b><p id = 'metrics'></p>";
-			return this._div;
-		};
-
-		info.addTo(map);*/
-	
 	    var info = L.control();
-
 		info.onAdd = function (map) {
 			this._div = L.DomUtil.create('div', 'info');
 			this.update();
 			return this._div;
 		};
-
 		info.update = function (props) {
-			this._div.innerHTML = '<h4>Stop</h4>' +  (props ?
+			this._div.innerHTML = '<h4>Info</h4>' +  (props ?
 				'<b>' + props.name + '</b>'
 				: 'Hover over a stop');
 		};
-
 		info.addTo(map);
-	
+
+        var legend = L.control({position: 'bottomright'});
+        legend.onAdd = function () {
+            var div = L.DomUtil.create('div', 'info legend');
+            div.innerHTML += '<i style="background:green' + '"></i> ' + "Speed &ge; 30 MPH"+ "<br>";
+            div.innerHTML += '<j style="background:yellow' +  '"></j> ' + "Speed &ge; 10 MPH"+ "<br>";
+            div.innerHTML += '<k style="background:red' +  '"></k> ' + "Speed < 10 MPH"+ "<br>";
+            return div;
+        };
+        legend.addTo(map);
+
 	    function highlightFeature(e) {
 			var layer = e.target;
-
-			/*layer.setStyle({
-				weight: 5,
-				color: '#666',
-				dashArray: '',
-				fillOpacity: 0.7
-			});*/
-
+			layer.setStyle({
+                radius: 8
+			});
 			if (!L.Browser.ie && !L.Browser.opera) {
 				layer.bringToFront();
 			}
-
 			info.update(layer.feature.properties);
 		}
-
 		function resetHighlight(e) {
+            var layer = e.target;
+            layer.setStyle({
+                radius: 6
+			});
 			info.update();
 		}
+
+
+{#======================================= Spinner Options ===========================================#}
+        var spinneropts = {
+            lines: 9, // The number of lines to draw
+            length: 20, // The length of each line
+            width: 15, // The line thickness
+            radius: 30, // The radius of the inner circle
+            corners: 1, // Corner roundness (0..1)
+            rotate: 0, // The rotation offset
+            direction: 1, // 1: clockwise, -1: counterclockwise
+            color: '#000', // #rgb or #rrggbb or array of colors
+            speed: 1, // Rounds per second
+            trail: 60, // Afterglow percentage
+            shadow: false, // Whether to render a shadow
+            hwaccel: false, // Whether to use hardware acceleration
+            className: 'spinner', // The CSS class to assign to the spinner
+            zIndex: 2e9, // The z-index (defaults to 2000000000)
+            top: '50%', // Top position relative to parent
+            left: '50%' // Left position relative to parent
+        };
+{#=============================================== End ================================================#}
 
         var selected_stops_dict = {};
         var selected_stops_layerGroup = L.layerGroup().addTo(map);
         control.addOverlay(selected_stops_layerGroup,"Selected Stops");
+
 		function add_stop_to_map(stop_id,flag){
             if(flag) {
                 if(selected_stops_dict[stop_id]){
@@ -313,200 +354,283 @@ Power of 32 RTIS - Transit - Crowding Level
                 }
             }
         }
+
         function remove_all_stops_from_map(){
             selected_stops_layerGroup.clearLayers();
-            elected_stops_dict = {};
+            selected_stops_dict = {};
         }
-
 
 		function clickFeature(e) {
 			var layer = e.target;
-			//var weather;
-			//map.fitBounds(layer.getBounds()); // zoom to the layer
-{#			selected = (selected+1)%2;#}
-{#			var update = '#select_stop' + (selected+1);#}
-{#			$(update +' option:selected').removeAttr('selected');#}
-{#            $(update +' option:selected').selectpicker('refresh');#}
-{#			$(update).find("option[value='" + layer.feature.properties.stop_id +"']").attr('selected', true);#}
-{#            $(update).selectpicker('refresh');#}
-{#			$(update).trigger('change');#}
-{#            $(update).selectpicker('refresh');#}
-			//var order = '#order' + (selected+1);
-			//$(update).text(layer.feature.properties.name);
-			//$(order).text(layer.feature.properties.order);
 			$('option[value=' + layer.feature.properties.stop_id + ']', $('#select_stop')).prop("selected", true);
-            $('#select_stop').multiselect('refresh');
+            $('#select_stop').selectpicker('refresh');
             add_stop_to_map(layer.feature.properties.stop_id,true);
 		}
 
-		function onEachFeature(feature, layer) {
+		function onEachFeature(feature, layer){
 			layer.on({
 				mouseover: highlightFeature,
-				mouseout:resetHighlight,
-				click:clickFeature
+				mouseout: resetHighlight,
+				click: clickFeature
 			});
 			layer.bindPopup('<b>' + feature.properties.name + '</b>');
-			}
+        }
 	
 	
 	var routeLayer = L.geoJson(),
 		stopsLayer = L.geoJson(),
         busLayer   = L.geoJson();
     var stops_geoJson, route_geoJson;
-	function getInfo(event){
-		//var route = $("#route").val();
-		$('#ontime').text('');
-		$('#crowding').text('');
-		$('#waiting').text('');
-		$('#txtHint').text('');
-		
+	function getInfo(){
 		var route = $('#select_route option:selected').attr('value');
-		var direction = $('input.direction:checked').attr('value');
+        var direction = $('#inout').bootstrapSwitch('state');
+        if (direction){direction = 'I'} else {direction = 'O'}
 
-        if(event.data.flag == "route") {
-            if (busLayer) {
-                control.removeLayer(busLayer);
-                if (map.hasLayer(busLayer)) {
-                    map.removeLayer(busLayer);
-                }
+        var target = document.getElementById('map');
+        spinner = new Spinner(spinneropts).spin(target);
+        target.style.opacity = '0.15';
+
+        if (busLayer) {
+            control.removeLayer(busLayer);
+            if (map.hasLayer(busLayer)) {
+                map.removeLayer(busLayer);
             }
         }
-        remove_all_stops_from_map()
+
+        remove_all_stops_from_map();
 
 		$.get("../get_route/", {route:route, direction:direction}, function(data, textStatus){
-			
 			if(routeLayer){
 			 	control.removeLayer(routeLayer);
 			 	if(map.hasLayer(routeLayer)){
 			 		map.removeLayer(routeLayer);
 			 	}
-			 }
+            }
 			if(data){
-			 route_geoJson = $.parseJSON(data);
-			 routeLayer = L.geoJson(route_geoJson,{style:{color:'green'}}).addTo(map);
-			 $('#info_route').text(route);
-			 $('#info_direction').text((direction == 'I'?'Inbound':'Outbound'));
-			 $('#stop1').text('');
-			 $('#stop2').text('');
-			 $('#order1').text('');
-			 $('#order2').text('');
-			 $('#metrics').text('');
-			 map.fitBounds(routeLayer.getBounds());
-			 control.addOverlay(routeLayer,'Route '+route);
-			}
-		},"json");
-
-
-        function multiselect_on_change(option, checked, select) {
-            add_stop_to_map(option.val(),checked);
-        }
-		
-		$.get("../get_stops/", {route:route, direction:direction}, function(data, textStatus){
-			
-		  $('#select_stop').empty();
-		  //$('#select_stop2').empty();
-		  if(stopsLayer){
-			 	control.removeLayer(stopsLayer);
-			 	if(map.hasLayer(stopsLayer)){
-			 		map.removeLayer(stopsLayer);
-			 	}
-			 }
-		  if(data){
-			 stops_geoJson = $.parseJSON(data);
-			 stopsLayer = L.geoJson(stops_geoJson, {
-					pointToLayer:function(feature, latlng){
-							return L.circleMarker(latlng,{radius:5,fillOpacity:0.9});
-					},
-					onEachFeature:onEachFeature
-					}).addTo(map);
-			control.addOverlay(stopsLayer,'Stops');
-
-			for(var i=0;i<stops_geoJson.features.length;i++){
-				$("#select_stop").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");
-{#                $("#select_stop1").selectpicker('refresh');#}
-{#				$("#select_stop2").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");#}
-{#                $("#select_stop2").selectpicker('refresh');#}
-			}
-            //Initialize multiselect
-            if ( $('#stops_multiselect').length == 0) {
-                $('#select_stop').multiselect({
-                    buttonContainer: '<div class="btn-group" id = "stops_multiselect"/>',
-                    disableIfEmpty: true,
-                    maxHeight: 200,
-                    buttonWidth: '195px',
-                    nonSelectedText: 'Select Stops ...',
-                    numberDisplayed: 1,
-                    enableCaseInsensitiveFiltering: true,
-                    checkboxName: 'stop',
-                    onChange: multiselect_on_change
-                    //includeSelectAllOption: true,
-                    //selectAllValue: 'select-all-value'
-                });
+                route_geoJson = $.parseJSON(data);
+                routeLayer = L.geoJson(route_geoJson,{style:{color:'green', weight:'7', opacity:'0.7'}}).addTo(map);
+                map.fitBounds(routeLayer.getBounds());
+                control.addOverlay(routeLayer,'Route '+route);
+			}else{
+                alert('No ROUTE information found, please select another route or direction!');
             }
-            else{
-                $('#select_stop').multiselect("rebuild");
-            }
-		  }
-		  else{
-		  	$('#txtHint').text('Route ' + route + '-' + (direction == 'I'?'Inbound':'Outbound') + ' not found');
-		  }
+
+            $.get("../get_stops/", {route:route, direction:direction}, function(data, textStatus){
+                $('#select_stop').empty();
+                if(stopsLayer){
+                    control.removeLayer(stopsLayer);
+                    if(map.hasLayer(stopsLayer)){
+                        map.removeLayer(stopsLayer);
+                    }
+                }
+                if(data){
+                    stops_geoJson = $.parseJSON(data);
+                    stopsLayer = L.geoJson(stops_geoJson, {
+                        pointToLayer:function(feature, latlng){
+                                return L.circleMarker(latlng,{
+                                    radius:6,
+                                    fillColor: '#9ba7ff',
+                                    color: 'blue',
+                                    weight: 1,
+                                    opacity: 0.6,
+                                    fillOpacity: 0.9
+                                });
+                        },
+                        onEachFeature:onEachFeature
+                    }).addTo(map);
+                    control.addOverlay(stopsLayer,'Stops');
+                    for(var i=0;i<stops_geoJson.features.length;i++){
+                        $("#select_stop").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");
+                    }
+                    $('#select_stop').selectpicker('refresh');
+                }else{
+                    alert('No STOP information found. Please select another route or direction!');
+                }
+                ///////Spinner Stop
+                    spinner.stop();
+                    var target = document.getElementById('map');
+                    target.style.opacity = '1';
+                ///////////////////
+            },"json");
 		},"json");
 	}
 
-    $('#stops_deselect_all').on('click', function() {
-        var selected_stops = $('#stops_multiselect ul li.active [name= "stop"]');
+    getInfo();
+	$('#select_route').change(getInfo);
+	$('#inout').on('switchChange.bootstrapSwitch',getInfo);
+
+    $('#select_stop').change(function() {
+        remove_all_stops_from_map();
+        var selected_stops = $('#select_stop option:selected');
         var stops_number = selected_stops.length;
-        var stops_array = new Array(stops_number);
+        for (var i = 0; i < stops_number; i++) {
+            add_stop_to_map(selected_stops[i].value, true);
+        }
+    });
+
+    $('#stops_deselect_all').click(function(){
+        $('#chartcontainer').empty();
+        var selected_stops = $('#select_stop option:selected');
+        var stops_number = selected_stops.length;
         for(var i = 0; i < stops_number; i++){
             add_stop_to_map(selected_stops[i].value, false);
         }
-        $('#select_stop').multiselect('deselectAll', false);
-        $('#select_stop').multiselect('updateButtonText');
+        $("#select_stop option:selected").removeAttr("selected");
+        $('#select_stop').selectpicker('refresh');
     });
 
 
-	$('#select_route').change({flag:"route"},getInfo);
-	$('.direction').click({flag:"direction"},getInfo);
-{#	function get_metrics(){#}
-{#		//generate some random metrics for now#}
-{#		var h = 1;#}
-{#		if (parseInt($('#hour option:selected').attr('value')) < Math.floor($('#select_stop1 option:selected').attr('value').charCodeAt(0)/10) || parseInt($('#hour option:selected').attr('value')) > 17 + Math.floor($('#select_stop1 option:selected').attr('value').charCodeAt(0)/15)){#}
-{#			h = 0;#}
-{#		}#}
-{#		var seed = ($('#select_stop1 option:selected').attr('value').charCodeAt(2) + $('#select_stop2 option:selected').attr('value').charCodeAt(2)- 85 + Math.abs(parseInt($('#minute option:selected').attr('value'))-30) + Math.abs(parseInt($('#hour option:selected').attr('value'))-15)*h)/75;#}
-{#		var ontime_performance = (''+ ((seed) * 20 + 50)*h).substr(0,5) + '%',#}
-{#		    crowding = (''+ seed * 1.5*h).substr(0,4),#}
-{#		    waiting_time = (''+ (1-seed) * 25 * h).substr(0,4) + ' minutes';#}
-{#		$('#ontime').text(ontime_performance);#}
-{#		$('#crowding').text(crowding);#}
-{#		$('#waiting').text(waiting_time);#}
-{#		 #}
-{#	}#}
+{#=================================================== Get Metrics Begin Here =======================================#}
+    function plot(stopid, name, route, direction, dev, chartname){
+            var s = [];
+            for (var i=0; i < 24; i++){s[i]=0}
+            for (var i=0; i < dev.length; i++){
+                var temp = 0;
+                if (dev[i]<=0){
+                    temp = Math.floor(dev[i]);
+                    if (temp < -12){temp = -12}
+                }else{
+                    temp = Math.ceil(dev[i]);
+                    if (temp > 12){temp = 12}
+                }
+                if (temp < 0){temp += 12}else{temp += 11}
+                s[temp] += 1;
+            }
+			if (direction == 1){direction = 'Inbound'}else{direction = 'Outbound'}
+            var ticks = ['<-11','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','>11'];
+			var plot = $.jqplot(chartname, [s], {
+    			title: 'Schedule deviation distribution of Route ' + route + ' (' + direction + ') at Stop: ' + name + ' (' + stopid + ').' ,
+                seriesDefaults: {
+                    pointLabels: { show:false, formatString: "%#.2f" },
+                    renderer:$.jqplot.BarRenderer,
+                    rendererOptions: {fillToZero: true}
+                },
+    			axes: {
+                    // Use a category axis on the x axis and use our custom ticks.
+                    xaxis: {
+                        label:'Schedule deviation (min)',
+                        renderer: $.jqplot.CategoryAxisRenderer,
+                        ticks: ticks
+                    },
+                    // Pad the y axis just a little so bars can get close to, but
+                    // not touch, the grid boundaries.  1.2 is the default padding.
+                    yaxis: {
+                        label:'Count',
+                        pad: 1.05,
+                        tickOptions: {formatString: '%d'}
+                    }
+                },
+                highlighter: {
+                    show: true,
+                    tooltipAxes: 'y',
+                    sizeAdjust: 0
+                }
+  			});
+    }
+
     function get_metrics(){
-		//generate some random metrics for now
-		var selected_stops = $('#stops_multiselect ul li.active [name= "stop"]');
+        var route = $('#select_route option:selected').attr('value');
+        var direction = $('#inout').bootstrapSwitch('state');
+        if (direction){direction = "1"} else {direction = "0"}
+		var selected_stops = $('#select_stop option:selected');
         var stops_number = selected_stops.length;
         if (stops_number == 0 ){
             alert("Please select at least 1 stop.");
             return;
         }
 
-        var stops_array = new Array(stops_number);
+        var stops_array = new Array(stops_number),
+            stopsname_array = new Array(stops_number);
         for(var i = 0; i < stops_number; i++){
             stops_array[i] = selected_stops[i].value;
+            stopsname_array[i] = selected_stops[i].text;
         }
         var selected_stops_str = stops_array.join();
 
-        var s_datetime = $("#syear option:selected").val() + "-" + $("#smonth option:selected").val() + "-" + ($("#sday option:selected").val().length == 1 ? "0"+ $("#sday option:selected").val() : $("#sday option:selected").val()) + " " + $("#s_time").val();
-        var e_datetime = $("#eyear option:selected").val() + "-" + $("#emonth option:selected").val() + "-" + ($("#eday option:selected").val().length == 1 ? "0"+ $("#eday option:selected").val() : $("#eday option:selected").val()) + " " + $("#e_time").val();
-{#        alert(s_date+"<br>"+e_date+"<br>"+selected_stops_str);#}
-        $.get("../transit_metrics/", {s_datetime:s_datetime, e_datetime:e_datetime, stops: selected_stops_str}, function(data, textStatus){
-            $('#ontime').text(data["s_datetime"]);
-            $('#crowding').text(data["e_datetime"]);
-		    $('#waiting').text(data["num"]);
-        });
-	}
+        var s_date = $("#s_date").val();
+        if (s_date==''){alert("Please select a Start Date!");return;}
+        var e_date = $("#e_date").val();
+        if (e_date==''){alert("Please select a End Date!");return;}
+        if ((parseInt(s_date.slice(-4)) > parseInt(e_date.slice(-4))) || (parseInt(s_date.slice(-4)) == parseInt(e_date.slice(-4))&&(parseInt(s_date.substr(0,2)) > parseInt(e_date.substr(0,2)))) || (parseInt(s_date.slice(-4)) == parseInt(e_date.slice(-4))&&(parseInt(s_date.substr(0,2)) == parseInt(e_date.substr(0,2)))&&(parseInt(s_date.substr(3,2)) > parseInt(e_date.substr(3,2)))) ){
+            alert("Start Date must be no later than End Date!\n\nPlease re-select.");
+            return;
+        }
+        var s_time = $("#s_time").val();
+        if (s_time==''){alert("Please select a Start Time!");return;}
+        var e_time = $("#e_time").val();
+        if (e_time==''){alert("Please select a End Time!");return;}
+        var stime = parseInt(s_time.substr(-5,2)) + parseInt(s_time.slice(0,-6))*100;
+        var etime = parseInt(e_time.substr(-5,2)) + parseInt(e_time.slice(0,-6))*100;
+        if (s_time.slice(-2) == "PM"){stime += 1200}
+        if (parseInt(s_time.slice(0,-6)) == 12){stime -= 1200}
+        if (e_time.slice(-2) == "PM"){etime += 1200}
+        if (parseInt(e_time.slice(0,-6)) == 12){etime -= 1200}
+        if (stime >= etime){
+            alert("Start Time must be earlier than End Time!\n\nPlease re-select.");
+            return;
+        }
 
+        var target = document.getElementById('map');
+        spinner = new Spinner(spinneropts).spin(target);
+        target.style.opacity = '0.15';
+
+        var low = $("#slider").slider('getValue')[0].value.split(",")[0];
+        var high = $("#slider").slider('getValue')[0].value.split(",")[1];
+
+        $('#chartcontainer').empty();
+
+        $.get("../transit_metrics_op_byroute/", {rt:route, dir:direction, s_date:s_date, e_date:e_date, s_time:stime, e_time:etime, stops:selected_stops_str}, function(data, textStatus){
+            for (var i=0;i < stops_number; i++){
+                $('#chartcontainer').append("<div class='row' style='padding-top:5px;'><div class='col-md-10' style='height: auto;'" +
+                "id = 'col1" + stops_array[i] + "'></div><div class='col-md-2' style='height: auto;' id = 'col2" + stops_array[i] +
+                "'></div></div>");
+
+                var temp = document.createElement('div');
+                temp.id = 'chart'+stops_array[i];
+                temp.style.marginLeft = "20px";
+                temp.style.marginTop = "20px";
+                $('#col1'+stops_array[i]).append(temp);
+                var tempright = document.createElement('div');
+                tempright.id = 'stat'+stops_array[i];
+                tempright.style.height = "300px";
+                tempright.style.marginRight = "20px";
+                tempright.style.marginTop = "20px";
+                $('#col2'+stops_array[i]).append(tempright);
+
+                plot(stops_array[i], stopsname_array[i], route, direction, data[stops_array[i]], temp.id);
+
+                if (data[stops_array[i]].length == 0){
+                    document.getElementById('stat'+stops_array[i]).innerHTML = "<br><br><br><br> <h4> No data found.<br>Please re-select!</h4>"
+                }else{
+                    var avg = 0,
+                        proportion = 0;
+                    for (var j=0; j < data[stops_array[i]].length; j++){
+                        avg += data[stops_array[i]][j];
+                        if ((data[stops_array[i]][j] >= low)&&(data[stops_array[i]][j] <= high)){proportion += 1}
+                    }
+                    avg /= data[stops_array[i]].length;
+                    proportion /= data[stops_array[i]].length;
+
+                    var sd = 0;
+                    for (var j=0; j < data[stops_array[i]].length; j++){
+                        sd += Math.pow(data[stops_array[i]][j] - avg, 2)
+                    }
+                    sd = Math.sqrt(sd/data[stops_array[i]].length);
+                    document.getElementById('stat'+stops_array[i]).innerHTML = "<br><br><br><br> <h5> Mean: <br>" + avg.toFixed(2) + " Minutes<br><br>Standard Deviation: <br>" + sd.toFixed(2) + " Minutes<br><br>"
+                            + "On-time Performance: <br>" + proportion.toFixed(2) + "</h5>";
+                }
+            }
+            ///////Spinner Stop
+                spinner.stop();
+                var target = document.getElementById('map');
+                target.style.opacity = '1';
+            ///////////////////
+        }, "json");
+	}
+{#=========================================================== End =====================================================#}
+
+
+{#=================================================== Realtime Bus Begin Here =======================================#}
     function busMarkerOptions(spd)  {
         return {
             radius: 9,
@@ -531,7 +655,6 @@ Power of 32 RTIS - Transit - Crowding Level
     function get_bus_real_time(){
         var route = $('#select_route option:selected').attr('value');
         $.get("../bus_real_time/", {rt:route}, function(data, textStatus){
-
             if(busLayer){
                 control.removeLayer(busLayer);
                 if(map.hasLayer(busLayer)){
@@ -544,23 +667,18 @@ Power of 32 RTIS - Transit - Crowding Level
                         return L.circleMarker(latlng, busMarkerOptions(feature.properties.spd));
                     },
                     onEachFeature:onEachBusFeature
-
                  }).addTo(map);
-                 control.addOverlay(busLayer,route);
+                 control.addOverlay(busLayer,"Realtime Buses");
 			}
             else{
                 alert(data["msg"]);
             }
 		},"json");
-
     }
+{#=========================================================== End =====================================================#}
+
     $("#historical").click(get_metrics);
     $("#real_time").click(get_bus_real_time);
-{#	$('#minute').change(get_metrics);#}
-{#	$('#hour').change(get_metrics);#}
-{#	$('#select_stop1').change(get_metrics);#}
-{#	$('#select_stop2').change(get_metrics);#}
-	$('#inbound').trigger('click');
-{#	});#}
+
 </script>
 {% endblock %}
