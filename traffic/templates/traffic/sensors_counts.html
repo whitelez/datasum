@@ -118,8 +118,8 @@
 
     .legend {
         line-height: 18px;
-        height:60px;
-        width:150px;
+        height:90px;
+        width:170px;
         right: -10px;
         bottom: -10px;
         border-radius: 5px;
@@ -309,6 +309,7 @@
         var legend = L.control({position: 'bottomright'});
             legend.onAdd = function () {
                 var div = L.DomUtil.create('div', 'info legend');
+                div.innerHTML += " <b>@1</b>: Westbound, Southbound<br> <b>@2</b>: Eastbound, Northbound<br>"
                 div.innerHTML += '<i style="background:green' + '"></i> ' + "Occupancy &le; 60%"+ "<br>";
                 div.innerHTML += '<j style="background:yellow' +  '"></j> ' + "Occupancy &le; 85%"+ "<br>";
                 div.innerHTML += '<k style="background:red' +  '"></k> ' + "Occupancy > 85%"+ "<br>";
