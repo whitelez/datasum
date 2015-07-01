@@ -178,8 +178,20 @@
         "use strict";
 
         var counts, links;
-        var countLayer = L.geoJson(), linkLayer = L.geoJson();
-              //map = L.map('map').setView([40.4407937, -80.0029874], 16);
+        var countLayerDict;
+        var countLayer = L.geoJson(), linkLayer = L.geoJson(), highlightSensorLayer = L.geoJson();
+
+        //change popup behaviour
+{#        L.Map = L.Map.extend({#}
+{#            openPopup: function(popup) {#}
+{#                //        this.closePopup();  // just comment this#}
+{#                this._popup = popup;#}
+{##}
+{#                return this.addLayer(popup).fire('popupopen', {#}
+{#                    popup: this._popup#}
+{#                });#}
+{#            }#}
+{#        });#}
                 // add an OpenStreetMap tile layer
         var streets = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -214,16 +226,27 @@
         var info = L.control();
 
 
+        function writeInfoContent(props, hour) {
+            var content = "<b>" + props.sid + "</b>";
+
+            if (props.data.length == 0 || props.data[hour] == -1)
+                content += "<br> No Data <br>";
+            else
+                content += "<br> Estimated Count from " + hour + " to " + (hour + 1) + ": <b>" + props.data[hour] + "</b><br>";
+
+            return content;
+        }
         info.update = function (props, hour) {
 
-
+            var content = "";
             if (props) {
-                var content = "<b>" + props.sid + "</b>";
-
-                if (props.data.length == 0 || props.data[hour] == -1)
-                    content += "<br> No Data";
-                else
-                    content += "<br> Estimated Count from " + hour + " to " + (hour + 1) + ": <br><b>" + props.data[hour] + "</b>";
+                if (props.sid.indexOf("@") < 0) { // link
+                    var sensors = countLayerDict[props.sid];
+                    sensors.forEach(function(layer) {
+                        content += writeInfoContent(layer.feature.properties,hour);
+                    })
+                }
+                else content = writeInfoContent(props,hour); // sensor
             }
             document.getElementById("p1").innerHTML = (props ?
                     content
@@ -323,6 +346,9 @@
             .on("mouseup", function(e) {
                 if (!isDragging) {
                     $("#chart1").css("visibility", "hidden");
+                    if (map.hasLayer(highlightSensorLayer)) {
+                        map.removeLayer(highlightSensorLayer);
+                    }
                     isDragging = false;
                 }
             });
@@ -339,10 +365,57 @@
 
         function showLinks(map, info, control, links) {
             function onEachFeature(feature, layer){
+
+                function highlightFeature(e) {
+                    var layer = e.target;
+{#                    layer.setStyle({#}
+{#                        weight: 10#}
+{#                    });#}
+                    if (!L.Browser.ie && !L.Browser.opera) {
+                        layer.bringToFront();
+                    }
+
+                    info.update(layer.feature.properties, timepicker.value().getHours());
+                }
+
+                function resetHighlight(e) {
+{#                    countLayer.resetStyle(e.target);#}
+                    info.update();
+                    //$('#chart1').empty();
+                }
+
                 if (feature.properties && feature.properties.sid) {
                     var popup = "ID: <b>" + feature.properties.sid + "</b>";
                     layer.bindPopup(popup);
                 }
+                layer.on("click", function (e) {
+                    //map.closePopup();
+                    var sid = layer.feature.properties.sid;
+                    var sensors = countLayerDict[sid];
+                    var sensorsGeoJson = [];
+                    sensors.forEach(function(layer) {
+                        sensorsGeoJson.push(layer.feature);
+                    });
+                    if(map.hasLayer(highlightSensorLayer)) {
+                        map.removeLayer(highlightSensorLayer);
+                    }
+                    highlightSensorLayer = L.geoJson(sensorsGeoJson,{
+                        onEachFeature:function(feature,layer) {
+                            if (feature.properties && feature.properties.sid && feature.properties.data) {
+                                var popup = "ID: <b>" + feature.properties.sid + "</b>";
+                                if (feature.properties.data.length != 0 && feature.properties.data[timepicker.value().getHours()] != -1)
+                                    popup += "<br>Counts: <b>" + feature.properties.data[timepicker.value().getHours()] + "</b>";
+                                layer.bindPopup(popup);
+                            }
+                        }
+                    }).addTo(map);
+                });
+
+                layer.on({
+                    mouseover: highlightFeature,
+                    mouseout: resetHighlight,
+                    //click: onClick
+                });
             }
             linkLayer = L.geoJson(links, {
                 style: {"color":"#9ba7ff"},
@@ -350,6 +423,18 @@
             }).addTo(map);
 
             control.addOverlay(linkLayer, 'Streets');
+        }
+
+        function buildLayerDict(layer) {
+            countLayerDict = {};
+            layer.eachLayer(function(layer) {
+                var sidDir = layer.feature.properties.sid;
+                var at = sidDir.indexOf("@");
+                var sid = sidDir.substr(0,at);
+                var Dir = sidDir.substr(at);
+                if(!(countLayerDict.hasOwnProperty(sid))) countLayerDict[sid] = []
+                countLayerDict[sid].push(layer);
+            });
         }
 
         function showCount(map, info, control, counts, hour) {
@@ -405,10 +490,17 @@
                         $("#chart1").text("Sorry, no data available for this sensor.");
                 }
 
+                function onClick(e) {
+                    if (map.hasLayer(highlightSensorLayer)) {
+                        map.removeLayer(highlightSensorLayer);
+                    }
+                    showChart(e);
+                }
+
                 layer.on({
                     mouseover: highlightFeature,
                     mouseout: resetHighlight,
-                    click:showChart
+                    click: onClick
                 });
 
                 if (feature.properties && feature.properties.sid && feature.properties.data) {
@@ -416,37 +508,6 @@
                     if (feature.properties.data.length != 0 && feature.properties.data[hour] != -1)
                         popup += "<br>Counts: <b>" + feature.properties.data[hour] + "</b>";
                     layer.bindPopup(popup);
-{#                    layer.on("click", function(e){#}
-{#                        //info.update(layer.feature.properties, hour);#}
-{#                        //highlightFeature(e);#}
-{#                        $("#chart1").css("visibility","visible");#}
-{#                        $("#chart1").empty();#}
-{#                        if (feature.properties.data.length != 0) {#}
-{#                            var plotData = [];#}
-{#                            feature.properties.data.forEach(function(count, index){#}
-{#                                if (count >= 0)#}
-{#                                    plotData.push(["" + index + ":00",count]);#}
-{#                            });#}
-{#                            $.jqplot('chart1', [plotData], {#}
-{#                                series: [{lineWidth: 3, markerOptions: {style: "filledCircle", size:5}}],#}
-{#                                title: 'Counts Distribution of Sensor ' + feature.properties.sid,#}
-{#                                axes: {#}
-{#                                    xaxis: {renderer: $.jqplot.DateAxisRenderer, tickOptions: {formatString: '%H:%M'}, ticks:["0:00", "4:00", "8:00", "12:00", "16:00", "20:00", "24:00"]},#}
-{#                                    yaxis: {min: 0}#}
-{#                                },#}
-{##}
-{#                                grid: {#}
-{#                                    drawGridLines: true,        // wether to draw lines across the grid or not.#}
-{#                                    gridLineColor: '#cccccc',    // *Color of the grid lines.#}
-{#                                    background: '#FFFFFF'#}
-{#                                },#}
-{#                                seriesColors: ["#ff9900","#FF0066", "#999598"]#}
-{#                            });#}
-{#                        }#}
-{#                        else#}
-{#                            $("#chart1").text("Sorry, no data available for this sensor.");#}
-{#                    });#}
-
                 }
             }
 
@@ -467,6 +528,8 @@
                 },
                 onEachFeature: onEachFeature
             }).addTo(map);
+
+            buildLayerDict(countLayer);
 
             control.addOverlay(countLayer, 'Counts Meters');
 
