@@ -361,6 +361,12 @@
                     layer.setRadius(radius);
                 });
             }
+            if (linkLayer) {
+                var weight = zoom < 8 ? zoom / 8 : Math.ceil((zoom - 7)/2);
+                linkLayer.eachLayer(function(layer){
+                    layer.setStyle({weight:weight});
+                });
+            }
         });
 
         function showLinks(map, info, control, links) {
@@ -409,6 +415,7 @@
                             }
                         }
                     }).addTo(map);
+                    map.fitBounds(layer.getBounds());
                 });
 
                 layer.on({
@@ -418,7 +425,7 @@
                 });
             }
             linkLayer = L.geoJson(links, {
-                style: {"color":"#9ba7ff"},
+                style: {"color":"#9ba7ff","fillOpacity": 1},
                 onEachFeature: onEachFeature
             }).addTo(map);
 
