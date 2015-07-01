@@ -38,13 +38,61 @@
 {#            width: 90%;#}
 {#        }#}
 
-        #chart1 {
+{#        #chart1 {#}
+{#            background: #ffffff;#}
+{#            height:30%;#}
+{#            width:40%;#}
+{#            opacity: 0.93;#}
+{#            position: absolute;#}
+{#            left: 25%;#}
+{#            border-radius: 3px;#}
+{#            box-shadow:8px 8px 13px #CCCCCC;#}
+{#            z-index: 101;#}
+{#            visibility: hidden;#}
+{##}
+{#        }#}
+{#        #chart2 {#}
+{#            background: #ffffff;#}
+{#            height:30%;#}
+{#            width:40%;#}
+{#            opacity: 0.93;#}
+{#            position: absolute;#}
+{#            left: 25%;#}
+{#            border-radius: 3px;#}
+{#            box-shadow:8px 8px 13px #CCCCCC;#}
+{#            z-index: 101;#}
+{#            visibility: hidden;#}
+{##}
+{#        }#}
+
+         #charts {
             background: #ffffff;
             height:30%;
-            width:40%;
+            width:25%;
             opacity: 0.93;
             position: absolute;
             left: 25%;
+            border-radius: 3px;
+            box-shadow:8px 8px 13px #CCCCCC;
+            z-index: 101;
+            visibility: hidden;
+
+        }
+        #chart1 {
+            background: #ffffff;
+
+            opacity: 0.93;
+            position: relative;
+            border-radius: 3px;
+            box-shadow:8px 8px 13px #CCCCCC;
+            z-index: 101;
+            visibility: hidden;
+
+        }
+        #chart2 {
+            background: #ffffff;
+            opacity: 0.93;
+            position: relative;
             border-radius: 3px;
             box-shadow:8px 8px 13px #CCCCCC;
             z-index: 101;
@@ -156,7 +204,10 @@
 
     <div id='overlaycon'>
         <div id = 'foo'></div>
-        <div id="chart1" ></div>
+        <div id = "charts">
+            <div id="chart1" class="chart"></div>
+            <div id="chart2" class="chart"></div>
+        </div>
         <div id="map" ; style="opacity: 1"></div>
     </div>
 {% endblock %}
@@ -346,6 +397,7 @@
             .on("mouseup", function(e) {
                 if (!isDragging) {
                     $("#chart1").css("visibility", "hidden");
+                    $("#chart2").css("visibility", "hidden");
                     if (map.hasLayer(highlightSensorLayer)) {
                         map.removeLayer(highlightSensorLayer);
                     }
@@ -368,6 +420,37 @@
                 });
             }
         });
+
+        function showChart(props, chartID) {
+            //info.update(layer.feature.properties, hour);
+            //highlightFeature(e);
+            $("#" + chartID).css("visibility","visible");
+            $("#" + chartID).empty();
+            if (props.data.length != 0) {
+                var plotData = [];
+                props.data.forEach(function(count, index){
+                    if (count >= 0)
+                        plotData.push(["" + index + ":00",count]);
+                });
+                $.jqplot(chartID, [plotData], {
+                    series: [{lineWidth: 3, markerOptions: {style: "filledCircle", size:5}}],
+                    title: 'Counts Distribution of Sensor ' + props.sid,
+                    axes: {
+                        xaxis: {renderer: $.jqplot.DateAxisRenderer, tickOptions: {formatString: '%H:%M'}, ticks:["0:00", "4:00", "8:00", "12:00", "16:00", "20:00", "24:00"]},
+                        yaxis: {min: 0}
+                    },
+
+                    grid: {
+                        drawGridLines: true,        // wether to draw lines across the grid or not.
+                        gridLineColor: '#cccccc',    // *Color of the grid lines.
+                        background: '#FFFFFF'
+                    },
+                    seriesColors: ["#ff9900","#FF0066", "#999598"]
+                });
+            }
+            else
+                $("#" + chartID).text("Sorry, no data available for sensor <b>" + props.sid + "</b>.");
+        }
 
         function showLinks(map, info, control, links) {
             function onEachFeature(feature, layer){
@@ -399,8 +482,9 @@
                     var sid = layer.feature.properties.sid;
                     var sensors = countLayerDict[sid];
                     var sensorsGeoJson = [];
-                    sensors.forEach(function(layer) {
+                    sensors.forEach(function(layer, num) {
                         sensorsGeoJson.push(layer.feature);
+                        showChart(layer.feature.properties, "chart" + (num + 1));
                     });
                     if(map.hasLayer(highlightSensorLayer)) {
                         map.removeLayer(highlightSensorLayer);
@@ -444,6 +528,8 @@
             });
         }
 
+
+
         function showCount(map, info, control, counts, hour) {
 
             function onEachFeature(feature, layer) {
@@ -466,42 +552,11 @@
                     //$('#chart1').empty();
                 }
 
-                function showChart(e) {
-                    //info.update(layer.feature.properties, hour);
-                    //highlightFeature(e);
-                    $("#chart1").css("visibility","visible");
-                    $("#chart1").empty();
-                    if (feature.properties.data.length != 0) {
-                        var plotData = [];
-                        feature.properties.data.forEach(function(count, index){
-                            if (count >= 0)
-                                plotData.push(["" + index + ":00",count]);
-                        });
-                        $.jqplot('chart1', [plotData], {
-                            series: [{lineWidth: 3, markerOptions: {style: "filledCircle", size:5}}],
-                            title: 'Counts Distribution of Sensor ' + feature.properties.sid,
-                            axes: {
-                                xaxis: {renderer: $.jqplot.DateAxisRenderer, tickOptions: {formatString: '%H:%M'}, ticks:["0:00", "4:00", "8:00", "12:00", "16:00", "20:00", "24:00"]},
-                                yaxis: {min: 0}
-                            },
-
-                            grid: {
-                                drawGridLines: true,        // wether to draw lines across the grid or not.
-                                gridLineColor: '#cccccc',    // *Color of the grid lines.
-                                background: '#FFFFFF'
-                            },
-                            seriesColors: ["#ff9900","#FF0066", "#999598"]
-                        });
-                    }
-                    else
-                        $("#chart1").text("Sorry, no data available for this sensor.");
-                }
-
                 function onClick(e) {
                     if (map.hasLayer(highlightSensorLayer)) {
                         map.removeLayer(highlightSensorLayer);
                     }
-                    showChart(e);
+                    showChart(e.target.feature.properties, "chart1");
                 }
 
                 layer.on({
