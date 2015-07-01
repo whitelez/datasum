@@ -457,9 +457,9 @@
 
                 function highlightFeature(e) {
                     var layer = e.target;
-{#                    layer.setStyle({#}
-{#                        weight: 10#}
-{#                    });#}
+                    layer.setStyle({
+                        weight: 10
+                    });
                     if (!L.Browser.ie && !L.Browser.opera) {
                         layer.bringToFront();
                     }
@@ -468,7 +468,7 @@
                 }
 
                 function resetHighlight(e) {
-{#                    countLayer.resetStyle(e.target);#}
+                    linkLayer.resetStyle(e.target);
                     info.update();
                     //$('#chart1').empty();
                 }
@@ -536,9 +536,9 @@
 
                 function highlightFeature(e) {
                     var layer = e.target;
-{#                    layer.setStyle({#}
-{#                        weight: 10#}
-{#                    });#}
+                    // circleMarker is Path object, its different from LineStrings, cannot use the same way to resetStyle
+                    var radius = layer.getRadius();
+                    layer.setRadius(radius+2);
                     if (!L.Browser.ie && !L.Browser.opera) {
                         layer.bringToFront();
                     }
@@ -547,9 +547,12 @@
                 }
 
                 function resetHighlight(e) {
-{#                    countLayer.resetStyle(e.target);#}
+                    var layer = e.target;
+                    // circleMarker is Path object, its different from LineStrings, cannot use the same way to resetStyle
+                    var zoom = map.getZoom();
+                    var radius = zoom < 8 ? zoom / 8 : Math.ceil((zoom - 7)/2);
+                    layer.setRadius(radius); // set radius according to current map zoom, consistent with what we do when zooming the map
                     info.update();
-                    //$('#chart1').empty();
                 }
 
                 function onClick(e) {
