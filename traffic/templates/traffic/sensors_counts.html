@@ -16,56 +16,7 @@
             position: relative;
             /*top: -163px;*/
         }
-{#        #chart {#}
-{#            background: #ffffff;#}
-{#            width:40%;#}
-{#            border-radius: 3px;#}
-{#            box-shadow:8px 8px 13px #CCCCCC;#}
-{#            position: relative;#}
-{#            opacity: 0.93;#}
-{#            top: 0px;#}
-{#            left: 25%;#}
-{#            z-index: 10;#}
-{#        }#}
-
-{#        #chart1 {#}
-{#            height:163px;#}
-{#            width:100%;#}
-{#            opacity: 0.93;#}
-{#            position: relative;#}
-{#            left: 5%;#}
-{#            z-index: 11;#}
-{#            width: 90%;#}
-{#        }#}
-
-{#        #chart1 {#}
-{#            background: #ffffff;#}
-{#            height:30%;#}
-{#            width:40%;#}
-{#            opacity: 0.93;#}
-{#            position: absolute;#}
-{#            left: 25%;#}
-{#            border-radius: 3px;#}
-{#            box-shadow:8px 8px 13px #CCCCCC;#}
-{#            z-index: 101;#}
-{#            visibility: hidden;#}
-{##}
-{#        }#}
-{#        #chart2 {#}
-{#            background: #ffffff;#}
-{#            height:30%;#}
-{#            width:40%;#}
-{#            opacity: 0.93;#}
-{#            position: absolute;#}
-{#            left: 25%;#}
-{#            border-radius: 3px;#}
-{#            box-shadow:8px 8px 13px #CCCCCC;#}
-{#            z-index: 101;#}
-{#            visibility: hidden;#}
-{##}
-{#        }#}
-
-         #charts {
+        #charts {
             background: #ffffff;
             height:30%;
             width:25%;
@@ -230,19 +181,18 @@
 
         var counts, links;
         var countLayerDict;
-        var countLayer = L.geoJson(), linkLayer = L.geoJson(), highlightSensorLayer = L.geoJson();
+        var countLayer, linkLayer, highlightSensorLayer;
 
-        //change popup behaviour
-{#        L.Map = L.Map.extend({#}
-{#            openPopup: function(popup) {#}
-{#                //        this.closePopup();  // just comment this#}
-{#                this._popup = popup;#}
-{##}
-{#                return this.addLayer(popup).fire('popupopen', {#}
-{#                    popup: this._popup#}
-{#                });#}
-{#            }#}
-{#        });#}
+        //time picker
+        $("#timepicker").kendoTimePicker({
+            value: new Date(2002,1,1,10,0,0),
+            interval: 60,
+            change: function(){
+                countLayer = showCount(map, info, control, countLayer, counts, this.value().getHours());
+            }
+        });
+        var timepicker = $("#timepicker").data("kendoTimePicker");
+
                 // add an OpenStreetMap tile layer
         var streets = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -273,8 +223,10 @@
         // right top control
         var control = L.control.layers(baseMaps, null, {collapsed: false}).addTo(map);
 
+
         // info
         var info = L.control();
+
 
 
         function writeInfoContent(props, hour) {
@@ -319,14 +271,7 @@
         legend.addTo(map);
 
         /////////////time
-        $("#timepicker").kendoTimePicker({
-            value: new Date(2002,1,1,10,0,0),
-            interval: 60,
-            change: function(){
-                showCount(map, info, control, counts, this.value().getHours());
-            }
-        });
-        var timepicker = $("#timepicker").data("kendoTimePicker");
+
 
 
         /////////////spinner
@@ -361,21 +306,14 @@
 
         $.get("../get_sensors_counts/",function(data,textStatus){
             counts = data;
-            showCount(map,info,control, counts, timepicker.value().getHours());
-{#            spinner.stop();#}
-{#                var target = document.getElementById('foo');#}
-{#                target.style.zIndex = "1";#}
-{#                var mapper = document.getElementById('map');#}
-{#                mapper.style.opacity = '1';#}
-{#                target = document.getElementById('chart1');#}
-{#                target.style.opacity= '1';#}
+            countLayer = showCount(map,info,control, countLayer, counts, timepicker.value().getHours());
         },"json");
 
         // get links from server
 
         $.get("../get_sensors_links/",function(data,textStatus){
             links = data;
-            showLinks(map,info,control, links);
+            linkLayer = showLinks(map,info,control, linkLayer, links, timepicker, countLayerDict);
         },"json");
 
         // stop spinner and reset map style
@@ -387,7 +325,7 @@
         target = document.getElementById('chart1');
         target.style.opacity= '1';
 
-        // hide chart when map is clicked but not when map is dragged
+        // hide charts and highlighted sensors(of clicked link) when map is clicked but not when map is dragged
         var isDragging = false;
         map.on("mousedown",function(e) {
                 isDragging = false;
@@ -405,17 +343,17 @@
                     isDragging = false;
                 }
             });
-        // change circle marker radius when map is zoomed
+        // change circle marker radius and link weight when map is zoomed
         map.on("zoomend", function(e){
             var zoom = map.getZoom();
             if (countLayer) {
-                var radius = zoom < 8 ? zoom / 8 : Math.ceil((zoom - 7)/2);
+                var radius = weightFromZoom(zoom);
                 countLayer.eachLayer(function (layer) {
                     layer.setRadius(radius);
                 });
             }
             if (linkLayer) {
-                var weight = zoom < 8 ? zoom / 8 : Math.ceil((zoom - 7)/2);
+                var weight = weightFromZoom(zoom);
                 linkLayer.eachLayer(function(layer){
                     layer.setStyle({weight:weight});
                 });
@@ -450,10 +388,11 @@
                 });
             }
             else
-                $("#" + chartID).text("Sorry, no data available for sensor <b>" + props.sid + "</b>.");
+                $("#" + chartID).html("<p>Sorry, no data available for sensor <b>" + props.sid + "</b>.</p>");
         }
 
-        function showLinks(map, info, control, links) {
+        function showLinks(map, info, control, linkLayer, links, timepicker, countLayerDict) {
+            var highlightSensorLayer;
             function onEachFeature(feature, layer){
 
                 function highlightFeature(e) {
@@ -509,12 +448,15 @@
                     //click: onClick
                 });
             }
+
             linkLayer = L.geoJson(links, {
                 style: {"color":"#9ba7ff","fillOpacity": 1},
                 onEachFeature: onEachFeature
             }).addTo(map);
 
             control.addOverlay(linkLayer, 'Streets');
+
+            return linkLayer;
         }
 
         function buildLayerDict(layer) {
@@ -531,7 +473,7 @@
 
 
 
-        function showCount(map, info, control, counts, hour) {
+        function showCount(map, info, control, countLayer, counts, hour) {
 
             function onEachFeature(feature, layer) {
 
@@ -551,7 +493,7 @@
                     var layer = e.target;
                     // circleMarker is Path object, its different from LineStrings, cannot use the same way to resetStyle
                     var zoom = map.getZoom();
-                    var radius = zoom < 8 ? zoom / 8 : Math.ceil((zoom - 7)/2);
+                    var radius = weightFromZoom(zoom);
                     layer.setRadius(radius); // set radius according to current map zoom, consistent with what we do when zooming the map
                     info.update();
                 }
@@ -577,20 +519,21 @@
                 }
             }
 
-            if (countLayer) {
+            if (countLayer != undefined) {
                 control.removeLayer(countLayer);
                 if (map.hasLayer(countLayer)) {
                     map.removeLayer(countLayer);
                 }
             }
 
+            var zoom = map.getZoom();
             countLayer = L.geoJson(counts, {
                 pointToLayer: function(feature, latlng) {
                     var data = feature.properties.data;
                     if (data.length == 0)
-                        return L.circleMarker(latlng, meterMarkerStyle(-1));
+                        return L.circleMarker(latlng, meterMarkerStyle(-1, zoom));
                     else
-                        return L.circleMarker(latlng, meterMarkerStyle(data[hour]));
+                        return L.circleMarker(latlng, meterMarkerStyle(data[hour], zoom));
                 },
                 onEachFeature: onEachFeature
             }).addTo(map);
@@ -598,6 +541,8 @@
             buildLayerDict(countLayer);
 
             control.addOverlay(countLayer, 'Counts Meters');
+
+            return countLayer;
 
         }
 
@@ -609,15 +554,19 @@
                             'black'; // no data
         }
 
-        function meterMarkerStyle(d) {
+        function meterMarkerStyle(d, zoom) {
             return {
-                radius: 5,
+                radius: weightFromZoom(zoom),
                 fillColor: getColorLots(d),
                 color: getColorLots(d),
                 weight: 5,
                 opacity: 0.3,
                 fillOpacity: 0.5
             };
+        }
+
+        function weightFromZoom(zoom) {
+            return zoom < 8 ? zoom / 8 : Math.ceil((zoom - 7)/2);
         }
 
     </script>
