@@ -583,6 +583,10 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
 
         var low = $("#slider").slider('getValue')[0].value.split(",")[0];
         var high = $("#slider").slider('getValue')[0].value.split(",")[1];
+        if ($("#slider").slider('getValue')[0].value == ''){
+            low = -3;
+            high = 3;
+        }
 
         $('#chartcontainer').empty();
 
@@ -623,8 +627,8 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
                         sd += Math.pow(data[stops_array[i]][j] - avg, 2)
                     }
                     sd = Math.sqrt(sd/data[stops_array[i]].length);
-                    document.getElementById('stat'+stops_array[i]).innerHTML = "<br><br><br><br> <h5> Mean: <br>" + avg.toFixed(2) + " Minutes<br><br>Standard Deviation: <br>" + sd.toFixed(2) + " Minutes<br><br>"
-                            + "On-time Performance: <br>" + proportion.toFixed(2) + "</h5>";
+                    document.getElementById('stat'+stops_array[i]).innerHTML = "<br><br><br><br> <h5> <strong>Mean:</strong> <br>" + avg.toFixed(2) + " Minutes<br><br><strong>Standard Deviation:</strong> <br>" + sd.toFixed(2) + " Minutes<br><br>"
+                            + "<strong>On-time Performance:</strong> <br>" + proportion.toFixed(2) + "</h5>";
                 }
             }
             ///////Spinner Stop
