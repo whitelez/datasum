@@ -1473,6 +1473,15 @@ def get_sensors_counts(request):
     response = json.dumps(sensors_data)
     return HttpResponse(response,content_type = "application/json")
 
+def get_sensors_links(request):
+    sensors_links = {"type":"FeatureCollection","features":[]}
+    links = Counts_sensors_links.objects.all()
+    features = [0]*len(links)
+    for i, link in enumerate(links):
+        features[i] = {"type":"Feature","geometry":{"type":"LineString","coordinates":json.loads(link.coordinates.strip())},"properties":{"sid":link.sid}}
+    sensors_links["features"] = features
+    response = json.dumps(sensors_links)
+    return HttpResponse(response,content_type = "application/json")
 
 #SGYang
 def closure(request):
@@ -1510,3 +1519,5 @@ def get_road_closure_query(request):
     print len(entry)
     return HttpResponse(datarender, content_type='application/json')
 
+def map_displayer(request):
+    return render(request, 'traffic/map_displayer.html')

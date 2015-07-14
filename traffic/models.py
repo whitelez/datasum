@@ -402,6 +402,12 @@ class Counts_sensors(models.Model):
     def __unicode__(self):
         return self.sid
 
+class Counts_sensors_links(models.Model):
+    sid = models.CharField(max_length = 10, primary_key = True)
+    coordinates = models.TextField()
+
+    def __unicode__(self):
+        return self.sid
 # class Counts(models.Model):
 #     sid = models.ForeignKey(Counts_sensors)
 #     counts = models.TextField()

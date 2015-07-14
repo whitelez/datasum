@@ -90,6 +90,8 @@ DATABASES = {
         # 'HOST': '52.1.172.127',
         'HOST': 'LOCALHOST',
         # 'HOST': '172.19.31.112',
+        #'HOST': '52.1.172.127',
+        #'HOST': 'LOCALHOST',
         'PORT': '3306',
 
     }

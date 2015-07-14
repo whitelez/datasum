@@ -1,0 +1,311 @@
+{% extends "traffic/base.html" %}
+
+{% load staticfiles %}
+
+{% block title %}
+    Power of 32 RTIS - Parking
+{% endblock %}
+
+{% block style %}
+    <style>
+        #overlaycon {
+            height: 600px;
+        }
+        #map{
+            z-index: 100;
+            position: relative;
+            /*top: -163px;*/
+        }
+{#        #chart {#}
+{#            background: #ffffff;#}
+{#            width:40%;#}
+{#            border-radius: 3px;#}
+{#            box-shadow:8px 8px 13px #CCCCCC;#}
+{#            position: relative;#}
+{#            opacity: 0.93;#}
+{#            top: 0px;#}
+{#            left: 25%;#}
+{#            z-index: 10;#}
+{#        }#}
+
+{#        #chart1 {#}
+{#            height:163px;#}
+{#            width:100%;#}
+{#            opacity: 0.93;#}
+{#            position: relative;#}
+{#            left: 5%;#}
+{#            z-index: 11;#}
+{#            width: 90%;#}
+{#        }#}
+
+        #chart1 {
+            background: #ffffff;
+            height:30%;
+            width:40%;
+            opacity: 0.93;
+            position: absolute;
+            left: 25%;
+            border-radius: 3px;
+            box-shadow:8px 8px 13px #CCCCCC;
+            z-index: 101;
+            visibility: hidden;
+
+        }
+
+        #p1{
+                background: #ffffff;
+                border: 2px solid;
+                border-radius: 10px;
+                border-color: #3f51b5;
+                position: relative;
+                opacity: 0.93;
+                top: 0px;
+                margin-left:1%;
+                height : 110px;
+                text-align: center;
+                width : 97%;
+                z-index: 10;
+
+        }
+
+        .legend {
+            line-height: 18px;
+            height:60px;
+            width:150px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 5px;
+            background: white;
+            box-shadow: -2px -2px 2px #CCCCCC;
+            opacity: 0.9;
+        }
+
+        .legend i {
+            width: 28px;
+            height: 7px;
+            float: left;
+            border-radius: 3px;
+            margin-right: 8px;
+            margin-left: 7px;
+            margin-top: 7px;
+            opacity: 0.9;
+        }
+        .legend j {
+            width: 28px;
+            height: 7px;
+            float: left;
+            border-radius: 3px;
+            margin-right: 8px;
+            margin-left: 7px;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+
+        .legend k {
+            width: 28px;
+            height: 7px;
+            float: left;
+            border-radius: 3px;
+            margin-right: 8px;
+            margin-left: 7px;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+
+        #progress_bar {
+            margin: 10px 0;
+            padding: 3px;
+            border: 1px solid #000;
+            font-size: 14px;
+            clear: both;
+            opacity: 0;
+            -moz-transition: opacity 1s linear;
+            -o-transition: opacity 1s linear;
+            -webkit-transition: opacity 1s linear;
+        }
+
+        #progress_bar.loading {
+            opacity: 1.0;
+        }
+
+        #progress_bar .percent {
+            background-color: #99ccff;
+            height: auto;
+            width: 0;
+        }
+
+    </style>
+    <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+    <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
+    <style>html {
+        font-size: 12px;
+        font-family: Arial, Helvetica, sans-serif;
+    }</style>
+    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.common-material.min.css" />
+    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.material.min.css" />
+    <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+    <link rel="stylesheet" href="{% static 'traffic/style_closure.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+
+    <div id="user_input" class="well" style="height: 600px;">
+
+        <div class="container" style="width: inherit">
+
+
+            <div class="row" id ="plzwait" style="margin-top:10px;margin-right:auto;margin-left: 0px;"><h5><b>Select a file: </b></h5></div>
+
+            <div class="row" style="margin-top:10px;margin-right:auto;margin-left: 0px;">
+                <div><input type="file" id="files" name="file" /></div><br>
+                <div><button onclick="abortRead();">Cancel read</button></div><br>
+                <div><input type="text" id="layerName" name="layerName" onfocus="this.value=''" value="New Layer Name" /></div>
+                <div id="progress_bar"><div class="percent">0%</div></div>
+                <div id="hint"></div>
+            </div>
+
+
+{#            <a type="button" class="btn btn-purple" id="check_btn" align="middle" style="margin-top:5px;width:90%;">#}
+{#                <span class="glyphicon glyphicon-search"> </span> &nbsp; Inquiry </a> <br>#}
+            {#<input type="button" value="Update" />#}
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block map %}
+
+    <div id='overlaycon'>
+        <div id = 'foo'></div>
+        <div id="chart1" ></div>
+        <div id="map" ; style="opacity: 1"></div>
+    </div>
+{% endblock %}
+
+
+{% block script %}
+
+    <script src="http://cdn.kendostatic.com/2014.3.1411/js/kendo.all.min.js"></script>
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+    <script type="text/javascript" src="{% static 'traffic/jquery.jqplot.min.js' %}"></script>
+    <!--<script type="text/javascript" src="{% static 'traffic/jqplot.cursor.js' %}"></script>-->
+    <script type="text/javascript" src="{% static 'traffic/jqplot.dateAxisRenderer.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'traffic/spinner.js' %}"></script>
+
+
+    <script>
+        // create a map in the "map" div, set the view to a given place and zoom
+        //////////////////////////////data picker
+        "use strict";
+
+        var streets = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        });
+        var grayscale = L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
+                                    maxZoom: 18,
+                                    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+                                    '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                                    'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+                                    id: 'examples.map-20v6611k'
+        });
+        var map = L.map('map', {
+            center: [40.4407937, -80.0029874],
+            zoom: 16,
+            layers: [grayscale]
+        });
+
+        var baseMaps = {
+            "Grayscale": grayscale,
+            "Streets": streets
+        };
+
+        var control = L.control.layers(baseMaps, null, {collapsed: false}).addTo(map);
+
+        var reader;
+      var progress = document.querySelector('.percent');
+
+      function abortRead() {
+        reader.abort();
+      }
+
+      function errorHandler(evt) {
+        switch(evt.target.error.code) {
+          case evt.target.error.NOT_FOUND_ERR:
+            alert('File Not Found!');
+            break;
+          case evt.target.error.NOT_READABLE_ERR:
+            alert('File is not readable');
+            break;
+          case evt.target.error.ABORT_ERR:
+            break; // noop
+          default:
+            alert('An error occurred reading this file.');
+        };
+      }
+
+      function updateProgress(evt) {
+        // evt is an ProgressEvent.
+        if (evt.lengthComputable) {
+          var percentLoaded = Math.round((evt.loaded / evt.total) * 100);
+          // Increase the progress bar length.
+          if (percentLoaded < 100) {
+            progress.style.width = percentLoaded + '%';
+            progress.textContent = percentLoaded + '%';
+          }
+        }
+      }
+
+      function handleFileSelect(evt) {
+        // Reset progress indicator on new file selection.
+        progress.style.width = '0%';
+        progress.textContent = '0%';
+
+        reader = new FileReader();
+        reader.onerror = errorHandler;
+        reader.onprogress = updateProgress;
+        reader.onabort = function(e) {
+          alert('File read cancelled');
+        };
+        reader.onloadstart = function(e) {
+          document.getElementById('progress_bar').className = 'loading';
+        };
+        reader.onload = function(e) {
+          // Ensure that the progress bar displays 100% at the end.
+          progress.style.width = '100%';
+          progress.textContent = '100%';
+          setTimeout("document.getElementById('progress_bar').className='';", 2000);
+            var data = JSON.parse(e.target.result);
+{#            $("#hint").text(typeof data);#}
+            var displayLayer = L.geoJson(data,{
+                pointToLayer: function(feature, latlng) {
+                    return L.circleMarker(latlng, circleMarkerStyle());
+                }
+            }).addTo(map);
+            map.fitBounds(displayLayer.getBounds());
+            var layerName = $("#layerName").val() == "" || $("#layerName").val() == "New Layer Name" ? "New Layer" : $("#layerName").val();
+            //console.log(layerName);
+            control.addOverlay(displayLayer, layerName);
+        }
+
+        // Read in the image file as a binary string.
+        reader.readAsText(evt.target.files[0]);
+      }
+
+      document.getElementById('files').addEventListener('change', handleFileSelect, false);
+
+        function circleMarkerStyle() {
+            return {
+                radius: 5,
+                fillColor: "green",
+                color: "green",
+                weight: 5,
+                opacity: 0.3,
+                fillOpacity: 0.5
+            };
+        }
+    </script>
+
+{% endblock %}
