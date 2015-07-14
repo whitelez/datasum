@@ -88,9 +88,8 @@ DATABASES = {
 	    'USER': 'root',
 	    'PASSWORD': 'dataproject',
         # 'HOST': '52.1.172.127',
-        'HOST': 'LOCALHOST',
         # 'HOST': '172.19.31.112',
-        #'HOST': '52.1.172.127',
+        'HOST': '128.2.84.231',
         #'HOST': 'LOCALHOST',
         'PORT': '3306',
 
