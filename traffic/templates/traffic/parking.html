@@ -745,7 +745,6 @@
             legend.addTo(map);
 
             control.addOverlay(terminalLayer, 'Terminals');
-
             updatelot();
 
 
@@ -1369,18 +1368,17 @@
         }
 
 
-        terminalLayer = L.geoJson(terminals, {
-            pointToLayer: function (feature, latlng) {
-                return L.circleMarker(latlng, parkingMarkerStyle());
-            },
-            onEachFeature: function (feature, layer) {
-                if (feature.properties && feature.properties.street) {
-                    layer.bindPopup("Street : " + feature.properties.street + '<br>'+"Meter ID : " + feature.properties.terminalID);
-                }
-            }
-        }).addTo(map);
-
-        control.addOverlay(terminalLayer, 'Terminals');
+{#        terminalLayer = L.geoJson(terminals, {#}
+{#            pointToLayer: function (feature, latlng) {#}
+{#                return L.circleMarker(latlng, parkingMarkerStyle());#}
+{#            },#}
+{#            onEachFeature: function (feature, layer) {#}
+{#                if (feature.properties && feature.properties.street) {#}
+{#                    layer.bindPopup("Street : " + feature.properties.street + '<br>'+"Meter ID : " + feature.properties.terminalID);#}
+{#                }#}
+{#            }#}
+{#        }).addTo(map);#}
+{#        control.addOverlay(terminalLayer, 'Terminals');#}
 
         function getColorLots(d) {
             return d <= 0.6 ? '#008000' :
