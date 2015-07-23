@@ -116,11 +116,11 @@
              opacity: 0.9;
          }
         table {
-    border-collapse: collapse;
-}
+            border-collapse: collapse;
+        }
         tr td {
             margin-top: -10px;
-            }
+        }
     </style>
     <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
     <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
@@ -181,9 +181,9 @@
                 <span class="glyphicon glyphicon-search"> </span> &nbsp; Inquiry </a> <br>
             {#<input type="button" value="Update" />#}
 
-{#            <div class="row" id="future22" style="margin-top:10px;margin-left:-10px;" align="left"><h5><b> Check future#}
-{#                occupancy: </b><i>Pick a delay </i></h5></div>#}
-{#            <input  style="width: 100%" id="rangebar" type="text" class="span" value="" data-slider-value="20" data-slider-min="0" data-slider-max="90" data-slider-step="10"/>#}
+            {#            <div class="row" id="future22" style="margin-top:10px;margin-left:-10px;" align="left"><h5><b> Check future#}
+            {#                occupancy: </b><i>Pick a delay </i></h5></div>#}
+            {#            <input  style="width: 100%" id="rangebar" type="text" class="span" value="" data-slider-value="20" data-slider-min="0" data-slider-max="90" data-slider-step="10"/>#}
 
         </div>
     </div>
@@ -249,24 +249,6 @@
         var spinner;
 
 
-
-        var mapelement = document.getElementById('map');
-        mapelement.addEventListener("mousedown", function(e){
-            mouseposi = [e.clientX, e.clientY]
-        }, false);
-        mapelement.addEventListener("click", function(e){
-            console.log("[" + map.mouseEventToLatLng(e).lat + "," + map.mouseEventToLatLng(e).lng+"]");
-            var diff = Math.abs(mouseposi[0]- e.clientX)+Math.abs(mouseposi[1]- e.clientY);
-            if(diff<6) {
-                $("#chart1").empty();
-                $("#chart2").empty();
-                var element = document.getElementById('map');
-                element.style.zIndex = "100";
-                document.getElementById("p1").innerHTML = '<h5>Hover over a street to check crashes</h5><br><br>';
-            }
-        })
-
-
         $('#check_btn').click(function () {
             var nothing = getcondition();
             if (nothing == 1){
@@ -277,12 +259,12 @@
             var target = document.getElementById('map');
             target.style.zIndex = "100";
 
-                target.style.opacity = '0.2';
-                target = document.getElementById('foo');
-                target.style.zIndex = "110";
-                spinner = new Spinner(spinneropts).spin(target);
-                target = document.getElementById('chart');
-                target.style.opacity= '0';
+            target.style.opacity = '0.2';
+            target = document.getElementById('foo');
+            target.style.zIndex = "110";
+            spinner = new Spinner(spinneropts).spin(target);
+            target = document.getElementById('chart');
+            target.style.opacity= '0';
             $.get("../crash_query/", {
                 sev: severity, wea: weather, rod: roadcon
             }, function (data, textStatus) {
@@ -303,42 +285,37 @@
 
 
         function getcondition(){
-            var nothing = 1;
+            var nothing = 0;
             if (document.getElementById("wea0").checked && document.getElementById("wea1").checked){
                 weather = 2;
-                nothing = 0;
-            }
-            else if (document.getElementById("wea0").checked){
+            } else if (document.getElementById("wea0").checked){
                 weather = 0;
-            }
-            else{
+            } else if (document.getElementById("wea1").checked){
                 weather = 1;
-                nothing = 0;
+            } else {
+                nothing = 1;
             }
 
             if (document.getElementById("road0").checked && document.getElementById("road1").checked){
                 roadcon = 2;
-                nothing = 0;
-            }
-            else if (document.getElementById("road0").checked){
+            } else if (document.getElementById("road0").checked){
                 roadcon = 0;
-            }
-            else{
+            } else if (document.getElementById("road1").checked){
                 weather = 1;
-                nothing = 0;
+            } else {
+                nothing = 1;
             }
 
             if (document.getElementById("sev0").checked && document.getElementById("sev1").checked){
                 severity = 2;
-                nothing = 0;
-            }
-            else if (document.getElementById("sev0").checked){
+            } else if (document.getElementById("sev0").checked){
                 severity = 0;
-            }
-            else{
-                nothing = 0;
+            } else if (document.getElementById("sev1").checked){
                 severity = 1;
+            } else {
+                nothing = 1;
             }
+
             return nothing;
         }
 
@@ -397,6 +374,22 @@
             }, "json");
 
 
+            var mapelement = document.getElementById('map');
+            mapelement.addEventListener("mousedown", function(e){
+                mouseposi = [e.clientX, e.clientY]
+            }, false);
+            mapelement.addEventListener("click", function(e){
+                console.log("[" + map.mouseEventToLatLng(e).lat + "," + map.mouseEventToLatLng(e).lng+"]");
+                var diff = Math.abs(mouseposi[0]- e.clientX)+Math.abs(mouseposi[1]- e.clientY);
+                if(diff<6) {
+                    $("#chart1").empty();
+                    $("#chart2").empty();
+                    var element = document.getElementById('map');
+                    element.style.zIndex = "100";
+                    document.getElementById("p1").innerHTML = '<h5>Hover over a street to check crashes</h5><br><br>';
+                }
+            })
+
             /////////////////////////////////////////////////
             var legend = L.control({position: 'bottomright'});
             legend.onAdd = function () {
@@ -454,12 +447,16 @@
 
         $(function() {
             info.update = function (props) {
+                console.log("update props");
+                var historic = '';
+                var estimate ='';
                 if (props) {
-                    var historic = "Crashes per year of last five years:<br><b>" + props.CR[0] + ", " + props.CR[1] + ", " + props.CR[2] + ", " + props.CR[3] + ", " + props.CR[4];
-                    var estimate = "Estimated crashes per year:<b> " + parseFloat(props.CR[5]).toFixed(2);
+                    historic = "Crashes per year of last five years:<br><b>" + props.CR[0] + ", " + props.CR[1] + ", " + props.CR[2] + ", " + props.CR[3] + ", " + props.CR[4];
+                    estimate = "Estimated crashes per year:<b> " + parseFloat(props.CR[5]).toFixed(2);
                 }
                 var element = document.getElementById('map');
                 if (element.style.zIndex != "1") {//deprecated if
+                    console.log("update p1");
                     document.getElementById("p1").innerHTML = (props ?
                     '<b>Segment of ' + props.ST + '</b><br>' +  historic + '</b><br>' + estimate +'</b><br>'
                             : '<h5>Hover over a street to check crashes</h5><br><br>');
@@ -505,32 +502,33 @@
                 mouseout: resetHighlight
             });
 
-            if (feature.properties && feature.properties.ST && feature.properties.CR) {
+            if (feature.properties) {
                 layer.on('click', function (e) {
-                    info.update(layer.feature.properties);
                     $("#chart1").empty();
                     $("#chart2").empty();
 
 
                     ////////////////////////
-                        var element = document.getElementById('map');
-                        element.style.zIndex = "1";
+                    var element = document.getElementById('map');
+                    element.style.zIndex = "2";
+                    info.update(layer.feature.properties);
 
-                        var histo = [];
-                        histo.push(feature.properties.CR[0]);
-                        histo.push(feature.properties.CR[1]);
-                        histo.push(feature.properties.CR[2]);
-                        histo.push(feature.properties.CR[3]);
-                        histo.push(feature.properties.CR[4]);
-                        histo.push(0);
+                    var histo = [];
+                    histo.push(feature.properties.CR[0]);
+                    histo.push(feature.properties.CR[1]);
+                    histo.push(feature.properties.CR[2]);
+                    histo.push(feature.properties.CR[3]);
+                    histo.push(feature.properties.CR[4]);
+                    histo.push(0);
 
-                        var pred = [0,0,0,0,0]
-                        pred.push(parseFloat(feature.properties.CR[5]).toFixed(2));
+                    var pred = [0,0,0,0,0]
+                    pred.push(parseFloat(feature.properties.CR[5]).toFixed(2));
 
-                        var plotcontent = [histo, pred];
-                        var ticks = ['2010', '2011', '2012', '2013', '2014', 'Predict'];
+                    var plotcontent = [histo, pred];
+                    var ticks = ['2010', '2011', '2012', '2013', '2014', 'Predict'];
+                    element.style.zIndex = "1";
 
-                    var element = document.getElementById('chart2');
+                    element = document.getElementById('chart2');
                     element.style.display = 'none';
                     $.jqplot('chart1', plotcontent, {
                         stackSeries: true,
@@ -561,12 +559,12 @@
                         legend: {
                             show: false
                         },
-                            grid: {
-                                drawGridLines: true,        // wether to draw lines across the grid or not.
-                                gridLineColor: '#cccccc',    // *Color of the grid lines.
-                                background: '#FFFFFF'
-                            },
-                            seriesColors: ["#3f51b5", "#FF0066"]
+                        grid: {
+                            drawGridLines: true,        // wether to draw lines across the grid or not.
+                            gridLineColor: '#cccccc',    // *Color of the grid lines.
+                            background: '#FFFFFF'
+                        },
+                        seriesColors: ["#3f51b5", "#FF0066"]
                     });
 
                 });
@@ -600,13 +598,13 @@
 
             streetLayer = L.geoJson(crashes, {
                 style: function (feature) {
-                        if (parseFloat(feature.properties.CR[5]) < 0.6) {
-                            return {weight: 7, color: 'green', opacity: 0.9};
-                        } else if (parseFloat(feature.properties.CR[5]) <= 1.2) {
-                            return {weight: 7, color: 'yellow', opacity: 0.9};
-                        } else {
-                            return {weight: 7, color: 'red', opacity: 0.9};
-                        }
+                    if (parseFloat(feature.properties.CR[5]) < 0.6) {
+                        return {weight: 7, color: 'green', opacity: 0.9};
+                    } else if (parseFloat(feature.properties.CR[5]) <= 1.2) {
+                        return {weight: 7, color: 'yellow', opacity: 0.9};
+                    } else {
+                        return {weight: 7, color: 'red', opacity: 0.9};
+                    }
                 },
                 onEachFeature: onEachFeature
             });
@@ -619,12 +617,6 @@
             element.style.display = '';
         }
 
-
-        function getColorLots(d) {
-            return d <= 0.6 ? '#008000' :
-                    d <= 0.85 ? '#FFFF66' :
-                            '#FF0000';
-        }
 
     </script>
 
