@@ -260,13 +260,9 @@
             if(diff<6) {
                 $("#chart1").empty();
                 $("#chart2").empty();
-                if(underlayer){
-                    map.removeLayer(underlayer);
-                };
                 var element = document.getElementById('map');
                 element.style.zIndex = "100";
                 document.getElementById("p1").innerHTML = '<h5>Hover over a street to check crashes</h5><br><br>';
-                showOcp();
             }
         })
 
@@ -428,7 +424,7 @@
         //map = L.map('map').setView([40.4407937, -80.0029874], 16);
         var map = L.map('map', {
             center: [40.95501133048619,-77.0745849609375],
-            zoom: 9,
+            zoom: 8,
             layers: [grayscale]
         });
 
