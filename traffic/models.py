@@ -8,7 +8,8 @@ class Meter(models.Model):
     longitude = models.FloatField()
     def __str__(self):
 	    return self.mid
- 
+
+
 class Parking(models.Model):
     meter = models.ForeignKey(Meter)
     date = models.DateField(db_index = True)
@@ -18,40 +19,74 @@ class Parking(models.Model):
 	    return self.date.ctime()
 # Create your models here.
 
-class Street(models.Model):   ## useful, street and their coordinate
+
+
+####################################################################################### Crash
+class PAroad(models.Model):
+    pid = models.CharField(max_length = 20, primary_key = True)
+    street_name = models.CharField(max_length = 100)
+    coordinate = models.TextField()
+    def __unicode__(self):
+        return self.pid
+
+
+class Crashdata(models.Model):
+    pid = models.ForeignKey(PAroad, db_index=True)
+    Severe = models.SmallIntegerField()
+    Weather = models.SmallIntegerField()
+    Roadcon = models.SmallIntegerField()
+    ##########################
+    Y2010 = models.SmallIntegerField()
+    Y2011 = models.SmallIntegerField()
+    Y2012 = models.SmallIntegerField()
+    Y2013 = models.SmallIntegerField()
+    Y2014 = models.SmallIntegerField()
+    Ypre = models.FloatField()
+    Ystd = models.FloatField()
+
+    def __unicode__(self):
+        return self.pid
+####################################################################################### End of Crash
+
+
+
+#######################################################################################  Parking
+class Street(models.Model):
     sid = models.CharField(max_length = 20, primary_key = True)
     street_name = models.CharField(max_length = 100)
     coordinate = models.TextField()
     def __unicode__(self):
         return self.sid
 
-class Streetpre(models.Model):   ## useful, street and their coordinate
+class Streetpre(models.Model):
     street = models.ForeignKey(Street)
     date = models.DateField(db_index = True)
     occupancy = models.TextField()
     def __unicode__(self):
 	    return self.date.ctime()
 
-class Streetparking(models.Model):  ## useful, street and their coordinate
+class Streetparking(models.Model):
     street = models.ForeignKey(Street)
     date = models.DateField(db_index = True)
     occupancy = models.TextField()
     def __unicode__(self):
 	    return self.date.ctime()
 
-class Streetrate(models.Model):  ## useful, street and their coordinate
+class Streetrate(models.Model):
     street = models.ForeignKey(Street)
     date = models.DateField(db_index = True)
     rate = models.TextField()
     def __unicode__(self):
 	    return self.date.ctime()
 
-class Streetratepre(models.Model):  ## useful, street and their coordinate
+class Streetratepre(models.Model):
     street = models.ForeignKey(Street)
     date = models.DateField(db_index = True)
     rate = models.TextField()
     def __unicode__(self):
 	    return self.date.ctime()
+#######################################################################################  End of Parking
+
 
 #BY PXD
 class SPCCorridorNodeInfo(models.Model):

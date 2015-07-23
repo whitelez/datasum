@@ -1,0 +1,635 @@
+{% extends "traffic/base.html" %}
+
+{% load staticfiles %}
+
+{% block title %}
+    Power of 32 RTIS - Crashes
+{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css'%}">
+    <link rel="stylesheet" href="{% static 'traffic/css/kendo.common-material.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'traffic/css/kendo.material.min.css' %}" />
+    <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+    <link rel="stylesheet" href="{% static 'traffic/style_closure.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic/slider/css/slider.css' %}" />
+    <style>
+        #overlaycon {
+            height: 89vh;
+        }
+        #map{
+            z-index: 100;
+            position: relative;
+        }
+        #chart {
+            background: #ffffff;
+            width:35%;
+            border-radius: 3px;
+            box-shadow:8px 8px 13px #CCCCCC;
+            position: relative;
+            opacity: 0.93;
+            top: -89vh;
+            left: 320px;
+            z-index: 10;
+        }
+
+        #chart1 {
+            height:150px;
+            width:100%;
+            opacity: 0.93;
+            position: relative;
+            left: 5%;
+            z-index: 11;
+            width: 90%;
+        }
+        #chart2 {
+            height:150px;
+            width:100%;
+            margin-top: 5px;
+            opacity: 0.93;
+            position: relative;
+            left: 5%;
+            z-index: 11;
+            width: 90%;
+        }
+        #p1{
+            background: #ffffff;
+            border: 2px solid;
+            border-radius: 10px;
+            border-color: #3f51b5;
+            position: relative;
+            opacity: 0.93;
+            top: 0px;
+            margin-bottom: -8px;
+            margin-left:1%;
+            height : 120px;
+            text-align: center;
+            width : 97%;
+            z-index: 10;
+        }
+        .legend1 {
+            line-height: 18px;
+            width:250px;
+            height:1px;
+            top: -70px;
+            left: 40px;
+            opacity: 1;
+        }
+        .legend {
+            line-height: 18px;
+            height:60px;
+            width:220px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 5px;
+            background: white;
+            box-shadow: -2px -2px 2px #CCCCCC;
+            opacity: 0.9;
+        }
+        .legend i {
+            width: 28px;
+            height: 7px;
+            float: left;
+            border-radius: 3px;
+            margin-right: 8px;
+            margin-left: 7px;
+            margin-top: 7px;
+            opacity: 0.9;
+        }
+        .legend j {
+            width: 28px;
+            height: 7px;
+            float: left;
+            border-radius: 3px;
+            margin-right: 8px;
+            margin-left: 7px;
+            margin-top: 5px;
+            opacity: 0.9;
+        }.legend k {
+             width: 28px;
+             height: 7px;
+             float: left;
+             border-radius: 3px;
+             margin-right: 8px;
+             margin-left: 7px;
+             margin-top: 5px;
+             opacity: 0.9;
+         }
+        table {
+    border-collapse: collapse;
+}
+        tr td {
+            margin-top: -10px;
+            }
+    </style>
+    <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+    <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
+    <style>html {
+        font-size: 12px;
+        font-family: Arial, Helvetica, sans-serif;
+    }</style>
+    <style>
+        .slider.slider-horizontal {
+            width: 240px;
+            height: 18px;
+        }
+        .slider-selection {
+            background-image: -moz-linear-gradient(top, #FFA1A1, #FFA1A1);
+            background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#FFA1A1), to(#FFA1A1));
+            background-image: -webkit-linear-gradient(top, #FFA1A1, #FFA1A1);
+            background-image: -o-linear-gradient(top, #FFA1A1, #FFA1A1);
+            background-image: linear-gradient(to bottom, #FFA1A1, #FFA1A1);
+        }
+        .slider-handle {
+            background-color: #FF6262;
+            background-image: -moz-linear-gradient(top, #FF6262, #FF6262);
+            background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#FF6262), to(#FF6262));
+            background-image: -webkit-linear-gradient(top, #FF6262, #FF6262);
+            background-image: -o-linear-gradient(top, #FF6262, #FF6262);
+            background-image: linear-gradient(to bottom, #FF6262, #FF6262);
+        }</style>
+
+
+{% endblock %}
+
+{% block content %}
+
+
+    <div id="user_input" class="well" style="height: 100%;">
+
+        <div class="container" style="width: inherit">
+            <div class="row" id="title" style="margin-top:0px;text-align: center"><h3>Crash info</h3></div>
+            <div align="mid" class="row" id="p1"><h5>Hover over a road to check crashes</h5><br><br></div>
+            <div>
+                <h5><table style="width:100%;">
+                    <tr><td colspan="3"><h5><b>Select Crash conditions: </b></h5></td></tr>
+                    <tr><td colspan="3"><h5>Weather:</h5></td></tr>
+                    <tr><td width="20%"></td><td><label><input type="checkbox" name="vehicle" id="wea0" checked="True"> Hazard </label>
+                    </td><td><label><input type="checkbox" name="vehicle" id="wea1" checked="True"> Good </label></td></tr>
+                    <tr><td colspan="3"><h5>Road Condition:</h5></td></tr>
+                    <tr><td width="20%"><td><label><input type="checkbox" name="vehicle" id="road0" checked="True"> Wet </label>
+                    </td><td><label><input type="checkbox" name="vehicle" id="road1" checked="True"> Dry </label></td></tr>
+                    <tr><td colspan="3"><h5>Crash Severity:</h5></td></tr>
+                    <tr><td width="20%"><td><label><input type="checkbox" name="vehicle" id="sev0" checked="True"> Low </label>
+                    </td><td><label><input type="checkbox" name="vehicle" id="sev1" checked="True"> High </label></td></tr>
+                </table></h5>
+            </div>
+
+            <br>
+            <a type="button" class="btn btn-purple" id="check_btn" align="middle" style="margin-top:0px;width:90%;">
+                <span class="glyphicon glyphicon-search"> </span> &nbsp; Inquiry </a> <br>
+            {#<input type="button" value="Update" />#}
+
+{#            <div class="row" id="future22" style="margin-top:10px;margin-left:-10px;" align="left"><h5><b> Check future#}
+{#                occupancy: </b><i>Pick a delay </i></h5></div>#}
+{#            <input  style="width: 100%" id="rangebar" type="text" class="span" value="" data-slider-value="20" data-slider-min="0" data-slider-max="90" data-slider-step="10"/>#}
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block map %}
+
+    <div id='overlaycon' >
+        <div id = 'foo'></div>
+        <div id="map" ; style="opacity: 1"></div>
+        <div id="chart" style="display: none">
+            <div id="chart1" ></div>
+            <div id="chart2" ></div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block script %}
+
+    <script type="text/javascript" src="{% static 'traffic/js/kendo.all.min.js' %}"></script>
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+    <script type="text/javascript" src="{% static 'traffic/terminals_geoJSON.js' %}"></script>
+    <script type="text/javascript" src="{% static 'traffic/jquery.jqplot.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'traffic/jqplot/plugins/jqplot.barRenderer.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'traffic/jqplot/plugins/jqplot.categoryAxisRenderer.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'traffic/jqplot/plugins/jqplot.pointLabels.min.js' %}"></script>
+
+    <!--<script type="text/javascript" src="{% static 'traffic/jqplot.cursor.js' %}"></script>-->
+    <script type="text/javascript" src="{% static 'traffic/jqplot.dateAxisRenderer.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'traffic/spinner.js' %}"></script>
+    <script type="text/javascript" src="{% static 'traffic/slider/js/slider_park.js' %}"></script>
+
+
+    <script>
+        // create a map in the "map" div, set the view to a given place and zoom
+        //////////////////////////////data picker
+
+        //create client
+
+        var weather = 2;
+        var roadcon = 2;
+        var severity = 2;
+        ////////////
+        var streetLayer, truckLayer;
+        var terminalLayer, lotLayer;
+        var crashes; // store jquery data
+        var map;
+        var sliderminu = 10; // changed in slider_park.js
+
+        ///////
+        var shifted = false;
+        var combinemod = false;
+        var highlight = [];
+        var highvalues = new Array(145).join('0').split('').map(parseFloat);
+        var highcount = 0;
+        var suggestRD = 'NULL';
+        var suggRDcnt = 1000000;
+        var mouseposi = [0,0]; //detect click but not drag
+        var suggestRDfe; //to store the feature of the road.
+        var underlayer;//To store under later
+        var spinneropts;
+        var spinner;
+
+
+
+        var mapelement = document.getElementById('map');
+        mapelement.addEventListener("mousedown", function(e){
+            mouseposi = [e.clientX, e.clientY]
+        }, false);
+        mapelement.addEventListener("click", function(e){
+            console.log("[" + map.mouseEventToLatLng(e).lat + "," + map.mouseEventToLatLng(e).lng+"]");
+            var diff = Math.abs(mouseposi[0]- e.clientX)+Math.abs(mouseposi[1]- e.clientY);
+            if(diff<6) {
+                $("#chart1").empty();
+                $("#chart2").empty();
+                if(underlayer){
+                    map.removeLayer(underlayer);
+                };
+                var element = document.getElementById('map');
+                element.style.zIndex = "100";
+                document.getElementById("p1").innerHTML = '<h5>Hover over a street to check crashes</h5><br><br>';
+                showOcp();
+            }
+        })
+
+
+        $('#check_btn').click(function () {
+            var nothing = getcondition();
+            if (nothing == 1){
+                return 0;
+            }
+            $("#chart1").empty();
+            $("#chart2").empty();
+            var target = document.getElementById('map');
+            target.style.zIndex = "100";
+
+                target.style.opacity = '0.2';
+                target = document.getElementById('foo');
+                target.style.zIndex = "110";
+                spinner = new Spinner(spinneropts).spin(target);
+                target = document.getElementById('chart');
+                target.style.opacity= '0';
+            $.get("../crash_query/", {
+                sev: severity, wea: weather, rod: roadcon
+            }, function (data, textStatus) {
+                crashes = $.parseJSON(data);
+                //$('#txtHint').text(terminals);
+                showOcp();
+                /////////////spinner
+                spinner.stop();
+                var target = document.getElementById('foo');
+                target.style.zIndex = "1";
+                var mapper = document.getElementById('map');
+                mapper.style.opacity = '1';
+                target = document.getElementById('chart');
+                target.style.opacity= '1';
+                ////////////////////
+            }, "json");
+        });
+
+
+        function getcondition(){
+            var nothing = 1;
+            if (document.getElementById("wea0").checked && document.getElementById("wea1").checked){
+                weather = 2;
+                nothing = 0;
+            }
+            else if (document.getElementById("wea0").checked){
+                weather = 0;
+            }
+            else{
+                weather = 1;
+                nothing = 0;
+            }
+
+            if (document.getElementById("road0").checked && document.getElementById("road1").checked){
+                roadcon = 2;
+                nothing = 0;
+            }
+            else if (document.getElementById("road0").checked){
+                roadcon = 0;
+            }
+            else{
+                weather = 1;
+                nothing = 0;
+            }
+
+            if (document.getElementById("sev0").checked && document.getElementById("sev1").checked){
+                severity = 2;
+                nothing = 0;
+            }
+            else if (document.getElementById("sev0").checked){
+                severity = 0;
+            }
+            else{
+                nothing = 0;
+                severity = 1;
+            }
+            return nothing;
+        }
+
+
+
+        $(document).ready(function () {
+
+            /////////////////slider:
+            $("#rangebar").slider({
+                tooltip: 'show'
+            });
+
+            /////////////spinner
+            spinneropts = {
+                lines: 13, // The number of lines to draw
+                length: 20, // The length of each line
+                width: 10, // The line thickness
+                radius: 30, // The radius of the inner circle
+                corners: 1, // Corner roundness (0..1)
+                rotate: 0, // The rotation offset
+                direction: 1, // 1: clockwise, -1: counterclockwise
+                color: '#000', // #rgb or #rrggbb or array of colors
+                speed: 1, // Rounds per second
+                trail: 60, // Afterglow percentage
+                shadow: false, // Whether to render a shadow
+                hwaccel: false, // Whether to use hardware acceleration
+                className: 'spinner', // The CSS class to assign to the spinner
+                zIndex: 2e9, // The z-index (defaults to 2000000000)
+                top: '50%', // Top position relative to parent
+                left: '63%' // Left position relative to parent
+            };
+            var target = document.getElementById('foo');
+            spinner = new Spinner(spinneropts).spin(target);
+            target.style.zIndex = "110";
+            target = document.getElementById('map');
+            target.style.opacity = '0.2';
+            target = document.getElementById('chart');
+            target.style.opacity= '0';
+            target.style.display = '';
+            ////////////////////////////////////////////
+
+            $.get("../crash_query/", {
+                sev: severity, wea: weather, rod: roadcon
+            }, function (data, textStatus) {
+                crashes = $.parseJSON(data);
+                //$('#txtHint').text(terminals);
+                showOcp();
+                /////////////spinner
+                spinner.stop();
+                var target = document.getElementById('foo');
+                target.style.zIndex = "1";
+                var mapper = document.getElementById('map');
+                mapper.style.opacity = '1';
+                target = document.getElementById('chart');
+                target.style.opacity= '1';
+            }, "json");
+
+
+            /////////////////////////////////////////////////
+            var legend = L.control({position: 'bottomright'});
+            legend.onAdd = function () {
+                var div = L.DomUtil.create('div', 'info legend');
+                div.innerHTML += '<i style="background:green' + '"></i> ' + "Crashes per mile per yr &le; 0.6"+ "<br>";
+                div.innerHTML += '<j style="background:yellow' +  '"></j> ' + "Crashes per mile per yr &le; 1.2"+ "<br>";
+                div.innerHTML += '<k style="background:red' +  '"></k> ' + "Crashes per mile per yr > 1.2"+ "<br>";
+                return div;
+            };
+            legend.addTo(map);
+        });
+
+        // add an OpenStreetMap tile layer
+        streets = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        }),
+                grayscale = L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
+                    maxZoom: 18,
+                    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+                    '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                    'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+                    id: 'examples.map-20v6611k'
+                });
+
+        //map = L.map('map').setView([40.4407937, -80.0029874], 16);
+        var map = L.map('map', {
+            center: [40.95501133048619,-77.0745849609375],
+            zoom: 9,
+            layers: [grayscale]
+        });
+
+        var baseMaps = {
+            "Grayscale": grayscale,
+            "Streets": streets
+        };
+
+        /*var overlayMaps = {
+         "Parking Terminals": terminalLayer
+         };*/
+
+        var control = L.control.layers(baseMaps, null, {collapsed: false}).addTo(map);
+
+        function parkingMarkerStyle() {
+            return {
+                radius: 3,
+                fillColor: "#3f51b5",
+                color: "#3f51b5",
+                weight: 1,
+                opacity: 0.9,
+                fillOpacity: 0.9
+            };
+        }
+
+        var info = L.control();
+
+        $(function() {
+            info.update = function (props) {
+                if (props) {
+                    var historic = "Crashes per year of last five years:<br><b>" + props.CR[0] + ", " + props.CR[1] + ", " + props.CR[2] + ", " + props.CR[3] + ", " + props.CR[4];
+                    var estimate = "Estimated crashes per year:<b> " + parseFloat(props.CR[5]).toFixed(2);
+                }
+                var element = document.getElementById('map');
+                if (element.style.zIndex != "1") {//deprecated if
+                    document.getElementById("p1").innerHTML = (props ?
+                    '<b>Segment of ' + props.ST + '</b><br>' +  historic + '</b><br>' + estimate +'</b><br>'
+                            : '<h5>Hover over a street to check crashes</h5><br><br>');
+                }
+            };
+        });
+
+
+        //////////////////////////////////
+        function highlightFeature(e) {
+            var layer = e.target;
+
+            if (layer.feature.geometry.type != "Point"){
+                layer.setStyle({
+                    weight: 10
+                });
+            } else{
+                layer.setStyle({
+                    radius: 10
+                });
+            }
+
+            if (!L.Browser.ie && !L.Browser.opera) {
+                layer.bringToFront();
+            }
+            info.update(layer.feature.properties);
+        }
+
+
+        function resetHighlight(e) {
+            var id =  e.target.feature.properties.Sid;
+            if (highlight.indexOf(id) == -1){
+                streetLayer.resetStyle(e.target);
+            }
+            info.update();
+            //$('#chart1').empty();
+        }
+
+        //////////////////////////////////////
+        function onEachFeature(feature, layer) {
+            layer.on({
+                mouseover: highlightFeature,
+                mouseout: resetHighlight
+            });
+
+            if (feature.properties && feature.properties.ST && feature.properties.CR) {
+                layer.on('click', function (e) {
+                    info.update(layer.feature.properties);
+                    $("#chart1").empty();
+                    $("#chart2").empty();
+
+
+                    ////////////////////////
+                        var element = document.getElementById('map');
+                        element.style.zIndex = "1";
+
+                        var histo = [];
+                        histo.push(feature.properties.CR[0]);
+                        histo.push(feature.properties.CR[1]);
+                        histo.push(feature.properties.CR[2]);
+                        histo.push(feature.properties.CR[3]);
+                        histo.push(feature.properties.CR[4]);
+                        histo.push(0);
+
+                        var pred = [0,0,0,0,0]
+                        pred.push(parseFloat(feature.properties.CR[5]).toFixed(2));
+
+                        var plotcontent = [histo, pred];
+                        var ticks = ['2010', '2011', '2012', '2013', '2014', '2015', 'Predict'];
+
+                    var element = document.getElementById('chart2');
+                    element.style.display = 'none';
+                    $.jqplot('chart1', plotcontent, {
+                        stackSeries: true,
+                        captureRightClick: true,
+                        seriesDefaults:{
+                            renderer:$.jqplot.BarRenderer,
+                            rendererOptions: {
+                                barMargin: 30,
+                                // Highlight bars when mouse button pressed.
+                                highlightMouseDown: true
+                            },
+
+                            pointLabels: {show: false}
+                        },
+                        axes: {
+                            xaxis: {
+                                renderer: $.jqplot.CategoryAxisRenderer,
+                                ticks: ticks
+                            },
+                            yaxis: {
+                                // Don't pad out the bottom of the data range.  By default,
+                                // axes scaled as if data extended 10% above and below the
+                                // actual range to prevent data points right on grid boundaries.
+                                // Don't want to do that here.
+                                padMin: 0
+                            }
+                        },
+                        legend: {
+                            show: false
+                        },
+                            grid: {
+                                drawGridLines: true,        // wether to draw lines across the grid or not.
+                                gridLineColor: '#cccccc',    // *Color of the grid lines.
+                                background: '#FFFFFF'
+                            },
+                            seriesColors: ["#3f51b5", "#FF0066"]
+                    });
+
+                });
+            }
+        }
+
+
+        function showOcp() {
+            var st_in_map = true;
+            var tr_in_map = false;
+            if(underlayer){
+                map.removeLayer(underlayer);
+            }
+            if (streetLayer) {
+                control.removeLayer(streetLayer);
+                if (map.hasLayer(streetLayer)) {
+                    map.removeLayer(streetLayer);
+                }
+                else {
+                    st_in_map = false;
+                }
+            }
+
+            if (truckLayer) {
+                control.removeLayer(truckLayer);
+                if (map.hasLayer(truckLayer)) {
+                    map.removeLayer(truckLayer);
+                    tr_in_map = true;
+                }
+            }
+
+            streetLayer = L.geoJson(crashes, {
+                style: function (feature) {
+                        if (parseFloat(feature.properties.CR[5]) < 0.6) {
+                            return {weight: 7, color: 'green', opacity: 0.9};
+                        } else if (parseFloat(feature.properties.CR[5]) <= 1.2) {
+                            return {weight: 7, color: 'yellow', opacity: 0.9};
+                        } else {
+                            return {weight: 7, color: 'red', opacity: 0.9};
+                        }
+                },
+                onEachFeature: onEachFeature
+            });
+
+            if (st_in_map) {
+                streetLayer.addTo(map);
+            }
+
+            var element = document.getElementById('chart2');
+            element.style.display = '';
+        }
+
+
+        function getColorLots(d) {
+            return d <= 0.6 ? '#008000' :
+                    d <= 0.85 ? '#FFFF66' :
+                            '#FF0000';
+        }
+
+    </script>
+
+{% endblock %}
