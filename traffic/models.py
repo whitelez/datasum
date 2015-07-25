@@ -23,15 +23,17 @@ class Parking(models.Model):
 
 ####################################################################################### Crash
 class PAroad(models.Model):
-    pid = models.CharField(max_length = 20, primary_key = True)
+    pid = models.IntegerField(primary_key = True)
     street_name = models.CharField(max_length = 100)
     coordinate = models.TextField()
     def __unicode__(self):
         return self.pid
+    class Meta:
+        ordering = ['pid']
 
 
 class Crashdata(models.Model):
-    pid = models.ForeignKey(PAroad, db_index=True)
+    pid = models.ForeignKey(PAroad)
     Severe = models.SmallIntegerField()
     Weather = models.SmallIntegerField()
     Roadcon = models.SmallIntegerField()
@@ -46,6 +48,10 @@ class Crashdata(models.Model):
 
     def __unicode__(self):
         return self.pid
+
+    class Meta:
+        index_together = [["Severe", "Weather", "Roadcon"], ]
+        ordering = ['pid']
 ####################################################################################### End of Crash
 
 
