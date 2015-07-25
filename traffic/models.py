@@ -51,7 +51,7 @@ class Crashdata(models.Model):
 
     class Meta:
         index_together = [["Severe", "Weather", "Roadcon"], ]
-        ordering = ['pid']
+        ordering = ['pid_id']
 ####################################################################################### End of Crash
 
 

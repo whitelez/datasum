@@ -50,12 +50,12 @@ def crash_query(request):
     road = iter(PAroad.objects.all())
     if p:
         dc = [0]*6
-        cnt = 0
+        cnt = 1
         for entry in p:
             if cnt == entry_num:
-                cnt = 0
                 t = road.next()
                 result += '''{"type":"Feature","properties":{"Sid":"''' + str(t.pid) + '''","ST":"''' + t.street_name + '''","CR":[''' + ",".join(str(ic) for ic in dc) + ''']},"geometry":{"type":"LineString","coordinates":''' + t.coordinate + "}},"
+                cnt = 1
                 dc = [0]*6
             else:
                 cnt += 1
