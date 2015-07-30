@@ -131,6 +131,21 @@ class TMC(models.Model):
     def __unicode__(self):
             return self.tmc
 
+class TMC_Here(models.Model):
+    tmc = models.CharField(max_length = 9, primary_key = True)
+    state = models.CharField(max_length = 2)
+    county = models.CharField(max_length = 20)
+    miles = models.FloatField()
+    road_number = models.CharField(max_length = 20)
+    road_name = models.CharField(max_length = 100)
+    lat = models.FloatField();
+    lon = models.FloatField();
+    DIRECTION_CHOICES = (('N', 'Northbound'),('S', 'Southbound'),('E', 'Eastbound'),('W', 'Westbound'))
+    direction = models.CharField(max_length=1, choices = DIRECTION_CHOICES)
+    coordinates = models.TextField();
+    def __unicode__(self):
+            return self.tmc
+
 class TMC_real_time(models.Model):
     tmc = models.CharField(max_length = 9, primary_key = True)
     road = models.CharField(max_length = 50, db_index = True)
