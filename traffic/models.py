@@ -292,9 +292,9 @@ class Transit_data(models.Model):
     dir = models.CharField(max_length = 1)
     route = models.CharField(max_length = 4)
     tripa = models.CharField(max_length = 4)
-    blocka = models.CharField(max_length = 6)
+    blocka = models.CharField(max_length = 10)
     vehnoa = models.CharField(max_length = 4)
-    date = models.DateField(db_index = True)
+    date = models.DateField()
     stopa = models.PositiveSmallIntegerField()
     qstopa = models.CharField(max_length = 8)
     aname = models.TextField()
@@ -318,8 +318,8 @@ class Transit_data(models.Model):
     artime = models.FloatField()
     def __unicode__(self):
         return self.route + ' ' + self.tripa
-    class Meta:
-        index_together = [["route", "dir", "qstopa", "date"],]
+    # class Meta:
+    #     index_together = [["route", "dir", "qstopa", "date"],]
 # =============================================== Models for Transit END ===============================================
 
 class GIS_links(models.Model):
