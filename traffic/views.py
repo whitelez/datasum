@@ -846,21 +846,21 @@ def transit_metrics_op_byroute(request):
     e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
     stops = request.GET["stops"].split(",")
 
-    # Build a list of all GTFS version name and their valid date range
-    gtfs = [record['GTFS'] for record in GTFS_calendar.objects.all().values('GTFS').distinct()]
-    gtfslist = []
-    for record in gtfs:
-        year = record.split("_")[1][:4]
-        min = record.split("_")[2].split("-")[0]
-        max = record.split("_")[2].split("-")[1]
-        mindate = year + min
-        if int(min) > int(max):
-            maxdate = str(int(year)+1) + max
-        else:
-            maxdate = year + max
-        mindate = date(int(mindate[:4]), int(mindate[4:6]), int(mindate[6:8]))
-        maxdate = date(int(maxdate[:4]), int(maxdate[4:6]), int(maxdate[6:8]))
-        gtfslist.append({"name": record, "start": mindate, "end": maxdate})
+    # # Build a list of all GTFS version name and their valid date range
+    # gtfs = [record['GTFS'] for record in GTFS_calendar.objects.all().values('GTFS').distinct()]
+    # gtfslist = []
+    # for record in gtfs:
+    #     year = record.split("_")[1][:4]
+    #     min = record.split("_")[2].split("-")[0]
+    #     max = record.split("_")[2].split("-")[1]
+    #     mindate = year + min
+    #     if int(min) > int(max):
+    #         maxdate = str(int(year)+1) + max
+    #     else:
+    #         maxdate = year + max
+    #     mindate = date(int(mindate[:4]), int(mindate[4:6]), int(mindate[6:8]))
+    #     maxdate = date(int(maxdate[:4]), int(maxdate[4:6]), int(maxdate[6:8]))
+    #     gtfslist.append({"name": record, "start": mindate, "end": maxdate})
 
     result = {}
     for stopid in stops:
@@ -868,29 +868,13 @@ def transit_metrics_op_byroute(request):
         # the field qstopa now has 2 blank spaces in the beginning of every line, if database changed, remember to revise the filter condition!!
         data = Transit_data.objects.filter(qstopa='  '+str(stopid), route=str(route), dir=str(direction), date__range=(s_date, e_date))
         for item in data:
-            if item.schtim >= s_time and item.schtim <= e_time and item.schdev != 99:
-                result[stopid].append(item.schdev)
-            else:
-                currentgtfs = ''
-                for record in gtfslist:
-                    if record["start"] <= item.date and record["end"] >= item.date:
-                        currentgtfs = record["name"]
-                        break
-                tripdata = Trip.objects.filter(route_id=route_id, direction_id=str(direction), GTFS=currentgtfs)
-                for record in tripdata:
-                    stop_timedata = Stop_time.objects.filter(trip_id=record.trip_id, stop_sequence=1, GTFS=currentgtfs)[0]
-                    if int(stop_timedata.departure_time.split(":")[0])*100+int(stop_timedata.departure_time.split(":")[1]) == int(item.tripa):
-                        temp = Stop_time.objects.filter(trip_id=record.trip_id, stop_id=stopid, GTFS=currentgtfs)[0]
-                        if temp:
-                            temp = temp.departure_time
-                            flag = int(temp.split(":")[0])*100 + int(temp.split(":")[1])
-                            if flag >= s_time and flag <= e_time:
-                                schtime = int(temp.split(":")[0])*3600 + int(temp.split(":")[1])*60 + int(temp.split(":")[2])
-                                if item.stopa == 1:
-                                    result[stopid].append(float(item.dhour*3600 + item.dminute*60 + item.dsecond - schtime)/60.0)
-                                else:
-                                    result[stopid].append(float(item.hour*3600 + item.minute*60 + item.second - schtime)/60.0)
-                        break
+            if item.schtim >= s_time and item.schtim <= e_time:
+                mystr = str(item.schtim)
+                scheduled_time = int(mystr[:-2])*3600 + int(mystr[-2:])*60
+                if item.stopa == 1:
+                    result[stopid].append(float(item.dhour*3600 + item.dminute*60 + item.dsecond - scheduled_time)/60.0)
+                else:
+                    result[stopid].append(float(item.hour*3600 + item.minute*60 + item.second - scheduled_time)/60.0)
 
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
