@@ -875,7 +875,6 @@ def transit_metrics_op_byroute(request):
                     result[stopid].append(float(item.dhour*3600 + item.dminute*60 + item.dsecond - scheduled_time)/60.0)
                 else:
                     result[stopid].append(float(item.hour*3600 + item.minute*60 + item.second - scheduled_time)/60.0)
-
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
@@ -906,13 +905,17 @@ def transit_metrics_op_bystop(request):
         data = Transit_data.objects.filter(qstopa='  '+str(stopid), route=str(routename), dir=str(direction), date__range=(s_date, e_date))
         for item in data:
             if item.schtim >= s_time and item.schtim <= e_time:
-                if item.schdev != 99:
-                    result[route].append(item.schdev)
+                mystr = str(item.schtim)
+                scheduled_time = int(mystr[:-2])*3600 + int(mystr[-2:])*60
+                if item.stopa == 1:
+                    result[route].append(float(item.dhour*3600 + item.dminute*60 + item.dsecond - scheduled_time)/60.0)
+                else:
+                    result[route].append(float(item.hour*3600 + item.minute*60 + item.second - scheduled_time)/60.0)
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
 def transit_metrics_schedule_opt(request):
-    gtfs_name = request.GET["gtfs_name"]
+    # gtfs_name = request.GET["gtfs_name"]
     routedict = Route_dict.objects.all()
     route = ''
     for item in routedict:
@@ -928,7 +931,7 @@ def transit_metrics_schedule_opt(request):
         day = "3"
     time = request.GET["tripinfo"].split("+")[1]
     time = str(int(time.split(":")[0])*100 + int(time.split(":")[1]))
-    tripid = request.GET["tripinfo"].split("+")[2]
+    # tripid = request.GET["tripinfo"].split("+")[2]
     direction = request.GET["dir"]
     s_date = request.GET["s_date"]
     e_date = request.GET["e_date"]
@@ -938,21 +941,17 @@ def transit_metrics_schedule_opt(request):
     result = {}
     for stopid in stops:
         result[stopid] = []
-        temp = Stop_time.objects.filter(trip_id=tripid, stop_id=stopid, GTFS=gtfs_name)[0]
-        if temp:
-            temp = temp.departure_time
-            schtime = int(temp.split(":")[0])*3600 + int(temp.split(":")[1])*60 + int(temp.split(":")[2])
-            # the field qstopa now has 2 blank spaces in the beginning of every line, if database changed, remember to revise the filter condition!!
-            data = Transit_data.objects.filter(dow=day, tripa=time, qstopa='  '+str(stopid), route=str(route), dir=str(direction), date__range=(s_date, e_date))
-            for item in data:
+        # the field qstopa now has 2 blank spaces in the beginning of every line, if database changed, remember to revise the filter condition!!
+        data = Transit_data.objects.filter(dow=day, tripa=time, qstopa='  '+str(stopid), route=str(route), dir=str(direction), date__range=(s_date, e_date))
+        for item in data:
+            if item.schtim != 9999:
                 # if 1st stop, deviation = departure_time - schedule_time; if not, dev = arrival_time - schedule time (in minutes)
+                mystr = str(item.schtim)
+                scheduled_time = int(mystr[:-2])*3600 + int(mystr[-2:])*60
                 if item.stopa == 1:
-                    result[stopid].append(float(item.dhour*3600 + item.dminute*60 + item.dsecond - schtime)/60.0)
+                    result[stopid].append(float(item.dhour*3600 + item.dminute*60 + item.dsecond - scheduled_time)/60.0)
                 else:
-                    result[stopid].append(float(item.hour*3600 + item.minute*60 + item.second - schtime)/60.0)
-        else:
-            result[stopid].append("")
-
+                    result[stopid].append(float(item.hour*3600 + item.minute*60 + item.second - scheduled_time)/60.0)
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
