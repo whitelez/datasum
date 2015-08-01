@@ -178,9 +178,9 @@
 			}
 			if (this.range) {
 				this.tooltipInner.text(
-					this.formater(this.value[0]) +
+					this.formater(Math.round(this.value[0]*10)/10) +
 					' : ' +
-					this.formater(this.value[1])
+					this.formater(Math.round(this.value[1]*10)/10)
 				);
 				this.tooltip[0].style[this.stylePos] = this.size * (this.percentage[0] + (this.percentage[1] - this.percentage[0])/2)/100 - (this.orientation === 'vertical' ? this.tooltip.outerHeight()/2 : this.tooltip.outerWidth()/2) +'px';
 			} else {

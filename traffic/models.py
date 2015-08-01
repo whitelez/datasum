@@ -25,6 +25,7 @@ class Parking(models.Model):
 class PAroad(models.Model):
     pid = models.IntegerField(primary_key = True)
     street_name = models.CharField(max_length = 100)
+    length = models.CharField(max_length = 10)
     coordinate = models.TextField()
     def __unicode__(self):
         return self.pid
