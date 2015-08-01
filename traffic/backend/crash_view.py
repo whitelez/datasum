@@ -3,7 +3,7 @@ __author__ = 'bread'
 from django.http import HttpResponse, QueryDict
 from django.db.models import Q
 from django.shortcuts import render
-
+from cStringIO import StringIO
 import json
 
 from traffic.models import * #Meter, Parking, Street, Streetparking, TMC, TMC_data, Incidents, Weather
@@ -44,7 +44,21 @@ def crash_query(request):
     else:
         entry_num *= 2
         cr[2] = Q(Roadcon__gte=0)
-    result = '''{"type":"FeatureCollection","features":['''
+    outp = []
+    outp.append('''{"type":"Feature","properties":{"Sid":"''')
+    outp.append('')
+    outp.append('''","ST":"''')
+    outp.append('')
+    outp.append('''","LN":"''')
+    outp.append('')
+    outp.append('''","CR":[''')
+    outp.append('')
+    outp.append(''']},"geometry":{"type":"LineString","coordinates":''')
+    outp.append('')
+    outp.append("}}")
+    resultio = StringIO()
+    resultio.write('''{"type":"FeatureCollection","features":[''')
+
     p = Crashdata.objects.filter(cr[0] & cr[1] & cr[2])
     road = iter(PAroad.objects.all())
     if p:
@@ -53,19 +67,25 @@ def crash_query(request):
         for entry in p:
             if cnt == entry_num:
                 t = road.next()
-                print t.pid
-                result += '''{"type":"Feature","properties":{"Sid":"''' + str(t.pid) + '''","ST":"''' + t.street_name + '''","LN":"''' + t.length +'''","CR":[''' + ",".join(str(ic) for ic in dc) + ''']},"geometry":{"type":"LineString","coordinates":''' + t.coordinate + "}},"
+                outp[1] = str(t.pid)
+                outp[3] = t.street_name
+                outp[5] = t.length
+                outp[7] = ",".join(str(ic) for ic in dc)
+                outp[9] = t.coordinate
+                resultio.write(("".join(i for i in outp)))
+                resultio.write(",")
                 cnt = 1
                 dc = [0]*6
             else:
                 cnt += 1
-                dc[0] += int(entry.Y2010)
-                dc[1] += int(entry.Y2011)
-                dc[2] += int(entry.Y2012)
-                dc[3] += int(entry.Y2013)
-                dc[4] += int(entry.Y2014)
-                dc[5] += float(entry.Ypre)
-    result = result.rstrip(',')
+                dc[0] += entry.Y2010
+                dc[1] += entry.Y2011
+                dc[2] += entry.Y2012
+                dc[3] += entry.Y2013
+                dc[4] += entry.Y2014
+                dc[5] += entry.Ypre
+    result = resultio.getvalue()
+    result = result[:-1]
     result += "]}"
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
