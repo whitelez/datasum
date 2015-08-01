@@ -53,6 +53,7 @@ def crash_query(request):
         for entry in p:
             if cnt == entry_num:
                 t = road.next()
+                print t.pid
                 result += '''{"type":"Feature","properties":{"Sid":"''' + str(t.pid) + '''","ST":"''' + t.street_name + '''","LN":"''' + t.length +'''","CR":[''' + ",".join(str(ic) for ic in dc) + ''']},"geometry":{"type":"LineString","coordinates":''' + t.coordinate + "}},"
                 cnt = 1
                 dc = [0]*6
