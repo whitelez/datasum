@@ -353,7 +353,7 @@
                     $("#chart2").empty();
                     var element = document.getElementById('map');
                     element.style.zIndex = "100";
-                    document.getElementById("p1").innerHTML = '<h5>Hover over a street to check crashes</h5><br><br>';
+                    document.getElementById("p1").innerHTML = '<h5>Click on a street to check crashes</h5><br><br>';
                 }
             })
 
@@ -542,7 +542,7 @@
                     console.log("update p1");
                     document.getElementById("p1").innerHTML = (props ?
                     '<b>Segment of ' + props.ST + '</b><br>'+ rdlength + historic + '</b><br>' + estimate + '</b><br>'
-                            : '<h5>Hover over a street to check crashes</h5><br><br>');
+                            : '<h5>Click on a street to check crashes</h5><br><br>');
                 }
             };
         });
@@ -554,11 +554,11 @@
 
             if (layer.feature.geometry.type != "Point") {
                 layer.setStyle({
-                    weight: 10
+                    weight: 8
                 });
             } else {
                 layer.setStyle({
-                    radius: 10
+                    radius: 8
                 });
             }
 
@@ -667,17 +667,17 @@
                     st_in_map = false;
                 }
             }
-            document.getElementById("p1").innerHTML = "<h5>Hover over a street to check crashes</h5><br><br>";
+            document.getElementById("p1").innerHTML = "<h5>Click a street to check crashes</h5><br><br>";
 
             streetLayer = L.geoJson(crashes, {
                 style: function (feature) {
                     var ref = parseFloat(feature.properties.CR[5]/feature.properties.LN);
                     if (ref < sliderlow) {
-                        return {weight: 7, color: 'green', opacity: 0.9};
+                        return {weight: 5, color: 'green', opacity: 0.9};
                     } else if (ref <= sliderhigh) {
-                        return {weight: 7, color: 'yellow', opacity: 0.9};
+                        return {weight: 5, color: 'yellow', opacity: 0.9};
                     } else {
-                        return {weight: 7, color: 'red', opacity: 0.9};
+                        return {weight: 5, color: 'red', opacity: 0.9};
                     }
                 },
                 onEachFeature: onEachFeature

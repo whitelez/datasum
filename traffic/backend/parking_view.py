@@ -81,8 +81,8 @@ def street_parking_geojson_prediction(request):
 
 
 def parking_lots(request):
-    lots = {"type":"FeatureCollection","features":[]}
-    for i in range(2,43):
+    lots = {"type" : "FeatureCollection", "features": []}
+    for i in range(2, 43):
         url = 'http://parkpgh.org/index.php/api/getLotById?lotId=' + str(i)
         p = urllib2.urlopen(url)
         info = p.read()
