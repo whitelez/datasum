@@ -225,7 +225,7 @@
             <div class="row" id="future22" style="margin-top:0px;margin-left:0px;margin-bottom:-10px" align="left"><h5>
                 Customize legend thresholds:</h5></div>
             <h5>
-                <div id="amount" style="margin-left:20px;">0.0/Mi - 0.6/Mi - 1.2/Mi - 2.0/Mi</div>
+                <div id="amount" style="margin-left:20px;">0.0/Mi - 0.6/Mi - 2.0/Mi - 4.0/Mi</div>
             </h5>
             <div id="slider-range"></div>
 
@@ -281,20 +281,40 @@
         var map;
         var sliderminu = 10; // changed in slider_park.js
         var sliderlow = 0.6;
-        var sliderhigh = 1.2;
+        var sliderhigh = 2.0;
         var legendDiv;
         var prevstatus; // store user's selection from the last time
         var statuschanged;
         ///////
-        var underlayer;//To store under later
         var spinneropts;
         var spinner;
 
 
+        function stopspinner(){
+            spinner.stop();
+            var target = document.getElementById('foo');
+            target.style.zIndex = "1";
+            var mapper = document.getElementById('map');
+            mapper.style.opacity = '1';
+            target = document.getElementById('chart');
+            target.style.opacity = '1';
+        }
+
+        function startspinner(){
+            var target = document.getElementById('map');
+            target.style.zIndex = "100";
+            target.style.opacity = '0.2';
+            target = document.getElementById('foo');
+            target.style.zIndex = "110";
+            spinner = new Spinner(spinneropts).spin(target);
+            target = document.getElementById('chart');
+            target.style.opacity = '0';
+        }
+
         $(document).ready(function () {
 
             /////////////////slider:
-            prevstatus = 24;
+            prevstatus = 26;
             /////////////spinner
             spinneropts = {
                 lines: 13, // The number of lines to draw
@@ -329,15 +349,8 @@
             }, function (data, textStatus) {
                 crashes = $.parseJSON(data);
                 //$('#txtHint').text(terminals);
-                showOcp();
+                showOcp(stopspinner());
                 /////////////spinner
-                spinner.stop();
-                var target = document.getElementById('foo');
-                target.style.zIndex = "1";
-                var mapper = document.getElementById('map');
-                mapper.style.opacity = '1';
-                target = document.getElementById('chart');
-                target.style.opacity = '1';
             }, "json");
 
 
@@ -377,7 +390,14 @@
             }
             $("#chart1").empty();
             $("#chart2").empty();
-
+            var target = document.getElementById('map');
+            target.style.zIndex = "100";
+            target.style.opacity = '0.2';
+            target = document.getElementById('foo');
+            target.style.zIndex = "110";
+            spinner = new Spinner(spinneropts).spin(target);
+            target = document.getElementById('chart');
+            target.style.opacity = '0';
             map.removeControl(legendDiv);
             legendDiv.onAdd = function () {
                 var div = L.DomUtil.create('div', 'info legend');
@@ -387,46 +407,24 @@
                 return div;
             };
             legendDiv.addTo(map);
-            var target = document.getElementById('map');
-            target.style.zIndex = "100";
-            target.style.opacity = '0.2';
-            target = document.getElementById('foo');
-            target.style.zIndex = "110";
-            spinner = new Spinner(spinneropts).spin(target);
-            target = document.getElementById('chart');
-            target.style.opacity = '0';
             if (!statuschanged) { //only update colors, no query
-                showOcp();
-                spinner.stop();
-                var target = document.getElementById('foo');
-                target.style.zIndex = "1";
-                var mapper = document.getElementById('map');
-                mapper.style.opacity = '1';
-                target = document.getElementById('chart');
-                target.style.opacity = '1';
+                console.log(prevstatus);
+                setTimeout(showOcpwithTO, 1000);
             }
             else {
+                console.log(prevstatus+" query");
                 document.getElementById("p1").innerHTML = "<h5>Please wait while fetching data from server.... Typically, this process takes about two minutes.</h5>";
                 $.get("../crash_query/", {
                     sev: severity, wea: weather, rod: roadcon
                 }, function (data, textStatus) {
                     crashes = $.parseJSON(data);
                     //$('#txtHint').text(terminals);
-                    showOcp();
+                    showOcp(stopspinner());
                     /////////////spinner
-                    spinner.stop();
-                    var target = document.getElementById('foo');
-                    target.style.zIndex = "1";
-                    var mapper = document.getElementById('map');
-                    mapper.style.opacity = '1';
-                    target = document.getElementById('chart');
-                    target.style.opacity = '1';
-                    ////////////////////
                 }, "json");
             }
 
         });
-
 
         function getcondition() {
             var cnt = -1;
@@ -471,8 +469,9 @@
                 cnt = -1;
             }
             if (cnt != -1) {
-                statuschanged = (prevstatus == cnt); //check if user selection has changed
+                statuschanged = !(prevstatus == cnt); //check if user selection has changed
             }
+            prevstatus = cnt;
             return nothing;
         }
 
@@ -480,17 +479,15 @@
             $("#slider-range").slider({
                 range: true,
                 min: 0,
-                max: 100,
-                values: [25, 50],
+                max: 40,
+                values: [6, 20],
                 slide: function (event, ui) {
-                    sliderlow = Math.round(ui.values[0] / 5) / 10;
-                    sliderhigh = Math.round(ui.values[1] / 5) / 10;
-                    document.getElementById("amount").innerHTML = "0.0/Mi - " + sliderlow + "/Mi - " + sliderhigh + "/Mi - 2.0/Mi";
+                    sliderlow = Math.round(ui.values[0]) / 10;
+                    sliderhigh = Math.round(ui.values[1] ) / 10;
+                    document.getElementById("amount").innerHTML = "0.0/Mi - " + sliderlow + "/Mi - " + sliderhigh + "/Mi - 4.0/Mi";
                     $('#sliderreddiv').css('width', 100 - ui.values[1] + '%');
                 }
-            }).append('<div id="sliderreddiv" style="width: 50%"></div>');
-
-
+            }).append('<div id="sliderreddiv" style="width: 80%"></div>');
         });
 
 
@@ -507,7 +504,7 @@
                 });
 
         //map = L.map('map').setView([40.4407937, -80.0029874], 16);
-        var map = L.map('map', {
+        map = L.map('map', {
             center: [40.95501133048619, -77.0745849609375],
             zoom: 8,
             layers: [grayscale]
@@ -528,18 +525,16 @@
 
         $(function () {
             info.update = function (props) {
-                console.log("update props");
                 var historic = '';
                 var estimate = '';
                 var rdlength = '';
                 if (props) {
-                    rdlength = "Length of the segment:<b> " + props.LN + " mile<b><br>";
+                    rdlength = "Length of the segment:<b> " + props.LN + " mile</b><br>";
                     historic = "Crashes per year of last five years:<br><b>" + props.CR[0] + ", " + props.CR[1] + ", " + props.CR[2] + ", " + props.CR[3] + ", " + props.CR[4];
                     estimate = "Estimated crashes per year:<b> " + parseFloat(props.CR[5]).toFixed(2);
                 }
                 var element = document.getElementById('map');
                 if (element.style.zIndex != "1") {//deprecated if
-                    console.log("update p1");
                     document.getElementById("p1").innerHTML = (props ?
                     '<b>Segment of ' + props.ST + '</b><br>'+ rdlength + historic + '</b><br>' + estimate + '</b><br>'
                             : '<h5>Click on a street to check crashes</h5><br><br>');
@@ -652,14 +647,9 @@
         function changeclk() {
         }
 
-        function showOcp() {
+        function showOcp(callback) {
             var st_in_map = true;
-            var tr_in_map = false;
-            if (underlayer) {
-                map.removeLayer(underlayer);
-            }
             if (streetLayer) {
-                control.removeLayer(streetLayer);
                 if (map.hasLayer(streetLayer)) {
                     map.removeLayer(streetLayer);
                 }
@@ -685,13 +675,49 @@
 
             if (st_in_map) {
                 streetLayer.addTo(map);
+                if (typeof callback === "function") {
+                    callback();
+                }
             }
 
             var element = document.getElementById('chart2');
             element.style.display = '';
         }
 
+        function showOcpwithTO() {
+            var st_in_map = true;
+            if (streetLayer) {
+                if (map.hasLayer(streetLayer)) {
+                    map.removeLayer(streetLayer);
+                }
+                else {
+                    st_in_map = false;
+                }
+            }
+            document.getElementById("p1").innerHTML = "<h5>Click a street to check crashes</h5><br><br>";
 
+            streetLayer = L.geoJson(crashes, {
+                style: function (feature) {
+                    var ref = parseFloat(feature.properties.CR[5]/feature.properties.LN);
+                    if (ref < sliderlow) {
+                        return {weight: 5, color: 'green', opacity: 0.9};
+                    } else if (ref <= sliderhigh) {
+                        return {weight: 5, color: 'yellow', opacity: 0.9};
+                    } else {
+                        return {weight: 5, color: 'red', opacity: 0.9};
+                    }
+                },
+                onEachFeature: onEachFeature
+            });
+
+            if (st_in_map) {
+                streetLayer.addTo(map);
+                stopspinner();
+            }
+
+            var element = document.getElementById('chart2');
+            element.style.display = '';
+        }
     </script>
 
 {% endblock %}
