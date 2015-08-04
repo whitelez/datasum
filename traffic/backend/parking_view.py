@@ -6,6 +6,7 @@ from django.shortcuts import render
 
 import json
 import urllib2
+import ast
 
 from traffic.models import * #Meter, Parking, Street, Streetparking, TMC, TMC_data, Incidents, Weather
 from datetime import date
@@ -40,11 +41,12 @@ def street_parking_geojson_prediction(request):
         else:
             cr[i] = Q(date__week_day=0)
     #################
-    print "New Request"
-    result = '''{"type":"FeatureCollection","features":['''
+    print "New Request for parking"
+    itemarray = []
     for t in Street.objects.all():
         p = 0
         r = 0
+        itemdic = dict()
         if not (pdate > edpdate or pdate1 < stpdate):  # use historical data
             p = t.streetparking_set.filter(date__range=(pdate, pdate1))
             r = t.streetrate_set.filter(date__range=(pdate, pdate1))
@@ -70,13 +72,24 @@ def street_parking_geojson_prediction(request):
                 dc = day.rate.split(',')
                 for i in range(48):
                     cr[i] = dc[i]
+            itemdic["type"] = "Feature"
+            properties = dict()
+            properties["streetID"] = str(t.sid)
+            properties["street"] = str(t.street_name)
+            properties["rate"] = cr
+            properties["occupancy"] = c
+            geometry = dict()
+            geometry["coordinates"] = ast.literal_eval(t.coordinate)
             if (len(t.coordinate.replace(" ", "").split("],["))==1):
-                result += '''{"type":"Feature","properties":{"streetID":"''' + t.sid + '''","street":"''' + t.street_name + '''","rate":[''' + ",".join(str(ic) for ic in cr) + '''],"occupancy":[''' + ",".join(str(ic) for ic in c) + ''']},"geometry":{"type":"Point","coordinates":''' + t.coordinate + "}},"
+                geometry["type"] = "Point"
             else:
-                result += '''{"type":"Feature","properties":{"streetID":"''' + t.sid + '''","street":"''' + t.street_name + '''","rate":[''' + ",".join(str(ic) for ic in cr) + '''],"occupancy":[''' + ",".join(str(ic) for ic in c) + ''']},"geometry":{"type":"LineString","coordinates":''' + t.coordinate + "}},"
-    result = result.rstrip(',')
-    result += "]}"
-    response = json.dumps(result)
+                geometry["type"] = "LineString"
+            itemdic["properties"] = properties
+            itemdic["geometry"] = geometry
+            itemarray.append(itemdic)
+    resdic = {"type": "FeatureCollection","features": []}
+    resdic["features"] = itemarray
+    response = json.dumps(resdic)
     return HttpResponse(response, content_type='application/json')
 
 
