@@ -146,6 +146,18 @@ class TMC_Here(models.Model):
     def __unicode__(self):
             return self.tmc
 
+class TMC_Here_data(models.Model):
+    tmc = models.ForeignKey(TMC_Here)
+    date = models.DateField(db_index = True)
+    epoch = models.PositiveSmallIntegerField()
+    tt_all = models.PositiveSmallIntegerField(default = 0)
+    tt_pv = models.PositiveSmallIntegerField(default = 0) # passenger vehicles
+    tt_ft = models.PositiveSmallIntegerField(default = 0) # freight trucks
+    spd_all = models.FloatField(default = -1.0)
+    spd_pv = models.FloatField(default = -1.0)
+    spd_ft = models.FloatField(default = -1.0)
+
+
 class TMC_real_time(models.Model):
     tmc = models.CharField(max_length = 9, primary_key = True)
     road = models.CharField(max_length = 50, db_index = True)
