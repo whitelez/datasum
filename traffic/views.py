@@ -1453,6 +1453,40 @@ def TMC_GIS(request):
     response = json.dumps(GIS)
     return HttpResponse(response,content_type="application/json")
 
+def tmc_gis_here(request):
+    geoJson = {"type":"FeatureCollection","features":[]}
+    tmcs = TMC_Here.objects.all()
+    for tmc in tmcs:
+        feature = {"type":"Feature","geometry":{"type":"MultiLineString","coordinates":json.loads(tmc.coordinates)},"properties":{"tmc":tmc.tmc, "miles": tmc.miles, "name": tmc.road_name,"dir":tmc.direction}}
+        geoJson["features"].append(feature)
+
+    response = json.dumps(geoJson)
+    return HttpResponse(response, content_type = "application/json")
+
+def tmc_data_here(request):
+    s_date = request.GET["s_date"]
+    e_date = request.GET["e_date"]
+    s_date = date(int(s_date[0:4]), int(s_date[4:6]), int(s_date[6:]))
+    e_date = date(int(e_date[0:4]), int(e_date[4:6]), int(e_date[6:]))
+    response = {};
+    all_tmc_data = TMC_Here_data.objects.filter(date__range = (s_date, e_date))
+    tmcs = TMC_Here.objects.all()
+    for tmc in tmcs:
+        this_tmc_data = all_tmc_data.filter(tmc = tmc.tmc)
+        data = [0]*288 # five minutes intervals
+        count = [0]*288
+        for record in this_tmc_data:
+            if record.spd_all > 0:
+                data[record.epoch] += record.spd_all
+                count[record.epoch] += 1
+        # getting average
+        for i in range(288):
+            if count[i] > 0:
+                data[i] /= count[i]
+        response[tmc.tmc] = data
+    response = json.dumps(response)
+    return HttpResponse(response, content_type = "application/json")
+
 def real_time_tt(request):
     return render(request, 'traffic/real_time_tt.html')
 

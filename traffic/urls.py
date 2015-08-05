@@ -86,4 +86,8 @@ urlpatterns = patterns('',
 #map_displayer
     url(r'^map_displayer/$', views.map_displayer, name='map_displayer'),
 
+#here_tmc_data
+    url(r'^tmc_gis_here/$', views.tmc_gis_here, name = 'tmc_gis_here'),
+    url(r'^tmc_data_here/$', views.tmc_data_here, name = 'tmc_data_here'),
+
 )
