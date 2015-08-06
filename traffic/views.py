@@ -1482,10 +1482,13 @@ def tmc_data_here(request):
         # getting average
         for i in range(288):
             if count[i] > 0:
-                data[i] /= count[i]
+                data[i] = round(data[i] / count[i], 2)
         response[tmc.tmc] = data
     response = json.dumps(response)
     return HttpResponse(response, content_type = "application/json")
+
+def tmc_tt_here(request):
+    return render(request, 'traffic/travel_time_here.html')
 
 def real_time_tt(request):
     return render(request, 'traffic/real_time_tt.html')

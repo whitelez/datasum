@@ -89,5 +89,6 @@ urlpatterns = patterns('',
 #here_tmc_data
     url(r'^tmc_gis_here/$', views.tmc_gis_here, name = 'tmc_gis_here'),
     url(r'^tmc_data_here/$', views.tmc_data_here, name = 'tmc_data_here'),
+    url(r'^tmc_tt_here/$', views.tmc_tt_here, name = 'tmc_tt_here'),
 
 )
