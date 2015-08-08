@@ -69,7 +69,7 @@
 
     .legend {
         line-height: 18px;
-        height:90px;
+        height:75px;
         width:170px;
         right: -10px;
         bottom: -10px;
@@ -89,25 +89,7 @@
         margin-top: 7px;
         opacity: 0.9;
     }
-    .legend j {
-        width: 28px;
-        height: 7px;
-        float: left;
-        border-radius: 3px;
-        margin-right: 8px;
-        margin-left: 7px;
-        margin-top: 5px;
-        opacity: 0.9;
-    }.legend k {
-        width: 28px;
-        height: 7px;
-        float: left;
-        border-radius: 3px;
-        margin-right: 8px;
-        margin-left: 7px;
-        margin-top: 5px;
-        opacity: 0.9;
-    }
+
 
     </style>
     <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
@@ -139,7 +121,7 @@
                 <div id="datepick">
                 <div id="to-do" align="left" style="width:120%;margin-left: -15px;">
                     <label for="datepickerFrom"><h6><i>From: </i></h6></label> <input style = "width : 120px"  id="datepickerFrom" value="12/01/2014"/>
-                    <label for="datepickerTo"><h6><i>To: </i></h6></label> <input style = "width : 120px" id="datepickerTo" value="12/01/2014"/>
+                    <label for="datepickerTo"><h6><i>To: </i></h6></label> <input style = "width : 120px" id="datepickerTo" value="12/02/2014"/>
                 </div>
                 </div>
                 <div id="timepick">
@@ -195,10 +177,10 @@
         //time picker
         $("#timepicker").kendoTimePicker({
             value: new Date(2002,1,1,10,0,0),
-            interval: 60,
-{#            change: function(){#}
-{#                countLayer = showCount(map, info, control, countLayer, counts, this.value().getHours());#}
-{#            }#}
+            interval: 5,
+            change: function(){
+                resetColor(this.value().getHours() * 12 + this.value().getMinutes() / 5)
+            }
         });
         var timepicker = $("#timepicker").data("kendoTimePicker");
 
@@ -285,31 +267,29 @@
 
 
 
-        function writeInfoContent(props, hour) {
-            var content = "<b>" + props.sid + "</b>";
+        function writeInfoContent(props, hour, minute) {
 
-            if (props.data.length == 0 || props.data[hour] == -1)
-                content += "<br> No Data <br>";
+            var content = "<b>TMC: " + props.tmc + "</b> <br>";
+            var interval = hour * 12 + minute / 5;
+            if (!props.data || props.data.length < interval || props.data[interval] == 0)
+                content += "No Data <br>";
             else
-                content += "<br> Estimated Count from " + hour + " to " + (hour + 1) + ": <b>" + props.data[hour] + "</b><br>";
+                content += "Average Speed: <b>" + props.data[interval] + " mph </b><br>";
 
             return content;
         }
-        info.update = function (props, hour) {
-
+        info.update = function (props, hour, minute) {
+            var start_time = "" + (hour > 12 ? hour - 12 : hour) + ":" + (minute < 10 ? "0" + minute : minute) + (hour >= 12 ? " pm" : " am");
+            var end_hour = minute == 55 ? hour + 1 : hour;
+            var end_minute = minute == 55 ? 0 : minute + 5;
+            var end_time = "" + (end_hour > 12 ? end_hour - 12 : end_hour) + ":" + (end_minute < 10 ? "0" + end_minute : end_minute) + (end_hour >= 12 ? " pm" : " am");
             var content = "";
             if (props) {
-                if (props.sid.indexOf("@") < 0) { // link
-                    var sensors = countLayerDict[props.sid];
-                    sensors.forEach(function(layer) {
-                        content += writeInfoContent(layer.feature.properties,hour);
-                    })
-                }
-                else content = writeInfoContent(props,hour); // sensor
+                content = writeInfoContent(props,hour, minute); // sensor
             }
-            document.getElementById("p1").innerHTML = (props ?
+            document.getElementById("p1").innerHTML = "Time Range:" + start_time + " - " + end_time + "<br>" + (props ?
                     content
-                    : '<h5>Hover over a meter to check count</h5><br><br>');
+                    : '<h5>Hover over a link to check its average speed</h5><br>');
 
         };
 
@@ -317,11 +297,10 @@
         var legend = L.control({position: 'bottomright'});
             legend.onAdd = function () {
                 var div = L.DomUtil.create('div', 'info legend');
-                div.innerHTML += " <b>@1</b>: Westbound, Southbound<br> <b>@2</b>: Eastbound, Northbound<br>"
-                div.innerHTML += '<i style="background:green' + '"></i> ' + "Occupancy &le; 60%"+ "<br>";
-                div.innerHTML += '<j style="background:yellow' +  '"></j> ' + "Occupancy &le; 85%"+ "<br>";
-                div.innerHTML += '<k style="background:red' +  '"></k> ' + "Occupancy > 85%"+ "<br>";
-
+                div.innerHTML += '<i style="background:green"></i>' + "Speed &gt; 55 mph"+ "<br>";
+                div.innerHTML += '<i style="background:yellow"></i>' + "Speed &gt; 20 mph"+ "<br>";
+                div.innerHTML += '<i style="background:red"></i>' + "Speed &le; 20 mph"+ "<br>";
+                div.innerHTML += '<i style="background:blue"></i>' + "No data";
                 return div;
             };
         legend.addTo(map);
@@ -330,7 +309,10 @@
         //get tmc gis from server
         $.get("../tmc_gis_here/",function(data,textStatus){
             tmcs = data;
-            tmcLayer = L.geoJson(tmcs).addTo(map);
+            tmcLayer = L.geoJson(tmcs,{
+                onEachFeature: onEachFeature
+            }).addTo(map);
+            control.addOverlay(linkLayer, 'TMCs');
             buildLayerDict(tmcLayer, tmcLayerDict);
         },"json");
 
@@ -357,8 +339,26 @@
                 Object.keys(tt_data).forEach(function(key) {
                     if (key in tmcLayerDict) tmcLayerDict[key].feature.properties["data"] = tt_data[key];
                 });
+                resetColor(timepicker.value().getHours() * 12 + timepicker.value().getMinutes() / 5);
             });
         });
+
+        function resetColor(interval) {
+            if (interval < 0 || interval > 287) {
+                console.log("interval out of range from resetColor.");
+                return
+            }
+            tmcLayer.eachLayer(function(layer){
+                    layer.setStyle({color:getColor(layer.feature.properties.data[interval])}); // 5 minutes interval
+            });
+        }
+
+        function getColor(spd) {
+            if (spd >= 55) return "green";
+            else if (spd >= 20) return "yellow";
+            else if (spd > 0) return "red";
+            else return "blue"; // speed = 0 means no data
+        }
 
 
 
@@ -480,73 +480,51 @@
 {#                $("#" + chartID).html("<p>Sorry, no data available for sensor <b>" + props.sid + "</b>.</p>");#}
 {#        }#}
 {##}
-{#        function showLinks(map, info, control, linkLayer, links, timepicker, countLayerDict) {#}
-{#            var highlightSensorLayer;#}
-{#            function onEachFeature(feature, layer){#}
-{##}
-{#                function highlightFeature(e) {#}
-{#                    var layer = e.target;#}
-{#                    layer.setStyle({#}
-{#                        weight: 10#}
-{#                    });#}
-{#                    if (!L.Browser.ie && !L.Browser.opera) {#}
-{#                        layer.bringToFront();#}
-{#                    }#}
-{##}
-{#                    info.update(layer.feature.properties, timepicker.value().getHours());#}
-{#                }#}
-{##}
-{#                function resetHighlight(e) {#}
-{#                    linkLayer.resetStyle(e.target);#}
-{#                    info.update();#}
-{#                    //$('#chart1').empty();#}
-{#                }#}
-{##}
-{#                if (feature.properties && feature.properties.sid) {#}
-{#                    var popup = "ID: <b>" + feature.properties.sid + "</b>";#}
-{#                    layer.bindPopup(popup);#}
-{#                }#}
-{#                layer.on("click", function (e) {#}
-{#                    //map.closePopup();#}
-{#                    var sid = layer.feature.properties.sid;#}
-{#                    var sensors = countLayerDict[sid];#}
-{#                    var sensorsGeoJson = [];#}
-{#                    sensors.forEach(function(layer, num) {#}
-{#                        sensorsGeoJson.push(layer.feature);#}
-{#                        showChart(layer.feature.properties, "chart" + (num + 1));#}
-{#                    });#}
-{#                    if(map.hasLayer(highlightSensorLayer)) {#}
-{#                        map.removeLayer(highlightSensorLayer);#}
-{#                    }#}
-{#                    highlightSensorLayer = L.geoJson(sensorsGeoJson,{#}
-{#                        onEachFeature:function(feature,layer) {#}
-{#                            if (feature.properties && feature.properties.sid && feature.properties.data) {#}
-{#                                var popup = "ID: <b>" + feature.properties.sid + "</b>";#}
-{#                                if (feature.properties.data.length != 0 && feature.properties.data[timepicker.value().getHours()] != -1)#}
-{#                                    popup += "<br>Counts: <b>" + feature.properties.data[timepicker.value().getHours()] + "</b>";#}
-{#                                layer.bindPopup(popup);#}
-{#                            }#}
-{#                        }#}
-{#                    }).addTo(map);#}
-{#                    map.fitBounds(layer.getBounds());#}
-{#                });#}
-{##}
-{#                layer.on({#}
-{#                    mouseover: highlightFeature,#}
-{#                    mouseout: resetHighlight,#}
-{#                    //click: onClick#}
-{#                });#}
-{#            }#}
-{##}
+
+
+            function onEachFeature(feature, layer){
+
+                function highlightFeature(e) {
+                    var layer = e.target;
+                    layer.setStyle({
+                        weight: 10
+                    });
+                    if (!L.Browser.ie && !L.Browser.opera) {
+                        layer.bringToFront();
+                    }
+
+                    info.update(layer.feature.properties, timepicker.value().getHours(), timepicker.value().getMinutes());
+                }
+
+                function resetHighlight(e) {
+                    tmcLayer.resetStyle(e.target);
+                    info.update(null, timepicker.value().getHours(), timepicker.value().getMinutes());
+                    //$('#chart1').empty();
+                }
+
+                if (feature.properties && feature.properties.tmc) {
+                    var popup = "TMC: <b>" + feature.properties.tmc + "</b><br>";
+                    layer.bindPopup(popup);
+                }
+                layer.on("click", function (e) {
+                    //map.closePopup();
+                    map.fitBounds(layer.getBounds());
+                });
+
+                layer.on({
+                    mouseover: highlightFeature,
+                    mouseout: resetHighlight,
+                    //click: onClick
+                });
+            }
+
 {#            linkLayer = L.geoJson(links, {#}
 {#                style: {"color":"#9ba7ff","fillOpacity": 1},#}
 {#                onEachFeature: onEachFeature#}
 {#            }).addTo(map);#}
-{##}
-{#            control.addOverlay(linkLayer, 'Streets');#}
-{##}
-{#            return linkLayer;#}
-{#        }#}
+
+
+
 {##}
 {#        function buildLayerDict(layer) {#}
 {#            countLayerDict = {};#}
