@@ -408,7 +408,13 @@
                 }
 
                 function resetHighlight(e) {
-                    linkLayer.resetStyle(e.target);
+                    //linkLayer.resetStyle(e.target);
+                    // set weight to fit for map's current zoom
+                    var zoom = map.getZoom();
+                    var l = e.target;
+                    l.setStyle({
+                        weight: weightFromZoom(zoom)
+                    });
                     info.update();
                     //$('#chart1').empty();
                 }
