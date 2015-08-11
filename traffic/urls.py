@@ -91,4 +91,8 @@ urlpatterns = patterns('',
     url(r'^tmc_data_here/$', views.tmc_data_here, name = 'tmc_data_here'),
     url(r'^tmc_tt_here/$', views.tmc_tt_here, name = 'tmc_tt_here'),
 
+#ritis_here_data (real time)
+    url(r'^tmc_gis_ritis/$', views.tmc_gis_ritis, name = 'tmc_gis_ritis'),
+    url(r'^tmc_real_time_data_ritis/$', views.tmc_real_time_data_ritis, name = 'tmc_real_time_data_ritis'),
+    url(r'^tmc_tt_ritis/$', views.tmc_tt_ritis, name = 'tmc_tt_ritis'),
 )
