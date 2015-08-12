@@ -309,7 +309,7 @@
 
             function highlightFeature(e) {
                 var l = e.target;
-                var crntWeight = l._options.style.weight;
+                var crntWeight = l._options.style.weight; // since here layer is MultiLineString, its actually a group of LineString layers, so the option is _options instead of options
                 l.setStyle({
                     weight: crntWeight + 2
                 });

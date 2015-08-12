@@ -70,7 +70,7 @@
     .legend {
         line-height: 18px;
         height:75px;
-        width:170px;
+        width:220px;
         right: -10px;
         bottom: -10px;
         border-radius: 5px;
@@ -129,8 +129,8 @@
 {#                        <label for="timepicker"><h6><i>Time: </i></h6></label> <input style = "width : 120px"  id="timepicker"/>#}
 {#                    </div>#}
 {#                </div><br>#}
-                <a type="button" class="btn btn-purple" id="get_data" align="middle" style="margin-top:0px;width:90%;">
-                <span class="glyphicon glyphicon-search"> </span> &nbsp; Inquiry </a>
+                <div><a type="button" class="btn btn-purple" id="getData" align="middle" style="margin-top:0px;width:90%;"> Inquiry </a></div><br>
+                <div><a type="button" class="btn btn-purple" id="refresh" align="middle" style="margin-top:0px;width:90%;"> Stop Refreshing </a></div>
             </div>
 
 {#            <a type="button" class="btn btn-purple" id="check_btn" align="middle" style="margin-top:5px;width:90%;">#}
@@ -170,68 +170,11 @@
         //////////////////////////////data picker
         "use strict";
 
-        var tmcs, tt_data; // travel_time_data
+        var tmcs, tt_data, data_timestamp; // real_time_travel_time_data and its timestamp
         var tmcLayerDict = {};
         var tmcLayer;
 
-        //time picker
-{#        $("#timepicker").kendoTimePicker({#}
-{#            value: new Date(2002,1,1,10,0,0),#}
-{#            interval: 5,#}
-{#            change: function(){#}
-{#                resetColor(this.value().getHours() * 12 + this.value().getMinutes() / 5)#}
-{#            }#}
-{#        });#}
-{#        var timepicker = $("#timepicker").data("kendoTimePicker");#}
-{##}
-{#        // datepicker#}
-{#        function startChange() {#}
-{#            var startDate = start.value(),#}
-{#            endDate = end.value();#}
-{##}
-{#            if (startDate) {#}
-{#                startDate = new Date(startDate);#}
-{#                startDate.setDate(startDate.getDate());#}
-{#                end.min(startDate);#}
-{#            } else if (endDate) {#}
-{#                start.max(new Date(endDate));#}
-{#            } else {#}
-{#                endDate = new Date();#}
-{#                start.max(endDate);#}
-{#                end.min(endDate);#}
-{#            }#}
-{#        }#}
-{##}
-{#        function endChange() {#}
-{#            var endDate = end.value(),#}
-{#            startDate = start.value();#}
-{##}
-{#            if (endDate) {#}
-{#                endDate = new Date(endDate);#}
-{#                endDate.setDate(endDate.getDate());#}
-{#                start.max(endDate);#}
-{#            } else if (startDate) {#}
-{#                end.min(new Date(startDate));#}
-{#            } else {#}
-{#                endDate = new Date();#}
-{#                start.max(endDate);#}
-{#                end.min(endDate);#}
-{#            }#}
-{#        }#}
-{##}
-{#        var start = $("#datepickerFrom").kendoDatePicker({#}
-{#            change: startChange#}
-{#        }).data("kendoDatePicker");#}
-{##}
-{#        var end = $("#datepickerTo").kendoDatePicker({#}
-{#            change: endChange#}
-{#        }).data("kendoDatePicker");#}
-{##}
-{#        start.max(end.value());#}
-{#        end.min(start.value());#}
-
-
-                // add an OpenStreetMap tile layer
+        // add an OpenStreetMap tile layer
         var streets = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         });
@@ -244,8 +187,8 @@
         });
         var map = L.map('map', {
             center: [40.4407937, -80.0029874],
-            zoom: 16,
-            layers: [grayscale]
+            zoom: 10,
+            layers: [streets]
         });
 
         var baseMaps = {
@@ -267,29 +210,30 @@
 
 
 
-        function writeInfoContent(props, hour, minute) {
+        function writeInfoContent(props, timestamp) {
 
-            var content = "<b>TMC: " + props.tmc + "</b> <br>";
-            var interval = hour * 12 + minute / 5;
-            if (!props.data || props.data.length < interval || props.data[interval] == 0)
+            var crntTime = new Date(timestamp); // Date() will automatically convert any time format to local time, timestamp in data is in UTC: YYYY-MM-DDTHH-MM-SSZ
+            var content = "" + crntTime.toDateString() + " " + crntTime.toLocaleTimeString() + "<br>"; // toDateString() return locale date
+            content += "TMC: <b>" + props.tmc + "<b><br>";
+            if (!props.data)
                 content += "No Data <br>";
-            else
-                content += "Average Speed: <b>" + props.data[interval] + " mph </b><br>";
+            else {
+                content += "Speed: <b>" + props.data["spd"] + " mph </b><br>";
+                content += "Reference Speed: <b>" + props.data["ref"] + " mph </b><br>";
+                content += "Travel Time: <b>" + props.data["tt"] + " minutes </b><br>";
+            }
+
 
             return content;
         }
-        info.update = function (props, hour, minute) {
-            var start_time = "" + (hour > 12 ? hour - 12 : hour) + ":" + (minute < 10 ? "0" + minute : minute) + (hour >= 12 ? " pm" : " am");
-            var end_hour = minute == 55 ? hour + 1 : hour;
-            var end_minute = minute == 55 ? 0 : minute + 5;
-            var end_time = "" + (end_hour > 12 ? end_hour - 12 : end_hour) + ":" + (end_minute < 10 ? "0" + end_minute : end_minute) + (end_hour >= 12 ? " pm" : " am");
+        info.update = function (props, timestamp) {
             var content = "";
-            if (props) {
-                content = writeInfoContent(props,hour, minute); // sensor
+            if (props && timestamp) {
+                content = writeInfoContent(props,timestamp); // sensor
             }
-            document.getElementById("p1").innerHTML = "Time Range:" + start_time + " - " + end_time + "<br>" + (props ?
+            document.getElementById("p1").innerHTML = (props && timestamp ?
                     content
-                    : '<h5>Hover over a link to check its average speed</h5><br>');
+                    : '<h5>Hover over/Click a link to check its current speed</h5><br>');
 
         };
 
@@ -298,8 +242,8 @@
             legend.onAdd = function () {
                 var div = L.DomUtil.create('div', 'info legend');
                 div.innerHTML += '<i style="background:green"></i>' + "Speed Reference Ratio &ge; 90%"+ "<br>";
-                div.innerHTML += '<i style="background:yellow"></i>' + "Speed &ge; 50%"+ "<br>";
-                div.innerHTML += '<i style="background:red"></i>' + "Speed &lt; 50%"+ "<br>";
+                div.innerHTML += '<i style="background:yellow"></i>' + "Speed Reference Ratio &ge; 50%"+ "<br>";
+                div.innerHTML += '<i style="background:red"></i>' + "Speed Reference Ratio &lt; 50%"+ "<br>";
                 div.innerHTML += '<i style="background:blue"></i>' + "No data";
                 return div;
             };
@@ -309,14 +253,14 @@
 
             function highlightFeature(e) {
                 var l = e.target;
-                var crntWeight = l._options.style.weight;
+                var crntWeight = l.options.style.weight; // LineString is a layer, use options instead of _options for layer groups like MultiLineString
                 l.setStyle({
-                    weight: crntWeight + 2
+                    weight: crntWeight + 3
                 });
                 if (!L.Browser.ie && !L.Browser.opera) {
                     l.bringToFront();
                 }
-                info.update(l.feature.properties, timepicker.value().getHours(), timepicker.value().getMinutes());
+                info.update(l.feature.properties, data_timestamp);
             }
 
             function resetHighlight(e) {
@@ -337,17 +281,20 @@
 
             if (feature.properties && feature.properties.tmc) {
                 var popup = "TMC: <b>" + feature.properties.tmc + "</b><br>";
+                popup += "Road Name: " + feature.properties.name + "<br>";
+                popup += "Direction: " + feature.properties.dir + "<br>";
+                popup += "Miles: " + feature.properties.miles + "<br>";
                 layer.bindPopup(popup);
             }
-            layer.on("click", function (e) {
-                //map.closePopup();
-                map.fitBounds(layer.getBounds());
-            });
+
+            function onClick(e) {
+                map.fitBounds(e.target.getBounds());
+            }
 
             layer.on({
                 mouseover: highlightFeature,
                 mouseout: resetHighlight,
-                //click: onClick
+                click: onClick
             });
         }
         //get tmc gis from server
@@ -355,7 +302,8 @@
             tmcs = data;
             var zoom = map.getZoom();
             tmcLayer = L.geoJson(tmcs, {
-                style: {"weight": weightFromZoom(zoom)}
+                style: {"weight": weightFromZoom(zoom), "fillOpacity": 1},
+                onEachFeature: onEachFeature
             }).addTo(map);
             control.addOverlay(tmcLayer, 'TMCs');
             buildLayerDict(tmcLayer, tmcLayerDict);
@@ -377,8 +325,17 @@
             });
         }
 
-        $("#get_data").click(function(e){
+         function getColor(spd_ref_ratio) {
+            if (spd_ref_ratio >= 0.9) return "green";
+            else if (spd_ref_ratio >= 0.5) return "yellow";
+            else return "red";
+        }
+
+        $("#getData").click(getData);
+
+        function getData() {
             $.get("../tmc_real_time_data_ritis/", function(data, textStatus) {
+                data_timestamp = data["timestamp"];
                 tt_data = data["data"];
                 // delete data of last inquiry
                 tmcLayer.eachLayer(function(layer) {
@@ -390,15 +347,23 @@
                 });
                 resetColor();
             });
-        });
-
-        $("#get_data").trigger("click");
-
-        function getColor(spd_ref_ratio) {
-            if (spd_ref_ratio >= 0.9) return "green";
-            else if (spd_ref_ratio >= 0.5) return "yellow";
-            else return "red";
         }
+
+        getData();
+        var interval = setInterval(getData, 10000); // refresh the data every 10 seconds
+        function stopRefresh() {
+            clearInterval(interval); // stop refresh
+            $("#refresh").text("Start Refreshing"); // change button text
+            $("#refresh").off("click").on("click", startRefresh); // remove stopRefresh listener and switch to startRefresh
+        }
+        function startRefresh() {
+            getData(); // refresh immediately
+            interval = setInterval(getData, 10000);
+            $("#refresh").text("Stop Refreshing");
+            $("#refresh").off("click").on("click", stopRefresh);
+        }
+        $("#refresh").on("click", stopRefresh);
+
 
         // hide charts and highlighted sensors(of clicked link) when map is clicked but not when map is dragged
         var isDragging = false;
@@ -460,179 +425,6 @@
 {#        target.style.opacity = '0.2';#}
 {#        target = document.getElementById('chart1');#}
 {#        target.style.opacity= '0';#}
-{##}
-{#        // get counts data from server#}
-{##}
-{#        $.get("../get_sensors_counts/",function(data,textStatus){#}
-{#            counts = data;#}
-{#            countLayer = showCount(map,info,control, countLayer, counts, timepicker.value().getHours());#}
-{#        },"json");#}
-{##}
-{#        // get links from server#}
-{##}
-{#        $.get("../get_sensors_links/",function(data,textStatus){#}
-{#            links = data;#}
-{#            linkLayer = showLinks(map,info,control, linkLayer, links, timepicker, countLayerDict);#}
-{#        },"json");#}
-{##}
-{#        // stop spinner and reset map style#}
-{#        spinner.stop();#}
-{#        var target = document.getElementById('foo');#}
-{#        target.style.zIndex = "1";#}
-{#        var mapper = document.getElementById('map');#}
-{#        mapper.style.opacity = '1';#}
-{#        target = document.getElementById('chart1');#}
-{#        target.style.opacity= '1';#}
-{##}
-
-{#        function showChart(props, chartID) {#}
-{#            //info.update(layer.feature.properties, hour);#}
-{#            //highlightFeature(e);#}
-{#            $("#" + chartID).css("visibility","visible");#}
-{#            $("#" + chartID).empty();#}
-{#            if (props.data.length != 0) {#}
-{#                var plotData = [];#}
-{#                props.data.forEach(function(count, index){#}
-{#                    if (count >= 0)#}
-{#                        plotData.push(["" + index + ":00",count]);#}
-{#                });#}
-{#                $.jqplot(chartID, [plotData], {#}
-{#                    series: [{lineWidth: 3, markerOptions: {style: "filledCircle", size:5}}],#}
-{#                    title: 'Counts Distribution of Sensor ' + props.sid,#}
-{#                    axes: {#}
-{#                        xaxis: {renderer: $.jqplot.DateAxisRenderer, tickOptions: {formatString: '%H:%M'}, ticks:["0:00", "4:00", "8:00", "12:00", "16:00", "20:00", "24:00"]},#}
-{#                        yaxis: {min: 0}#}
-{#                    },#}
-{##}
-{#                    grid: {#}
-{#                        drawGridLines: true,        // wether to draw lines across the grid or not.#}
-{#                        gridLineColor: '#cccccc',    // *Color of the grid lines.#}
-{#                        background: '#FFFFFF'#}
-{#                    },#}
-{#                    seriesColors: ["#ff9900","#FF0066", "#999598"]#}
-{#                });#}
-{#            }#}
-{#            else#}
-{#                $("#" + chartID).html("<p>Sorry, no data available for sensor <b>" + props.sid + "</b>.</p>");#}
-{#        }#}
-{##}
-
-
-
-
-{#            linkLayer = L.geoJson(links, {#}
-{#                style: {"color":"#9ba7ff","fillOpacity": 1},#}
-{#                onEachFeature: onEachFeature#}
-{#            }).addTo(map);#}
-
-
-
-{##}
-{#        function buildLayerDict(layer) {#}
-{#            countLayerDict = {};#}
-{#            layer.eachLayer(function(layer) {#}
-{#                var sidDir = layer.feature.properties.sid;#}
-{#                var at = sidDir.indexOf("@");#}
-{#                var sid = sidDir.substr(0,at);#}
-{#                var Dir = sidDir.substr(at);#}
-{#                if(!(countLayerDict.hasOwnProperty(sid))) countLayerDict[sid] = []#}
-{#                countLayerDict[sid].push(layer);#}
-{#            });#}
-{#        }#}
-{##}
-{##}
-{##}
-{#        function showCount(map, info, control, countLayer, counts, hour) {#}
-{##}
-{#            function onEachFeature(feature, layer) {#}
-{##}
-{#                function highlightFeature(e) {#}
-{#                    var layer = e.target;#}
-{#                    // circleMarker is Path object, its different from LineStrings, cannot use the same way to resetStyle#}
-{#                    var radius = layer.getRadius();#}
-{#                    layer.setRadius(radius+2);#}
-{#                    if (!L.Browser.ie && !L.Browser.opera) {#}
-{#                        layer.bringToFront();#}
-{#                    }#}
-{##}
-{#                    info.update(layer.feature.properties, hour);#}
-{#                }#}
-{##}
-{#                function resetHighlight(e) {#}
-{#                    var layer = e.target;#}
-{#                    // circleMarker is Path object, its different from LineStrings, cannot use the same way to resetStyle#}
-{#                    var zoom = map.getZoom();#}
-{#                    var radius = weightFromZoom(zoom);#}
-{#                    layer.setRadius(radius); // set radius according to current map zoom, consistent with what we do when zooming the map#}
-{#                    info.update();#}
-{#                }#}
-{##}
-{#                function onClick(e) {#}
-{#                    if (map.hasLayer(highlightSensorLayer)) {#}
-{#                        map.removeLayer(highlightSensorLayer);#}
-{#                    }#}
-{#                    showChart(e.target.feature.properties, "chart1");#}
-{#                }#}
-{##}
-{#                layer.on({#}
-{#                    mouseover: highlightFeature,#}
-{#                    mouseout: resetHighlight,#}
-{#                    click: onClick#}
-{#                });#}
-{##}
-{#                if (feature.properties && feature.properties.sid && feature.properties.data) {#}
-{#                    var popup = "ID: <b>" + feature.properties.sid + "</b>";#}
-{#                    if (feature.properties.data.length != 0 && feature.properties.data[hour] != -1)#}
-{#                        popup += "<br>Counts: <b>" + feature.properties.data[hour] + "</b>";#}
-{#                    layer.bindPopup(popup);#}
-{#                }#}
-{#            }#}
-{##}
-{#            if (countLayer != undefined) {#}
-{#                control.removeLayer(countLayer);#}
-{#                if (map.hasLayer(countLayer)) {#}
-{#                    map.removeLayer(countLayer);#}
-{#                }#}
-{#            }#}
-{##}
-{#            var zoom = map.getZoom();#}
-{#            countLayer = L.geoJson(counts, {#}
-{#                pointToLayer: function(feature, latlng) {#}
-{#                    var data = feature.properties.data;#}
-{#                    if (data.length == 0)#}
-{#                        return L.circleMarker(latlng, meterMarkerStyle(-1, zoom));#}
-{#                    else#}
-{#                        return L.circleMarker(latlng, meterMarkerStyle(data[hour], zoom));#}
-{#                },#}
-{#                onEachFeature: onEachFeature#}
-{#            }).addTo(map);#}
-{##}
-{#            buildLayerDict(countLayer);#}
-{##}
-{#            control.addOverlay(countLayer, 'Counts Meters');#}
-{##}
-{#            return countLayer;#}
-{##}
-{#        }#}
-{##}
-{##}
-{#        function getColorLots(d) {#}
-{#            return  d >= 100 ? 'red' :#}
-{#                    d >= 20 ? 'yellow' :#}
-{#                    d > 0 ? 'green' :#}
-{#                            'black'; // no data#}
-{#        }#}
-{##}
-{#        function meterMarkerStyle(d, zoom) {#}
-{#            return {#}
-{#                radius: weightFromZoom(zoom),#}
-{#                fillColor: getColorLots(d),#}
-{#                color: getColorLots(d),#}
-{#                weight: 5,#}
-{#                opacity: 0.3,#}
-{#                fillOpacity: 0.5#}
-{#            };#}
-{#        }#}
 {##}
 
 

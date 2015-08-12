@@ -1498,7 +1498,7 @@ def tmc_gis_ritis(request):
     geoJson = {"type":"FeatureCollection","features":[]}
     tmcs = TMC_Ritis.objects.all()
     for tmc in tmcs:
-        feature = {"type":"Feature","geometry":{"type":"LineString","coordinates":json.loads(tmc.coordinates)},"properties":{"tmc":tmc.tmc, "miles": tmc.miles, "name": tmc.road_name,"dir":tmc.direction}}
+        feature = {"type":"Feature","geometry":{"type":"LineString","coordinates":json.loads(tmc.coordinates)},"properties":{"tmc":tmc.tmc, "miles": round(tmc.miles, 2), "name": tmc.road_name,"dir":tmc.direction}}
         geoJson["features"].append(feature)
 
     response = json.dumps(geoJson)
@@ -1525,7 +1525,7 @@ def tmc_real_time_data_ritis(request):
         if root.attrib["statusId"] == '0': # has real time data
             for record in root.iter("TMC"):
                 #record = root.find("RoadSpeedResultSet").find("RoadSpeedResults").find("TMC") # Element.find() find first element with specified tag its direct children
-                result_data[record.attrib["code"]] = {"speed":float(record.attrib["speed"]), "reference":float(record.attrib["reference"]), "tt":float(record.attrib["travelTimeMinutes"]), "sp_ref_ratio":round(float(record.attrib["speed"])/float(record.attrib["reference"]), 2)}
+                result_data[record.attrib["code"]] = {"spd":float(record.attrib["speed"]), "ref":float(record.attrib["reference"]), "tt":round(float(record.attrib["travelTimeMinutes"]), 2), "sp_ref_ratio":round(float(record.attrib["speed"])/float(record.attrib["reference"]), 2)}
                 #result_data[tmc.tmc] = record.attrib
     result["data"] = result_data
     response = json.dumps(result)
