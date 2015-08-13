@@ -118,24 +118,9 @@
             <div class="row" id ="plzwait" style="margin-top:10px;margin-right:auto;margin-left: 0px;"><h5><b>Select time for inquiry: </b></h5></div>
 
             <div class="row" style="margin-top:10px;margin-right:auto;margin-left: 0px;">
-{#                <div id="datepick">#}
-{#                <div id="to-do" align="left" style="width:120%;margin-left: -15px;">#}
-{#                    <label for="datepickerFrom"><h6><i>From: </i></h6></label> <input style = "width : 120px"  id="datepickerFrom" value="12/01/2014"/>#}
-{#                    <label for="datepickerTo"><h6><i>To: </i></h6></label> <input style = "width : 120px" id="datepickerTo" value="12/02/2014"/>#}
-{#                </div>#}
-{#                </div>#}
-{#                <div id="timepick">#}
-{#                    <div id="to-do" align="left" style="width:120%;margin-left: -15px;">#}
-{#                        <label for="timepicker"><h6><i>Time: </i></h6></label> <input style = "width : 120px"  id="timepicker"/>#}
-{#                    </div>#}
-{#                </div><br>#}
                 <div><a type="button" class="btn btn-purple" id="getData" align="middle" style="margin-top:0px;width:90%;"> Inquiry </a></div><br>
                 <div><a type="button" class="btn btn-purple" id="refresh" align="middle" style="margin-top:0px;width:90%;"> Stop Refreshing </a></div>
             </div>
-
-{#            <a type="button" class="btn btn-purple" id="check_btn" align="middle" style="margin-top:5px;width:90%;">#}
-{#                <span class="glyphicon glyphicon-search"> </span> &nbsp; Inquiry </a> <br>#}
-            {#<input type="button" value="Update" />#}
 
         </div>
     </div>
@@ -196,10 +181,6 @@
             "Streets": streets
         };
 
-        /*var overlayMaps = {
-         "Parking Terminals": terminalLayer
-         };*/
-
 
         // right top control
         var control = L.control.layers(baseMaps, null, {collapsed: false}).addTo(map);
@@ -249,6 +230,18 @@
             };
         legend.addTo(map);
 
+        function setPopup(layer) {
+            if (layer.feature.properties) {
+                var popup = "TMC: <b>" + layer.feature.properties.tmc + "</b><br>";
+                popup += "Road Name: " + layer.feature.properties.name + "<br>";
+                popup += "Direction: " + layer.feature.properties.dir + "<br>";
+                popup += "Miles: " + layer.feature.properties.miles + "<br>";
+                if (layer.feature.properties.data){
+                    popup += "Speed: " + layer.feature.properties.data["spd"] + " mph"
+                }
+                layer.bindPopup(popup);
+            }
+        }
         function onEachFeature(feature, layer){
 
             function highlightFeature(e) {
@@ -279,17 +272,11 @@
                 //$('#chart1').empty();
             }
 
-            if (feature.properties && feature.properties.tmc) {
-                var popup = "TMC: <b>" + feature.properties.tmc + "</b><br>";
-                popup += "Road Name: " + feature.properties.name + "<br>";
-                popup += "Direction: " + feature.properties.dir + "<br>";
-                popup += "Miles: " + feature.properties.miles + "<br>";
-                layer.bindPopup(popup);
-            }
-
             function onClick(e) {
                 map.fitBounds(e.target.getBounds());
             }
+
+            setPopup(layer);
 
             layer.on({
                 mouseover: highlightFeature,
@@ -346,10 +333,53 @@
                     if (key in tmcLayerDict) tmcLayerDict[key].feature.properties["data"] = tt_data[key];
                 });
                 resetColor();
+                //reset popup for each layer
+                tmcLayer.eachLayer(function(layer){
+                    setPopup(layer);
+                });
             });
         }
 
+        //time spinner
+         var spinneropts = {
+             lines: 13, // The number of lines to draw
+             length: 20, // The length of each line
+             width: 10, // The line thickness
+             radius: 30, // The radius of the inner circle
+             corners: 1, // Corner roundness (0..1)
+             rotate: 0, // The rotation offset
+             direction: 1, // 1: clockwise, -1: counterclockwise
+             color: '#000', // #rgb or #rrggbb or array of colors
+             speed: 1, // Rounds per second
+             trail: 60, // Afterglow percentage
+             shadow: false, // Whether to render a shadow
+             hwaccel: false, // Whether to use hardware acceleration
+             className: 'spinner', // The CSS class to assign to the spinner
+             zIndex: 2e9, // The z-index (defaults to 2000000000)
+             top: '60%', // Top position relative to parent
+             left: '63%' // Left position relative to parent
+         };
+
+        var target = document.getElementById('foo');
+        var spinner = new Spinner(spinneropts).spin(target);
+        target.style.zIndex = "110";
+        var target = document.getElementById('map');
+        target.style.opacity = '0.2';
+        target = document.getElementById('chart1');
+        target.style.opacity= '0';
+
         getData();
+
+        // stop spinner and reset map style
+        spinner.stop();
+        var target = document.getElementById('foo');
+        target.style.zIndex = "1";
+        var mapper = document.getElementById('map');
+        mapper.style.opacity = '1';
+        target = document.getElementById('chart1');
+        target.style.opacity= '1';
+
+
         var interval = setInterval(getData, 10000); // refresh the data every 10 seconds
         function stopRefresh() {
             clearInterval(interval); // stop refresh
@@ -394,38 +424,6 @@
         function weightFromZoom(zoom) {
             return zoom < 8 ? zoom / 8 : Math.ceil((zoom - 7)/2) + 2;
         }
-
-
-
-{##}
-{#        //time spinner#}
-{#         var spinneropts = {#}
-{#             lines: 13, // The number of lines to draw#}
-{#             length: 20, // The length of each line#}
-{#             width: 10, // The line thickness#}
-{#             radius: 30, // The radius of the inner circle#}
-{#             corners: 1, // Corner roundness (0..1)#}
-{#             rotate: 0, // The rotation offset#}
-{#             direction: 1, // 1: clockwise, -1: counterclockwise#}
-{#             color: '#000', // #rgb or #rrggbb or array of colors#}
-{#             speed: 1, // Rounds per second#}
-{#             trail: 60, // Afterglow percentage#}
-{#             shadow: false, // Whether to render a shadow#}
-{#             hwaccel: false, // Whether to use hardware acceleration#}
-{#             className: 'spinner', // The CSS class to assign to the spinner#}
-{#             zIndex: 2e9, // The z-index (defaults to 2000000000)#}
-{#             top: '60%', // Top position relative to parent#}
-{#             left: '63%' // Left position relative to parent#}
-{#         };#}
-{##}
-{#        var target = document.getElementById('foo');#}
-{#        var spinner = new Spinner(spinneropts).spin(target);#}
-{#        target.style.zIndex = "110";#}
-{#        var target = document.getElementById('map');#}
-{#        target.style.opacity = '0.2';#}
-{#        target = document.getElementById('chart1');#}
-{#        target.style.opacity= '0';#}
-{##}
 
 
     </script>
