@@ -149,13 +149,16 @@ Power of 32 RTIS - Weather
 		
 		$(function(){var map = L.map('map').setView([40.300, -79.000], 8);
 
-		var basemap = L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
-			maxZoom: 18,
-			attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-				'Imagery © <a href="http://mapbox.com">Mapbox</a>',
-			id: 'examples.map-20v6611k'
-		}).addTo(map);
+        var basemap = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {maxZoom: 18,
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+{#		var basemap = L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {#}
+{#			maxZoom: 18,#}
+{#			attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +#}
+{#				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +#}
+{#				'Imagery © <a href="http://mapbox.com">Mapbox</a>',#}
+{#			id: 'examples.map-20v6611k'#}
+{#		}).addTo(map);#}
 		
 		var weatherLayer, humidityLayer, windLayer;
 
