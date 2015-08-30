@@ -150,6 +150,7 @@
         }
 
         .ui-slider {
+            float: left;
             background: green;
             border: none;
 
@@ -176,10 +177,7 @@
 {% endblock %}
 
 {% block content %}
-
-
     <div id="user_input" class="well" style="height: 100%;">
-
         <div class="container" style="width: inherit">
             <div class="row" id="title" style="margin-top:0px;text-align: center"><h3>Crash info</h3></div>
             <div align="mid" class="row" id="p1"><h5>Please wait while fetching data from server.... Typically, this process takes about two minutes.</h5><br><br></div>
@@ -257,8 +255,7 @@
     <script type="text/javascript" src="{% static 'traffic/terminals_geoJSON.js' %}"></script>
     <script type="text/javascript" src="{% static 'traffic/jquery.jqplot.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'traffic/jqplot/plugins/jqplot.barRenderer.min.js' %}"></script>
-    <script type="text/javascript"
-            src="{% static 'traffic/jqplot/plugins/jqplot.categoryAxisRenderer.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'traffic/jqplot/plugins/jqplot.categoryAxisRenderer.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'traffic/jqplot/plugins/jqplot.pointLabels.min.js' %}"></script>
 
     <!--<script type="text/javascript" src="{% static 'traffic/jqplot.cursor.js' %}"></script>-->
@@ -485,7 +482,7 @@
                     sliderlow = Math.round(ui.values[0]) / 10;
                     sliderhigh = Math.round(ui.values[1] ) / 10;
                     document.getElementById("amount").innerHTML = "0.0/Mi - " + sliderlow + "/Mi - " + sliderhigh + "/Mi - 4.0/Mi";
-                    $('#sliderreddiv').css('width', 100 - ui.values[1] + '%');
+                    $('#sliderreddiv').css('width', 100 - 2.5*ui.values[1] + '%');
                 }
             }).append('<div id="sliderreddiv" style="width: 80%"></div>');
         });
