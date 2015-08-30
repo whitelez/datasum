@@ -10,7 +10,8 @@ from traffic.models import * #Meter, Parking, Street, Streetparking, TMC, TMC_da
 
 
 def crash(request):
-    return render(request, 'traffic/crash.html', {'n': range(1, 32)})
+    counties = [{"route_value": route.short_name, "route_shortname": route.short_name} for route in Route.objects.all()]
+    return render(request, 'traffic/crash.html', {'counties': counties})
 
 
 def crash_query(request):
