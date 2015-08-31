@@ -425,12 +425,12 @@
             legendDiv.addTo(map);
             if (!statuschanged) { //only update colors, no query
                 console.log(prevstatus);
-                setTimeout(showOcpwithTO, 1000);
+                setTimeout(showOcpwithTO, 1);
             }
             else {
                 console.log(prevstatus+" query");
-                $("#select_county option:selected").removeAttr("selected");
-                $('#select_county').selectpicker('refresh');
+{#                $("#select_county option:selected").removeAttr("selected");#}
+{#                $('#select_county').selectpicker('refresh');#}
 
                 document.getElementById("p1").innerHTML = "<h5>Please wait while fetching data from server.... Typically, this process takes about two minutes.</h5>";
                 $.get("../crash_query/", {
@@ -504,13 +504,10 @@
                     counties.push(selected_counties[i].value);
                 }
                 counties_string = counties.join("_");
-                console.log(counties_string);
-                console.log(!(counties_string == pre_counties_string));
-                console.log(pre_counties_string);
                 statuschanged = statuschanged || !(counties_string == pre_counties_string);
             }
             pre_counties_string = counties_string;
-
+            console.log(statuschanged);
             return nothing;
         }
 

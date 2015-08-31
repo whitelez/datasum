@@ -32,6 +32,13 @@ class PAroad(models.Model):
     class Meta:
         ordering = ['pid']
 
+class PAcounty(models.Model):
+    county_code = models.IntegerField(primary_key = True)
+    county_name = models.CharField(max_length = 100)
+    def __unicode__(self):
+        return self.county_code
+    class Meta:
+        ordering = ['county_code']
 
 class Crashdata(models.Model):
     pid = models.ForeignKey(PAroad)
