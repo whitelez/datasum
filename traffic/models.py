@@ -37,8 +37,7 @@ class PAcounty(models.Model):
     county_name = models.CharField(max_length = 100)
     def __unicode__(self):
         return self.county_code
-    class Meta:
-        ordering = ['county_code']
+
 
 class Crashdata(models.Model):
     pid = models.ForeignKey(PAroad)
