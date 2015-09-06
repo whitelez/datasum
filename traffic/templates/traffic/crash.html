@@ -290,6 +290,7 @@
         var sliderminu = 10; // changed in slider_park.js
         var sliderlow = 0.6;
         var sliderhigh = 2.0;
+        var slidersum = 206;
         var legendDiv;
         var prevstatus; // store user's selection from the last time
         var statuschanged;
@@ -362,7 +363,6 @@
             $.get("../crash_query/", {
                 sev: severity, wea: weather, rod: roadcon, cnty:-1
             }, function (data, textStatus) {
-                console.log(data)
                 crashes = $.parseJSON(data);
                 //$('#txtHint').text(terminals);
                 showOcp(stopspinner());
@@ -401,9 +401,6 @@
 
         $('#check_btn').click(function () {
             var nothing = getcondition();
-            if (nothing == 1) {
-                return 0;
-            };
             $("#chart1").empty();
             $("#chart2").empty();
             var target = document.getElementById('map');
@@ -424,11 +421,11 @@
             };
             legendDiv.addTo(map);
             if (!statuschanged) { //only update colors, no query
-                console.log(prevstatus);
+                console.log("not status changed");
                 setTimeout(showOcpwithTO, 1);
             }
-            else {
-                console.log(prevstatus+" query");
+            else if (nothing != 1){
+                console.log("new query");
 {#                $("#select_county option:selected").removeAttr("selected");#}
 {#                $('#select_county').selectpicker('refresh');#}
 
@@ -643,6 +640,7 @@
                             renderer: $.jqplot.BarRenderer,
                             rendererOptions: {
                                 barMargin: 30,
+                                shadow: false,
                                 // Highlight bars when mouse button pressed.
                                 highlightMouseDown: true
                             },
