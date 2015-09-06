@@ -10,17 +10,19 @@ from traffic.models import * #Meter, Parking, Street, Streetparking, TMC, TMC_da
 
 
 def crash(request):
-    counties = [{"route_value": route.short_name, "route_shortname": route.short_name} for route in Route.objects.all()]
+    counties = [{"code": county.county_code, "name": county.county_name} for county in PAcounty.objects.all()]
     return render(request, 'traffic/crash.html', {'counties': counties})
 
 
 def crash_query(request):
+    cntystr = str(request.GET['cnty'])
     sever = int(request.GET['sev'])
     weather = int(request.GET['wea'])
     roadcon = int(request.GET['rod'])
     entry_num = 1
+    print cntystr
     cr = []
-    for i in range(3):
+    for i in range(4):
         cr.append(0)
     if sever == 0:
         cr[0] = Q(Severe=0)
@@ -45,6 +47,14 @@ def crash_query(request):
     else:
         entry_num *= 2
         cr[2] = Q(Roadcon__gte=0)
+
+    if cntystr == "-1":    # first query, only display part of the roads to avoid frontend crashes
+        cr[3] = Q(First=1)
+
+    else:       # select roads by counties
+       cnty = map(int, cntystr.split("*"))
+       cr[3] = Q(Cnty__in=cnty)
+    print cr
     outp = []
     outp.append('''{"type":"Feature","properties":{"Sid":"''')
     outp.append('')
@@ -60,8 +70,8 @@ def crash_query(request):
     resultio = StringIO()
     resultio.write('''{"type":"FeatureCollection","features":[''')
 
-    p = Crashdata.objects.filter(cr[0] & cr[1] & cr[2])
-    road = iter(PAroad.objects.all())
+    p = Crashdata.objects.filter(cr[0] & cr[1] & cr[2] & cr[3])
+    road = iter(PAroad.objects.filter(cr[3]))
     if p:
         dc = [0]*6
         cnt = 1

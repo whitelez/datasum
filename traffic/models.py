@@ -22,9 +22,50 @@ class Parking(models.Model):
 
 
 ####################################################################################### Crash
+# class PAroad(models.Model):
+#     pid = models.IntegerField(primary_key = True)
+#     street_name = models.CharField(max_length = 100)
+#     length = models.CharField(max_length = 10)
+#     coordinate = models.TextField()
+#     def __unicode__(self):
+#         return self.pid
+#     class Meta:
+#         ordering = ['pid']
+#
+# class PAcounty(models.Model):
+#     county_code = models.IntegerField(primary_key = True)
+#     county_name = models.CharField(max_length = 100)
+#     def __unicode__(self):
+#         return self.county_code
+#
+#
+# class Crashdata(models.Model):
+#     pid = models.ForeignKey(PAroad)
+#     Severe = models.SmallIntegerField()
+#     Weather = models.SmallIntegerField()
+#     Roadcon = models.SmallIntegerField()
+#     ##########################
+#     Y2010 = models.SmallIntegerField()
+#     Y2011 = models.SmallIntegerField()
+#     Y2012 = models.SmallIntegerField()
+#     Y2013 = models.SmallIntegerField()
+#     Y2014 = models.SmallIntegerField()
+#     Ypre = models.FloatField()
+#     Ystd = models.FloatField()
+#
+#     def __unicode__(self):
+#         return self.pid
+#
+#     class Meta:
+#         index_together = [["Severe", "Weather", "Roadcon"], ]
+#         ordering = ['pid_id']
+
+
 class PAroad(models.Model):
     pid = models.IntegerField(primary_key = True)
     street_name = models.CharField(max_length = 100)
+    Cnty = models.SmallIntegerField(db_index = True)
+    First = models.SmallIntegerField(db_index = True)
     length = models.CharField(max_length = 10)
     coordinate = models.TextField()
     def __unicode__(self):
@@ -41,6 +82,8 @@ class PAcounty(models.Model):
 
 class Crashdata(models.Model):
     pid = models.ForeignKey(PAroad)
+    Cnty = models.SmallIntegerField()
+    First = models.SmallIntegerField(db_index = True)
     Severe = models.SmallIntegerField()
     Weather = models.SmallIntegerField()
     Roadcon = models.SmallIntegerField()
@@ -57,7 +100,7 @@ class Crashdata(models.Model):
         return self.pid
 
     class Meta:
-        index_together = [["Severe", "Weather", "Roadcon"], ]
+        index_together = [["Severe", "Weather", "Roadcon", "Cnty"], ]
         ordering = ['pid_id']
 ####################################################################################### End of Crash
 
