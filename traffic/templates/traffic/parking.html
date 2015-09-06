@@ -150,11 +150,10 @@
 {% block content %}
 
 
-    <div id="user_input" class="well" style="height: 100%;">
-
+    <div id="user_input" class="well" style="height: 100%;overflow:auto;">
         <div class="container" style="width: inherit">
             <div class="row" id="title" style="margin-top:0px;text-align: center"><h3>Parking info</h3></div>
-                        <div align="mid" class="row" id="p1"><h5>Hover over a street to check occupancy</h5><br><br></div>
+                        <div align="mid" class="row" id="p1"><h5>Please wait while fetching data from server....  Typically, this process takes about 30 seconds.</h5><br><br></div>
 
             <div class="row" id ="plzwait" style="margin-top:10px;margin-right:auto;margin-left: 0px;"><h5><b>Select date and time range for inquiry: </b></h5></div>
             <div id="datepick">
@@ -207,7 +206,7 @@
 
     <div id='overlaycon' >
         <div id = 'foo'></div>
-        <div id="map" ; style="opacity: 1"></div>
+        <div id="map"  style="opacity: 1"></div>
         <div id="chart" style="display: none">
             <div id="chart1" ></div>
             <div id="chart2" ></div>
@@ -700,7 +699,7 @@
                 pd: dd, pm: mm, py:yy, pd1: dd, pm1: mm, py1:yy,
                 'wkdys': [1, 2, 3, 5, 6, 7, 8]  //// Sun -Sat
             }, function (data, textStatus) {
-                streets = $.parseJSON(data);
+                streets = data;
                 //$('#txtHint').text(terminals);
                 showOcp();
                /////////////spinner
@@ -745,23 +744,25 @@
             legend.addTo(map);
 
             control.addOverlay(terminalLayer, 'Terminals');
-
             updatelot();
 
 
         });
 
         // add an OpenStreetMap tile layer
-        streets = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        var streetsL = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-        }),
-                grayscale = L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
-                    maxZoom: 18,
-                    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-                    '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-                    'Imagery © <a href="http://mapbox.com">Mapbox</a>',
-                    id: 'examples.map-20v6611k'
-                });
+        });
+        var grayscale = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+        });
+{#        var grayscale = L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {#}
+{#                    maxZoom: 18,#}
+{#                    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +#}
+{#                    '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +#}
+{#                    'Imagery © <a href="http://mapbox.com">Mapbox</a>',#}
+{#                    id: 'examples.map-20v6611k'#}
+{#                });#}
 
         //map = L.map('map').setView([40.4407937, -80.0029874], 16);
         var map = L.map('map', {
@@ -772,7 +773,7 @@
 
         var baseMaps = {
             "Grayscale": grayscale,
-            "Streets": streets
+            "Streets": streetsL
         };
 
         /*var overlayMaps = {
@@ -1313,7 +1314,6 @@
                     tr_in_map = true;
                 }
             }
-
             streetLayer = L.geoJson(streets, {
                 style: function (feature) {
                     if (feature.geometry.type != "Point") {
@@ -1369,18 +1369,17 @@
         }
 
 
-        terminalLayer = L.geoJson(terminals, {
-            pointToLayer: function (feature, latlng) {
-                return L.circleMarker(latlng, parkingMarkerStyle());
-            },
-            onEachFeature: function (feature, layer) {
-                if (feature.properties && feature.properties.street) {
-                    layer.bindPopup("Street : " + feature.properties.street + '<br>'+"Meter ID : " + feature.properties.terminalID);
-                }
-            }
-        }).addTo(map);
-
-        control.addOverlay(terminalLayer, 'Terminals');
+{#        terminalLayer = L.geoJson(terminals, {#}
+{#            pointToLayer: function (feature, latlng) {#}
+{#                return L.circleMarker(latlng, parkingMarkerStyle());#}
+{#            },#}
+{#            onEachFeature: function (feature, layer) {#}
+{#                if (feature.properties && feature.properties.street) {#}
+{#                    layer.bindPopup("Street : " + feature.properties.street + '<br>'+"Meter ID : " + feature.properties.terminalID);#}
+{#                }#}
+{#            }#}
+{#        }).addTo(map);#}
+{#        control.addOverlay(terminalLayer, 'Terminals');#}
 
         function getColorLots(d) {
             return d <= 0.6 ? '#008000' :

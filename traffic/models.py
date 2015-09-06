@@ -8,7 +8,8 @@ class Meter(models.Model):
     longitude = models.FloatField()
     def __str__(self):
 	    return self.mid
- 
+
+
 class Parking(models.Model):
     meter = models.ForeignKey(Meter)
     date = models.DateField(db_index = True)
@@ -18,40 +19,130 @@ class Parking(models.Model):
 	    return self.date.ctime()
 # Create your models here.
 
-class Street(models.Model):   ## useful, street and their coordinate
+
+
+####################################################################################### Crash
+# class PAroad(models.Model):
+#     pid = models.IntegerField(primary_key = True)
+#     street_name = models.CharField(max_length = 100)
+#     length = models.CharField(max_length = 10)
+#     coordinate = models.TextField()
+#     def __unicode__(self):
+#         return self.pid
+#     class Meta:
+#         ordering = ['pid']
+#
+# class PAcounty(models.Model):
+#     county_code = models.IntegerField(primary_key = True)
+#     county_name = models.CharField(max_length = 100)
+#     def __unicode__(self):
+#         return self.county_code
+#
+#
+# class Crashdata(models.Model):
+#     pid = models.ForeignKey(PAroad)
+#     Severe = models.SmallIntegerField()
+#     Weather = models.SmallIntegerField()
+#     Roadcon = models.SmallIntegerField()
+#     ##########################
+#     Y2010 = models.SmallIntegerField()
+#     Y2011 = models.SmallIntegerField()
+#     Y2012 = models.SmallIntegerField()
+#     Y2013 = models.SmallIntegerField()
+#     Y2014 = models.SmallIntegerField()
+#     Ypre = models.FloatField()
+#     Ystd = models.FloatField()
+#
+#     def __unicode__(self):
+#         return self.pid
+#
+#     class Meta:
+#         index_together = [["Severe", "Weather", "Roadcon"], ]
+#         ordering = ['pid_id']
+
+
+class PAroad(models.Model):
+    pid = models.IntegerField(primary_key = True)
+    street_name = models.CharField(max_length = 100)
+    Cnty = models.SmallIntegerField(db_index = True)
+    First = models.SmallIntegerField(db_index = True)
+    length = models.CharField(max_length = 10)
+    coordinate = models.TextField()
+    def __unicode__(self):
+        return self.pid
+    class Meta:
+        ordering = ['pid']
+
+class PAcounty(models.Model):
+    county_code = models.IntegerField(primary_key = True)
+    county_name = models.CharField(max_length = 100)
+    def __unicode__(self):
+        return self.county_code
+
+
+class Crashdata(models.Model):
+    pid = models.ForeignKey(PAroad)
+    Cnty = models.SmallIntegerField()
+    First = models.SmallIntegerField(db_index = True)
+    Severe = models.SmallIntegerField()
+    Weather = models.SmallIntegerField()
+    Roadcon = models.SmallIntegerField()
+    ##########################
+    Y2010 = models.SmallIntegerField()
+    Y2011 = models.SmallIntegerField()
+    Y2012 = models.SmallIntegerField()
+    Y2013 = models.SmallIntegerField()
+    Y2014 = models.SmallIntegerField()
+    Ypre = models.FloatField()
+    Ystd = models.FloatField()
+
+    def __unicode__(self):
+        return self.pid
+
+    class Meta:
+        index_together = [["Severe", "Weather", "Roadcon", "Cnty"], ]
+        ordering = ['pid_id']
+####################################################################################### End of Crash
+
+
+
+#######################################################################################  Parking
+class Street(models.Model):
     sid = models.CharField(max_length = 20, primary_key = True)
     street_name = models.CharField(max_length = 100)
     coordinate = models.TextField()
     def __unicode__(self):
         return self.sid
 
-class Streetpre(models.Model):   ## useful, street and their coordinate
+class Streetpre(models.Model):
     street = models.ForeignKey(Street)
     date = models.DateField(db_index = True)
     occupancy = models.TextField()
     def __unicode__(self):
 	    return self.date.ctime()
 
-class Streetparking(models.Model):  ## useful, street and their coordinate
+class Streetparking(models.Model):
     street = models.ForeignKey(Street)
     date = models.DateField(db_index = True)
     occupancy = models.TextField()
     def __unicode__(self):
 	    return self.date.ctime()
 
-class Streetrate(models.Model):  ## useful, street and their coordinate
+class Streetrate(models.Model):
     street = models.ForeignKey(Street)
     date = models.DateField(db_index = True)
     rate = models.TextField()
     def __unicode__(self):
 	    return self.date.ctime()
 
-class Streetratepre(models.Model):  ## useful, street and their coordinate
+class Streetratepre(models.Model):
     street = models.ForeignKey(Street)
     date = models.DateField(db_index = True)
     rate = models.TextField()
     def __unicode__(self):
 	    return self.date.ctime()
+#######################################################################################  End of Parking
+
 
 #BY PXD
 class SPCCorridorNodeInfo(models.Model):
@@ -339,9 +430,9 @@ class Transit_data(models.Model):
     dir = models.CharField(max_length = 1)
     route = models.CharField(max_length = 4)
     tripa = models.CharField(max_length = 4)
-    blocka = models.CharField(max_length = 6)
+    blocka = models.CharField(max_length = 10)
     vehnoa = models.CharField(max_length = 4)
-    date = models.DateField(db_index = True)
+    date = models.DateField()
     stopa = models.PositiveSmallIntegerField()
     qstopa = models.CharField(max_length = 8)
     aname = models.TextField()
@@ -365,8 +456,8 @@ class Transit_data(models.Model):
     artime = models.FloatField()
     def __unicode__(self):
         return self.route + ' ' + self.tripa
-    class Meta:
-        index_together = [["route", "dir", "qstopa", "date"],]
+    # class Meta:
+    #     index_together = [["route", "dir", "qstopa", "date"],]
 # =============================================== Models for Transit END ===============================================
 
 class GIS_links(models.Model):

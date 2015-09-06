@@ -1,13 +1,11 @@
 from django.conf.urls import patterns, url
 from traffic import views
+from backend import crash_view, parking_view
 
 urlpatterns = patterns('',
     url(r'^$', views.index, name='index'),
-    url(r'^parking/$', views.parking, name='parking'),
     url(r'^camera/$', views.camera, name='camera'),
     url(r'^ajaxtest/$',views.ajaxtest, name='ajaxtest'),
-    url(r'^parking_geoJSON/$', views.street_parking_geojson, name='parking_geoJSON' ),
-    url(r'^parking_geoJSON_prediction/$', views.street_parking_geojson_prediction, name='parking_geoJSON_prediction'),
 
     url(r'^count/$', views.count, name='count'),
 
@@ -64,7 +62,6 @@ urlpatterns = patterns('',
     url(r'^routing/$', views.routing, name='routing'),
     url(r'^routing_path/$', views.routing_path, name='routing_path'),
 
-    url(r'^parking_lots/$', views.parking_lots, name='parking_lots'),
     url(r'^test/$', views.test, name='test'),
     url(r'^get_incidents_rcrs_area/$', views.get_incidents_rcrs_area, name='get_incidents_rcrs_area'),
     url(r'^real_time_incidents_rcrs/$', views.real_time_incidents_rcrs, name='real_time_incidents_rcrs'),
@@ -82,6 +79,13 @@ urlpatterns = patterns('',
 #SGYang
     url(r'^road_closure/$', views.closure, name='closure'),
     url(r'^get_road_closure_query/$', views.get_road_closure_query, name='get_road_closure_query'),
+
+    url(r'^parking/$', parking_view.parking, name='parking'),
+    url(r'^parking_geoJSON_prediction/$', parking_view.street_parking_geojson_prediction, name='parking_geoJSON_prediction'),
+    url(r'^parking_lots/$', parking_view.parking_lots, name='parking_lots'),
+
+    url(r'^crash/$', crash_view.crash, name='crash'),
+    url(r'^crash_query/$', crash_view.crash_query, name='crash_query'),
 
 #map_displayer
     url(r'^map_displayer/$', views.map_displayer, name='map_displayer'),

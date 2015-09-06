@@ -21,9 +21,6 @@ import csv
 def index(request):
     return render(request, 'traffic/index.html')
 
-def parking(request):
-    return render(request, 'traffic/parking.html', {'n': range(1, 32)})
-
 def camera(request):
     return render(request, 'traffic/camera.html')
 
@@ -36,102 +33,6 @@ def ajaxtest(request):
     j = json.dumps(result)
     return HttpResponse(j, content_type='application/json')
 
-
-def street_parking_geojson(request):
-    intervals = 144
-    #single_day = request.GET['single']
-    weekday = int(request.GET['wd'])
-    sy = 2014
-    sm = request.GET['sm']
-    sd = request.GET['sd']
-    start = date(sy, int(sm), int(sd))
-    ey = 2014
-    em = request.GET['em']
-    ed = request.GET['ed']
-    end = date(ey, int(em), int(ed))
-    result = '''{"type":"FeatureCollection","features":['''
-    for t in Street.objects.all():
-        if weekday == -1:
-            p = t.streetparking_set.filter(date__range=(start, end))
-        else:
-            p = t.streetparking_set.filter(date__range=(start, end), date__week_day=weekday)
-        if p:
-            sn = t.streetparking_set.all()
-            n = p.count()
-            c = [0]*intervals
-            for day in p:
-                dc = day.occupancy.split(',')
-                for i in range(intervals):
-                    c[i] += float(dc[i])/n
-            result += '''{"type":"Feature","properties":{"streetID":"''' + t.sid + '''","street":"''' + t.street_name + '''","occupancy":[''' + ",".join(str(ic) for ic in c) + ''']},"geometry":{"type":"LineString","coordinates":''' + t.coordinate + "}},"
-    result = result.rstrip(',')
-    result += "]}"
-    response = json.dumps(result)
-    return HttpResponse(response, content_type='application/json')
-
-def street_parking_geojson_prediction(request):
-    stpdate = date(2013, 1, 1)
-    edpdate = date(2014, 8, 30)
-    intervals = 144
-    py = request.GET['py']
-    pm = request.GET['pm']
-    pd = request.GET['pd']
-    pdate = date(int(py), int(pm)+1, int(pd))
-    ##########
-    py1 = request.GET['py1']
-    pm1 = request.GET['pm1']
-    pd1 = request.GET['pd1']
-    pdate1 = date(int(py1), int(pm1)+1, int(pd1))
-    ###############
-    weekday = (pdate.weekday()+1) % 7 + 1
-    wkdys = request.GET.getlist('wkdys[]')
-    cr = []
-    for i in range(7):
-        cr.append(0)
-    for i in range(7):
-        if int(wkdys[i]) != 0:
-            cr[i] = Q(date__week_day=(i+1))
-        else:
-            cr[i] = Q(date__week_day=0)
-    #################
-    print "New Request"
-    result = '''{"type":"FeatureCollection","features":['''
-    for t in Street.objects.all():
-        p = 0
-        r = 0
-        if not (pdate > edpdate or pdate1 < stpdate):  # use historical data
-            p = t.streetparking_set.filter(date__range=(pdate, pdate1))
-            r = t.streetrate_set.filter(date__range=(pdate, pdate1))
-            if pdate != pdate1:   # historical date range
-                p = p.filter(cr[0] | cr[1] | cr[2] | cr[3] | cr[4] | cr[5] | cr[6])
-                r = r.filter(cr[0] | cr[1] | cr[2] | cr[3] | cr[4] | cr[5] | cr[6])
-        if (not p) or (p == 0):   # No historical data, use prediction
-            if pdate1 == pdate:   # same day
-                p = t.streetpre_set.filter(date__week_day=weekday)
-                r = t.streetratepre_set.filter(date__week_day=weekday)
-            else:                 # Day ranges
-                p = t.streetpre_set.filter(cr[0] | cr[1] | cr[2] | cr[3] | cr[4] | cr[5] | cr[6])
-                r = t.streetratepre_set.filter(cr[0] | cr[1] | cr[2] | cr[3] | cr[4] | cr[5] | cr[6])
-        if p:
-            n = p.count()
-            c = [0]*intervals
-            for day in p:
-                dc = day.occupancy.split(',')
-                for i in range(intervals):
-                    c[i] += float(dc[i])/n
-            cr = [0]*48
-            for day in r:
-                dc = day.rate.split(',')
-                for i in range(48):
-                    cr[i] = dc[i]
-            if (len(t.coordinate.replace(" ", "").split("],["))==1):
-                result += '''{"type":"Feature","properties":{"streetID":"''' + t.sid + '''","street":"''' + t.street_name + '''","rate":[''' + ",".join(str(ic) for ic in cr) + '''],"occupancy":[''' + ",".join(str(ic) for ic in c) + ''']},"geometry":{"type":"Point","coordinates":''' + t.coordinate + "}},"
-            else:
-                result += '''{"type":"Feature","properties":{"streetID":"''' + t.sid + '''","street":"''' + t.street_name + '''","rate":[''' + ",".join(str(ic) for ic in cr) + '''],"occupancy":[''' + ",".join(str(ic) for ic in c) + ''']},"geometry":{"type":"LineString","coordinates":''' + t.coordinate + "}},"
-    result = result.rstrip(',')
-    result += "]}"
-    response = json.dumps(result)
-    return HttpResponse(response, content_type='application/json')
 
 
 def weather(request):
@@ -847,21 +748,21 @@ def transit_metrics_op_byroute(request):
     e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
     stops = request.GET["stops"].split(",")
 
-    # Build a list of all GTFS version name and their valid date range
-    gtfs = [record['GTFS'] for record in GTFS_calendar.objects.all().values('GTFS').distinct()]
-    gtfslist = []
-    for record in gtfs:
-        year = record.split("_")[1][:4]
-        min = record.split("_")[2].split("-")[0]
-        max = record.split("_")[2].split("-")[1]
-        mindate = year + min
-        if int(min) > int(max):
-            maxdate = str(int(year)+1) + max
-        else:
-            maxdate = year + max
-        mindate = date(int(mindate[:4]), int(mindate[4:6]), int(mindate[6:8]))
-        maxdate = date(int(maxdate[:4]), int(maxdate[4:6]), int(maxdate[6:8]))
-        gtfslist.append({"name": record, "start": mindate, "end": maxdate})
+    # # Build a list of all GTFS version name and their valid date range
+    # gtfs = [record['GTFS'] for record in GTFS_calendar.objects.all().values('GTFS').distinct()]
+    # gtfslist = []
+    # for record in gtfs:
+    #     year = record.split("_")[1][:4]
+    #     min = record.split("_")[2].split("-")[0]
+    #     max = record.split("_")[2].split("-")[1]
+    #     mindate = year + min
+    #     if int(min) > int(max):
+    #         maxdate = str(int(year)+1) + max
+    #     else:
+    #         maxdate = year + max
+    #     mindate = date(int(mindate[:4]), int(mindate[4:6]), int(mindate[6:8]))
+    #     maxdate = date(int(maxdate[:4]), int(maxdate[4:6]), int(maxdate[6:8]))
+    #     gtfslist.append({"name": record, "start": mindate, "end": maxdate})
 
     result = {}
     for stopid in stops:
@@ -869,30 +770,13 @@ def transit_metrics_op_byroute(request):
         # the field qstopa now has 2 blank spaces in the beginning of every line, if database changed, remember to revise the filter condition!!
         data = Transit_data.objects.filter(qstopa='  '+str(stopid), route=str(route), dir=str(direction), date__range=(s_date, e_date))
         for item in data:
-            if item.schtim >= s_time and item.schtim <= e_time and item.schdev != 99:
-                result[stopid].append(item.schdev)
-            else:
-                currentgtfs = ''
-                for record in gtfslist:
-                    if record["start"] <= item.date and record["end"] >= item.date:
-                        currentgtfs = record["name"]
-                        break
-                tripdata = Trip.objects.filter(route_id=route_id, direction_id=str(direction), GTFS=currentgtfs)
-                for record in tripdata:
-                    stop_timedata = Stop_time.objects.filter(trip_id=record.trip_id, stop_sequence=1, GTFS=currentgtfs)[0]
-                    if int(stop_timedata.departure_time.split(":")[0])*100+int(stop_timedata.departure_time.split(":")[1]) == int(item.tripa):
-                        temp = Stop_time.objects.filter(trip_id=record.trip_id, stop_id=stopid, GTFS=currentgtfs)[0]
-                        if temp:
-                            temp = temp.departure_time
-                            flag = int(temp.split(":")[0])*100 + int(temp.split(":")[1])
-                            if flag >= s_time and flag <= e_time:
-                                schtime = int(temp.split(":")[0])*3600 + int(temp.split(":")[1])*60 + int(temp.split(":")[2])
-                                if item.stopa == 1:
-                                    result[stopid].append(float(item.dhour*3600 + item.dminute*60 + item.dsecond - schtime)/60.0)
-                                else:
-                                    result[stopid].append(float(item.hour*3600 + item.minute*60 + item.second - schtime)/60.0)
-                        break
-
+            if item.schtim >= s_time and item.schtim <= e_time:
+                mystr = str(item.schtim)
+                scheduled_time = int(mystr[:-2])*3600 + int(mystr[-2:])*60
+                if item.stopa == 1:
+                    result[stopid].append(float(item.dhour*3600 + item.dminute*60 + item.dsecond - scheduled_time)/60.0)
+                else:
+                    result[stopid].append(float(item.hour*3600 + item.minute*60 + item.second - scheduled_time)/60.0)
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
@@ -923,13 +807,17 @@ def transit_metrics_op_bystop(request):
         data = Transit_data.objects.filter(qstopa='  '+str(stopid), route=str(routename), dir=str(direction), date__range=(s_date, e_date))
         for item in data:
             if item.schtim >= s_time and item.schtim <= e_time:
-                if item.schdev != 99:
-                    result[route].append(item.schdev)
+                mystr = str(item.schtim)
+                scheduled_time = int(mystr[:-2])*3600 + int(mystr[-2:])*60
+                if item.stopa == 1:
+                    result[route].append(float(item.dhour*3600 + item.dminute*60 + item.dsecond - scheduled_time)/60.0)
+                else:
+                    result[route].append(float(item.hour*3600 + item.minute*60 + item.second - scheduled_time)/60.0)
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
 def transit_metrics_schedule_opt(request):
-    gtfs_name = request.GET["gtfs_name"]
+    # gtfs_name = request.GET["gtfs_name"]
     routedict = Route_dict.objects.all()
     route = ''
     for item in routedict:
@@ -945,7 +833,7 @@ def transit_metrics_schedule_opt(request):
         day = "3"
     time = request.GET["tripinfo"].split("+")[1]
     time = str(int(time.split(":")[0])*100 + int(time.split(":")[1]))
-    tripid = request.GET["tripinfo"].split("+")[2]
+    # tripid = request.GET["tripinfo"].split("+")[2]
     direction = request.GET["dir"]
     s_date = request.GET["s_date"]
     e_date = request.GET["e_date"]
@@ -955,21 +843,17 @@ def transit_metrics_schedule_opt(request):
     result = {}
     for stopid in stops:
         result[stopid] = []
-        temp = Stop_time.objects.filter(trip_id=tripid, stop_id=stopid, GTFS=gtfs_name)[0]
-        if temp:
-            temp = temp.departure_time
-            schtime = int(temp.split(":")[0])*3600 + int(temp.split(":")[1])*60 + int(temp.split(":")[2])
-            # the field qstopa now has 2 blank spaces in the beginning of every line, if database changed, remember to revise the filter condition!!
-            data = Transit_data.objects.filter(dow=day, tripa=time, qstopa='  '+str(stopid), route=str(route), dir=str(direction), date__range=(s_date, e_date))
-            for item in data:
+        # the field qstopa now has 2 blank spaces in the beginning of every line, if database changed, remember to revise the filter condition!!
+        data = Transit_data.objects.filter(dow=day, tripa=time, qstopa='  '+str(stopid), route=str(route), dir=str(direction), date__range=(s_date, e_date))
+        for item in data:
+            if item.schtim != 9999:
                 # if 1st stop, deviation = departure_time - schedule_time; if not, dev = arrival_time - schedule time (in minutes)
+                mystr = str(item.schtim)
+                scheduled_time = int(mystr[:-2])*3600 + int(mystr[-2:])*60
                 if item.stopa == 1:
-                    result[stopid].append(float(item.dhour*3600 + item.dminute*60 + item.dsecond - schtime)/60.0)
+                    result[stopid].append(float(item.dhour*3600 + item.dminute*60 + item.dsecond - scheduled_time)/60.0)
                 else:
-                    result[stopid].append(float(item.hour*3600 + item.minute*60 + item.second - schtime)/60.0)
-        else:
-            result[stopid].append("")
-
+                    result[stopid].append(float(item.hour*3600 + item.minute*60 + item.second - scheduled_time)/60.0)
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
@@ -1305,21 +1189,6 @@ def routing_path_old(request):
         result['features'].append(lot_geoJson)
         result['features'].append(path_to_lot_geoJson)
     response = json.dumps(result)
-    return HttpResponse(response, content_type='application/json')
-
-def parking_lots(request):
-    lots = {"type":"FeatureCollection","features":[]}
-    for i in range(2,43):
-        url = 'http://parkpgh.org/index.php/api/getLotById?lotId=' + str(i)
-        p = urllib2.urlopen(url)
-        info = p.read()
-        info = json.loads(info)
-        this_lot = {"type": "Feature", "geometry": {"type": "Point", "coordinates": []}, "properties": {}}
-        if 'id' in info:
-            this_lot['geometry']['coordinates'] = [info['lon'] , info['lat']]
-            this_lot['properties'] = info
-            lots['features'].append(this_lot)
-    response = json.dumps(lots)
     return HttpResponse(response, content_type='application/json')
 
 def test(request):

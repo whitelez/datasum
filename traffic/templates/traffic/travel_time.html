@@ -310,6 +310,7 @@ Power of 32 RTIS - Travel Time: Interstates
 <script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/collapse.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-datetimepicker.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-switch.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/spinner.js' %}"></script>
 
 <script type="text/javascript">
     var options = {
@@ -332,6 +333,27 @@ Power of 32 RTIS - Travel Time: Interstates
       style: 'btn-inverse',
       size: 10
      });
+
+{#======================================= Spinner Options ===========================================#}
+        var spinneropts = {
+            lines: 9, // The number of lines to draw
+            length: 20, // The length of each line
+            width: 15, // The line thickness
+            radius: 30, // The radius of the inner circle
+            corners: 1, // Corner roundness (0..1)
+            rotate: 0, // The rotation offset
+            direction: 1, // 1: clockwise, -1: counterclockwise
+            color: '#000', // #rgb or #rrggbb or array of colors
+            speed: 1, // Rounds per second
+            trail: 60, // Afterglow percentage
+            shadow: false, // Whether to render a shadow
+            hwaccel: false, // Whether to use hardware acceleration
+            className: 'spinner', // The CSS class to assign to the spinner
+            zIndex: 2e9, // The z-index (defaults to 2000000000)
+            top: '50%', // Top position relative to parent
+            left: '50%' // Left position relative to parent
+        };
+{#=============================================== End ================================================#}
 </script>
 
 <script>
@@ -398,7 +420,7 @@ Power of 32 RTIS - Travel Time: Interstates
 
 	//var selected = 0;
 	var road_dir = '';
-	$('#select_tmc1').change(function(){
+    function tmc1_change(){
 		var attributes = $('#select_tmc1 option:selected').text().split(' - ');
 		var road_dir_selected = attributes[0]+attributes[1];
 		if (road_dir_selected != road_dir){
@@ -429,7 +451,7 @@ Power of 32 RTIS - Travel Time: Interstates
 				}
 			}
 			$.get("../get_road_tmc/", {tmc:tmc}, function(data, textStatus){
-			
+
 				road_tmc= data;
 				for(var i=0;i<road_tmc.features.length;i++){
 					$("#select_tmc2").append("<option value="+road_tmc.features[i].properties.TMC+">"+ road_tmc.features[i].properties.road + ' - ' + road_tmc.features[i].properties.direction + ' - ' + road_tmc.features[i].properties.intersection + "</option>");
@@ -451,9 +473,9 @@ Power of 32 RTIS - Travel Time: Interstates
                                     	$("#select_tmc2").selectpicker('refresh');
 										}
 							});
-						layer.bindPopup("TMC : " + feature.properties.TMC + 
-									"<br>Road: " + feature.properties.road + 
-									"<br>Direction: " + feature.properties.direction + 
+						layer.bindPopup("TMC : " + feature.properties.TMC +
+									"<br>Road: " + feature.properties.road +
+									"<br>Direction: " + feature.properties.direction +
 									'<br>Miles: ' +feature.properties.miles +
 									'<br>Road order: ' + feature.properties.road_order);
 						}
@@ -461,7 +483,9 @@ Power of 32 RTIS - Travel Time: Interstates
 					control.addOverlay(selectionLayer, attributes[0]);
 			},"json");
 	  	}
-	});
+	}
+    tmc1_change();
+	$('#select_tmc1').change(tmc1_change);
 	
 	
 	function onEachFeature(feature, layer) {
@@ -578,6 +602,10 @@ Power of 32 RTIS - Travel Time: Interstates
     };
 
 	$("#his_avg").click(function(){
+        var target = document.getElementById('map');
+        spinner = new Spinner(spinneropts).spin(target);
+        target.style.opacity = '0.25';
+
 		var sm = $("#sm option:selected").attr("value"),
 			sd = $("#sd option:selected").attr("value"),
 			em = $("#em option:selected").attr("value"),
@@ -720,6 +748,11 @@ Power of 32 RTIS - Travel Time: Interstates
 					}
 			});
 			control.addOverlay(truckLayer,'Truck Speed');
+            ///////Spinner Stop
+                    spinner.stop();
+                    var target = document.getElementById('map');
+                    target.style.opacity = '1';
+            ///////////////////
 		},"json");
 	});
 	
