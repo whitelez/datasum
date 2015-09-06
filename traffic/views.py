@@ -639,13 +639,15 @@ def transit_schedule(request):
     return render(request, 'traffic/transit_schedule.html', {'routes': routes, 'GTFS':gtfs})
 
 def transit_waitingtime_byroute(request):
+    gtfs = [record['GTFS'] for record in GTFS_calendar.objects.all().values('GTFS').distinct()]
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
-    return render(request, 'traffic/transit_waitingtime_byroute.html', {'routes': routes})
+    return render(request, 'traffic/transit_waitingtime_byroute.html', {'routes': routes, 'GTFS':gtfs})
 
 def transit_waitingtime_bystop(request):
+    gtfs = [record['GTFS'] for record in GTFS_calendar.objects.all().values('GTFS').distinct()]
     stops = [{"stop_id": stop.stop_id, "stop_name": stop.name} for stop in Stop.objects.all()]
-    return render(request, 'traffic/transit_waitingtime_bystop.html', {'stops': stops})
+    return render(request, 'traffic/transit_waitingtime_bystop.html', {'stops': stops, 'GTFS':gtfs})
 
 def transit_crowding(request):
     routes = ','.join(route.short_name for route in Route.objects.all())

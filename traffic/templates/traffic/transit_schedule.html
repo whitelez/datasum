@@ -70,7 +70,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
 
 
 {% block content %}
-<div class="well" style="height: 100%;">
+<div class="well" style="overflow:auto;height: 100%;">
 	<div class="container" style="width: inherit">
     	<div class="row"><h4> Schedule Optimization </h4></div>
 
@@ -214,24 +214,18 @@ Power of 32 RTIS - Transit - Schedule Optimization
         onText: 'Inbound',
         offText: 'Outbound',
         labelWidth: 30,
-        handleWidth: 101
+        handleWidth: 92
     };
     $("[name='inout']").bootstrapSwitch(options);
 
     $(function () {
             $('#datepicker').datetimepicker({
                 viewMode: 'years',
-                format: 'MM/DD/YYYY',
-{#                minDate: '2012-09-01',#}
-{#                maxDate: '2014-08-31',#}
-{#                defaultDate: '2014-01-01'#}
+                format: 'MM/DD/YYYY'
             });
             $('#datepicker2').datetimepicker({
                 viewMode: 'years',
-                format: 'MM/DD/YYYY',
-{#                minDate: '2012-09-01',#}
-{#                maxDate: '2014-08-31',#}
-{#                defaultDate: '2014-01-31'#}
+                format: 'MM/DD/YYYY'
             });
     });
 </script>
@@ -402,10 +396,8 @@ Power of 32 RTIS - Transit - Schedule Optimization
             $('#datepicker2').data("DateTimePicker").maxDate(false);
             $('#datepicker2').data("DateTimePicker").minDate(mindate);
             $('#datepicker2').data("DateTimePicker").maxDate(maxdate);
-            $('#datepicker').data("DateTimePicker").defaultDate(false);
-            $('#datepicker').data("DateTimePicker").defaultDate(mindate);
-            $('#datepicker2').data("DateTimePicker").defaultDate(false);
-            $('#datepicker2').data("DateTimePicker").defaultDate(maxdate);
+            $("#datepicker").data("DateTimePicker").date(mindate);
+            $("#datepicker2").data("DateTimePicker").date(maxdate);
         });
 
         var target = document.getElementById('map');

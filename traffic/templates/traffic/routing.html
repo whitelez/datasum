@@ -7,12 +7,15 @@ RTIS - Travel Time
 {% endblock %}
 
 {% block style %}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css'%}">
+
 <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="well" id="inputframe" style="height:600px;">
+<div class="well" id="inputframe" style="overflow:auto;height:100%;">
     <div class="container" style="width: inherit">
         <div class="row"><h3>Trip Planner </h3></div>
     </div>
