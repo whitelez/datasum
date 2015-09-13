@@ -91,7 +91,7 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
 				<h5>Stop:</h5>
             </div>
             <div class="col-md-8" style="padding-left: 0;">
-                <h5 id = "select_stop" style=""> &nbsp; Select 1 Stop on Map. </h5>
+                <h6 id = "select_stop" style=""> &nbsp; Select 1 Stop on Map. </h6>
             </div>
         </div>
 
@@ -504,24 +504,20 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
 
 
 {#=================================================== Get Metrics Begin Here =======================================#}
-    function plot(route, stopid, dev, chartname, name){
+    function plot(route, stopid, time, chartname, stopname){
             var s = [];
-            for (var i=0; i < 24; i++){s[i]=0}
-            for (var i=0; i < dev.length; i++){
-                var temp = 0;
-                if (dev[i]<=0){
-                    temp = Math.floor(dev[i]);
-                    if (temp < -12){temp = -12}
-                }else{
-                    temp = Math.ceil(dev[i]);
-                    if (temp > 12){temp = 12}
-                }
-                if (temp < 0){temp += 12}else{temp += 11}
-                s[temp] += 1;
-            }
-            var ticks = ['<-11','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','>11'];
+            s[0] = time["Sunday"][0];
+            s[1] = time["Sunday"][1];
+            s[2] = time["Sunday"][2];
+            s[3] = time["Weekday"][0];
+            s[4] = time["Weekday"][1];
+            s[5] = time["Weekday"][2];
+            s[6] = time["Saturday"][0];
+            s[7] = time["Saturday"][1];
+            s[8] = time["Saturday"][2];
+            var ticks = ["Sun-SWT", "Sun-AWT", "Sun-EWT", "Weekday-SWT", "Weekday-AWT", "Weekday-EWT", "Sat-SWT", "Sat-AWT", "Sat-EWT"];
 			var plot = $.jqplot(chartname, [s], {
-    			title: 'Schedule deviation distribution of Route ' + route + ' at Stop: ' + name + ' (' + stopid + ').' ,
+    			title: 'Waiting Time per Passenger of Route ' + route + ' at Stop: ' + stopname + ' (' + stopid + ').' ,
                 seriesDefaults: {
                     pointLabels: { show:false, formatString: "%#.2f" },
                     renderer:$.jqplot.BarRenderer,
@@ -530,16 +526,16 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
     			axes: {
                     // Use a category axis on the x axis and use our custom ticks.
                     xaxis: {
-                        label:'Schedule deviation (min)',
+                        label:'Day of Week',
                         renderer: $.jqplot.CategoryAxisRenderer,
                         ticks: ticks
                     },
                     // Pad the y axis just a little so bars can get close to, but
                     // not touch, the grid boundaries.  1.2 is the default padding.
                     yaxis: {
-                        label:'Count',
+                        label:'Waiting Time (min)',
                         pad: 1.05,
-                        tickOptions: {formatString: '%d'}
+                        tickOptions: {formatString: "%#.2f"}
                     }
                 },
                 highlighter: {
@@ -551,6 +547,7 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
     }
 
     function get_metrics() {
+        var GTFS = $('#select_gtfs option:selected').attr('value');
         if (selected_stop == ''){
             alert("Please select 1 stop first.");
             return;
@@ -598,6 +595,7 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
         $('#chartcontainer').empty();
 
         $.get("../transit_metrics_wt_bystop/", {
+            gtfs_name:GTFS,
             stop: selected_stop,
             routes: selected_routes_str,
             s_date:s_date,
@@ -622,28 +620,7 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
                 tempright.style.marginTop = "20px";
                 $('#col2'+routes_array[i]).append(tempright);
 
-                plot(routes_array[i], selected_stop, data[routes_array[i]], temp.id, selected_stop_name);
-
-                if (data[routes_array[i]].length == 0){
-                    document.getElementById('stat'+routes_array[i]).innerHTML = "<br><br><br><br> <h4> No data found. <br>Please re-select!</h4>"
-                }else{
-                    var avg = 0,
-                        proportion = 0;
-                    for (var j=0; j < data[routes_array[i]].length; j++){
-                        avg += data[routes_array[i]][j];
-                        if ((data[routes_array[i]][j] >= low)&&(data[routes_array[i]][j] <= high)){proportion += 1}
-                    }
-                    avg /= data[routes_array[i]].length;
-                    proportion /= data[routes_array[i]].length;
-
-                    var sd = 0;
-                    for (var j=0; j < data[routes_array[i]].length; j++){
-                        sd += Math.pow(data[routes_array[i]][j] - avg, 2)
-                    }
-                    sd = Math.sqrt(sd/data[routes_array[i]].length);
-                    document.getElementById('stat'+routes_array[i]).innerHTML = "<br><br><br><br> <h5> Mean: <br>" + avg.toFixed(2) + " Minutes<br><br>Standard Deviation: <br>" + sd.toFixed(2) + " Minutes<br><br>"
-                            + "On-time Performance: <br>" + proportion.toFixed(2) + "</h5>";
-                }
+                plot(routes_array[i], selected_stop, data[routes_array[i].split("-")[0]], temp.id, selected_stop_name);
             }
             ///////Spinner Stop
                 spinner.stop();
