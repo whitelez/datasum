@@ -639,13 +639,14 @@ def transit_schedule(request):
     return render(request, 'traffic/transit_schedule.html', {'routes': routes, 'GTFS':gtfs})
 
 def transit_waitingtime_byroute(request):
-    routes = ','.join(route.short_name for route in Route.objects.all())
-    routes = routes.split(',')
-    return render(request, 'traffic/transit_waitingtime_byroute.html', {'routes': routes})
+    gtfs = [record['GTFS'] for record in GTFS_calendar.objects.all().values('GTFS').distinct()]
+    routes = [{"route_value": route.short_name+"+"+route.route_id, "route_shortname": route.short_name} for route in Route.objects.all()]
+    return render(request, 'traffic/transit_waitingtime_byroute.html', {'routes': routes, 'GTFS':gtfs})
 
 def transit_waitingtime_bystop(request):
+    gtfs = [record['GTFS'] for record in GTFS_calendar.objects.all().values('GTFS').distinct()]
     stops = [{"stop_id": stop.stop_id, "stop_name": stop.name} for stop in Stop.objects.all()]
-    return render(request, 'traffic/transit_waitingtime_bystop.html', {'stops': stops})
+    return render(request, 'traffic/transit_waitingtime_bystop.html', {'stops': stops, 'GTFS':gtfs})
 
 def transit_crowding(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
@@ -737,7 +738,7 @@ def transit_metrics_op_byroute(request):
         if item.short_name == request.GET["rt"].split('+')[0]:
             route = item.route_number_in_APCAVL
             break
-    route_id = request.GET["rt"].split('+')[1]
+    # route_id = request.GET["rt"].split('+')[1]
     direction = request.GET["dir"]
     s_date = request.GET["s_date"]
     e_date = request.GET["e_date"]
@@ -746,22 +747,6 @@ def transit_metrics_op_byroute(request):
     s_date = date(int(s_date[6:10]), int(s_date[0:2]), int(s_date[3:5]))
     e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
     stops = request.GET["stops"].split(",")
-
-    # # Build a list of all GTFS version name and their valid date range
-    # gtfs = [record['GTFS'] for record in GTFS_calendar.objects.all().values('GTFS').distinct()]
-    # gtfslist = []
-    # for record in gtfs:
-    #     year = record.split("_")[1][:4]
-    #     min = record.split("_")[2].split("-")[0]
-    #     max = record.split("_")[2].split("-")[1]
-    #     mindate = year + min
-    #     if int(min) > int(max):
-    #         maxdate = str(int(year)+1) + max
-    #     else:
-    #         maxdate = year + max
-    #     mindate = date(int(mindate[:4]), int(mindate[4:6]), int(mindate[6:8]))
-    #     maxdate = date(int(maxdate[:4]), int(maxdate[4:6]), int(maxdate[6:8]))
-    #     gtfslist.append({"name": record, "start": mindate, "end": maxdate})
 
     result = {}
     for stopid in stops:
@@ -856,6 +841,246 @@ def transit_metrics_schedule_opt(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+def transit_metrics_wt_byroute(request):
+    gtfs_name = request.GET["gtfs_name"]
+    routedict = Route_dict.objects.all()
+    route = ''
+    for item in routedict:
+        if item.short_name == request.GET["rt"].split('+')[0]:
+            route = item.route_number_in_APCAVL
+            break
+    route_id = request.GET["rt"].split('+')[1]
+    direction = request.GET["dir"]
+    s_date = request.GET["s_date"]
+    e_date = request.GET["e_date"]
+    s_time = int(request.GET["s_time"])
+    e_time = int(request.GET["e_time"])
+    s_date = date(int(s_date[6:10]), int(s_date[0:2]), int(s_date[3:5]))
+    e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
+    stops = request.GET["stops"].split(",")
+
+    # Obtain all trip IDs of selected route, direction and GTFS version for next stop_time query in the for loop below
+    tripdata = Trip.objects.filter(GTFS=gtfs_name, route_id=route_id, direction_id=str(direction))
+    tripid = {"Weekday": [], "Saturday": [], "Sunday": []}
+    for item in tripdata:
+        if item.service_id == "W":
+            tripid["Weekday"].append(item.trip_id)
+        elif item.service_id == "S":
+            tripid["Saturday"].append(item.trip_id)
+        elif item.service_id.split("-")[2] in ["Weekday", "Saturday", "Sunday"]:
+            tripid[str(item.service_id.split("-")[2])].append(item.trip_id)
+        elif item.service_id == "U":
+            tripid["Sunday"].append(item.trip_id)
+
+    result = {}
+    for stopid in stops:
+        # In list: 0 - SWT; 1 - AWT; 2 - EWT;
+        result[stopid] = {"Weekday": [], "Saturday": [], "Sunday": []}
+
+        # Calculate Scheduled Waiting Time for each selected stop
+        stoptimedata = Stop_time.objects.filter(GTFS=gtfs_name, stop_id=stopid)
+        stoptime = {"Weekday": [], "Saturday": [], "Sunday": []}
+        for item2 in stoptimedata:
+            scheduled_time = int(item2.arrival_time.split(":")[0]+item2.arrival_time.split(":")[1])
+            if scheduled_time >= s_time and scheduled_time <= e_time:
+                temp = int(item2.arrival_time.split(":")[0])*60 + int(item2.arrival_time.split(":")[1])
+                if item2.trip_id in tripid["Weekday"]:
+                    stoptime["Weekday"].append(temp)
+                elif item2.trip_id in tripid["Saturday"]:
+                    stoptime["Saturday"].append(temp)
+                elif item2.trip_id in tripid["Sunday"]:
+                    stoptime["Sunday"].append(temp)
+        for token in ["Weekday", "Saturday", "Sunday"]:
+            if len(stoptime[token]) > 1:
+                new = sorted(stoptime[token])
+                pre = new[0]
+                nu = 0
+                de = 0
+                for item3 in new:
+                    nu += float((item3 - pre)**2)/2.0
+                    de += item3 - pre
+                    pre = item3
+                result[stopid][token].append(float(nu)/float(de))
+            else:
+                result[stopid][token].append(0)
+
+        # Calculate Actual Waiting Time for each selected stop
+        # the field qstopa now has 2 blank spaces in the beginning of every line, if database changed, remember to revise the filter condition!!
+        data = Transit_data.objects.filter(qstopa='  '+str(stopid), route=str(route), dir=str(direction), date__range=(s_date, e_date))
+        stoptime = {"Weekday": {}, "Saturday": {}, "Sunday": {}}
+        for item in data:
+            if item.schtim >= s_time and item.schtim <= e_time:
+                temp = int(item.hour)*60 + int(item.minute)
+                if item.dow == "1":
+                    if stoptime["Weekday"].has_key(item.date):
+                        stoptime["Weekday"][item.date].append(temp)
+                    else:
+                        stoptime["Weekday"][item.date] = []
+                        stoptime["Weekday"][item.date].append(temp)
+               # Temporarily no APC/AVL data for Saturday and Sunday !!
+                # elif item2.dow == "2":
+                #     stoptime["Saturday"].append(temp)
+                # elif item2.dow == "3":
+                #     stoptime["Sunday"].append(temp)
+        avg = 0
+        daycount = 0
+        for token in stoptime["Weekday"].keys():
+            if len(stoptime["Weekday"][token]) > 1:
+                new = sorted(stoptime["Weekday"][token])
+                pre = new[0]
+                nu = 0
+                de = 0
+                for item3 in new:
+                    nu += float((item3 - pre)**2)/2.0
+                    de += item3 - pre
+                    pre = item3
+                avg += float(nu)/float(de)
+                daycount += 1
+        if daycount > 0:
+            result[stopid]["Weekday"].append(float(avg)/float(daycount))
+        else:
+            result[stopid]["Weekday"].append(0)
+
+        # Temporarily no APC/AVL data for Saturday and Sunday, so use SWT ratio to estimate AWT on weekend.
+        if result[stopid]["Weekday"][0] == 0:
+            result[stopid]["Saturday"].append(0)
+            result[stopid]["Sunday"].append(0)
+        else:
+            result[stopid]["Saturday"].append(result[stopid]["Weekday"][1] * (result[stopid]["Saturday"][0]/result[stopid]["Weekday"][0]))
+            result[stopid]["Sunday"].append(result[stopid]["Weekday"][1] * (result[stopid]["Sunday"][0]/result[stopid]["Weekday"][0]))
+
+        # Calculate Excess Waiting Time for each selected stop
+        for token in ["Weekday", "Saturday", "Sunday"]:
+            result[stopid][token].append(result[stopid][token][1] - result[stopid][token][0])
+
+    response = json.dumps(result)
+    return HttpResponse(response, content_type='application/json')
+
+def transit_metrics_wt_bystop(request):
+    gtfs_name = request.GET["gtfs_name"]
+    routedict = Route_dict.objects.all()
+    routes = request.GET["routes"].split(",")
+    stopid = request.GET["stop"]
+    s_date = request.GET["s_date"]
+    e_date = request.GET["e_date"]
+    s_time = int(request.GET["s_time"])
+    e_time = int(request.GET["e_time"])
+    s_date = date(int(s_date[6:10]), int(s_date[0:2]), int(s_date[3:5]))
+    e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
+
+    stoptimedata = Stop_time.objects.filter(GTFS=gtfs_name, stop_id=stopid)
+
+    result = {}
+    for route in routes:
+        routename = ''
+        for item in routedict:
+            if item.short_name == route.split("-")[0]:
+                routename = item.route_number_in_APCAVL
+                break
+        direction = route.split("-")[1]
+        if direction == "Inbound":
+            direction = "1"
+        else:
+            direction = "0"
+
+        route_id = ''
+        for item in Route.objects.filter(short_name=route.split("-")[0]):
+            route_id = item.route_id
+            break
+
+        # Obtain all trip IDs of selected route, direction and GTFS version for next stop_time query in the for loop below
+        tripdata = Trip.objects.filter(GTFS=gtfs_name, route_id=route_id, direction_id=str(direction))
+        tripid = {"Weekday": [], "Saturday": [], "Sunday": []}
+        for item in tripdata:
+            if item.service_id == "W":
+                tripid["Weekday"].append(item.trip_id)
+            elif item.service_id == "S":
+                tripid["Saturday"].append(item.trip_id)
+            elif item.service_id.split("-")[2] in ["Weekday", "Saturday", "Sunday"]:
+                tripid[str(item.service_id.split("-")[2])].append(item.trip_id)
+            elif item.service_id == "U":
+                tripid["Sunday"].append(item.trip_id)
+
+        # In list: 0 - SWT; 1 - AWT; 2 - EWT;
+        result[route.split("-")[0]] = {"Weekday": [], "Saturday": [], "Sunday": []}
+
+        # Calculate Scheduled Waiting Time for each selected stop
+        stoptime = {"Weekday": [], "Saturday": [], "Sunday": []}
+        for item2 in stoptimedata:
+            scheduled_time = int(item2.arrival_time.split(":")[0]+item2.arrival_time.split(":")[1])
+            if scheduled_time >= s_time and scheduled_time <= e_time:
+                temp = int(item2.arrival_time.split(":")[0])*60 + int(item2.arrival_time.split(":")[1])
+                if item2.trip_id in tripid["Weekday"]:
+                    stoptime["Weekday"].append(temp)
+                elif item2.trip_id in tripid["Saturday"]:
+                    stoptime["Saturday"].append(temp)
+                elif item2.trip_id in tripid["Sunday"]:
+                    stoptime["Sunday"].append(temp)
+        for token in ["Weekday", "Saturday", "Sunday"]:
+            if len(stoptime[token]) > 1:
+                new = sorted(stoptime[token])
+                pre = new[0]
+                nu = 0
+                de = 0
+                for item3 in new:
+                    nu += float((item3 - pre)**2)/2.0
+                    de += item3 - pre
+                    pre = item3
+                result[route.split("-")[0]][token].append(float(nu)/float(de))
+            else:
+                result[route.split("-")[0]][token].append(0)
+
+        # Calculate Actual Waiting Time for each selected stop
+        # the field qstopa now has 2 blank spaces in the beginning of every line, if database changed, remember to revise the filter condition!!
+        data = Transit_data.objects.filter(qstopa='  '+str(stopid), route=str(routename), dir=str(direction), date__range=(s_date, e_date))
+        stoptime = {"Weekday": {}, "Saturday": {}, "Sunday": {}}
+        for item in data:
+            if item.schtim >= s_time and item.schtim <= e_time:
+                temp = int(item.hour)*60 + int(item.minute)
+                if item.dow == "1":
+                    if stoptime["Weekday"].has_key(item.date):
+                        stoptime["Weekday"][item.date].append(temp)
+                    else:
+                        stoptime["Weekday"][item.date] = []
+                        stoptime["Weekday"][item.date].append(temp)
+               # Temporarily no APC/AVL data for Saturday and Sunday !!
+                # elif item2.dow == "2":
+                #     stoptime["Saturday"].append(temp)
+                # elif item2.dow == "3":
+                #     stoptime["Sunday"].append(temp)
+        avg = 0
+        daycount = 0
+        for token in stoptime["Weekday"].keys():
+            if len(stoptime["Weekday"][token]) > 1:
+                new = sorted(stoptime["Weekday"][token])
+                pre = new[0]
+                nu = 0
+                de = 0
+                for item3 in new:
+                    nu += float((item3 - pre)**2)/2.0
+                    de += item3 - pre
+                    pre = item3
+                avg += float(nu)/float(de)
+                daycount += 1
+        if daycount > 0:
+            result[route.split("-")[0]]["Weekday"].append(float(avg)/float(daycount))
+        else:
+            result[route.split("-")[0]]["Weekday"].append(0)
+
+        # Temporarily no APC/AVL data for Saturday and Sunday, so use SWT ratio to estimate AWT on weekend.
+        if result[route.split("-")[0]]["Weekday"][0] == 0:
+            result[route.split("-")[0]]["Saturday"].append(0)
+            result[route.split("-")[0]]["Sunday"].append(0)
+        else:
+            result[route.split("-")[0]]["Saturday"].append(result[route.split("-")[0]]["Weekday"][1] * (result[route.split("-")[0]]["Saturday"][0]/result[route.split("-")[0]]["Weekday"][0]))
+            result[route.split("-")[0]]["Sunday"].append(result[route.split("-")[0]]["Weekday"][1] * (result[route.split("-")[0]]["Sunday"][0]/result[route.split("-")[0]]["Weekday"][0]))
+
+        # Calculate Excess Waiting Time for each selected stop
+        for token in ["Weekday", "Saturday", "Sunday"]:
+            result[route.split("-")[0]][token].append(result[route.split("-")[0]][token][1] - result[route.split("-")[0]][token][0])
+
+    response = json.dumps(result)
+    return HttpResponse(response, content_type='application/json')
 
 # Temporarily no use ################################################
 def transit_metrics_route_range(request):
@@ -893,7 +1118,9 @@ def transit_metrics_route_range(request):
     return HttpResponse(response, content_type='application/json')
 #####################################################################
 
+
 # ++++++++++++++++++++++++++++++++++++++++++++  Views of Transit Function End  +++++++++++++++++++++++++++++++++++++++++++++++
+
 
 
 #routing

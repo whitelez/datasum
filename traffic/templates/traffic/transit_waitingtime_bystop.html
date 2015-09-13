@@ -7,6 +7,9 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
 {% endblock %}
 
 {% block style %}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css'%}">
+
 <style>
     .leaflet-control{
         line-height: 18px;
@@ -63,24 +66,36 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
 <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-datetimepicker.min.css' %}" />
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-switch.min.css' %}" />
-<link rel="stylesheet" href="{% static 'traffic/slider/css/slider.css' %}" />
 {% endblock %}
 
 
 {% block content %}
-<div class="well" style="height:600px;">
+<div class="well" style="overflow:auto;height:100%;">
 	<div class="container" style="width: inherit">
         <div class="row"><h4>Passenger Waiting Time </h4></div>
-        <div class="row" style="padding-top: 20px">
+        <div class="row"><p>&nbsp; &nbsp; Query by stop: </p></div>
+
+        <div class="row" style="margin-top:10px;">
+            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>GTFS:</h5></div>
+            <div class="col-md-8" style="padding-left: 0;">
+                <select id='select_gtfs' name = 'select_gtfs' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+			  	    {% for record in GTFS%}
+						<option value={{record}}>{{record}}</option>
+					{% endfor %}
+			    </select>
+            </div>
+	    </div>
+
+        <div class="row" style="padding-top: 8px">
         	<div class="col-md-4" style="padding-right: 0;">
 				<h5>Stop:</h5>
             </div>
             <div class="col-md-8" style="padding-left: 0;">
-                <h5 id = "select_stop" style=""> &nbsp; Select 1 Stop on Map. </h5>
+                <h6 id = "select_stop" style=""> &nbsp; Select 1 Stop on Map. </h6>
             </div>
         </div>
 
-        <div class="row" style="padding-top:10px;">
+        <div class="row" style="padding-top:8px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Routes:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
                 <select id = "select_routes" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
@@ -88,11 +103,11 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
             </div>
 	    </div>
 
-        <button id="routes_deselect_all" class="btn btn-default btn-block" style="margin-top: 20px">
+        <button id="routes_deselect_all" class="btn btn-default btn-block" style="margin-top: 15px">
             <span class="glyphicon glyphicon-remove"> </span> &nbsp; Clear All
         </button><br>
 
-        <div class="row" style="padding-top:25px;">
+        <div class="row" style="padding-top:15px;">
         	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Date:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
                     <div class='input-group date' id='datepicker'>
@@ -136,15 +151,8 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
            </div>
         </div>
 
-        <div class="row" style="padding-top:30px;">
-            <div class="col-md-2" style="height:20px;padding-right: 0;"><p>-12</p></div>
-            <div class="col-md-9" style="padding-left: 0;padding-right: 0;">
-                <input  style="width: 100%" id="slider" type="text" class="span2" value="" data-slider-value="[-3,3]" data-slider-min="-12" data-slider-max="12" data-slider-step="1"/>
-            </div>
-            <div class="col-md-1" style="height:20px;padding-left: 0;"><p>12</p></div>
-        </div>
 
-        <div class="row" style="padding-top:15px;">
+        <div class="row" style="padding-top:12px;">
            <div class="col-md-6" style="height: 36px;padding-right: 0;">
                <button type="button" style="margin-top:10px;" class="btn btn-default btn-block" id="real_time">
                     <span class="glyphicon glyphicon-search"> </span> &nbsp; Real Time
@@ -176,10 +184,8 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
 <script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/transition.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/collapse.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-datetimepicker.min.js' %}"></script>
-
 <script type="text/javascript" src="{% static 'traffic/bootstrap-switch.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/spinner.js' %}"></script>
-<script type="text/javascript" src="{% static 'traffic/slider/js/bootstrap-slider.js' %}"></script>
 
 <script type="text/javascript" src={% static 'traffic/jquery.jqplot.min.js' %}></script>
 <script type="text/javascript" src={% static 'traffic/jqplot/plugins/jqplot.barRenderer.js' %}></script>
@@ -194,10 +200,6 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
     $('.selectpicker').selectpicker({
         style: 'btn-inverse',
         size: 10
-    });
-
-    $("#slider").slider({
-	    tooltip: 'show'
     });
 </script>
 
@@ -371,6 +373,36 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
         };
 {#=============================================== End ================================================#}
 
+    //Change the available date range according to selected GTFS:
+    function changeDateRange() {
+        $(function () {
+            var gtfs = $('#select_gtfs option:selected').attr('value');
+            var year = gtfs.split("_")[1].substr(0, 4),
+                    min = gtfs.split("_")[2].split("-")[0],
+                    max = gtfs.split("_")[2].split("-")[1];
+            min = min.substr(0, 2) + "/" + min.substr(2, 2) + "/";
+            max = max.substr(0, 2) + "/" + max.substr(2, 2) + "/";
+            var mindate = min + year,
+                    maxdate;
+            if (parseInt(min) > parseInt(max)) {
+                maxdate = max + (parseInt(year) + 1).toString()
+            } else {
+                maxdate = max + year
+            }
+            $('#datepicker').data("DateTimePicker").minDate(false);
+            $('#datepicker').data("DateTimePicker").maxDate(false);
+            $('#datepicker').data("DateTimePicker").minDate(mindate);
+            $('#datepicker').data("DateTimePicker").maxDate(maxdate);
+            $('#datepicker2').data("DateTimePicker").minDate(false);
+            $('#datepicker2').data("DateTimePicker").maxDate(false);
+            $('#datepicker2').data("DateTimePicker").minDate(mindate);
+            $('#datepicker2').data("DateTimePicker").maxDate(maxdate);
+            $("#datepicker").data("DateTimePicker").date(mindate);
+            $("#datepicker2").data("DateTimePicker").date(maxdate);
+        });
+    }
+    changeDateRange();
+    $('#select_gtfs').change(changeDateRange);
 
 	var routeLayer = L.geoJson(),
         busLayer   = L.geoJson();
@@ -472,24 +504,20 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
 
 
 {#=================================================== Get Metrics Begin Here =======================================#}
-    function plot(route, stopid, dev, chartname, name){
+    function plot(route, stopid, time, chartname, stopname){
             var s = [];
-            for (var i=0; i < 24; i++){s[i]=0}
-            for (var i=0; i < dev.length; i++){
-                var temp = 0;
-                if (dev[i]<=0){
-                    temp = Math.floor(dev[i]);
-                    if (temp < -12){temp = -12}
-                }else{
-                    temp = Math.ceil(dev[i]);
-                    if (temp > 12){temp = 12}
-                }
-                if (temp < 0){temp += 12}else{temp += 11}
-                s[temp] += 1;
-            }
-            var ticks = ['<-11','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','>11'];
+            s[0] = time["Sunday"][0];
+            s[1] = time["Sunday"][1];
+            s[2] = time["Sunday"][2];
+            s[3] = time["Weekday"][0];
+            s[4] = time["Weekday"][1];
+            s[5] = time["Weekday"][2];
+            s[6] = time["Saturday"][0];
+            s[7] = time["Saturday"][1];
+            s[8] = time["Saturday"][2];
+            var ticks = ["Sun-SWT", "Sun-AWT", "Sun-EWT", "Weekday-SWT", "Weekday-AWT", "Weekday-EWT", "Sat-SWT", "Sat-AWT", "Sat-EWT"];
 			var plot = $.jqplot(chartname, [s], {
-    			title: 'Schedule deviation distribution of Route ' + route + ' at Stop: ' + name + ' (' + stopid + ').' ,
+    			title: 'Waiting Time per Passenger of Route ' + route + ' at Stop: ' + stopname + ' (' + stopid + ').' ,
                 seriesDefaults: {
                     pointLabels: { show:false, formatString: "%#.2f" },
                     renderer:$.jqplot.BarRenderer,
@@ -498,16 +526,16 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
     			axes: {
                     // Use a category axis on the x axis and use our custom ticks.
                     xaxis: {
-                        label:'Schedule deviation (min)',
+                        label:'Day of Week',
                         renderer: $.jqplot.CategoryAxisRenderer,
                         ticks: ticks
                     },
                     // Pad the y axis just a little so bars can get close to, but
                     // not touch, the grid boundaries.  1.2 is the default padding.
                     yaxis: {
-                        label:'Count',
+                        label:'Waiting Time (min)',
                         pad: 1.05,
-                        tickOptions: {formatString: '%d'}
+                        tickOptions: {formatString: "%#.2f"}
                     }
                 },
                 highlighter: {
@@ -519,6 +547,7 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
     }
 
     function get_metrics() {
+        var GTFS = $('#select_gtfs option:selected').attr('value');
         if (selected_stop == ''){
             alert("Please select 1 stop first.");
             return;
@@ -563,12 +592,10 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
         spinner = new Spinner(spinneropts).spin(target);
         target.style.opacity = '0.15';
 
-        var low = $("#slider").slider('getValue')[0].value.split(",")[0];
-        var high = $("#slider").slider('getValue')[0].value.split(",")[1];
-
         $('#chartcontainer').empty();
 
-        $.get("../transit_metrics_op_bystop/", {
+        $.get("../transit_metrics_wt_bystop/", {
+            gtfs_name:GTFS,
             stop: selected_stop,
             routes: selected_routes_str,
             s_date:s_date,
@@ -593,28 +620,7 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
                 tempright.style.marginTop = "20px";
                 $('#col2'+routes_array[i]).append(tempright);
 
-                plot(routes_array[i], selected_stop, data[routes_array[i]], temp.id, selected_stop_name);
-
-                if (data[routes_array[i]].length == 0){
-                    document.getElementById('stat'+routes_array[i]).innerHTML = "<br><br><br><br> <h4> No data found. <br>Please re-select!</h4>"
-                }else{
-                    var avg = 0,
-                        proportion = 0;
-                    for (var j=0; j < data[routes_array[i]].length; j++){
-                        avg += data[routes_array[i]][j];
-                        if ((data[routes_array[i]][j] >= low)&&(data[routes_array[i]][j] <= high)){proportion += 1}
-                    }
-                    avg /= data[routes_array[i]].length;
-                    proportion /= data[routes_array[i]].length;
-
-                    var sd = 0;
-                    for (var j=0; j < data[routes_array[i]].length; j++){
-                        sd += Math.pow(data[routes_array[i]][j] - avg, 2)
-                    }
-                    sd = Math.sqrt(sd/data[routes_array[i]].length);
-                    document.getElementById('stat'+routes_array[i]).innerHTML = "<br><br><br><br> <h5> Mean: <br>" + avg.toFixed(2) + " Minutes<br><br>Standard Deviation: <br>" + sd.toFixed(2) + " Minutes<br><br>"
-                            + "On-time Performance: <br>" + proportion.toFixed(2) + "</h5>";
-                }
+                plot(routes_array[i], selected_stop, data[routes_array[i].split("-")[0]], temp.id, selected_stop_name);
             }
             ///////Spinner Stop
                 spinner.stop();

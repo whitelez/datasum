@@ -7,6 +7,9 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 {% endblock %}
 
 {% block style %}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css'%}">
+
 <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css" xmlns="http://www.w3.org/1999/html">
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
@@ -17,7 +20,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 
 {% block content %}
 
-<div class="well" id="inputframe" style="height:600px;">
+<div class="well" id="inputframe" style="overflow:auto;height:100%;">
 	<div class="container" style="width: inherit">
         <div class="row"><h3 style="margin-top: 0;">Travel Time </h3></div>
         <div class="row"><h4> Corridors (2013-2015): </h4></div>
@@ -148,7 +151,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
         onColor: 'info',
         offColor: 'warning',
         labelText: 'TTI',
-        labelWidth: 50
+        labelWidth: 45
     };
     $("[name='checkboxTTI']").bootstrapSwitch(options);
     options.labelText = 'Delay';

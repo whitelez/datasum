@@ -9,6 +9,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
 {% block style %}
 
     <link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css'%}">
+
 <style>
     .leaflet-control{
         line-height: 18px;
@@ -70,9 +71,10 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
 
 
 {% block content %}
-<div class="well" style="height: 100%;">
+<div class="well" style="overflow:auto;height: 100%;">
 	<div class="container" style="width: inherit">
     	<div class="row"><h4>On-Time Performance </h4></div>
+        <div class="row"><p>&nbsp; &nbsp; Query by route: </p></div>
 		<div class="row" style="padding-top:15px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Route:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
@@ -216,7 +218,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
         onText: 'Inbound',
         offText: 'Outbound',
         labelWidth: 30,
-        handleWidth: 101
+        handleWidth: 92
     };
     $("[name='inout']").bootstrapSwitch(options);
 </script>
@@ -243,7 +245,6 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
     $(function () {
         $('#timepicker').datetimepicker({
             format: 'LT'
-
         });
     });
     $(function () {
