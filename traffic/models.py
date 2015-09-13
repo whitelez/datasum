@@ -312,7 +312,7 @@ class Stop_time(models.Model):
     def __unicode__(self):
         return self.arrival_time
     class Meta:
-        index_together = [['trip_id', 'stop_id', 'GTFS'],]
+        index_together = [['trip_id', 'stop_id', 'GTFS'], ['stop_id','GTFS']]
         unique_together = (("trip_id", "stop_sequence", "GTFS"),)
 
 class Stop_route(models.Model):

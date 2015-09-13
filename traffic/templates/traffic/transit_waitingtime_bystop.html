@@ -595,12 +595,9 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
         spinner = new Spinner(spinneropts).spin(target);
         target.style.opacity = '0.15';
 
-        var low = $("#slider").slider('getValue')[0].value.split(",")[0];
-        var high = $("#slider").slider('getValue')[0].value.split(",")[1];
-
         $('#chartcontainer').empty();
 
-        $.get("../transit_metrics_op_bystop/", {
+        $.get("../transit_metrics_wt_bystop/", {
             stop: selected_stop,
             routes: selected_routes_str,
             s_date:s_date,

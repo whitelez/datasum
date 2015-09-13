@@ -91,7 +91,7 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Route
             <div class="col-md-8" style="padding-left: 0;">
                 <select id='select_route' name = 'select_route' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
 			  	    {% for route in routes%}
-						<option value={{route}}>{{route}}</option>
+						<option value={{route.route_value}}>{{route.route_shortname}}</option>
 					{% endfor %}
 			    </select>
             </div>
@@ -425,7 +425,7 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Route
 
         remove_all_stops_from_map();
 
-		$.get("../get_route/", {route:route, direction:direction}, function(data, textStatus){
+		$.get("../get_route/", {route:route.split('+')[0], direction:direction}, function(data, textStatus){
 			if(routeLayer){
 			 	control.removeLayer(routeLayer);
 			 	if(map.hasLayer(routeLayer)){
@@ -436,12 +436,12 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Route
                 route_geoJson = $.parseJSON(data);
                 routeLayer = L.geoJson(route_geoJson,{style:{color:'green', weight:'7', opacity:'0.7'}}).addTo(map);
                 map.fitBounds(routeLayer.getBounds());
-                control.addOverlay(routeLayer,'Route '+route);
+                control.addOverlay(routeLayer,'Route '+route.split('+')[0]);
 			}else{
                 alert('No ROUTE information found, please select another route or direction!');
             }
 
-            $.get("../get_stops/", {route:route, direction:direction}, function(data, textStatus){
+            $.get("../get_stops/", {route:route.split('+')[0], direction:direction}, function(data, textStatus){
                 $('#select_stop').empty();
                 if(stopsLayer){
                     control.removeLayer(stopsLayer);
@@ -556,6 +556,7 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Route
     }
 
     function get_metrics(){
+        var GTFS = $('#select_gtfs option:selected').attr('value');
         var route = $('#select_route option:selected').attr('value');
         var direction = $('#inout').bootstrapSwitch('state');
         if (direction){direction = "1"} else {direction = "0"}
@@ -601,16 +602,9 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Route
         spinner = new Spinner(spinneropts).spin(target);
         target.style.opacity = '0.15';
 
-        var low = $("#slider").slider('getValue')[0].value.split(",")[0];
-        var high = $("#slider").slider('getValue')[0].value.split(",")[1];
-        if ($("#slider").slider('getValue')[0].value == ''){
-            low = -3;
-            high = 3;
-        }
-
         $('#chartcontainer').empty();
 
-        $.get("../transit_metrics_op_byroute/", {rt:route, dir:direction, s_date:s_date, e_date:e_date, s_time:stime, e_time:etime, stops:selected_stops_str}, function(data, textStatus){
+        $.get("../transit_metrics_wt_byroute/", {gtfs_name:GTFS, rt:route, dir:direction, s_date:s_date, e_date:e_date, s_time:stime, e_time:etime, stops:selected_stops_str}, function(data, textStatus){
             for (var i=0;i < stops_number; i++){
                 $('#chartcontainer').append("<div class='row' style='padding-top:5px;'><div class='col-md-10' style='height: auto;'" +
                 "id = 'col1" + stops_array[i] + "'></div><div class='col-md-2' style='height: auto;' id = 'col2" + stops_array[i] +
@@ -628,7 +622,7 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Route
                 tempright.style.marginTop = "20px";
                 $('#col2'+stops_array[i]).append(tempright);
 
-                plot(stops_array[i], stopsname_array[i], route, direction, data[stops_array[i]], temp.id);
+                plot(stops_array[i], stopsname_array[i], route.split('+')[0], direction, data[stops_array[i]], temp.id);
 
                 if (data[stops_array[i]].length == 0){
                     document.getElementById('stat'+stops_array[i]).innerHTML = "<br><br><br><br> <h4> No data found.<br>Please re-select!</h4>"
