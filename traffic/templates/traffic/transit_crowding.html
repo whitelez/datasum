@@ -7,6 +7,9 @@ Power of 32 RTIS - Transit - Crowding Level
 {% endblock %}
 
 {% block style %}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css'%}">
+
 <style>
     .leaflet-control{
         line-height: 18px;
@@ -63,12 +66,12 @@ Power of 32 RTIS - Transit - Crowding Level
 <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-switch.min.css' %}" />
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-datetimepicker.min.css' %}" />
-<link rel="stylesheet" href="{% static 'traffic/slider/css/slider.css' %}" />
+<link rel="stylesheet" href="{% static 'traffic/bootstrap-slider.min.css' %}" />
 {% endblock %}
 
 
 {% block content %}
-<div class="well" style="height:600px;">
+<div class="well" style="overflow:auto;height:100%;">
 	<div class="container" style="width: inherit">
     	<div class="row"><h4>Crowding Level </h4></div>
 		<div class="row" style="padding-top:15px;">
@@ -144,16 +147,11 @@ Power of 32 RTIS - Transit - Crowding Level
            </div>
         </div>
 
-{#        <div class="row" style="padding-top:5px;">#}
-{#            <p>Select tolerance range (Unit: mins):</p>#}
-{#        <div>#}
-
         <div class="row" style="padding-top:30px;">
-            <div class="col-md-2" style="height:20px;padding-right: 0;"><p>-12</p></div>
-            <div class="col-md-9" style="padding-left: 0;padding-right: 0;">
-                <input  style="width: 100%" id="slider" type="text" class="span2" value="" data-slider-value="[-3,3]" data-slider-min="-12" data-slider-max="12" data-slider-step="1"/>
+            <div class="col-md-5" style="height:20px;padding-right: 0;"><p>Threshold (%):</p></div>
+            <div class="col-md-7" style="padding-left: 0;padding-right: 0;">
+                <input  style="float: right;width: 70%" id="slider" type="text" data-slider-value="125" data-slider-min="0" data-slider-max="200" data-slider-step="1"/>
             </div>
-            <div class="col-md-1" style="height:20px;padding-left: 0;"><p>12</p></div>
         </div>
 
         <div class="row" style="padding-top:15px;">
@@ -188,7 +186,7 @@ Power of 32 RTIS - Transit - Crowding Level
 <script type="text/javascript" src="{% static 'traffic/bootstrap-datetimepicker.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-switch.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/spinner.js' %}"></script>
-<script type="text/javascript" src="{% static 'traffic/slider/js/bootstrap-slider.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/bootstrap-slider.min.js' %}"></script>
 
 <script type="text/javascript" src={% static 'traffic/jquery.jqplot.min.js' %}></script>
 <script type="text/javascript" src={% static 'traffic/jqplot/plugins/jqplot.barRenderer.js' %}></script>
@@ -203,7 +201,7 @@ Power of 32 RTIS - Transit - Crowding Level
     });
 
     $("#slider").slider({
-	    tooltip: 'show'
+	    tooltip: 'always'
     });
 </script>
 
@@ -214,7 +212,7 @@ Power of 32 RTIS - Transit - Crowding Level
         onText: 'Inbound',
         offText: 'Outbound',
         labelWidth: 30,
-        handleWidth: 101
+        handleWidth: 92
     };
     $("[name='inout']").bootstrapSwitch(options);
 </script>
@@ -223,13 +221,19 @@ Power of 32 RTIS - Transit - Crowding Level
     $(function () {
         $('#datepicker').datetimepicker({
             viewMode: 'years',
-            format: 'MM/DD/YYYY'
+            format: 'MM/DD/YYYY',
+            minDate: '2012-09-01',
+            maxDate: '2014-08-31',
+            defaultDate: '2014-01-01'
         });
     });
     $(function () {
         $('#datepicker2').datetimepicker({
             viewMode: 'years',
-            format: 'MM/DD/YYYY'
+            format: 'MM/DD/YYYY',
+            minDate: '2012-09-01',
+            maxDate: '2014-08-31',
+            defaultDate: '2014-01-31'
         });
     });
     $(function () {
@@ -576,10 +580,22 @@ Power of 32 RTIS - Transit - Crowding Level
 
         var low = $("#slider").slider('getValue')[0].value.split(",")[0];
         var high = $("#slider").slider('getValue')[0].value.split(",")[1];
+        if ($("#slider").slider('getValue')[0].value == ''){
+            low = -3;
+            high = 3;
+        }
 
         $('#chartcontainer').empty();
 
-        $.get("../transit_metrics_op_byroute/", {rt:route, dir:direction, s_date:s_date, e_date:e_date, s_time:stime, e_time:etime, stops:selected_stops_str}, function(data, textStatus){
+        $.get("../transit_metrics_op_byroute/", {
+            rt:route,
+            dir:direction,
+            s_date:s_date,
+            e_date:e_date,
+            s_time:stime,
+            e_time:etime,
+            stops:selected_stops_str
+        }, function(data, textStatus){
             for (var i=0;i < stops_number; i++){
                 $('#chartcontainer').append("<div class='row' style='padding-top:5px;'><div class='col-md-10' style='height: auto;'" +
                 "id = 'col1" + stops_array[i] + "'></div><div class='col-md-2' style='height: auto;' id = 'col2" + stops_array[i] +

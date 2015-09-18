@@ -7,6 +7,9 @@ Power of 32 RTIS - Transit - Bus Bunching
 {% endblock %}
 
 {% block style %}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css'%}">
+
 <style>
     .leaflet-control{
         line-height: 18px;
@@ -68,7 +71,7 @@ Power of 32 RTIS - Transit - Bus Bunching
 
 
 {% block content %}
-<div class="well" style="height: 100%;">
+<div class="well" style="overflow:auto;height:100%;">
 	<div class="container" style="width: inherit">
     	<div class="row"><h4>Bus Bunching </h4></div>
 		<div class="row" style="padding-top:5px;">
