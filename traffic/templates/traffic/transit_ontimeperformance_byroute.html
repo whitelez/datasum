@@ -78,7 +78,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
 		<div class="row" style="padding-top:15px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Route:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
-                <select id='select_route' name = 'select_route' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+                <select id='select_route' name = 'select_route' data-header="Select 1 Route:" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
 			  	    {% for route in routes%}
 						<option value={{route.route_value}}>{{route.route_shortname}}</option>
 					{% endfor %}
@@ -95,7 +95,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
         <div class="row" style="padding-top:5px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Stops:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
-                <select id = "select_stop" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
+                <select id = "select_stop" data-header="Select 1 or More Stops:" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
                 </select>
             </div>
 	    </div>

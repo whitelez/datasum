@@ -11,6 +11,9 @@ Power of 32 RTIS - Transit - Crowding Level
     <link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css'%}">
 
 <style>
+    .dropdown-menu{
+        overflow: visible;
+    }
     .leaflet-control{
         line-height: 18px;
         border-radius: 5px;
@@ -66,18 +69,18 @@ Power of 32 RTIS - Transit - Crowding Level
 <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-switch.min.css' %}" />
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-datetimepicker.min.css' %}" />
-<link rel="stylesheet" href="{% static 'traffic/bootstrap-slider.min.css' %}" />
+<link rel="stylesheet" href="{% static 'traffic/bootstrap-slider.css' %}" />
 {% endblock %}
 
 
 {% block content %}
-<div class="well" style="overflow:auto;height:100%;">
+<div class="well" style="overflow-y:auto;overflow-x:hidden;height:100%;">
 	<div class="container" style="width: inherit">
     	<div class="row"><h4>Crowding Level </h4></div>
 		<div class="row" style="padding-top:15px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Route:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
-                <select id='select_route' name = 'select_route' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+                <select id='select_route' name = 'select_route' data-header="Select 1 Route:" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
 			  	    {% for route in routes%}
 						<option value={{route}}>{{route}}</option>
 					{% endfor %}
@@ -94,7 +97,7 @@ Power of 32 RTIS - Transit - Crowding Level
         <div class="row" style="padding-top:5px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Stops:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
-                <select id = "select_stop" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
+                <select id = "select_stop" data-header="Select 1 or More Stops:" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
                 </select>
             </div>
 	    </div>
@@ -147,14 +150,14 @@ Power of 32 RTIS - Transit - Crowding Level
            </div>
         </div>
 
-        <div class="row" style="padding-top:30px;">
+        <div class="row" style="padding-top:38px;">
             <div class="col-md-5" style="height:20px;padding-right: 0;"><p>Threshold (%):</p></div>
             <div class="col-md-7" style="padding-left: 0;padding-right: 0;">
                 <input  style="float: right;width: 90%" id="slider" type="text" data-slider-value="125" data-slider-min="0" data-slider-max="200" data-slider-step="1"/>
             </div>
         </div>
 
-        <div class="row" style="padding-top:15px;">
+        <div class="row" style="padding-top:8px;">
            <div class="col-md-6" style="height: 36px;padding-right: 0;">
                <button type="button" style="margin-top:10px;" class="btn btn-default btn-block" id="real_time">
                     <span class="glyphicon glyphicon-search"> </span> &nbsp; Real Time
@@ -201,7 +204,7 @@ Power of 32 RTIS - Transit - Crowding Level
     });
 
     $("#slider").slider({
-	    tooltip: 'always'
+	    tooltip: 'show'
     });
 </script>
 

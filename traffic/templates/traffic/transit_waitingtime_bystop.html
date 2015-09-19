@@ -78,7 +78,7 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
         <div class="row" style="margin-top:10px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>GTFS:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
-                <select id='select_gtfs' name = 'select_gtfs' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+                <select id='select_gtfs' name = 'select_gtfs' data-header="Select 1 GTFS Version:" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
 			  	    {% for record in GTFS%}
 						<option value={{record}}>{{record}}</option>
 					{% endfor %}
@@ -98,7 +98,7 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Stop
         <div class="row" style="padding-top:8px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Routes:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
-                <select id = "select_routes" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
+                <select id = "select_routes" data-header="Select 1 or More Route:" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
                 </select>
             </div>
 	    </div>
