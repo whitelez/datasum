@@ -4113,7 +4113,7 @@ L.popup = function (options, source) {
 
 L.Map.include({
 	openPopup: function (popup, latlng, options) { // (Popup) or (String || HTMLElement, LatLng[, Object])
-		this.closePopup();
+		//this.closePopup();
 
 		if (!(popup instanceof L.Popup)) {
 			var content = popup;

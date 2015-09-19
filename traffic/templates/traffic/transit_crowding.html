@@ -180,8 +180,7 @@ Power of 32 RTIS - Transit - Crowding Level
 	
 
 {% block script %}
-<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
-<script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/Leaflet_0.7.5/leaflet-src.js' %}"></script>
 
 <script type="text/javascript" src="{% static 'traffic/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/transition.js' %}"></script>
@@ -261,17 +260,17 @@ Power of 32 RTIS - Transit - Crowding Level
 	
 	    control = L.control.layers({'Base Map':basemap},null,{collapsed:false}).addTo(map);
 	
-	    map.addControl( new L.Control.Search({
-			url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',
-			jsonpParam: 'json_callback',
-			propertyName: 'display_name',
-			propertyLoc: ['lat','lon'],
-			markerLocation: true,
-			autoType: false,
-			autoCollapse: true,
-			minLength: 2,
-			zoom:10
-		}) );
+{#	    map.addControl( new L.Control.Search({#}
+{#			url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',#}
+{#			jsonpParam: 'json_callback',#}
+{#			propertyName: 'display_name',#}
+{#			propertyLoc: ['lat','lon'],#}
+{#			markerLocation: true,#}
+{#			autoType: false,#}
+{#			autoCollapse: true,#}
+{#			minLength: 2,#}
+{#			zoom:10#}
+{#		}) );#}
 	
 	    var info = L.control();
 		info.onAdd = function (map) {
@@ -295,25 +294,6 @@ Power of 32 RTIS - Transit - Crowding Level
             return div;
         };
         legend.addTo(map);
-
-	    function highlightFeature(e) {
-			var layer = e.target;
-			layer.setStyle({
-                radius: 8
-			});
-			if (!L.Browser.ie && !L.Browser.opera) {
-				layer.bringToFront();
-			}
-			info.update(layer.feature.properties);
-		}
-		function resetHighlight(e) {
-            var layer = e.target;
-            layer.setStyle({
-                radius: 6
-			});
-			info.update();
-		}
-
 
 {#======================================= Spinner Options ===========================================#}
         var spinneropts = {
@@ -367,6 +347,25 @@ Power of 32 RTIS - Transit - Crowding Level
             selected_stops_dict = {};
         }
 
+        function highlightFeature(e) {
+			var layer = e.target;
+			layer.setStyle({
+                radius: 8
+			});
+			if (!L.Browser.ie && !L.Browser.opera) {
+				layer.bringToFront();
+			}
+			info.update(layer.feature.properties);
+		}
+
+		function resetHighlight(e) {
+            var layer = e.target;
+            layer.setStyle({
+                radius: 6
+			});
+			info.update();
+		}
+
 		function clickFeature(e) {
 			var layer = e.target;
 			$('option[value=' + layer.feature.properties.stop_id + ']', $('#select_stop')).prop("selected", true);
@@ -387,7 +386,7 @@ Power of 32 RTIS - Transit - Crowding Level
 				mouseout: resetHighlight,
 				click: clickFeature
 			});
-			layer.bindPopup('<b>' + feature.properties.name + '</b>');
+{#			layer.bindPopup('<b>' + feature.properties.name + '</b>');#}
         }
 	
 	
@@ -604,7 +603,6 @@ Power of 32 RTIS - Transit - Crowding Level
             thres:threshold
         }, function(data, textStatus){
             remove_all_stops_from_map();
-
             for (var i=0;i < stops_number; i++){
                 var stop_id = stops_array[i];
                 var num = stops_geoJson.features.length;
@@ -612,11 +610,11 @@ Power of 32 RTIS - Transit - Crowding Level
                     if (stops_geoJson.features[j].properties.stop_id == stop_id) {
                         selected_stops_dict[stop_id] = L.geoJson(stops_geoJson.features[j]).addTo(map)
                                 .bindPopup("<strong>" + stops_geoJson.features[j].properties.name
-                                + "</strong><br>Absolute Max Crowding Level: " + data[stop_id]["absmax"]
-                                + "<br>Average Max Crowding Level: " + data[stop_id]["avgmax"]
-                                + "<br>Average Mean Crowding Level: " + data[stop_id]["avgavg"]
-                                + "<br>Average Min Crowding Level: " + data[stop_id]["avgmin"]
-                                + "<br>Overcrowding Proportion: " + data[stop_id]["ocpro"])
+                                + "</strong><br>Absolute Max: " + (data[stop_id]["absmax"]*100).toFixed(2)
+                                + "%<br>Average Daily Max: " + (data[stop_id]["avgmax"]*100).toFixed(2)
+                                + "%<br>Average Daily Mean: " + (data[stop_id]["avgavg"]*100).toFixed(2)
+                                + "%<br>Average Daily Min: " + (data[stop_id]["avgmin"]*100).toFixed(2)
+                                + "%<br>Overcrowding Proportion: " + (data[stop_id]["ocpro"]*100).toFixed(2) + "%")
                                 .openPopup();
                         selected_stops_layerGroup.addLayer(selected_stops_dict[stop_id]);
                         break;
