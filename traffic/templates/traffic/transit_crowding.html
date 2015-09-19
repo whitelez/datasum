@@ -371,7 +371,14 @@ Power of 32 RTIS - Transit - Crowding Level
 			var layer = e.target;
 			$('option[value=' + layer.feature.properties.stop_id + ']', $('#select_stop')).prop("selected", true);
             $('#select_stop').selectpicker('refresh');
-            add_stop_to_map(layer.feature.properties.stop_id,true);
+
+            remove_all_stops_from_map();
+
+            var selected_stops = $('#select_stop option:selected');
+            var stops_number = selected_stops.length;
+            for (var i = 0; i < stops_number; i++) {
+                add_stop_to_map(selected_stops[i].value, true);
+            }
 		}
 
 		function onEachFeature(feature, layer){
@@ -488,52 +495,52 @@ Power of 32 RTIS - Transit - Crowding Level
 
 
 {#=================================================== Get Metrics Begin Here =======================================#}
-    function plot(stopid, name, route, direction, dev, chartname){
-            var s = [];
-            for (var i=0; i < 24; i++){s[i]=0}
-            for (var i=0; i < dev.length; i++){
-                var temp = 0;
-                if (dev[i]<=0){
-                    temp = Math.floor(dev[i]);
-                    if (temp < -12){temp = -12}
-                }else{
-                    temp = Math.ceil(dev[i]);
-                    if (temp > 12){temp = 12}
-                }
-                if (temp < 0){temp += 12}else{temp += 11}
-                s[temp] += 1;
-            }
-			if (direction == 1){direction = 'Inbound'}else{direction = 'Outbound'}
-            var ticks = ['<-11','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','>11'];
-			var plot = $.jqplot(chartname, [s], {
-    			title: 'Schedule deviation distribution of Route ' + route + ' (' + direction + ') at Stop: ' + name + ' (' + stopid + ').' ,
-                seriesDefaults: {
-                    pointLabels: { show:false, formatString: "%#.2f" },
-                    renderer:$.jqplot.BarRenderer,
-                    rendererOptions: {fillToZero: true}
-                },
-    			axes: {
-                    // Use a category axis on the x axis and use our custom ticks.
-                    xaxis: {
-                        label:'Schedule deviation (min)',
-                        renderer: $.jqplot.CategoryAxisRenderer,
-                        ticks: ticks
-                    },
-                    // Pad the y axis just a little so bars can get close to, but
-                    // not touch, the grid boundaries.  1.2 is the default padding.
-                    yaxis: {
-                        label:'Count',
-                        pad: 1.05,
-                        tickOptions: {formatString: '%d'}
-                    }
-                },
-                highlighter: {
-                    show: true,
-                    tooltipAxes: 'y',
-                    sizeAdjust: 0
-                }
-  			});
-    }
+{#    function plot(stopid, name, route, direction, dev, chartname){#}
+{#            var s = [];#}
+{#            for (var i=0; i < 24; i++){s[i]=0}#}
+{#            for (var i=0; i < dev.length; i++){#}
+{#                var temp = 0;#}
+{#                if (dev[i]<=0){#}
+{#                    temp = Math.floor(dev[i]);#}
+{#                    if (temp < -12){temp = -12}#}
+{#                }else{#}
+{#                    temp = Math.ceil(dev[i]);#}
+{#                    if (temp > 12){temp = 12}#}
+{#                }#}
+{#                if (temp < 0){temp += 12}else{temp += 11}#}
+{#                s[temp] += 1;#}
+{#            }#}
+{#			if (direction == 1){direction = 'Inbound'}else{direction = 'Outbound'}#}
+{#            var ticks = ['<-11','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','>11'];#}
+{#			var plot = $.jqplot(chartname, [s], {#}
+{#    			title: 'Schedule deviation distribution of Route ' + route + ' (' + direction + ') at Stop: ' + name + ' (' + stopid + ').' ,#}
+{#                seriesDefaults: {#}
+{#                    pointLabels: { show:false, formatString: "%#.2f" },#}
+{#                    renderer:$.jqplot.BarRenderer,#}
+{#                    rendererOptions: {fillToZero: true}#}
+{#                },#}
+{#    			axes: {#}
+{#                    // Use a category axis on the x axis and use our custom ticks.#}
+{#                    xaxis: {#}
+{#                        label:'Schedule deviation (min)',#}
+{#                        renderer: $.jqplot.CategoryAxisRenderer,#}
+{#                        ticks: ticks#}
+{#                    },#}
+{#                    // Pad the y axis just a little so bars can get close to, but#}
+{#                    // not touch, the grid boundaries.  1.2 is the default padding.#}
+{#                    yaxis: {#}
+{#                        label:'Count',#}
+{#                        pad: 1.05,#}
+{#                        tickOptions: {formatString: '%d'}#}
+{#                    }#}
+{#                },#}
+{#                highlighter: {#}
+{#                    show: true,#}
+{#                    tooltipAxes: 'y',#}
+{#                    sizeAdjust: 0#}
+{#                }#}
+{#  			});#}
+{#    }#}
 
     function get_metrics(){
         var route = $('#select_route option:selected').attr('value');
@@ -581,62 +588,39 @@ Power of 32 RTIS - Transit - Crowding Level
         spinner = new Spinner(spinneropts).spin(target);
         target.style.opacity = '0.15';
 
-        var low = $("#slider").slider('getValue')[0].value.split(",")[0];
-        var high = $("#slider").slider('getValue')[0].value.split(",")[1];
-        if ($("#slider").slider('getValue')[0].value == ''){
-            low = -3;
-            high = 3;
-        }
+        {# Threshold: store as percent times 100 #}
+        var threshold = $("#slider").slider('getValue');
 
         $('#chartcontainer').empty();
 
-        $.get("../transit_metrics_op_byroute/", {
+        $.get("../transit_metrics_crowding/", {
             rt:route,
             dir:direction,
             s_date:s_date,
             e_date:e_date,
             s_time:stime,
             e_time:etime,
-            stops:selected_stops_str
+            stops:selected_stops_str,
+            thres:threshold
         }, function(data, textStatus){
+            remove_all_stops_from_map();
+
             for (var i=0;i < stops_number; i++){
-                $('#chartcontainer').append("<div class='row' style='padding-top:5px;'><div class='col-md-10' style='height: auto;'" +
-                "id = 'col1" + stops_array[i] + "'></div><div class='col-md-2' style='height: auto;' id = 'col2" + stops_array[i] +
-                "'></div></div>");
-
-                var temp = document.createElement('div');
-                temp.id = 'chart'+stops_array[i];
-                temp.style.marginLeft = "20px";
-                temp.style.marginTop = "20px";
-                $('#col1'+stops_array[i]).append(temp);
-                var tempright = document.createElement('div');
-                tempright.id = 'stat'+stops_array[i];
-                tempright.style.height = "300px";
-                tempright.style.marginRight = "20px";
-                tempright.style.marginTop = "20px";
-                $('#col2'+stops_array[i]).append(tempright);
-
-                plot(stops_array[i], stopsname_array[i], route, direction, data[stops_array[i]], temp.id);
-
-                if (data[stops_array[i]].length == 0){
-                    document.getElementById('stat'+stops_array[i]).innerHTML = "<br><br><br><br> <h4> No data found.<br>Please re-select!</h4>"
-                }else{
-                    var avg = 0,
-                        proportion = 0;
-                    for (var j=0; j < data[stops_array[i]].length; j++){
-                        avg += data[stops_array[i]][j];
-                        if ((data[stops_array[i]][j] >= low)&&(data[stops_array[i]][j] <= high)){proportion += 1}
+                var stop_id = stops_array[i];
+                var num = stops_geoJson.features.length;
+                for (var j = 0; j < num; j++) {
+                    if (stops_geoJson.features[j].properties.stop_id == stop_id) {
+                        selected_stops_dict[stop_id] = L.geoJson(stops_geoJson.features[j]).addTo(map)
+                                .bindPopup("<strong>" + stops_geoJson.features[j].properties.name
+                                + "</strong><br>Absolute Max Crowding Level: " + data[stop_id]["absmax"]
+                                + "<br>Average Max Crowding Level: " + data[stop_id]["avgmax"]
+                                + "<br>Average Mean Crowding Level: " + data[stop_id]["avgavg"]
+                                + "<br>Average Min Crowding Level: " + data[stop_id]["avgmin"]
+                                + "<br>Overcrowding Proportion: " + data[stop_id]["ocpro"])
+                                .openPopup();
+                        selected_stops_layerGroup.addLayer(selected_stops_dict[stop_id]);
+                        break;
                     }
-                    avg /= data[stops_array[i]].length;
-                    proportion /= data[stops_array[i]].length;
-
-                    var sd = 0;
-                    for (var j=0; j < data[stops_array[i]].length; j++){
-                        sd += Math.pow(data[stops_array[i]][j] - avg, 2)
-                    }
-                    sd = Math.sqrt(sd/data[stops_array[i]].length);
-                    document.getElementById('stat'+stops_array[i]).innerHTML = "<br><br><br><br> <h5> Mean: <br>" + avg.toFixed(2) + " Minutes<br><br>Standard Deviation: <br>" + sd.toFixed(2) + " Minutes<br><br>"
-                            + "On-time Performance: <br>" + proportion.toFixed(2) + "</h5>";
                 }
             }
             ///////Spinner Stop
