@@ -10,11 +10,13 @@
 
 	<link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap-Sandstone.min.css'%}">
 	<link rel="stylesheet" type="text/css" href="{% static 'traffic/style_new.css'%}">
-	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.min.css">
+	<link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap-select.css'%}">
+{#	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.min.css">#}
 	<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0-rc2/css/bootstrap-glyphicons.css">
 	<script type="text/javascript" src={% static 'traffic/jquery-2.1.3.min.js'%}></script>
 	<script type="text/javascript" src={% static "traffic/bootstrap.js" %}></script>
-	<script src="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.min.js"> </script>
+	<script type="text/javascript" src={% static "traffic/bootstrap-select.js" %}></script>
+{#	<script src="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.min.js"> </script>#}
 	<link rel="shortcut icon" href="{% static 'traffic/images/favicon.ico' %}" type="image/x-icon">
 	<link rel="icon" href="{% static 'traffic/images/favicon.ico' %}" type="image/x-icon">
     {% block style %}{% endblock %}
