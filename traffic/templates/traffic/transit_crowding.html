@@ -11,9 +11,6 @@ Power of 32 RTIS - Transit - Crowding Level
     <link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css'%}">
 
 <style>
-    .dropdown-menu{
-        overflow: visible;
-    }
     .leaflet-control{
         line-height: 18px;
         border-radius: 5px;
@@ -259,18 +256,6 @@ Power of 32 RTIS - Transit - Crowding Level
         }).addTo(map);
 	
 	    control = L.control.layers({'Base Map':basemap},null,{collapsed:false}).addTo(map);
-	
-{#	    map.addControl( new L.Control.Search({#}
-{#			url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',#}
-{#			jsonpParam: 'json_callback',#}
-{#			propertyName: 'display_name',#}
-{#			propertyLoc: ['lat','lon'],#}
-{#			markerLocation: true,#}
-{#			autoType: false,#}
-{#			autoCollapse: true,#}
-{#			minLength: 2,#}
-{#			zoom:10#}
-{#		}) );#}
 	
 	    var info = L.control();
 		info.onAdd = function (map) {
@@ -608,7 +593,13 @@ Power of 32 RTIS - Transit - Crowding Level
                 var num = stops_geoJson.features.length;
                 for (var j = 0; j < num; j++) {
                     if (stops_geoJson.features[j].properties.stop_id == stop_id) {
-                        selected_stops_dict[stop_id] = L.geoJson(stops_geoJson.features[j]).addTo(map)
+                        if ((data[stop_id]["absmax"]==0)&&(data[stop_id]["avgmax"]==0)&&(data[stop_id]["avgavg"]==0)&&(data[stop_id]["avgmin"]==0)){
+                            selected_stops_dict[stop_id] = L.geoJson(stops_geoJson.features[j]).addTo(map)
+                                .bindPopup("<strong>" + stops_geoJson.features[j].properties.name
+                                + "</strong><br> No Data Found for this Stop!")
+                                .openPopup();
+                        } else {
+                            selected_stops_dict[stop_id] = L.geoJson(stops_geoJson.features[j]).addTo(map)
                                 .bindPopup("<strong>" + stops_geoJson.features[j].properties.name
                                 + "</strong><br>Absolute Max: " + (data[stop_id]["absmax"]*100).toFixed(2)
                                 + "%<br>Average Daily Max: " + (data[stop_id]["avgmax"]*100).toFixed(2)
@@ -616,6 +607,8 @@ Power of 32 RTIS - Transit - Crowding Level
                                 + "%<br>Average Daily Min: " + (data[stop_id]["avgmin"]*100).toFixed(2)
                                 + "%<br>Overcrowding Proportion: " + (data[stop_id]["ocpro"]*100).toFixed(2) + "%")
                                 .openPopup();
+                        }
+
                         selected_stops_layerGroup.addLayer(selected_stops_dict[stop_id]);
                         break;
                     }
