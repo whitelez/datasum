@@ -66,8 +66,20 @@
                                     <li><a href="{% url 'traffic:transit_waitingtime_bystop' %}"> Query by Stop </a></li>
                                 </ul>
                             </li>
-                            <li><a href="{% url 'traffic:transit_crowding' %}">Bus Crowding Level</a></li>
-							<li><a href="{% url 'traffic:transit_busbunching' %}">Bus Bunching</a></li>
+                            <li class="dropdown dropdown-submenu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Bus Crowding Level</a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{% url 'traffic:transit_crowding' %}"> Statistics for Stops </a></li>
+                                    <li><a href="{% url 'traffic:transit_crowding_hm' %}"> Heat Map </a></li>
+                                </ul>
+                            </li>
+							<li class="dropdown dropdown-submenu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Bus Bunching</a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{% url 'traffic:transit_busbunching' %}"> Statistics for Stops </a></li>
+                                    <li><a href="{% url 'traffic:transit_busbunching_hm' %}"> Heat Map </a></li>
+                                </ul>
+                            </li>
 							<li><a href="{% url 'traffic:transit_bustraveltime' %}">Bus Travel Time</a></li>
                         </ul>
                     </li>

@@ -653,10 +653,20 @@ def transit_crowding(request):
     routes = routes.split(',')
     return render(request, 'traffic/transit_crowding.html', {'routes': routes})
 
+def transit_crowding_hm(request):
+    routes = ','.join(route.short_name for route in Route.objects.all())
+    routes = routes.split(',')
+    return render(request, 'traffic/transit_crowding_hm.html', {'routes': routes})
+
 def transit_bunching(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
     return render(request, 'traffic/transit_bunching.html', {'routes': routes})
+
+def transit_bunching_hm(request):
+    routes = ','.join(route.short_name for route in Route.objects.all())
+    routes = routes.split(',')
+    return render(request, 'traffic/transit_busbunching_hm.html', {'routes': routes})
 
 def transit_bustraveltime(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
@@ -1101,7 +1111,7 @@ def transit_metrics_crowding(request):
 
     # The map from "bus model" to "number of seats", "bus model" in APC/AVL has 4 digits, only first 2 represent models
     bus_map = {"30": 63, "31": 60, "50": 37, "51": 37, "52": 37, "53": 37, "54": 37, "55": 40, "56": 40,
-               "19": 70, "32": 60, "33": 60, "39": 60, "57": 40, "58": 40, "59": 40}
+               "19": 57, "32": 56, "33": 56, "39": 60, "57": 40, "58": 40, "59": 40}
 
     result = {}
     for stopid in stops:

@@ -3,7 +3,7 @@
 {% load staticfiles %}
 
 {% block title %}
-Power of 32 RTIS - Transit - Crowding Level
+Power of 32 RTIS - Transit - Crowding Level - Statistics for Stops
 {% endblock %}
 
 {% block style %}
@@ -74,6 +74,7 @@ Power of 32 RTIS - Transit - Crowding Level
 <div class="well" style="overflow:auto;height:100%;">
 	<div class="container" style="width: inherit">
     	<div class="row"><h4>Crowding Level </h4></div>
+        <div class="row"><p>&nbsp; &nbsp; Statistics for Stops: </p></div>
 		<div class="row" style="padding-top:15px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Route:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
@@ -172,7 +173,6 @@ Power of 32 RTIS - Transit - Crowding Level
 
 {% block map %}
     <div id="map"> </div>
-    <div id="chartcontainer"> </div>
 {% endblock %}
 	
 
@@ -371,7 +371,6 @@ Power of 32 RTIS - Transit - Crowding Level
 				mouseout: resetHighlight,
 				click: clickFeature
 			});
-{#			layer.bindPopup('<b>' + feature.properties.name + '</b>');#}
         }
 	
 	
@@ -467,7 +466,6 @@ Power of 32 RTIS - Transit - Crowding Level
     });
 
     $('#stops_deselect_all').click(function(){
-        $('#chartcontainer').empty();
         var selected_stops = $('#select_stop option:selected');
         var stops_number = selected_stops.length;
         for(var i = 0; i < stops_number; i++){
@@ -479,53 +477,6 @@ Power of 32 RTIS - Transit - Crowding Level
 
 
 {#=================================================== Get Metrics Begin Here =======================================#}
-{#    function plot(stopid, name, route, direction, dev, chartname){#}
-{#            var s = [];#}
-{#            for (var i=0; i < 24; i++){s[i]=0}#}
-{#            for (var i=0; i < dev.length; i++){#}
-{#                var temp = 0;#}
-{#                if (dev[i]<=0){#}
-{#                    temp = Math.floor(dev[i]);#}
-{#                    if (temp < -12){temp = -12}#}
-{#                }else{#}
-{#                    temp = Math.ceil(dev[i]);#}
-{#                    if (temp > 12){temp = 12}#}
-{#                }#}
-{#                if (temp < 0){temp += 12}else{temp += 11}#}
-{#                s[temp] += 1;#}
-{#            }#}
-{#			if (direction == 1){direction = 'Inbound'}else{direction = 'Outbound'}#}
-{#            var ticks = ['<-11','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','>11'];#}
-{#			var plot = $.jqplot(chartname, [s], {#}
-{#    			title: 'Schedule deviation distribution of Route ' + route + ' (' + direction + ') at Stop: ' + name + ' (' + stopid + ').' ,#}
-{#                seriesDefaults: {#}
-{#                    pointLabels: { show:false, formatString: "%#.2f" },#}
-{#                    renderer:$.jqplot.BarRenderer,#}
-{#                    rendererOptions: {fillToZero: true}#}
-{#                },#}
-{#    			axes: {#}
-{#                    // Use a category axis on the x axis and use our custom ticks.#}
-{#                    xaxis: {#}
-{#                        label:'Schedule deviation (min)',#}
-{#                        renderer: $.jqplot.CategoryAxisRenderer,#}
-{#                        ticks: ticks#}
-{#                    },#}
-{#                    // Pad the y axis just a little so bars can get close to, but#}
-{#                    // not touch, the grid boundaries.  1.2 is the default padding.#}
-{#                    yaxis: {#}
-{#                        label:'Count',#}
-{#                        pad: 1.05,#}
-{#                        tickOptions: {formatString: '%d'}#}
-{#                    }#}
-{#                },#}
-{#                highlighter: {#}
-{#                    show: true,#}
-{#                    tooltipAxes: 'y',#}
-{#                    sizeAdjust: 0#}
-{#                }#}
-{#  			});#}
-{#    }#}
-
     function get_metrics(){
         var route = $('#select_route option:selected').attr('value');
         var direction = $('#inout').bootstrapSwitch('state');
@@ -537,11 +488,9 @@ Power of 32 RTIS - Transit - Crowding Level
             return;
         }
 
-        var stops_array = new Array(stops_number),
-            stopsname_array = new Array(stops_number);
+        var stops_array = new Array(stops_number);
         for(var i = 0; i < stops_number; i++){
             stops_array[i] = selected_stops[i].value;
-            stopsname_array[i] = selected_stops[i].text;
         }
         var selected_stops_str = stops_array.join();
 
