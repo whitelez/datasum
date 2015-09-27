@@ -1222,6 +1222,28 @@ def transit_metrics_bunching(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+def transit_metrics_bustraveltime(request):
+    routedict = Route_dict.objects.all()
+    route = ''
+    for item in routedict:
+        if item.short_name == request.GET["rt"]:
+            route = item.route_number_in_APCAVL
+            break
+    direction = request.GET["dir"]
+    s_date = request.GET["s_date"]
+    e_date = request.GET["e_date"]
+    s_time = int(request.GET["s_time"])
+    e_time = int(request.GET["e_time"])
+    s_date = date(int(s_date[6:10]), int(s_date[0:2]), int(s_date[3:5]))
+    e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
+    stop1 = request.GET["stop1"]
+    stop2 = request.GET["stop2"]
+
+    result = {}
+
+    response = json.dumps(result)
+    return HttpResponse(response, content_type='application/json')
+
 
 # Temporarily no use ################################################
 def transit_metrics_route_range(request):

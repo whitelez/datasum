@@ -657,8 +657,9 @@ Power of 32 RTIS - Transit - Bus Bunching - Heat Map
             for (var i=0;i < stops_number; i++){
                 var stop_id = stops_array[i];
                 if (data[stop_id]["avg"] > max) max = data[stop_id]["avg"];
-                if (data[stop_id]["avg"] < min) min = data[stop_id]["avg"];
+                if ((data[stop_id]["avg"] != -1)  && (data[stop_id]["avg"] < min)) min = data[stop_id]["avg"];
             }
+
             for (var i=0;i < stops_number; i++){
                 stop_id = stops_array[i];
                 var num = stops_geoJson.features.length;
@@ -681,7 +682,7 @@ Power of 32 RTIS - Transit - Bus Bunching - Heat Map
                                                         .bindPopup("<strong>" + stops_geoJson.features[j].properties.name
                                                         + "</strong><br> No Data Found for this Stop!");
                         } else {
-                            var opa = 0.2 + (data[stop_id]["avg"] - min)/(max - min)*0.8;
+                            var opa = 0.2 + parseFloat(data[stop_id]["avg"] - min)/parseFloat(max - min)*0.8;
                             if (opa > 1) opa = 1;
                             heatmap_stops_dict[stop_id] = L.geoJson(stops_geoJson.features[j], {
                                                             pointToLayer:function(feature, latlng){

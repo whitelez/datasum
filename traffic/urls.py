@@ -60,6 +60,8 @@ urlpatterns = patterns('',
 
     url(r'^transit_metrics_bunching/$', views.transit_metrics_bunching, name='transit_metrics_bunching'),
 
+    url(r'^transit_metrics_bustraveltime/$', views.transit_metrics_bustraveltime, name='transit_metrics_bustraveltime'),
+
     url(r'^bus_real_time/$', views.bus_real_time, name='bus_real_time'),
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  End  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

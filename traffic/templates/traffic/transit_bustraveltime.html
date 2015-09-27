@@ -339,7 +339,8 @@ Power of 32 RTIS - Transit - Bus Travel Time
             }
 
             $.get("../get_stops/", {route:route, direction:direction}, function(data, textStatus){
-                $('#select_stop').empty();
+                $('#select_origin').empty();
+                $('#select_dest').empty();
                 if(stopsLayer){
                     control.removeLayer(stopsLayer);
                     if(map.hasLayer(stopsLayer)){
@@ -550,20 +551,13 @@ Power of 32 RTIS - Transit - Bus Travel Time
         var route = $('#select_route option:selected').attr('value');
         var direction = $('#inout').bootstrapSwitch('state');
         if (direction){direction = "1"} else {direction = "0"}
-		var selected_stops = $('#select_stop option:selected');
-        var stops_number = selected_stops.length;
-        if (stops_number == 0 ){
-            alert("Please select at least 1 stop.");
+
+		var stop1ID = $('#select_origin option:selected').attr('value');
+        var stop2ID = $('#select_dest option:selected').attr('value');
+        if (stop1ID == stop2ID ){
+            alert("Please select 2 different stops.");
             return;
         }
-
-        var stops_array = new Array(stops_number),
-            stopsname_array = new Array(stops_number);
-        for(var i = 0; i < stops_number; i++){
-            stops_array[i] = selected_stops[i].value;
-            stopsname_array[i] = selected_stops[i].text;
-        }
-        var selected_stops_str = stops_array.join();
 
         var s_date = $("#s_date").val();
         if (s_date==''){alert("Please select a Start Date!");return;}
@@ -597,46 +591,53 @@ Power of 32 RTIS - Transit - Bus Travel Time
 
         $('#chartcontainer').empty();
 
-        $.get("../transit_metrics_op_byroute/", {rt:route, dir:direction, s_date:s_date, e_date:e_date, s_time:stime, e_time:etime, stops:selected_stops_str}, function(data, textStatus){
-            for (var i=0;i < stops_number; i++){
-                $('#chartcontainer').append("<div class='row' style='padding-top:5px;'><div class='col-md-10' style='height: auto;'" +
-                "id = 'col1" + stops_array[i] + "'></div><div class='col-md-2' style='height: auto;' id = 'col2" + stops_array[i] +
-                "'></div></div>");
+        $.get("../transit_metrics_bustraveltime", {
+            rt:route,
+            dir:direction,
+            s_date:s_date,
+            e_date:e_date,
+            s_time:stime,
+            e_time:etime,
+            stop1:stop1ID,
+            stop2:stop2ID
+        }, function(data, textStatus){
+            $('#chartcontainer').append("<div class='row' style='padding-top:5px;'><div class='col-md-10' style='height: auto;'" +
+            "id = 'col1" + stops_array[i] + "'></div><div class='col-md-2' style='height: auto;' id = 'col2" + stops_array[i] +
+            "'></div></div>");
 
-                var temp = document.createElement('div');
-                temp.id = 'chart'+stops_array[i];
-                temp.style.marginLeft = "20px";
-                temp.style.marginTop = "20px";
-                $('#col1'+stops_array[i]).append(temp);
-                var tempright = document.createElement('div');
-                tempright.id = 'stat'+stops_array[i];
-                tempright.style.height = "300px";
-                tempright.style.marginRight = "20px";
-                tempright.style.marginTop = "20px";
-                $('#col2'+stops_array[i]).append(tempright);
+            var temp = document.createElement('div');
+            temp.id = 'chart'+stops_array[i];
+            temp.style.marginLeft = "20px";
+            temp.style.marginTop = "20px";
+            $('#col1'+stops_array[i]).append(temp);
+            var tempright = document.createElement('div');
+            tempright.id = 'stat'+stops_array[i];
+            tempright.style.height = "300px";
+            tempright.style.marginRight = "20px";
+            tempright.style.marginTop = "20px";
+            $('#col2'+stops_array[i]).append(tempright);
 
-                plot(stops_array[i], stopsname_array[i], route, direction, data[stops_array[i]], temp.id);
+            plot(stops_array[i], stopsname_array[i], route, direction, data[stops_array[i]], temp.id);
 
-                if (data[stops_array[i]].length == 0){
-                    document.getElementById('stat'+stops_array[i]).innerHTML = "<br><br><br><br> <h4> No data found.<br>Please re-select!</h4>"
-                }else{
-                    var avg = 0,
-                        proportion = 0;
-                    for (var j=0; j < data[stops_array[i]].length; j++){
-                        avg += data[stops_array[i]][j];
-                        if ((data[stops_array[i]][j] >= low)&&(data[stops_array[i]][j] <= high)){proportion += 1}
-                    }
-                    avg /= data[stops_array[i]].length;
-                    proportion /= data[stops_array[i]].length;
-
-                    var sd = 0;
-                    for (var j=0; j < data[stops_array[i]].length; j++){
-                        sd += Math.pow(data[stops_array[i]][j] - avg, 2)
-                    }
-                    sd = Math.sqrt(sd/data[stops_array[i]].length);
-                    document.getElementById('stat'+stops_array[i]).innerHTML = "<br><br><br><br> <h5> Mean: <br>" + avg.toFixed(2) + " Minutes<br><br>Standard Deviation: <br>" + sd.toFixed(2) + " Minutes<br><br>"
-                            + "On-time Performance: <br>" + proportion.toFixed(2) + "</h5>";
+            if (data[stops_array[i]].length == 0){
+                document.getElementById('stat'+stops_array[i]).innerHTML = "<br><br><br><br> <h4> No data found.<br>Please re-select!</h4>"
+            }else{
+                var avg = 0,
+                    proportion = 0;
+                for (var j=0; j < data[stops_array[i]].length; j++){
+                    avg += data[stops_array[i]][j];
+                    if ((data[stops_array[i]][j] >= low)&&(data[stops_array[i]][j] <= high)){proportion += 1}
                 }
+                avg /= data[stops_array[i]].length;
+                proportion /= data[stops_array[i]].length;
+
+                var sd = 0;
+                for (var j=0; j < data[stops_array[i]].length; j++){
+                    sd += Math.pow(data[stops_array[i]][j] - avg, 2)
+                }
+                sd = Math.sqrt(sd/data[stops_array[i]].length);
+                document.getElementById('stat'+stops_array[i]).innerHTML = "<br><br><br><br> <h5> Mean: <br>" + avg.toFixed(2) + " Minutes<br><br>Standard Deviation: <br>" + sd.toFixed(2) + " Minutes<br><br>"
+                        + "On-time Performance: <br>" + proportion.toFixed(2) + "</h5>";
             }
             ///////Spinner Stop
                 spinner.stop();
