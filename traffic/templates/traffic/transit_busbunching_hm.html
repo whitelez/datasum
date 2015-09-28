@@ -319,7 +319,7 @@ Power of 32 RTIS - Transit - Bus Bunching - Heat Map
         busLayer   = L.geoJson();
     var stops_geoJson, route_geoJson;
 
-        function getInfo(){
+    function getInfo(){
 		var route = $('#select_route option:selected').attr('value');
         var direction = $('#inout').bootstrapSwitch('state');
         if (direction){direction = 'I'} else {direction = 'O'}
@@ -327,6 +327,11 @@ Power of 32 RTIS - Transit - Bus Bunching - Heat Map
         var target = document.getElementById('map');
         spinner = new Spinner(spinneropts).spin(target);
         target.style.opacity = '0.15';
+
+        heatmap_layerGroup.clearLayers();
+        heatmap_stops_dict = {};
+
+        origin_flag = false;
 
         if (busLayer) {
             control.removeLayer(busLayer);

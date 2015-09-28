@@ -408,6 +408,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
         }
 
         remove_all_stops_from_map();
+        $('#chartcontainer').empty();
 
 		$.get("../get_route/", {route:route.split('+')[0], direction:direction}, function(data, textStatus){
 			if(routeLayer){

@@ -1236,10 +1236,21 @@ def transit_metrics_bustraveltime(request):
     e_time = int(request.GET["e_time"])
     s_date = date(int(s_date[6:10]), int(s_date[0:2]), int(s_date[3:5]))
     e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
-    stop1 = request.GET["stop1"]
-    stop2 = request.GET["stop2"]
+    stopid1 = request.GET["stop1"]
+    stopid2 = request.GET["stop2"]
 
-    result = {}
+    result = []
+    temp = {}
+    data1 = Transit_data.objects.filter(qstopa='  '+str(stopid1), route=str(route), dir=str(direction), date__range=(s_date, e_date))
+    for item in data1:
+        if item.schtim >= s_time and item.schtim <= e_time:
+            temp[str(item.date)+item.tripa] = item.hour*60 + item.minute + float(item.second)/60
+
+    data2 = Transit_data.objects.filter(qstopa='  '+str(stopid2), route=str(route), dir=str(direction), date__range=(s_date, e_date))
+    for item in data2:
+        if item.schtim >= s_time and item.schtim <= e_time:
+            if temp.has_key(str(item.date)+item.tripa):
+                result.append(abs(temp[str(item.date)+item.tripa] - (item.hour*60 + item.minute + float(item.second)/60)))
 
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')

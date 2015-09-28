@@ -331,6 +331,8 @@ Power of 32 RTIS - Transit - Crowding Level - Heat Map
         heatmap_layerGroup.clearLayers();
         heatmap_stops_dict = {};
 
+        origin_flag = false;
+
         if (busLayer) {
             control.removeLayer(busLayer);
             if (map.hasLayer(busLayer)) {

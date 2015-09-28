@@ -3,7 +3,7 @@
 {% load staticfiles %}
 
 {% block title %}
-Power of 32 RTIS - Transit - Schedule Optimization
+Power of 32 RTIS - Transit - On-Time Performance - By Trip
 {% endblock %}
 
 {% block style %}
@@ -72,8 +72,8 @@ Power of 32 RTIS - Transit - Schedule Optimization
 {% block content %}
 <div class="well" style="overflow:auto;height: 100%;">
 	<div class="container" style="width: inherit">
-    	<div class="row"><h4> Schedule Optimization </h4></div>
-
+    	<div class="row"><h4> On-Time Performance </h4></div>
+        <div class="row"><p>&nbsp; &nbsp; Query by Trip: </p></div>
         <div class="row" style="margin-top:15px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>GTFS:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
@@ -412,6 +412,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
         }
 
         remove_all_stops_from_map();
+        $('#chartcontainer').empty();
 
 		$.get("../get_route/", {route:route.split('+')[0], direction:direction}, function(data, textStatus){
 			if(routeLayer){
@@ -485,6 +486,8 @@ Power of 32 RTIS - Transit - Schedule Optimization
 	$('#select_gtfs').change(getInfo);
 	$('#select_route').change(getInfo);
 	$('#inout').on('switchChange.bootstrapSwitch',getInfo);
+
+    $('#select_trip').change(function aa(){$('#chartcontainer').empty();});
 
     $('#select_stop').change(function() {
         remove_all_stops_from_map();
