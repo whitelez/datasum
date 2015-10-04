@@ -375,8 +375,15 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
             min = Math.floor(min - 1.0);
 			var plot1 = $.jqplot('chart', [line1, line2, line3], {
     			title:'Weekday '+ AMPM + ' Average Traveltime, Delay and TTI between ' + snode + ' and ' + enode + ' on ' + cor + ' in different years',
+                animate: !$.jqplot.use_excanvas,
                 seriesDefaults: {
-                    pointLabels: { show:true, formatString: "%#.2f" }
+                    pointLabels: { show:true, formatString: "%#.2f" },
+                    rendererOptions: {
+                        animation: {
+                            speed: 4000
+                        },
+                        fillToZero: true
+                    }
                 },
     			axes:{
     					xaxis:{renderer:$.jqplot.DateAxisRenderer,tickOptions:{formatString:'%Y'}, label:'Year', tickInterval:'1 year', min:'2002-01-01', max:'2014-01-01'},

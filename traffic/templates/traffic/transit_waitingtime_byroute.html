@@ -510,24 +510,41 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Route
 
 {#=================================================== Get Metrics Begin Here =======================================#}
     function plot(stopid, name, route, direction, time, chartname){
-            var s = [];
-            s[0] = time["Sunday"][0];
-            s[1] = time["Sunday"][1];
-            s[2] = time["Sunday"][2];
-            s[3] = time["Weekday"][0];
-            s[4] = time["Weekday"][1];
-            s[5] = time["Weekday"][2];
-            s[6] = time["Saturday"][0];
-            s[7] = time["Saturday"][1];
-            s[8] = time["Saturday"][2];
+            var SWT = [];
+            var EWT = [];
+            var AWT = [];
+            SWT[0] = time["Sunday"][0];
+            AWT[0] = time["Sunday"][1];
+            EWT[0] = time["Sunday"][2];
+            SWT[1] = time["Weekday"][0];
+            AWT[1] = time["Weekday"][1];
+            EWT[1] = time["Weekday"][2];
+            SWT[2] = time["Saturday"][0];
+            AWT[2] = time["Saturday"][1];
+            EWT[2] = time["Saturday"][2];
 			if (direction == 1){direction = 'Inbound'}else{direction = 'Outbound'}
-            var ticks = ["Sun-SWT", "Sun-AWT", "Sun-EWT", "Weekday-SWT", "Weekday-AWT", "Weekday-EWT", "Sat-SWT", "Sat-AWT", "Sat-EWT"];
-			var plot = $.jqplot(chartname, [s], {
+            var ticks = ["Sunday", "Weekday", "Saturday"];
+			var plot = $.jqplot(chartname, [SWT, AWT, EWT], {
     			title: 'Waiting Time per Passenger of Route ' + route + ' (' + direction + ') at Stop: ' + name + ' (' + stopid + ').' ,
+                animate: !$.jqplot.use_excanvas,
                 seriesDefaults: {
-                    pointLabels: { show:false, formatString: "%#.2f" },
+                    pointLabels: { show:true, formatString: "%#.2f min" },
                     renderer:$.jqplot.BarRenderer,
-                    rendererOptions: {fillToZero: true}
+                    rendererOptions: {
+                        animation: {
+                            speed: 4000
+                        },
+                        fillToZero: true
+                    }
+                },
+                series:[
+                    {label:'Scheduled Waiting Time'},
+                    {label:'Actual Waiting Time'},
+                    {label:'Excessive Waiting Time'}
+                ],
+                legend: {
+                    show: true,
+                    placement: 'outsideGrid'
                 },
     			axes: {
                     // Use a category axis on the x axis and use our custom ticks.
@@ -540,12 +557,13 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Route
                     // not touch, the grid boundaries.  1.2 is the default padding.
                     yaxis: {
                         label:'Waiting Time (min)',
-                        pad: 1.05,
-                        tickOptions: {formatString: "%#.2f"}
+                        pad: 1.5,
+                        tickOptions: {formatString: "%#.2f"},
+                        rendererOptions: { forceTickAt0: true}
                     }
                 },
                 highlighter: {
-                    show: true,
+                    show: false,
                     tooltipAxes: 'y',
                     sizeAdjust: 0
                 }
@@ -612,21 +630,14 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Route
             stops:selected_stops_str
         }, function(data, textStatus){
             for (var i=0;i < stops_number; i++){
-                $('#chartcontainer').append("<div class='row' style='padding-top:5px;'><div class='col-md-10' style='height: auto;'" +
-                "id = 'col1" + stops_array[i] + "'></div><div class='col-md-2' style='height: auto;' id = 'col2" + stops_array[i] +
-                "'></div></div>");
+                $('#chartcontainer').append("<div class='row' style='padding-top:5px;'><div class='col-md-12' style='height: auto;'" +
+                "id = 'col1" + stops_array[i] + "'></div></div>");
 
                 var temp = document.createElement('div');
                 temp.id = 'chart'+stops_array[i];
                 temp.style.marginLeft = "20px";
                 temp.style.marginTop = "20px";
                 $('#col1'+stops_array[i]).append(temp);
-                var tempright = document.createElement('div');
-                tempright.id = 'stat'+stops_array[i];
-                tempright.style.height = "300px";
-                tempright.style.marginRight = "20px";
-                tempright.style.marginTop = "20px";
-                $('#col2'+stops_array[i]).append(tempright);
 
                 plot(stops_array[i], stopsname_array[i], route.split('+')[0], direction, data[stops_array[i]], temp.id);
             }

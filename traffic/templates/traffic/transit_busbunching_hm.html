@@ -262,9 +262,13 @@ Power of 32 RTIS - Transit - Bus Bunching - Heat Map
         // add an OpenStreetMap tile layer
         var basemap = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        });
+
+        var grayscale = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
         }).addTo(map);
-	
-	    control = L.control.layers({'Base Map':basemap},null,{collapsed:false}).addTo(map);
+
+        control = L.control.layers({'Grayscale': grayscale, 'Streets':basemap},null,{collapsed:false}).addTo(map);
 
 	    var info = L.control();
 		info.onAdd = function (map) {
@@ -641,7 +645,7 @@ Power of 32 RTIS - Transit - Bus Bunching - Heat Map
             map.removeLayer(stopsLayer);
         }
         routeLayer.setStyle({
-            opacity:'0.4'
+            opacity:'0.25'
         });
 
         {# Threshold: store as percent times 100 #}

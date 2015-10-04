@@ -512,10 +512,16 @@ Power of 32 RTIS - Transit - Bus Travel Time
         var plot = $.jqplot(chartname, [ttime], {
             title: 'Bus Travel Time Distribution of Route ' + route + ' (' + direction + ') between Stop: '
             + stop1Name + '(' + stop1ID + ') and ' + stop2Name + '(' + stop2ID + ').' ,
+            animate: !$.jqplot.use_excanvas,
             seriesDefaults: {
                 pointLabels: { show:false, formatString: "%#.2f" },
                 renderer:$.jqplot.BarRenderer,
-                rendererOptions: {fillToZero: true}
+                rendererOptions: {
+                        animation: {
+                            speed: 4000
+                        },
+                        fillToZero: true
+                }
             },
             axes: {
                 // Use a category axis on the x axis and use our custom ticks.
@@ -529,7 +535,8 @@ Power of 32 RTIS - Transit - Bus Travel Time
                 yaxis: {
                     label:'Count',
                     pad: 1.05,
-                    tickOptions: {formatString: '%d'}
+                    tickOptions: {formatString: '%d'},
+                    rendererOptions: { forceTickAt0: true}
                 }
             },
             highlighter: {

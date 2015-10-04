@@ -503,10 +503,16 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
             var ticks = ['<-11','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','>11'];
 			var plot = $.jqplot(chartname, [s], {
     			title: 'Schedule deviation distribution of Route ' + route + ' at Stop: ' + name + ' (' + stopid + ').' ,
+                animate: !$.jqplot.use_excanvas,
                 seriesDefaults: {
                     pointLabels: { show:false, formatString: "%#.2f" },
                     renderer:$.jqplot.BarRenderer,
-                    rendererOptions: {fillToZero: true}
+                    rendererOptions: {
+                        animation: {
+                            speed: 4000
+                        },
+                        fillToZero: true
+                    }
                 },
     			axes: {
                     // Use a category axis on the x axis and use our custom ticks.
@@ -520,7 +526,8 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
                     yaxis: {
                         label:'Count',
                         pad: 1.05,
-                        tickOptions: {formatString: '%d'}
+                        tickOptions: {formatString: '%d'},
+                        rendererOptions: { forceTickAt0: true}
                     }
                 },
                 highlighter: {
