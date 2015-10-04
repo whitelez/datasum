@@ -566,8 +566,15 @@ Power of 32 RTIS - Travel Time: Interstates
 			var plot = $.jqplot(chartlabel, [line], {
     			title: label + ' for whole day between TMC: ' + tmc1 + ' and TMC: ' + tmc2 + ' in the period: ' +
                 sdate + '-' + edate + ' of Year 2013',
+                animate: !$.jqplot.use_excanvas,
                 seriesDefaults: {
-                    pointLabels: { show:false, formatString: "%#.3f" }
+                    pointLabels: { show:false, formatString: "%#.3f" },
+                    rendererOptions: {
+                        animation: {
+                            speed: 4000
+                        },
+                        fillToZero: true
+                    }
                 },
     			axes:{
     					xaxis:{label:'Time of the day', renderer:$.jqplot.DateAxisRenderer, tickOptions:{formatString:'%#H:%M'}, min:"0:00", max:"24:00"},

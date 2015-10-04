@@ -44,7 +44,9 @@ urlpatterns = patterns('',
     url(r'^transit_waitingtime_byroute/$', views.transit_waitingtime_byroute, name='transit_waitingtime_byroute'),
     url(r'^transit_waitingtime_bystop/$', views.transit_waitingtime_bystop, name='transit_waitingtime_bystop'),
     url(r'^transit_crowding/$', views.transit_crowding, name='transit_crowding'),
+    url(r'^transit_crowding_heatmap/$', views.transit_crowding_hm, name='transit_crowding_hm'),
     url(r'^transit_busbunching/$', views.transit_bunching, name='transit_busbunching'),
+    url(r'^transit_busbunching_heatmap/$', views.transit_bunching_hm, name='transit_busbunching_hm'),
     url(r'^transit_bustraveltime/$', views.transit_bustraveltime, name='transit_bustraveltime'),
 
     url(r'^transit_metrics_op_byroute/$', views.transit_metrics_op_byroute, name='transit_metrics_op_byroute'),
@@ -53,6 +55,12 @@ urlpatterns = patterns('',
 
     url(r'^transit_metrics_wt_byroute/$', views.transit_metrics_wt_byroute, name='transit_metrics_wt_byroute'),
     url(r'^transit_metrics_wt_bystop/$', views.transit_metrics_wt_bystop, name='transit_metrics_wt_bystop'),
+
+    url(r'^transit_metrics_crowding/$', views.transit_metrics_crowding, name='transit_metrics_crowding'),
+
+    url(r'^transit_metrics_bunching/$', views.transit_metrics_bunching, name='transit_metrics_bunching'),
+
+    url(r'^transit_metrics_bustraveltime/$', views.transit_metrics_bustraveltime, name='transit_metrics_bustraveltime'),
 
     url(r'^bus_real_time/$', views.bus_real_time, name='bus_real_time'),
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  End  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++

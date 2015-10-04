@@ -404,6 +404,7 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
             min = min-0.5*(max-min);
 			var plot = $.jqplot(chartlabel, [line], {
     			title: label + ' betweeen Nodes ' + snode + ' and ' + enode + ' on Corridor ' + cor + ' in a Typical Weekday between Year 2013-2015',
+                animate: !$.jqplot.use_excanvas,
                 seriesDefaults: {
                     pointLabels: { show:false, formatString: "%#.2f" }
                 },

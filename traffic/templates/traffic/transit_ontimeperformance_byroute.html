@@ -78,7 +78,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
 		<div class="row" style="padding-top:15px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Route:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
-                <select id='select_route' name = 'select_route' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+                <select id='select_route' name = 'select_route' data-header="Select 1 Route:" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
 			  	    {% for route in routes%}
 						<option value={{route.route_value}}>{{route.route_shortname}}</option>
 					{% endfor %}
@@ -95,7 +95,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
         <div class="row" style="padding-top:5px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Stops:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
-                <select id = "select_stop" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
+                <select id = "select_stop" data-header="Select 1 or More Stops:" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
                 </select>
             </div>
 	    </div>
@@ -408,6 +408,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
         }
 
         remove_all_stops_from_map();
+        $('#chartcontainer').empty();
 
 		$.get("../get_route/", {route:route.split('+')[0], direction:direction}, function(data, textStatus){
 			if(routeLayer){
@@ -510,10 +511,16 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
             var ticks = ['<-11','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','>11'];
 			var plot = $.jqplot(chartname, [s], {
     			title: 'Schedule deviation distribution of Route ' + route + ' (' + direction + ') at Stop: ' + name + ' (' + stopid + ').' ,
+                animate: !$.jqplot.use_excanvas,
                 seriesDefaults: {
                     pointLabels: { show:false, formatString: "%#.2f" },
                     renderer:$.jqplot.BarRenderer,
-                    rendererOptions: {fillToZero: true}
+                    rendererOptions: {
+                        animation: {
+                            speed: 4000
+                        },
+                        fillToZero: true
+                    }
                 },
     			axes: {
                     // Use a category axis on the x axis and use our custom ticks.
@@ -527,7 +534,8 @@ Power of 32 RTIS - Transit - On-Time Performance - By Route
                     yaxis: {
                         label:'Count',
                         pad: 1.05,
-                        tickOptions: {formatString: '%d'}
+                        tickOptions: {formatString: '%d'},
+                        rendererOptions: { forceTickAt0: true}
                     }
                 },
                 highlighter: {

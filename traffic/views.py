@@ -653,10 +653,20 @@ def transit_crowding(request):
     routes = routes.split(',')
     return render(request, 'traffic/transit_crowding.html', {'routes': routes})
 
+def transit_crowding_hm(request):
+    routes = ','.join(route.short_name for route in Route.objects.all())
+    routes = routes.split(',')
+    return render(request, 'traffic/transit_crowding_hm.html', {'routes': routes})
+
 def transit_bunching(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
     return render(request, 'traffic/transit_bunching.html', {'routes': routes})
+
+def transit_bunching_hm(request):
+    routes = ','.join(route.short_name for route in Route.objects.all())
+    routes = routes.split(',')
+    return render(request, 'traffic/transit_busbunching_hm.html', {'routes': routes})
 
 def transit_bustraveltime(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
@@ -1081,6 +1091,170 @@ def transit_metrics_wt_bystop(request):
 
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
+
+def transit_metrics_crowding(request):
+    routedict = Route_dict.objects.all()
+    route = ''
+    for item in routedict:
+        if item.short_name == request.GET["rt"]:
+            route = item.route_number_in_APCAVL
+            break
+    direction = request.GET["dir"]
+    s_date = request.GET["s_date"]
+    e_date = request.GET["e_date"]
+    s_time = int(request.GET["s_time"])
+    e_time = int(request.GET["e_time"])
+    s_date = date(int(s_date[6:10]), int(s_date[0:2]), int(s_date[3:5]))
+    e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
+    stops = request.GET["stops"].split(",")
+    threshold = float(request.GET["thres"])/float(100)
+
+    # The map from "bus model" to "number of seats", "bus model" in APC/AVL has 4 digits, only first 2 represent models
+    bus_map = {"30": 63, "31": 60, "50": 37, "51": 37, "52": 37, "53": 37, "54": 37, "55": 40, "56": 40,
+               "19": 57, "32": 56, "33": 56, "39": 60, "57": 40, "58": 40, "59": 40}
+
+    result = {}
+    for stopid in stops:
+        result[stopid] = {"absmax": 0, "avgmax": 0, "avgavg": 0, "avgmin": 0, "ocpro": 0}
+        temp = {}
+        # the field qstopa now has 2 blank spaces in the beginning of every line, if database changed, remember to revise the filter condition!!
+        data = Transit_data.objects.filter(qstopa='  '+str(stopid), route=str(route), dir=str(direction), date__range=(s_date, e_date))
+        for item in data:
+            if item.schtim >= s_time and item.schtim <= e_time:
+                load = float(item.load_num)
+                capacity = float(bus_map[item.vehnoa[:2]])
+                pro = load/capacity
+                if temp.has_key(item.date):
+                    temp[item.date].append(pro)
+                else:
+                    temp[item.date] = [pro]
+        avgavg = 0
+        avgmax = 0
+        avgmin = 0
+        occount = 0
+        absmax = 0
+        totalcount = 0
+        for key in temp.keys():
+            avgavg += float(sum(temp[key]))/float(len(temp[key]))
+            avgmax += max(temp[key])
+            avgmin += min(temp[key])
+            if max(temp[key]) > absmax:
+                absmax = max(temp[key])
+            for item in temp[key]:
+                if item > threshold:
+                    occount += 1
+            totalcount += len(temp[key])
+        numofdate = float(len(temp))
+        result[stopid]["absmax"] = absmax
+        if numofdate != 0:
+            result[stopid]["avgmax"] = float(avgmax)/numofdate
+            result[stopid]["avgavg"] = float(avgavg)/numofdate
+            result[stopid]["avgmin"] = float(avgmin)/numofdate
+        if totalcount != 0:
+            result[stopid]["ocpro"] = float(occount)/float(totalcount)
+
+    response = json.dumps(result)
+    return HttpResponse(response, content_type='application/json')
+
+def transit_metrics_bunching(request):
+    routedict = Route_dict.objects.all()
+    route = ''
+    for item in routedict:
+        if item.short_name == request.GET["rt"]:
+            route = item.route_number_in_APCAVL
+            break
+    direction = request.GET["dir"]
+    s_date = request.GET["s_date"]
+    e_date = request.GET["e_date"]
+    s_time = int(request.GET["s_time"])
+    e_time = int(request.GET["e_time"])
+    s_date = date(int(s_date[6:10]), int(s_date[0:2]), int(s_date[3:5]))
+    e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
+    stops = request.GET["stops"].split(",")
+    threshold = float(request.GET["thres"])/float(100)
+
+    result = {}
+    for stopid in stops:
+        result[stopid] = {"max": 0, "avg": 0}
+        temp = {}
+        # the field qstopa now has 2 blank spaces in the beginning of every line, if database changed, remember to revise the filter condition!!
+        data = Transit_data.objects.filter(qstopa='  '+str(stopid), route=str(route), dir=str(direction), date__range=(s_date, e_date))
+        for item in data:
+            if item.schtim >= s_time and item.schtim <= e_time:
+                if temp.has_key(item.date):
+                    temp[item.date][int(item.tripa)] = int(item.hour*3600 + item.minute*60 + item.second)
+                else:
+                    temp[item.date] = {int(item.tripa): int(item.hour*3600 + item.minute*60 + item.second)}
+        onestop = {}
+        for key in temp.keys():
+            if len(temp[key]) > 1:
+                oneday = temp[key]
+                count = 0
+                pre_init = 0
+                pre_arr = 0
+                b_num = 0
+                for key2 in sorted(oneday.keys()):
+                    if count != 0:
+                        s_headway = (((key2 % 100) + (key2 // 100) * 60) - ((pre_init % 100) + (pre_init // 100) * 60)) * 60
+                        a_headway = oneday[key2] - pre_arr
+                        if float(a_headway)/float(s_headway) < threshold:  # Actual Headway/Scheduled Headway < Threshold
+                            b_num += 1
+                    count += 1
+                    pre_init = key2
+                    pre_arr = oneday[key2]
+                if b_num != 0:
+                    onestop[key] = float(b_num + 1)/float(len(temp[key]))
+                else:
+                    onestop[key] = 0
+        bavg = 0
+        bmax = 0
+        for key in onestop.keys():
+            if onestop[key] > bmax:
+                bmax = onestop[key]
+            bavg += onestop[key]
+        if len(onestop) != 0:
+            bavg = float(bavg)/float(len(onestop))
+        else:
+            bavg = -1
+        result[stopid]["max"] = bmax
+        result[stopid]["avg"] = bavg
+
+    response = json.dumps(result)
+    return HttpResponse(response, content_type='application/json')
+
+def transit_metrics_bustraveltime(request):
+    routedict = Route_dict.objects.all()
+    route = ''
+    for item in routedict:
+        if item.short_name == request.GET["rt"]:
+            route = item.route_number_in_APCAVL
+            break
+    direction = request.GET["dir"]
+    s_date = request.GET["s_date"]
+    e_date = request.GET["e_date"]
+    s_time = int(request.GET["s_time"])
+    e_time = int(request.GET["e_time"])
+    s_date = date(int(s_date[6:10]), int(s_date[0:2]), int(s_date[3:5]))
+    e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
+    stopid1 = request.GET["stop1"]
+    stopid2 = request.GET["stop2"]
+
+    result = []
+    temp = {}
+    data1 = Transit_data.objects.filter(qstopa='  '+str(stopid1), route=str(route), dir=str(direction), date__range=(s_date, e_date))
+    for item in data1:
+        if item.schtim >= s_time and item.schtim <= e_time:
+            temp[str(item.date)+item.tripa] = item.hour*60 + item.minute + float(item.second)/60
+
+    data2 = Transit_data.objects.filter(qstopa='  '+str(stopid2), route=str(route), dir=str(direction), date__range=(s_date, e_date))
+    for item in data2:
+        if item.schtim >= s_time and item.schtim <= e_time:
+            if temp.has_key(str(item.date)+item.tripa):
+                result.append(abs(temp[str(item.date)+item.tripa] - (item.hour*60 + item.minute + float(item.second)/60)))
+
+    response = json.dumps(result)
+    return HttpResponse(response, content_type='application/json')
+
 
 # Temporarily no use ################################################
 def transit_metrics_route_range(request):

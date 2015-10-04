@@ -10,11 +10,13 @@
 
 	<link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap-Sandstone.min.css'%}">
 	<link rel="stylesheet" type="text/css" href="{% static 'traffic/style_new.css'%}">
-	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.min.css">
+	<link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap-select.css'%}">
+{#	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.min.css">#}
 	<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0-rc2/css/bootstrap-glyphicons.css">
 	<script type="text/javascript" src={% static 'traffic/jquery-2.1.3.min.js'%}></script>
 	<script type="text/javascript" src={% static "traffic/bootstrap.js" %}></script>
-	<script src="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.min.js"> </script>
+	<script type="text/javascript" src={% static "traffic/bootstrap-select.js" %}></script>
+{#	<script src="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.min.js"> </script>#}
 	<link rel="shortcut icon" href="{% static 'traffic/images/favicon.ico' %}" type="image/x-icon">
 	<link rel="icon" href="{% static 'traffic/images/favicon.ico' %}" type="image/x-icon">
     {% block style %}{% endblock %}
@@ -54,7 +56,7 @@
                                 <ul class="dropdown-menu">
                                     <li><a href="{% url 'traffic:transit_ontimeperformance_byroute' %}"> Query by Route </a></li>
                                     <li><a href="{% url 'traffic:transit_ontimeperformance_bystop' %}"> Query by Stop </a></li>
-                                    <li><a href="{% url 'traffic:transit_schedule' %}">Schedule Optimization</a></li>
+                                    <li><a href="{% url 'traffic:transit_schedule' %}"> Query by Trip </a></li>
                                 </ul>
                             </li>
                             <li class="dropdown dropdown-submenu">
@@ -64,8 +66,20 @@
                                     <li><a href="{% url 'traffic:transit_waitingtime_bystop' %}"> Query by Stop </a></li>
                                 </ul>
                             </li>
-                            <li><a href="{% url 'traffic:transit_crowding' %}">Bus Crowding Level</a></li>
-							<li><a href="{% url 'traffic:transit_busbunching' %}">Bus Bunching</a></li>
+                            <li class="dropdown dropdown-submenu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Bus Crowding Level</a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{% url 'traffic:transit_crowding' %}"> Statistics for Stops </a></li>
+                                    <li><a href="{% url 'traffic:transit_crowding_hm' %}"> Heat Map </a></li>
+                                </ul>
+                            </li>
+							<li class="dropdown dropdown-submenu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Bus Bunching</a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{% url 'traffic:transit_busbunching' %}"> Statistics for Stops </a></li>
+                                    <li><a href="{% url 'traffic:transit_busbunching_hm' %}"> Heat Map </a></li>
+                                </ul>
+                            </li>
 							<li><a href="{% url 'traffic:transit_bustraveltime' %}">Bus Travel Time</a></li>
                         </ul>
                     </li>

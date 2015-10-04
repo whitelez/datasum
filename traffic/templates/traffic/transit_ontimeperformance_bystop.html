@@ -86,7 +86,7 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
         <div class="row" style="padding-top:10px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Routes:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
-                <select id = "select_routes" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
+                <select id = "select_routes" data-header="Select 1 or More Routes:" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
                 </select>
             </div>
 	    </div>
@@ -242,9 +242,13 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
         // add an OpenStreetMap tile layer
         var basemap = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        });
+
+        var grayscale = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
         }).addTo(map);
 
-        control = L.control.layers({'Base Map':basemap},null,{collapsed:false}).addTo(map);
+        control = L.control.layers({'Grayscale': grayscale, 'Streets':basemap},null,{collapsed:false}).addTo(map);
 	
 	    map.addControl( new L.Control.Search({
 			url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',
@@ -499,10 +503,16 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
             var ticks = ['<-11','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','>11'];
 			var plot = $.jqplot(chartname, [s], {
     			title: 'Schedule deviation distribution of Route ' + route + ' at Stop: ' + name + ' (' + stopid + ').' ,
+                animate: !$.jqplot.use_excanvas,
                 seriesDefaults: {
                     pointLabels: { show:false, formatString: "%#.2f" },
                     renderer:$.jqplot.BarRenderer,
-                    rendererOptions: {fillToZero: true}
+                    rendererOptions: {
+                        animation: {
+                            speed: 4000
+                        },
+                        fillToZero: true
+                    }
                 },
     			axes: {
                     // Use a category axis on the x axis and use our custom ticks.
@@ -516,7 +526,8 @@ Power of 32 RTIS - Transit - On-Time Performance - By Stop
                     yaxis: {
                         label:'Count',
                         pad: 1.05,
-                        tickOptions: {formatString: '%d'}
+                        tickOptions: {formatString: '%d'},
+                        rendererOptions: { forceTickAt0: true}
                     }
                 },
                 highlighter: {

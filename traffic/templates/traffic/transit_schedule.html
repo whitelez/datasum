@@ -3,7 +3,7 @@
 {% load staticfiles %}
 
 {% block title %}
-Power of 32 RTIS - Transit - Schedule Optimization
+Power of 32 RTIS - Transit - On-Time Performance - By Trip
 {% endblock %}
 
 {% block style %}
@@ -72,12 +72,12 @@ Power of 32 RTIS - Transit - Schedule Optimization
 {% block content %}
 <div class="well" style="overflow:auto;height: 100%;">
 	<div class="container" style="width: inherit">
-    	<div class="row"><h4> Schedule Optimization </h4></div>
-
+    	<div class="row"><h4> On-Time Performance </h4></div>
+        <div class="row"><p>&nbsp; &nbsp; Query by Trip: </p></div>
         <div class="row" style="margin-top:15px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>GTFS:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
-                <select id='select_gtfs' name = 'select_gtfs' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+                <select id='select_gtfs' name = 'select_gtfs' data-header="Select 1 GTFS Version:" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
 			  	    {% for record in GTFS%}
 						<option value={{record}}>{{record}}</option>
 					{% endfor %}
@@ -88,7 +88,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
 		<div class="row" style="margin-top:8px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Route:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
-                <select id='select_route' name = 'select_route' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+                <select id='select_route' name = 'select_route' data-header="Select 1 Route:" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
 			  	    {% for route in routes%}
 						<option value={{route.route_value}}>{{route.route_shortname}}</option>
 					{% endfor %}
@@ -105,7 +105,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
         <div class="row" style="padding-top:8px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Trip:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
-                <select id = "select_trip" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+                <select id = "select_trip" data-header="Select 1 Trip of the Route:" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
                 </select>
             </div>
 	    </div>
@@ -113,7 +113,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
         <div class="row" style="padding-top:8px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Stops:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
-                <select id = "select_stop" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
+                <select id = "select_stop" data-header="Select 1 or More Stops:" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
                 </select>
             </div>
 	    </div>
@@ -412,6 +412,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
         }
 
         remove_all_stops_from_map();
+        $('#chartcontainer').empty();
 
 		$.get("../get_route/", {route:route.split('+')[0], direction:direction}, function(data, textStatus){
 			if(routeLayer){
@@ -467,7 +468,7 @@ Power of 32 RTIS - Transit - Schedule Optimization
                     if(data){
                         for(var i=0;i<data.length;i++){
                             $("#select_trip").append("<option value="+data[i].day_of_week+'+'+data[i].initial_time+'+'+
-                                    data[i].trip_id+">"+data[i].trip_id+", "+data[i].initial_time+", "+data[i].day_of_week+"</option>");
+                                    data[i].trip_id+">"+data[i].trip_id.split("-")[0]+", "+data[i].initial_time+", "+data[i].day_of_week+"</option>");
                         }
                         $('#select_trip').selectpicker('refresh');
                     }
@@ -485,6 +486,8 @@ Power of 32 RTIS - Transit - Schedule Optimization
 	$('#select_gtfs').change(getInfo);
 	$('#select_route').change(getInfo);
 	$('#inout').on('switchChange.bootstrapSwitch',getInfo);
+
+    $('#select_trip').change(function aa(){$('#chartcontainer').empty();});
 
     $('#select_stop').change(function() {
         remove_all_stops_from_map();
@@ -527,10 +530,16 @@ Power of 32 RTIS - Transit - Schedule Optimization
             var ticks = ['<-11','-11','-10','-9','-8','-7','-6','-5','-4','-3','-2','-1','1','2','3','4','5','6','7','8','9','10','11','>11'];
 			var plot = $.jqplot(chartname, [s], {
     			title: 'Schedule deviation distribution of Route ' + route + ' (' + direction + ') at Stop: ' + name + ' (' + stopid + ').' ,
+                animate: !$.jqplot.use_excanvas,
                 seriesDefaults: {
                     pointLabels: { show:false, formatString: "%#.2f" },
                     renderer:$.jqplot.BarRenderer,
-                    rendererOptions: {fillToZero: true}
+                    rendererOptions: {
+                        animation: {
+                            speed: 4000
+                        },
+                        fillToZero: true
+                    }
                 },
     			axes: {
                     // Use a category axis on the x axis and use our custom ticks.
@@ -544,7 +553,8 @@ Power of 32 RTIS - Transit - Schedule Optimization
                     yaxis: {
                         label:'Count',
                         pad: 1.05,
-                        tickOptions: {formatString: '%d'}
+                        tickOptions: {formatString: '%d'},
+                        rendererOptions: { forceTickAt0: true}
                     }
                 },
                 highlighter: {
