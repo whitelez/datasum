@@ -1,0 +1,104 @@
+{% load staticfiles %}
+
+<!DOCTYPE HTML>
+
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>{% block title %}{% endblock %} </title>
+
+	<link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap-Sandstone.min.css'%}">
+	<link rel="stylesheet" type="text/css" href="{% static 'traffic/style_new.css'%}">
+	<link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap-select.css'%}">
+{#	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.min.css">#}
+	<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0-rc2/css/bootstrap-glyphicons.css">
+	<script type="text/javascript" src={% static 'traffic/jquery-2.1.3.min.js'%}></script>
+	<script type="text/javascript" src={% static "traffic/bootstrap.js" %}></script>
+	<script type="text/javascript" src={% static "traffic/bootstrap-select.js" %}></script>
+{#	<script src="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.min.js"> </script>#}
+	<link rel="shortcut icon" href="{% static 'traffic/images/favicon.ico' %}" type="image/x-icon">
+	<link rel="icon" href="{% static 'traffic/images/favicon.ico' %}" type="image/x-icon">
+    {% block style %}{% endblock %}
+</head>
+
+<body>
+  <div class="mainpage" id="main">
+		<div class="jumbotron">
+			<div class="container">
+				<h1>Power of 32 - Regional Traveler Information System</h1>
+				<img src="http://www.powerof32.org/images/powerof32-logo.png">
+			</div>
+		</div>
+		<nav class="navbar navbar-default navbar-static-top" role="navigation">
+			<div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right" style="margin-right: 20px;">
+                    <li id="nav-download"><a href="{% url 'traffic:download' %}"><span class="glyphicon glyphicon-download-alt"> </span> &nbsp;Download</a></li>
+                </ul>
+				<ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"> On-Time Performance <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'traffic:transit_ontimeperformance_byroute' %}"> Query by Route </a></li>
+                            <li><a href="{% url 'traffic:transit_ontimeperformance_bystop' %}"> Query by Stop </a></li>
+                            <li><a href="{% url 'traffic:transit_schedule' %}"> Query by Trip </a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"> Waiting Time <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'traffic:transit_waitingtime_byroute' %}"> Query by Route </a></li>
+                            <li><a href="{% url 'traffic:transit_waitingtime_bystop' %}"> Query by Stop </a></li>
+                        </ul>
+                    </li>
+                    <li><a href="{% url 'traffic:transit_bustraveltime' %}">Bus Travel Time</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Crowding Level <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'traffic:transit_crowding' %}"> Statistics for Stops </a></li>
+                            <li><a href="{% url 'traffic:transit_crowding_hm' %}"> Heat Map </a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Bus Bunching <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'traffic:transit_busbunching' %}"> Statistics for Stops </a></li>
+                            <li><a href="{% url 'traffic:transit_busbunching_hm' %}"> Heat Map </a></li>
+                        </ul>
+                    </li>
+				</ul>
+			</div>
+		</nav>
+      <div id="lw" style="float: left;">
+          {% block content %}{% endblock %}
+      </div>
+
+      {% block map %}{% endblock %}
+
+      <div style="width:100%;height:2px;margin:0 auto;padding:0;background-color:#ddd;overflow:hidden;"></div>
+      <footer>
+       <p class="footer_content" style="text-align:center;padding-top: 10px">
+           <a href="http://www.powerof32.org/" target="_blank"><img src="http://www.powerof32.org/images/powerof32-logo.png" style="margin-top: -8px" width='140' height='30' ></a> |
+        <a href="http://www.cmu.edu/index.shtml" target="_blank">Carnegie Mellon University</a> | <a href="http://www.benedum.org/" target="_blank">Benedum Foundation</a> | <a href="http://heinz.cmu.edu/index.aspx" target="_blank">Heinz College</a> | <a href="http://traffic21.heinz.cmu.edu/" target="_blank">Traffic21</a> | contact us </p>
+      </footer>
+
+	</div>
+</body>
+
+
+<script>
+    var url = window.location;
+	// Will only work if string in href matches with location
+{#	$('ul.nav a[href="'+ url +'"]').parent().addClass('active');#}
+    // Will also work for relative and absolute hrefs
+    $('ul.nav a').filter(function() {
+    	return this.href == url;
+	}).parent().addClass('active');
+    $('ul.nav a').filter(function() {
+    	return this.href == url;
+	}).parent().parent().parent().addClass('active');
+</script>
+
+{% block script %}{% endblock %}
+
+</html>

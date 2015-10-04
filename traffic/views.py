@@ -944,8 +944,9 @@ def transit_metrics_wt_byroute(request):
                     nu += float((item3 - pre)**2)/2.0
                     de += item3 - pre
                     pre = item3
-                avg += float(nu)/float(de)
-                daycount += 1
+                if float(de) != 0:
+                    avg += float(nu)/float(de)
+                    daycount += 1
         if daycount > 0:
             result[stopid]["Weekday"].append(float(avg)/float(daycount))
         else:
@@ -1070,8 +1071,9 @@ def transit_metrics_wt_bystop(request):
                     nu += float((item3 - pre)**2)/2.0
                     de += item3 - pre
                     pre = item3
-                avg += float(nu)/float(de)
-                daycount += 1
+                if float(de) != 0:
+                    avg += float(nu)/float(de)
+                    daycount += 1
         if daycount > 0:
             result[route.split("-")[0]]["Weekday"].append(float(avg)/float(daycount))
         else:

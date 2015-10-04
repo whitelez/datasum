@@ -1,4 +1,4 @@
-{% extends "traffic/base.html" %}
+{% extends "traffic/base2.html" %}
 
 {% load staticfiles %}
 
@@ -148,11 +148,13 @@ Power of 32 RTIS - Transit - Bus Bunching - Statistics for Stops
            </div>
         </div>
 
-        <div class="row" style="padding-top:38px;">
-            <div class="col-md-5" style="height:20px;padding-right: 0;"><p>Threshold (%):</p></div>
-            <div class="col-md-7" style="padding-left: 0;padding-right: 0;">
-                <input  style="float: right;width: 90%" id="slider" type="text" data-slider-value="20" data-slider-min="1" data-slider-max="100" data-slider-step="1"/>
-            </div>
+        <div class="row" style="padding-top:10px;">
+           <div class="col-md-4" style="height: 36px;"><h5> Criterion: </h5></div>
+           <div class="col-md-1" style="height: 36px;padding-left: 0;padding-right: 0;"><h5> <= </h5></div>
+           <div class="col-md-3" style="padding-left: 0;padding-right: 0;">
+               <input id="critical" align="right" style="height: 36px;" type='text' value="0.50" class="form-control" />
+           </div>
+           <div class="col-md-4" style="height: 36px;padding-left: 0;"><h5> &nbsp; Headway </h5></div>
         </div>
 
         <div class="row" style="padding-top:15px;">
@@ -198,10 +200,6 @@ Power of 32 RTIS - Transit - Bus Bunching - Statistics for Stops
     $('.selectpicker').selectpicker({
         style: 'btn-inverse',
         size: 10
-    });
-
-    $("#slider").slider({
-	    tooltip: 'show'
     });
 </script>
 
@@ -528,7 +526,7 @@ Power of 32 RTIS - Transit - Bus Bunching - Statistics for Stops
         target.style.opacity = '0.15';
 
         {# Threshold: store as percent times 100 #}
-        var threshold = $("#slider").slider('getValue');
+        var threshold = (parseFloat(document.getElementById("critical").value) * 100).toString();
 
         $('#chartcontainer').empty();
 
