@@ -1,0 +1,61 @@
+body{
+	background: #ffffff;
+}
+.mainpage{
+    height: 100vh;
+	margin: 0 auto;
+	padding-bottom: 6px;
+}
+.jumbotron {
+    display: none;
+	padding: 5px 20px;
+}
+
+#lw,#rw{
+    width:320px;
+    height:89vh;
+	min-height: 0px;
+}
+
+#map{
+	width:auto;height:89vh;box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+.well{
+    height:100%;
+	margin-bottom: 0px;border-radius: 0px;padding-left: 25px;padding-right: 25px;
+}
+
+.form-control{
+	height:30px;
+}
+
+.navbar{
+    background-color:#525453;
+    float: top;
+    min-height: 30px;
+}
+.navbar-nav li a {
+    float: top;
+    height: 38px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+.navbar-default .navbar-nav > li > a {
+    color:   #ffffff;
+}
+.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
+    color: #ffffff;
+    background-color:  #48A30B;
+
+}
+
+.navbar-default .navbar-nav  li  a:hover, .navbar-default .navbar-nav > li > a:focus {
+    color: #ffffff;
+    background-color:  #48A30B;
+    padding-top: 11px;
+}
+.navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:hover, .navbar-default.navbar-nav>.active>a:focus {
+    background-color:  #009933;
+    color: #ffffff;
+    padding-top: 11px;
+}
