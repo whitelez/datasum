@@ -44,11 +44,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 SECRET_KEY = '*d7jnjdq6ng4w_u0$ilw5lyd-s&b9y@kb%!cg=jbx1f7hw^r3q'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['mac.heinz.cmu.edu']
 
 
 # Application definition
