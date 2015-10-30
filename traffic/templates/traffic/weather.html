@@ -8,11 +8,17 @@ MDAP - Weather
 
 {% block style %}
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css'%}">
+<style>
+    #lw,#rw{
+    width:0px;
+    }
+</style>
 {% endblock %}
 
 
 {% block map %}
-<input type="button" id="update_weather" value="update all counties" style = "display:none;"/>    
+{#<input type="button" id="update_weather" value="update all counties" style = "display:none;"/>    #}
 <div id="map"></div>
     <h5 style="text-align:right"> * Click on the counties to see weather distribution over one day.</h5>
     <br>

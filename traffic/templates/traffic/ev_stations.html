@@ -8,6 +8,12 @@ MDAP - EV Stations
 
 {% block style %}
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css'%}">
+<style>
+    #lw,#rw{
+    width:0px;
+    }
+</style>
 {% endblock %}
 
 
