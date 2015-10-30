@@ -3,17 +3,22 @@
 {% load staticfiles %}
 
 {% block title %}
-Power of 32 RTIS - Weather
+MDAP - Weather
 {% endblock %}
 
 {% block style %}
-<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css'%}">
+<style>
+    #lw,#rw{
+    width:0px;
+    }
+</style>
 {% endblock %}
 
 
 {% block map %}
-<input type="button" id="update_weather" value="update all counties" style = "display:none;"/>    
+{#<input type="button" id="update_weather" value="update all counties" style = "display:none;"/>    #}
 <div id="map"></div>
     <h5 style="text-align:right"> * Click on the counties to see weather distribution over one day.</h5>
     <br>
@@ -55,7 +60,6 @@ Power of 32 RTIS - Weather
 	
 
 {% block script %}
-<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <script type="text/javascript" src="{% static 'traffic/power32_geometry.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/jquery.jqplot.min.js' %}"></script>
