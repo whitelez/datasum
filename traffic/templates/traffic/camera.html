@@ -3,12 +3,11 @@
 {% load staticfiles %}
 
 {% block title %}
-Power of 32 RTIS - Camera
+MDAP - Camera
 {% endblock %}
 
 {% block style %}
     <link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css'%}">
-    <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
     <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
     <style>
     #lw,#rw{
@@ -24,7 +23,6 @@ Power of 32 RTIS - Camera
 	
 
 {% block script %}
-<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <script type="text/javascript" src="{% static 'traffic/modernizr-1.5.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/CCTV_geoJSON.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>

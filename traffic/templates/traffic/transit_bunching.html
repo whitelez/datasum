@@ -3,7 +3,7 @@
 {% load staticfiles %}
 
 {% block title %}
-Power of 32 RTIS - Transit - Bus Bunching - Statistics for Stops
+MDAP - Transit - Bus Bunching - Statistics for Stops
 {% endblock %}
 
 {% block style %}
@@ -61,7 +61,6 @@ Power of 32 RTIS - Transit - Bus Bunching - Statistics for Stops
         opacity: 0.9;
     }
 </style>
-<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-switch.min.css' %}" />
@@ -180,8 +179,6 @@ Power of 32 RTIS - Transit - Bus Bunching - Statistics for Stops
 	
 
 {% block script %}
-<script type="text/javascript" src="{% static 'traffic/Leaflet_0.7.5/leaflet-src.js' %}"></script>
-
 <script type="text/javascript" src="{% static 'traffic/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/transition.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/collapse.js' %}"></script>
