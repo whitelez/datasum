@@ -44,7 +44,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 SECRET_KEY = '*d7jnjdq6ng4w_u0$ilw5lyd-s&b9y@kb%!cg=jbx1f7hw^r3q'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 TEMPLATE_DEBUG = True
 
@@ -72,6 +72,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'project_middleware.authen_middleware.LoginRequiredMiddleware',
 )
 
 ROOT_URLCONF = 'dataproject.urls'
@@ -115,3 +116,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# for login use
+LOGIN_URL = '/traffic/login/'
+
+LOGIN_EXEMPT_URLS = (
+)

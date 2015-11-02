@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-from traffic import views
+from traffic import views, authen_view
 from backend import crash_view, parking_view
 
 urlpatterns = patterns('',
@@ -106,4 +106,9 @@ urlpatterns = patterns('',
 #map_displayer
     url(r'^map_displayer/$', views.map_displayer, name='map_displayer'),
 
+#authentication and registration
+    url(r'^register/$', authen_view.register, name='register'),
+    url(r'^login/$', authen_view.user_login, name='login'),
+    url(r'^restricted/', authen_view.restricted, name='restricted'),
+    url(r'^logout/$', authen_view.user_logout, name='logout'),
 )

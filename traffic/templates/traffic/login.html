@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- Is anyone getting tired of repeatedly entering the header over and over?? -->
+        <title>MAP</title>
+    </head>
+
+    <body>
+        <h1>Login to MAP</h1>
+
+        <form id="login_form" method="post" action="/traffic/login/">
+            {% csrf_token %}
+            Username: <input type="text" name="username" value="" size="50" />
+            <br />
+            Password: <input type="password" name="password" value="" size="50" />
+            <br />
+
+            <input type="submit" value="submit" />
+        </form>
+        <a href="/traffic/register/">Register Here</a><br />
+
+    </body>
+</html>
