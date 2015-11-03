@@ -44,6 +44,7 @@ def ajaxtest(request):
 def weather(request):
     return render(request, 'traffic/weather.html')
 
+@permission_required(perm= 'traffic.perm_weather', raise_exception= True)
 def get_county_weather(request):
     state = request.GET['state']   
     county = request.GET['county']
@@ -57,6 +58,7 @@ def get_county_weather(request):
     response = json.dumps(weather_info)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_weather', raise_exception= True)
 def get_weather(request):
     #geo_list = []
     i=0
@@ -88,14 +90,17 @@ def get_weather(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_ev_station', raise_exception= True)
 def ev_stations(request):
     return render(request, 'traffic/ev_stations.html')
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def travel_time(request):
     tmcs = TMC.objects.all()
     return render(request, 'traffic/travel_time.html', {'n': range(1, 32), 'tmcs': tmcs})
 
 #BY PXD
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def travel_time_new(request):
     tmcs = TMC.objects.all()
     records = SPCCorridorNodeInfo.objects.all()
@@ -112,6 +117,7 @@ def travel_time_new(request):
             corridors.insert(flag, corridor)
     return render(request, 'traffic/travel_time_new.html', {'corridors': corridors})
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def travel_time_corridorafter2013(request):
     records = SPCCorridorNodeInfo2013to2015.objects.all()
     corridors = []
@@ -127,6 +133,7 @@ def travel_time_corridorafter2013(request):
             corridors.insert(flag, corridor)
     return render(request, 'traffic/travel_time_corridorafter2013.html', {'corridors': corridors})
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def get_node_info(request):
     cornum = request.GET['cornum']
     nodes = SPCCorridorNodeInfo.objects.filter(Corridor_Number=cornum)
@@ -141,6 +148,7 @@ def get_node_info(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def get_node_info_2013to2015(request):
     cornum = request.GET['cornum']
     nodes = SPCCorridorNodeInfo2013to2015.objects.filter(Corridor_Number=cornum)
@@ -155,6 +163,7 @@ def get_node_info_2013to2015(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def get_spcyears(request):
     cornum = request.GET['cornum']
     records = SPCtraveltime.objects.filter(Corridor_Number=cornum)
@@ -170,6 +179,7 @@ def get_spcyears(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def get_spctraveltime_2013to2015(request):
     cornum0 = request.GET['cornum']
     Snode = request.GET['Snode']
@@ -216,6 +226,7 @@ def get_spctraveltime_2013to2015(request):
     response2 = json.dumps(response)
     return HttpResponse(response2, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def get_spctraveltime(request):
     cornum = request.GET['cornum']
     year = request.GET['year']
@@ -279,6 +290,7 @@ def get_spctraveltime(request):
     response2 = json.dumps(response)
     return HttpResponse(response2, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def get_spctraveltimeformanyyears(request):
     cornum = request.GET['cornum']
     years = request.GET['years']
@@ -350,7 +362,7 @@ def get_spctraveltimeformanyyears(request):
     return HttpResponse(response2, content_type='application/json')
 #END
 
-
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def get_travel_time(request):
     t1 = request.GET['tmc1']
     t2 = request.GET['tmc2']
@@ -442,6 +454,7 @@ def get_travel_time(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def get_travel_time_prediction(request):
     t1 = request.GET['tmc1']
     t2 = request.GET['tmc2']
@@ -487,6 +500,7 @@ def get_travel_time_prediction(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')  
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def get_road_tmc(request):
     input_tmc = request.GET['tmc']
     s_tmc = TMC.objects.get(tmc = input_tmc)
@@ -520,6 +534,7 @@ def get_road_tmc(request):
 ##    response = json.dumps(result)
 ##    return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_incident', raise_exception= True)
 def get_incidents_rcrs(request):
     s_date = request.GET['s_date']
     e_date = request.GET['e_date']
@@ -539,9 +554,11 @@ def get_incidents_rcrs(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_incident', raise_exception= True)
 def incidents(request):
     return render(request, 'traffic/incidents.html',{'n':range(1,32)})
 
+@permission_required(perm= 'traffic.perm_download', raise_exception= True)
 def download(request):
     return render(request, 'traffic/download.html',{'months':range(1,13), 'months14': range(1,9) ,'days':range(1,32)})
 
@@ -1307,6 +1324,7 @@ def transit_metrics_route_range(request):
 
 
 #routing
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def routing(request):
     return render(request,'traffic/routing.html',{'n':range(1,32)})
 
@@ -1323,6 +1341,7 @@ def distance_lnglat(x,y): # in meters
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
     return R * c
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def routing_path(request):
     s_lon = float(request.GET['s_lon'])
     s_lat = float(request.GET['s_lat'])
@@ -1400,6 +1419,7 @@ def routing_path(request):
     response = json.dumps(rsps_json)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def routing_path_nodes(request):
     s_lon = float(request.GET['s_lon'])
     s_lat = float(request.GET['s_lat'])
@@ -1603,6 +1623,7 @@ def routing_path_old(request):
 def test(request):
     return HttpResponse("hi world")
 
+@permission_required(perm= 'traffic.perm_incident', raise_exception= True)
 def get_incidents_rcrs_area(request):
     s_date = request.GET['s_date']
     e_date = request.GET['e_date']
@@ -1642,6 +1663,7 @@ def get_incidents_rcrs_area(request):
     response = json.dumps(rsps)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_incident', raise_exception= True)
 def real_time_incidents_rcrs(request):
     events = {"type":"FeatureCollection","features":[]}
     url = 'https://www.dot511.state.pa.us/RCRS_Data_Feed/RCRSDataService.asmx/GetEventFeed?keyValue=RCRSdataFeedsPA@prod&userName=SEAN_QIAN&userPass=CMU_MOBILITY_DATA_ANALYTICS'
@@ -1739,9 +1761,11 @@ def real_time_tt(request):
 def device_render(request):
     return render(request, 'traffic/devices.html')
 
+@permission_required(perm= 'traffic.perm_count', raise_exception= True)
 def sensors_counts_webpage(request):
     return render(request, 'traffic/sensors_counts.html')
 
+@permission_required(perm= 'traffic.perm_count', raise_exception= True)
 def get_sensors_counts(request):
     sensors_data = {"type":"FeatureCollection","features":[]}
     sensors = Counts_sensors.objects.all()
@@ -1752,6 +1776,7 @@ def get_sensors_counts(request):
     response = json.dumps(sensors_data)
     return HttpResponse(response,content_type = "application/json")
 
+@permission_required(perm= 'traffic.perm_count', raise_exception= True)
 def get_sensors_links(request):
     sensors_links = {"type":"FeatureCollection","features":[]}
     links = Counts_sensors_links.objects.all()

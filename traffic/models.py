@@ -513,7 +513,7 @@ class Permissions(models.Model):
             ('perm_count', 'permission to access traffic counts section'),
             ('perm_travel', 'permission to access travel time and trip planner section'),
             ('perm_incident', 'permission to access incidents section'),
-            ('perm_ev_stations', 'permission to access EV stations section'),
+            ('perm_ev_station', 'permission to access EV stations section'),
             ('perm_download', 'permission to access download section'),
         )
 
