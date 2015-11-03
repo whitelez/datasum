@@ -515,6 +515,9 @@ class Permissions(models.Model):
             ('perm_incident', 'permission to access incidents section'),
             ('perm_ev_station', 'permission to access EV stations section'),
             ('perm_download', 'permission to access download section'),
+            ('perm_parking', 'permission to access parking section'),
+            ('perm_crash', 'permission to access crash section'),
+            ('perm_closure', 'permission to access closure section')
         )
 
 

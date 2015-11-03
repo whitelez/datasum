@@ -8,12 +8,15 @@ import json
 
 from traffic.models import * #Meter, Parking, Street, Streetparking, TMC, TMC_data, Incidents, Weather
 
+from django.contrib.auth.decorators import login_required, permission_required
 
+@permission_required(perm= 'traffic.perm_crash', raise_exception= True)
 def crash(request):
     counties = [{"code": county.county_code, "name": county.county_name} for county in PAcounty.objects.all()]
     return render(request, 'traffic/crash.html', {'counties': counties})
 
 
+@permission_required(perm= 'traffic.perm_crash', raise_exception= True)
 def crash_query(request):
     cntystr = str(request.GET['cnty'])
     sever = int(request.GET['sev'])

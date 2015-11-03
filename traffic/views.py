@@ -1788,10 +1788,12 @@ def get_sensors_links(request):
     return HttpResponse(response,content_type = "application/json")
 
 #SGYang
+@permission_required(perm= 'traffic.perm_closure', raise_exception= True)
 def closure(request):
     return render(request, 'traffic/closure.html')
 
 
+@permission_required(perm= 'traffic.perm_closure', raise_exception= True)
 def get_road_closure_query(request):
     #eee = Closed_roads.objects.filter(location__icontains='FORBES AVE')
     #print eee.rdline

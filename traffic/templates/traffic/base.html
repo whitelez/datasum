@@ -61,8 +61,13 @@
         	        <li id="nav-weather"><a href="{% url 'traffic:weather' %}">Weather</a></li>
                     {% endif %}
 
+                    {% if perms.traffic.perm_parking %}
                     <li id="nav-parking"><a href="{% url 'traffic:parking' %}">Parking</a></li>
+                    {% endif %}
+
+                    {% if perms.traffic.perm_closure %}
                     <li id="nav-closure"><a href="{% url 'traffic:closure' %}">Closure</a></li>      <!Added by SGYang>
+                    {% endif %}
 
                     {% if perms.traffic.perm_camera %}
                     <li id="nav-cameras"><a href="{% url 'traffic:camera' %}">Cameras</a></li>
@@ -126,7 +131,9 @@
                     </li>
                     {% endif %}
 
+                    {% if perms.traffic.perm_crash %}
                     <li id="nav-crash"><a href="{% url 'traffic:crash' %}">Crashes</a></li>
+                    {% endif %}
 
                     {% if perms.traffic.perm_incident %}
                     <li id="nav-incidents"><a href="{% url 'traffic:incidents' %}">Incidents</a></li>
