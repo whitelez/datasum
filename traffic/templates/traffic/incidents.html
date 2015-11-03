@@ -3,17 +3,17 @@
 {% load staticfiles %}
 
 {% block title %}
-Power of 32 RTIS - Incidents
+MDAP - Incidents
 {% endblock %}
 
 {% block style %}
-<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
-<link rel="stylesheet" href="{% static 'traffic/leaflet.draw.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic/leaflet.draw.css' %}">
 {% endblock %}
 
 {% block content %}
 
-<div id='user_input' class="well" style="height:600px;">
+<div id='user_input' class="well" style="overflow:auto;height:100%;">
 <!--<p>TMC1:</p>
 <p id = 'tmc1'></p>
 <p>TMC2:</p>
@@ -361,7 +361,6 @@ Power of 32 RTIS - Incidents
 	
 
 {% block script %}
-<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <script type="text/javascript" src="{% static 'traffic/leaflet.draw.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/flot/jquery.flot.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/flot/jquery.flot.pie.js' %}"></script>

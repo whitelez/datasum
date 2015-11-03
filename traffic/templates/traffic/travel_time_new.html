@@ -3,15 +3,13 @@
 {% load staticfiles %}
 
 {% block title %}
-Power of 32 RTIS - Travel Time: Corridors (2003-2012)
+MDAP - Travel Time: Corridors (2003-2012)
 {% endblock %}
 
 {% block style %}
 
     <link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css'%}">
 
-
-<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-switch.min.css' %}" />
@@ -107,7 +105,6 @@ Power of 32 RTIS - Travel Time: Corridors (2003-2012)
 	
 
 {% block script %}
-<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
 
 <script type="text/javascript" src="{% static 'traffic/TMC_geojson.js' %}"></script>

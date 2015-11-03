@@ -3,14 +3,11 @@
 {% load staticfiles %}
 
 {% block title %}
-RTIS - Travel Time
+MDAP - Routing
 {% endblock %}
 
 {% block style %}
-
-    <link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css'%}">
-
-<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+<link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css'%}">
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
 {% endblock %}
 
@@ -118,7 +115,6 @@ RTIS - Travel Time
 	
 
 {% block script %}
-<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
 
 <script type="text/javascript" src="{% static 'traffic/TMC_geojson.js' %}"></script>

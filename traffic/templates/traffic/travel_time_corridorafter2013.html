@@ -3,14 +3,13 @@
 {% load staticfiles %}
 
 {% block title %}
-Power of 32 RTIS - Travel Time: Corridors (2013-2015)
+MDAP - Travel Time: Corridors (2013-2015)
 {% endblock %}
 
 {% block style %}
 
     <link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css'%}">
 
-<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css" xmlns="http://www.w3.org/1999/html">
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-datetimepicker.min.css' %}" />
@@ -131,13 +130,12 @@ Power of 32 RTIS - Travel Time: Corridors (2013-2015)
 	
 
 {% block script %}
-<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/TMC_geojson.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/jquery.jqplot.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/jqplot.dateAxisRenderer.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/jqplot.pointLabels.min.js' %}"></script>
-<script type="text/javascript" src={% static 'traffic/jqplot/plugins/jqplot.highlighter.min.js' %}></script>
+<script type="text/javascript" src="{% static 'traffic/jqplot/plugins/jqplot.highlighter.min.js' %}"></script>
 
 <script type="text/javascript" src="{% static 'traffic/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/transition.js' %}"></script>

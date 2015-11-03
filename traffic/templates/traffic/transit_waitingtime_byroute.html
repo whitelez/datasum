@@ -3,7 +3,7 @@
 {% load staticfiles %}
 
 {% block title %}
-Power of 32 RTIS - Transit - Passenger Waiting Time - By Route
+MDAP - Transit - Passenger Waiting Time - By Route
 {% endblock %}
 
 {% block style %}
@@ -61,7 +61,6 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Route
         opacity: 0.9;
     }
 </style>
-<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
 <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-switch.min.css' %}" />
@@ -183,7 +182,6 @@ Power of 32 RTIS - Transit - Passenger Waiting Time - By Route
 	
 
 {% block script %}
-<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
 
 <script type="text/javascript" src="{% static 'traffic/moment.min.js' %}"></script>

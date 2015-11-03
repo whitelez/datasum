@@ -50,6 +50,7 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = ['mac.heinz.cmu.edu']
 
+ADMINS = (('hzn', 'benhzn07@gmail.com'))
 
 # Application definition
 

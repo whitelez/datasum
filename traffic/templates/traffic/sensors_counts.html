@@ -3,7 +3,7 @@
 {% load staticfiles %}
 
 {% block title %}
-    Power of 32 RTIS - Parking
+    MDAP - Sensor Counts
 {% endblock %}
 
 {% block style %}
@@ -110,7 +110,6 @@
     }
 
     </style>
-    <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
     <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
     <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
     <style>html {
@@ -119,15 +118,14 @@
     }</style>
     <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.common-material.min.css" />
     <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.material.min.css" />
-    <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
     <link rel="stylesheet" href="{% static 'traffic/style_closure.css' %}">
-
+    <link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css' %}">
 {% endblock %}
 
 {% block content %}
 
 
-    <div id="user_input" class="well" style="height: 600px;">
+    <div id="user_input" class="well" style="overflow:auto;height:100%;">
 
         <div class="container" style="width: inherit">
             <div class="row" style="margin-top:3px;text-align: center"><h3>Parking info</h3></div>
@@ -167,7 +165,6 @@
 {% block script %}
 
     <script src="http://cdn.kendostatic.com/2014.3.1411/js/kendo.all.min.js"></script>
-    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
     <script type="text/javascript" src="{% static 'traffic/jquery.jqplot.min.js' %}"></script>
     <!--<script type="text/javascript" src="{% static 'traffic/jqplot.cursor.js' %}"></script>-->
     <script type="text/javascript" src="{% static 'traffic/jqplot.dateAxisRenderer.min.js' %}"></script>
