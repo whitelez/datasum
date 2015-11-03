@@ -503,7 +503,15 @@ class Counts_sensors_links(models.Model):
 #     sid = models.ForeignKey(Counts_sensors)
 #     counts = models.TextField()
 
+# ==================== Models for Permission start ================== #
+class Permissions(models.Model):
+    class Meta:
+        permissions = (
+            ('test_pc', 'test_permission'),
+        )
 
+
+# ==================== Models for Permission end   ================== #
 
 
 

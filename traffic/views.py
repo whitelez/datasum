@@ -3,7 +3,7 @@ from django.core import serializers
 from django.http import HttpResponse, QueryDict
 from django.db.models import Q
 from django.template import RequestContext, loader
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
 import json
 import urllib2,urllib
@@ -18,7 +18,7 @@ from django.db.models import Avg
 
 import csv
 
-@login_required
+@permission_required(perm= 'traffic.test_pc', raise_exception= True)
 def index(request):
     return render(request, 'traffic/index.html')
 
