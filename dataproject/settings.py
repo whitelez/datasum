@@ -121,3 +121,6 @@ LOGIN_URL = '/traffic/login/'
 
 LOGIN_EXEMPT_URLS = (
 )
+
+# set sessions to expire when user close the browser, this is a global way
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True

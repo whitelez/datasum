@@ -58,7 +58,6 @@ def user_login(request):
                 # while the request.POST['<variable>'] will raise key error exception
         username = request.POST.get('username')
         password = request.POST.get('password')
-
         # Use Django's machinery to attempt to see if the username/password
         # combination is valid - a User object is returned if it is.
         user = authenticate(username=username, password=password)
@@ -72,6 +71,10 @@ def user_login(request):
                 # If the account is valid and active, we can log the user in.
                 # We'll send the user back to the homepage.
                 login(request, user)
+                # if the user do not choose to keep log in, remove session when the user close browser
+                # else use global session length(2 weeks by default) for session length
+                if 'remember_me' not in request.POST.keys():
+                    request.session.set_expiry(0)
                 return HttpResponseRedirect('/traffic/')
             else:
                 # An inactive account was used - no logging in!
