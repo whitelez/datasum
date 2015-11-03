@@ -1,3 +1,5 @@
+# code from Tango with Django http://www.tangowithdjango.com/book17/chapters/login.html
+
 from traffic.forms import UserForm
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout

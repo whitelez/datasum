@@ -1,3 +1,6 @@
+# code from Tango with Django
+# http://www.tangowithdjango.com/book17/chapters/login.html
+# http://www.tangowithdjango.com/book17/chapters/forms.html
 # for form related classes
 
 from django import forms
