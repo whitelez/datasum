@@ -35,7 +35,7 @@
                     <li id="nav-download"><a href="{% url 'traffic:download' %}"><span class="glyphicon glyphicon-download-alt"> </span> &nbsp;Download</a></li>
                 </ul>
 				<ul class="nav navbar-nav">
-                    {% if perms.test_pc %}
+                    {% if perms.traffic.test_pc %}
                     <li id="nav-home"><a href="{% url 'traffic:index' %}">Home</a></li>
                     {% endif %}
         	        <li id="nav-weather"><a href="{% url 'traffic:weather' %}">Weather</a></li>

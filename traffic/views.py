@@ -18,7 +18,6 @@ from django.db.models import Avg
 
 import csv
 
-@permission_required(perm= 'traffic.test_pc', raise_exception= True)
 def index(request):
     return render(request, 'traffic/index.html')
 
@@ -27,9 +26,11 @@ def index2(request):
     return render(request, 'traffic/index2.html')
 # +++++++++++++++++++++++++++++++++++++++++++++ #
 
+@permission_required(perm= 'traffic.perm_camera', raise_exception= True)
 def camera(request):
     return render(request, 'traffic/camera.html')
 
+@permission_required(perm= 'traffic.perm_count', raise_exception= True)
 def count(request):
     return render(request, 'traffic/count.html')
 
@@ -39,8 +40,7 @@ def ajaxtest(request):
     j = json.dumps(result)
     return HttpResponse(j, content_type='application/json')
 
-
-
+@permission_required(perm= 'traffic.perm_weather', raise_exception= True)
 def weather(request):
     return render(request, 'traffic/weather.html')
 
