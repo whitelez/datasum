@@ -78,6 +78,7 @@
                     </li>
                     {% endif %}
 
+                    {% if perms.traffic.perm_transit %}
                     <li id="nav-transit" class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Transit <b class="caret"></b></a>
                         <ul class="dropdown-menu">
@@ -113,6 +114,7 @@
 							<li><a href="{% url 'traffic:transit_bustraveltime' %}">Bus Travel Time</a></li>
                         </ul>
                     </li>
+                    {% endif %}
 
                     {% if perms.traffic.perm_travel %}
                     <li id="nav-traveltime" class="dropdown">
