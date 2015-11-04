@@ -51,8 +51,10 @@
 		</div>
 		<nav class="navbar navbar-default navbar-static-top" role="navigation">
 			<div class="collapse navbar-collapse">
-                    <ul class="nav navbar-nav navbar-right" style="margin-right: 20px;">
+                <ul class="nav navbar-nav navbar-right" style="margin-right: 20px;">
+                    {% if perms.traffic.perm_download %}
                     <li id="nav-download"><a href="{% url 'traffic:download' %}"><span class="glyphicon glyphicon-download-alt"> </span> &nbsp;Download</a></li>
+                    {% endif %}
                 </ul>
 				<ul class="nav navbar-nav">
                     <li id="nav-home"><a href="{% url 'traffic:index' %}">Home</a></li>
