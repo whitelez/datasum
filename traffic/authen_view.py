@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
 
 def register(request):
 
@@ -25,8 +26,14 @@ def register(request):
 
             # Now we hash the password with the set_password method.
             # Once hashed, we can update the user object.
-            user.set_password(user.password)
-            user.save()
+            #user.set_password(user.password)
+            #user.save()
+
+            # send an email to us for registration
+            # email settings are in dataproject/settings.py
+            message = user_form.cleaned_data['username'] + ',' + user_form.cleaned_data['password']
+            print message
+            #send_mail('Subject', message, 'benhzn07@gmail.com', ['benhzn07@gmail.com'], fail_silently = False)
 
             # Update our variable to tell the template registration was successful.
             registered = True

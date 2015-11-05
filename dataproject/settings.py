@@ -121,7 +121,19 @@ STATIC_URL = '/static/'
 LOGIN_URL = '/traffic/login/'
 
 LOGIN_EXEMPT_URLS = (
+    'traffic/register/',
 )
 
 # set sessions to expire when user close the browser, this is a global way
 # SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Email setting, use our gmail to send emails
+EMAIL_USE_TLS = True
+
+EMAIL_HOST = 'smtp.gmail.com'
+
+EMAIL_HOST_USER = 'benhzn07@gmail.com'
+
+EMAIL_HOST_PASSWORD = 'tia25narer'
+
+EMAIL_PORT = 587
