@@ -22,7 +22,7 @@ def register(request):
         # If the two forms are valid...
         if user_form.is_valid():
             # Save the user's form data to the database.
-            user = user_form.save()
+            #user = user_form.save()
 
             # Now we hash the password with the set_password method.
             # Once hashed, we can update the user object.
@@ -31,9 +31,9 @@ def register(request):
 
             # send an email to us for registration
             # email settings are in dataproject/settings.py
-            message = user_form.cleaned_data['username'] + ',' + user_form.cleaned_data['password']
-            print message
-            #send_mail('Subject', message, 'benhzn07@gmail.com', ['benhzn07@gmail.com'], fail_silently = False)
+            message = 'username:%s\nemail:%s\npassword:%s\norgnization:%s\nintended use:%s' %(user_form.cleaned_data['username'],user_form.cleaned_data['email'],user_form.cleaned_data['password'],user_form.cleaned_data['organization'],user_form.cleaned_data['intended_use'])
+            #print message
+            send_mail('Register', message, 'mdap2205@gmail.com', ['mdap2205@gmail.com'], fail_silently = False)
 
             # Update our variable to tell the template registration was successful.
             registered = True

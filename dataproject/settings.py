@@ -132,8 +132,8 @@ EMAIL_USE_TLS = True
 
 EMAIL_HOST = 'smtp.gmail.com'
 
-EMAIL_HOST_USER = 'benhzn07@gmail.com'
+EMAIL_HOST_USER = 'mdap2205@gmail.com'
 
-EMAIL_HOST_PASSWORD = 'tia25narer'
+EMAIL_HOST_PASSWORD = 'dataproject'
 
 EMAIL_PORT = 587

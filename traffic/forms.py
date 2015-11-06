@@ -8,6 +8,9 @@ from django.contrib.auth.models import User
 
 class UserForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput())
+    organization = forms.CharField()
+    # for user to input their intended use
+    intended_use = forms.CharField(label="Intended use", max_length=500, widget=forms.Textarea)
 
     class Meta:
         model = User
