@@ -31,9 +31,9 @@ def register(request):
 
             # send an email to us for registration
             # email settings are in dataproject/settings.py
-            message = 'username:%s\nemail:%s\npassword:%s\norgnization:%s\nintended use:%s' %(user_form.cleaned_data['username'],user_form.cleaned_data['email'],user_form.cleaned_data['password'],user_form.cleaned_data['organization'],user_form.cleaned_data['intended_use'])
+            message = 'username:%s\nemail:%s\norgnization:%s\nintended use:%s' %(user_form.cleaned_data['username'],user_form.cleaned_data['email'],user_form.cleaned_data['organization'],user_form.cleaned_data['intended_use'])
             #print message
-            send_mail('Register', message, 'mdap2205@gmail.com', ['mdap2205@gmail.com'], fail_silently = False)
+            send_mail('Registration', message, 'mdap2205@gmail.com', ['mdap2205@gmail.com'], fail_silently = False)
 
             # Update our variable to tell the template registration was successful.
             registered = True
