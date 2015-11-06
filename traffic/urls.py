@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, url
 from traffic import views, authen_view
 from backend import crash_view, parking_view
+from django.contrib.auth import views as django_auth_views
 
 urlpatterns = patterns('',
     url(r'^$', views.index, name='index'),
@@ -111,4 +112,6 @@ urlpatterns = patterns('',
     url(r'^login/$', authen_view.user_login, name='login'),
     url(r'^restricted/', authen_view.restricted, name='restricted'),
     url(r'^logout/$', authen_view.user_logout, name='logout'),
+    url(r'^change-password/', django_auth_views.password_change, {'post_change_redirect': '/traffic/'}, name='password_change'),
+    #url(r'^change-password-done/', django_auth_views.password_change_done, name='password_change_done'),
 )
