@@ -82,10 +82,14 @@ def user_login(request):
                 # else use global session length(2 weeks by default) for session length
                 if 'remember_me' not in request.POST.keys():
                     request.session.set_expiry(0)
-                return HttpResponseRedirect('/traffic/')
+                # if there is a redirect page, redirect to that page, else to home page
+                redirectURL = '/traffic/'
+                if 'next' in request.POST:
+                    redirectURL = request.POST['next']
+                return HttpResponseRedirect(redirectURL)
             else:
                 # An inactive account was used - no logging in!
-                return HttpResponse("Your MAP account is disabled.")
+                return HttpResponse("Your MDAP account is disabled.")
         else:
             # Bad login details were provided. So we can't log the user in.
             print "Invalid login details: {0}, {1}".format(username, password)
@@ -94,9 +98,11 @@ def user_login(request):
     # The request is not a HTTP POST, so display the login form.
     # This scenario would most likely be a HTTP GET.
     else:
-        # No context variables to pass to the template system, hence the
-        # blank dictionary object...
-        return render(request, 'traffic/login.html', {})
+        # if there is a next parameter in URL, pass it to template for URLredirect use after login
+        if request.method == 'GET' and 'next' in request.GET:
+            return render(request, 'traffic/login.html', {'next':request.GET['next']})
+        else:
+            return render(request, 'traffic/login.html')
 
 @login_required
 def restricted(request):
@@ -108,5 +114,5 @@ def user_logout(request):
     # Since we know the user is logged in, we can now just log them out.
     logout(request)
 
-    # Take the user back to the homepage.
-    return HttpResponseRedirect('/traffic/')
+    # Take the user back to the login page.
+    return HttpResponseRedirect('/traffic/login/')
