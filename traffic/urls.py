@@ -48,6 +48,7 @@ urlpatterns = patterns('',
     url(r'^transit_schedule/$', views.transit_schedule, name='transit_schedule'),
     url(r'^transit_waitingtime_byroute/$', views.transit_waitingtime_byroute, name='transit_waitingtime_byroute'),
     url(r'^transit_waitingtime_bystop/$', views.transit_waitingtime_bystop, name='transit_waitingtime_bystop'),
+    url(r'^transit_waitingtime_byOD/$', views.transit_waitingtime_byOD, name='transit_waitingtime_byOD'),
     url(r'^transit_stopskipping/$', views.transit_stopskipping, name='transit_stopskipping'),
     url(r'^transit_crowding/$', views.transit_crowding, name='transit_crowding'),
     url(r'^transit_crowding_heatmap/$', views.transit_crowding_hm, name='transit_crowding_hm'),
@@ -61,6 +62,9 @@ urlpatterns = patterns('',
 
     url(r'^transit_metrics_wt_byroute/$', views.transit_metrics_wt_byroute, name='transit_metrics_wt_byroute'),
     url(r'^transit_metrics_wt_bystop/$', views.transit_metrics_wt_bystop, name='transit_metrics_wt_bystop'),
+    url(r'^transit_metrics_wt_byOD/$', views.transit_metrics_wt_byOD, name='transit_metrics_wt_byOD'),
+
+    url(r'^transit_metrics_stopskipping/$', views.transit_metrics_stopskipping, name='transit_metrics_stopskipping'),
 
     url(r'^transit_metrics_crowding/$', views.transit_metrics_crowding, name='transit_metrics_crowding'),
 

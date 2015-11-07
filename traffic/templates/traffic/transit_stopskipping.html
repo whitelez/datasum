@@ -21,43 +21,46 @@ MDAP - Transit - Stop Skipping
     }
     .legend {
         line-height: 18px;
-        height:60px;
-        width:160px;
+        height: 60px;
+        width: 250px;
         right: -10px;
         bottom: -10px;
         border-radius: 5px;
         background: white;
         box-shadow: -2px -2px 2px #CCCCCC;
-        opacity: 0.8;
+        opacity: 0.9;
     }
+
     .legend i {
-        width: 12px;
-        height: 12px;
+        width: 32px;
+        height: 7px;
         float: left;
-        border-radius: 6px;
-        margin-right: 7px;
-        margin-left: 6px;
-        margin-top: 6px;
+        border-radius: 3px;
+        margin-right: 8px;
+        margin-left: 7px;
+        margin-top: 7px;
         opacity: 0.9;
     }
+
     .legend j {
-        width: 12px;
-        height: 12px;
+        width: 32px;
+        height: 7px;
         float: left;
-        border-radius: 6px;
-        margin-right: 7px;
-        margin-left: 6px;
-        margin-top: 3px;
+        border-radius: 3px;
+        margin-right: 8px;
+        margin-left: 7px;
+        margin-top: 5px;
         opacity: 0.9;
     }
+
     .legend k {
-        width: 12px;
-        height: 12px;
+        width: 32px;
+        height: 7px;
         float: left;
-        border-radius: 6px;
-        margin-right: 7px;
-        margin-left: 6px;
-        margin-top: 3px;
+        border-radius: 3px;
+        margin-right: 8px;
+        margin-left: 7px;
+        margin-top: 5px;
         opacity: 0.9;
     }
 </style>
@@ -65,14 +68,43 @@ MDAP - Transit - Stop Skipping
 <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-switch.min.css' %}" />
 <link rel="stylesheet" href="{% static 'traffic/bootstrap-datetimepicker.min.css' %}" />
-<link rel="stylesheet" href="{% static 'traffic/bootstrap-slider.css' %}" />
+<link rel="stylesheet" href="{% static 'traffic/slider/css/slider.css' %}"/>
+<link rel="stylesheet" href="{% static 'traffic/jquery-ui/jquery-ui.css' %}">
+<style>
+    .ui-corner-all {
+        border-radius: 8px 8px 8px 8px;
+    }
+
+    .ui-slider {
+        float: left;
+        background: green;
+        border: none;
+    }
+
+    .ui-slider-range {
+        background: #ffff00;
+    }
+
+    #sliderreddiv {
+        float: right;
+        height: 100%;
+        background: red;
+        border-radius: 0 8px 8px 0;
+    }
+
+    #slider-range {
+        width: 100%;
+        vertical-align: middle;
+    }
+</style>
 {% endblock %}
 
 
 {% block content %}
 <div class="well" style="overflow:auto;height:100%;">
 	<div class="container" style="width: inherit">
-    	<div class="row"><h4>Stop Skipping </h4></div>
+    	<div class="row"><h4> Stop Skipping </h4></div>
+        <div class="row"><p>&nbsp; &nbsp; Heat Map: </p></div>
 		<div class="row" style="padding-top:15px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Route:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
@@ -91,9 +123,17 @@ MDAP - Transit - Stop Skipping
         </div>
 
         <div class="row" style="padding-top:5px;">
-            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Stops:</h5></div>
+            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Stop 1:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
-                <select id = "select_stop" data-header="Select 1 or More Stops:" class="selectpicker show-tick show-menu-arrow" multiple data-selected-text-format="count" data-live-search="true" data-width="100%">
+                <select id = "select_origin" data-header="Select 1 Stop:" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+                </select>
+            </div>
+	    </div>
+
+        <div class="row" style="padding-top:5px;">
+            <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Stop 2:</h5></div>
+            <div class="col-md-8" style="padding-left: 0;">
+                <select id = "select_dest" data-header="Select 1 Stop:" class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
                 </select>
             </div>
 	    </div>
@@ -102,7 +142,7 @@ MDAP - Transit - Stop Skipping
             <span class="glyphicon glyphicon-remove"> </span> &nbsp; Clear All
         </button><br>
 
-        <div class="row" style="padding-top:15px;">
+        <div class="row" style="padding-top:30px;">
         	<div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Start Date:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
                     <div class='input-group date' id='datepicker'>
@@ -146,14 +186,15 @@ MDAP - Transit - Stop Skipping
            </div>
         </div>
 
-        <div class="row" style="padding-top:38px;">
-            <div class="col-md-5" style="height:20px;padding-right: 0;"><p>Threshold (%):</p></div>
-            <div class="col-md-7" style="padding-left: 0;padding-right: 0;">
-                <input  style="float: right;width: 90%" id="slider" type="text" data-slider-value="125" data-slider-min="0" data-slider-max="200" data-slider-step="1"/>
+        <div class="row" style="margin-top:20px;" align="left">
+            <div class="col-md-12">
+                <h5>Stop Skipping Proportion thresholds:</h5>
             </div>
         </div>
+        <div id="amount" style="margin-left:25px;"> 0% &nbsp;-&nbsp; 5% &nbsp;-&nbsp; 10% &nbsp;-&nbsp; 50% </div>
+        <div id="slider-range"></div>
 
-        <div class="row" style="padding-top:8px;">
+        <div class="row" style="padding-top:15px;">
            <div class="col-md-6" style="height: 36px;padding-right: 0;">
                <button type="button" style="margin-top:10px;" class="btn btn-default btn-block" id="real_time">
                     <span class="glyphicon glyphicon-search"> </span> &nbsp; Real Time
@@ -171,19 +212,19 @@ MDAP - Transit - Stop Skipping
 
 {% block map %}
     <div id="map"> </div>
+    <div id="chartcontainer"> </div>
 {% endblock %}
 	
 
 {% block script %}
-<script type="text/javascript" src="{% static 'traffic/Leaflet_0.7.5/leaflet-src.js' %}"></script>
-
 <script type="text/javascript" src="{% static 'traffic/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/transition.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-3.3.2/js/collapse.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-datetimepicker.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/bootstrap-switch.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/spinner.js' %}"></script>
-<script type="text/javascript" src="{% static 'traffic/bootstrap-slider.min.js' %}"></script>
+{#<script type="text/javascript" src="{% static 'traffic/bootstrap-slider.min.js' %}"></script>#}
+<script type="text/javascript" src="{% static 'traffic/jquery-ui/jquery-ui.js' %}"></script>
 
 <script type="text/javascript" src={% static 'traffic/jquery.jqplot.min.js' %}></script>
 <script type="text/javascript" src={% static 'traffic/jqplot/plugins/jqplot.barRenderer.js' %}></script>
@@ -195,10 +236,6 @@ MDAP - Transit - Stop Skipping
     $('.selectpicker').selectpicker({
         style: 'btn-inverse',
         size: 10
-    });
-
-    $("#slider").slider({
-	    tooltip: 'show'
     });
 </script>
 
@@ -252,13 +289,13 @@ MDAP - Transit - Stop Skipping
         var basemap = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         });
-	
-	    var grayscale = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18,
+
+        var grayscale = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
         }).addTo(map);
 
         control = L.control.layers({'Grayscale': grayscale, 'Streets':basemap},null,{collapsed:false}).addTo(map);
-	
+
 	    var info = L.control();
 		info.onAdd = function (map) {
 			this._div = L.DomUtil.create('div', 'info');
@@ -275,13 +312,29 @@ MDAP - Transit - Stop Skipping
         var legend = L.control({position: 'bottomright'});
         legend.onAdd = function () {
             var div = L.DomUtil.create('div', 'info legend');
-            div.innerHTML += '<i style="background:green' + '"></i> ' + "Speed &ge; 30 MPH"+ "<br>";
-            div.innerHTML += '<j style="background:yellow' +  '"></j> ' + "Speed &ge; 10 MPH"+ "<br>";
-            div.innerHTML += '<k style="background:red' +  '"></k> ' + "Speed < 10 MPH"+ "<br>";
+            div.innerHTML += '<i style="background:green' + '"></i> ' + "&nbsp Stop skipping proportion &le; 5%" + "<br>";
+            div.innerHTML += '<j style="background:yellow' +  '"></j> ' + "&nbsp Stop skipping proportion &le; 10%"+ "<br>";
+            div.innerHTML += '<k style="background:red' +  '"></k> ' + "&nbsp Stop skipping proportion > 10%"+ "<br>";
             return div;
         };
         legend.addTo(map);
 
+        var sliderlow = 5;
+        var sliderhigh = 10;
+        $(function () {
+            $("#slider-range").slider({
+                range: true,
+                min: 0,
+                max: 50,
+                values: [5, 10],
+                slide: function (event, ui) {
+                    sliderlow = ui.values[0];
+                    sliderhigh = ui.values[1];
+                    document.getElementById("amount").innerHTML = "0%  &nbsp - &nbsp " + sliderlow + "% &nbsp - &nbsp " + sliderhigh + "% &nbsp - &nbsp 50%";
+                    $('#sliderreddiv').css('width', (50 - ui.values[1])/50*100 + '%');
+                }
+            }).append('<div id="sliderreddiv" style="width: 80%"></div>');
+        });
 {#======================================= Spinner Options ===========================================#}
         var spinneropts = {
             lines: 9, // The number of lines to draw
@@ -303,83 +356,15 @@ MDAP - Transit - Stop Skipping
         };
 {#=============================================== End ================================================#}
 
-        var selected_stops_dict = {};
-        var selected_stops_layerGroup = L.layerGroup().addTo(map);
-        control.addOverlay(selected_stops_layerGroup,"Selected Stops");
+    var heatmap_stops_dict = {};
+    var heatmap_layerGroup = L.layerGroup().addTo(map);
+    control.addOverlay(heatmap_layerGroup,"Heatmap");
 
-		function add_stop_to_map(stop_id,flag){
-            if(flag) {
-                if(selected_stops_dict[stop_id]){
-                    return;
-                }
-                var num = stops_geoJson.features.length;
-                for (var i = 0; i < num; i++) {
-                    if (stops_geoJson.features[i].properties.stop_id == stop_id) {
-                        selected_stops_dict[stop_id] = L.geoJson(stops_geoJson.features[i]).bindPopup("<strong>" + stops_geoJson.features[i].properties.name + "</strong>");
-                        selected_stops_layerGroup.addLayer(selected_stops_dict[stop_id]);
-                        break;
-                    }
-                }
-            }
-            else{
-                if(selected_stops_dict[stop_id]){
-                    selected_stops_layerGroup.removeLayer(selected_stops_dict[stop_id]);
-                    delete selected_stops_dict[stop_id];
-                }
-            }
-        }
-
-        function remove_all_stops_from_map(){
-            selected_stops_layerGroup.clearLayers();
-            selected_stops_dict = {};
-        }
-
-        function highlightFeature(e) {
-			var layer = e.target;
-			layer.setStyle({
-                radius: 8
-			});
-			if (!L.Browser.ie && !L.Browser.opera) {
-				layer.bringToFront();
-			}
-			info.update(layer.feature.properties);
-		}
-
-		function resetHighlight(e) {
-            var layer = e.target;
-            layer.setStyle({
-                radius: 6
-			});
-			info.update();
-		}
-
-		function clickFeature(e) {
-			var layer = e.target;
-			$('option[value=' + layer.feature.properties.stop_id + ']', $('#select_stop')).prop("selected", true);
-            $('#select_stop').selectpicker('refresh');
-
-            remove_all_stops_from_map();
-
-            var selected_stops = $('#select_stop option:selected');
-            var stops_number = selected_stops.length;
-            for (var i = 0; i < stops_number; i++) {
-                add_stop_to_map(selected_stops[i].value, true);
-            }
-		}
-
-		function onEachFeature(feature, layer){
-			layer.on({
-				mouseover: highlightFeature,
-				mouseout: resetHighlight,
-				click: clickFeature
-			});
-        }
-	
-	
 	var routeLayer = L.geoJson(),
 		stopsLayer = L.geoJson(),
         busLayer   = L.geoJson();
     var stops_geoJson, route_geoJson;
+
 	function getInfo(){
 		var route = $('#select_route option:selected').attr('value');
         var direction = $('#inout').bootstrapSwitch('state');
@@ -389,14 +374,23 @@ MDAP - Transit - Stop Skipping
         spinner = new Spinner(spinneropts).spin(target);
         target.style.opacity = '0.15';
 
+        heatmap_layerGroup.clearLayers();
+        heatmap_stops_dict = {};
+
+        origin_flag = false;
+
         if (busLayer) {
             control.removeLayer(busLayer);
             if (map.hasLayer(busLayer)) {
                 map.removeLayer(busLayer);
             }
         }
-
-        remove_all_stops_from_map();
+        if (map.hasLayer(originLayer)) {
+            map.removeLayer(originLayer);
+        }
+        if (map.hasLayer(destLayer)) {
+            map.removeLayer(destLayer);
+        }
 
 		$.get("../get_route/", {route:route, direction:direction}, function(data, textStatus){
 			if(routeLayer){
@@ -415,7 +409,8 @@ MDAP - Transit - Stop Skipping
             }
 
             $.get("../get_stops/", {route:route, direction:direction}, function(data, textStatus){
-                $('#select_stop').empty();
+                 $('#select_origin').empty();
+                 $('#select_dest').empty();
                 if(stopsLayer){
                     control.removeLayer(stopsLayer);
                     if(map.hasLayer(stopsLayer)){
@@ -439,9 +434,11 @@ MDAP - Transit - Stop Skipping
                     }).addTo(map);
                     control.addOverlay(stopsLayer,'Stops');
                     for(var i=0;i<stops_geoJson.features.length;i++){
-                        $("#select_stop").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");
+                        $("#select_origin").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");
+                        $("#select_dest").append("<option value="+stops_geoJson.features[i].properties.stop_id+">"+ stops_geoJson.features[i].properties.name +"</option>");
                     }
-                    $('#select_stop').selectpicker('refresh');
+                    $('#select_origin').selectpicker('refresh');
+                    $('#select_dest').selectpicker('refresh');
                 }else{
                     alert('No STOP information found. Please select another route or direction!');
                 }
@@ -454,45 +451,215 @@ MDAP - Transit - Stop Skipping
 		},"json");
 	}
 
+    var originLayer = L.geoJson(),
+        destLayer = L.geoJson();
+
+    function highlightFeature(e) {
+        var layer = e.target;
+        layer.setStyle({
+            radius: 8
+        });
+        if (!L.Browser.ie && !L.Browser.opera) {
+            layer.bringToFront();
+        }
+        info.update(layer.feature.properties);
+    }
+
+    function resetHighlight(e) {
+        var layer = e.target;
+        layer.setStyle({
+            radius: 6
+        });
+        info.update();
+    }
+
+    function clickFeature(e) {
+        var layer = e.target;
+        var num = stops_geoJson.features.length;
+        if (origin_flag) {
+            $('option[value=' + layer.feature.properties.stop_id + ']', $('#select_dest')).prop("selected", true);
+            $('#select_dest').selectpicker('refresh');
+            heatmap_layerGroup.clearLayers();
+            heatmap_stops_dict = {};
+            if (map.hasLayer(destLayer)) {
+                map.removeLayer(destLayer);
+            }
+            routeLayer.setStyle({
+                opacity:'0.7'
+            });
+            for (var i = 0; i < num; i++) {
+                if (stops_geoJson.features[i].properties.stop_id == layer.feature.properties.stop_id) {
+                    destLayer = L.geoJson(stops_geoJson.features[i]).bindPopup("<strong>" +
+                            stops_geoJson.features[i].properties.name + "</strong>").addTo(map);
+                    break;
+                }
+            }
+        }
+        else {
+            $('option[value=' + layer.feature.properties.stop_id + ']', $('#select_origin')).prop("selected", true);
+            $('#select_origin').selectpicker('refresh');
+            origin_flag = true;
+            heatmap_layerGroup.clearLayers();
+            heatmap_stops_dict = {};
+            if (map.hasLayer(originLayer)) {
+                map.removeLayer(originLayer);
+            }
+            routeLayer.setStyle({
+                opacity:'0.7'
+            });
+            for (var i = 0; i < num; i++) {
+                if (stops_geoJson.features[i].properties.stop_id == layer.feature.properties.stop_id) {
+                    originLayer = L.geoJson(stops_geoJson.features[i]).bindPopup("<strong>" +
+                            stops_geoJson.features[i].properties.name + "</strong>").addTo(map);
+                    break;
+                }
+            }
+        }
+    }
+
+    function onEachFeature(feature, layer){
+        layer.on({
+            mouseover: highlightFeature,
+            mouseout: resetHighlight,
+            click: clickFeature
+        });
+        layer.bindPopup('<b>' + feature.properties.name + '</b>');
+    }
+
     getInfo();
 	$('#select_route').change(getInfo);
 	$('#inout').on('switchChange.bootstrapSwitch',getInfo);
 
-    $('#select_stop').change(function() {
-        remove_all_stops_from_map();
-        var selected_stops = $('#select_stop option:selected');
-        var stops_number = selected_stops.length;
-        for (var i = 0; i < stops_number; i++) {
-            add_stop_to_map(selected_stops[i].value, true);
+    var origin_flag = false;
+    $('#select_origin').change(function() {
+        heatmap_layerGroup.clearLayers();
+        heatmap_stops_dict = {};
+        if (map.hasLayer(originLayer)) {
+            map.removeLayer(originLayer);
+        }
+        if (!(map.hasLayer(stopsLayer))) {
+            stopsLayer.addTo(map);
+        }
+        routeLayer.setStyle({
+            opacity:'0.7'
+        });
+        origin_flag = true;
+        var selected_origin = $('#select_origin option:selected').attr('value');
+        var num = stops_geoJson.features.length;
+        for (var i = 0; i < num; i++) {
+            if (stops_geoJson.features[i].properties.stop_id == selected_origin) {
+                originLayer = L.geoJson(stops_geoJson.features[i]).bindPopup("<strong>" +
+                        stops_geoJson.features[i].properties.name + "</strong>").addTo(map);
+                break;
+            }
+        }
+    });
+    $('#select_dest').change(function() {
+        heatmap_layerGroup.clearLayers();
+        heatmap_stops_dict = {};
+        if (map.hasLayer(destLayer)) {
+            map.removeLayer(destLayer);
+        }
+        if (!(map.hasLayer(stopsLayer))) {
+            stopsLayer.addTo(map);
+        }
+        routeLayer.setStyle({
+            opacity:'0.7'
+        });
+        var selected_dest = $('#select_dest option:selected').attr('value');
+        var num = stops_geoJson.features.length;
+        for (var i = 0; i < num; i++) {
+            if (stops_geoJson.features[i].properties.stop_id == selected_dest) {
+                destLayer = L.geoJson(stops_geoJson.features[i]).bindPopup("<strong>" +
+                        stops_geoJson.features[i].properties.name + "</strong>").addTo(map);
+                break;
+            }
         }
     });
 
     $('#stops_deselect_all').click(function(){
-        var selected_stops = $('#select_stop option:selected');
-        var stops_number = selected_stops.length;
-        for(var i = 0; i < stops_number; i++){
-            add_stop_to_map(selected_stops[i].value, false);
+        origin_flag = false;
+        if (map.hasLayer(originLayer)) {
+            map.removeLayer(originLayer);
         }
-        $("#select_stop option:selected").removeAttr("selected");
-        $('#select_stop').selectpicker('refresh');
+        if (map.hasLayer(destLayer)) {
+            map.removeLayer(destLayer);
+        }
+        if (!(map.hasLayer(stopsLayer))) {
+            stopsLayer.addTo(map);
+        }
+        routeLayer.setStyle({
+            opacity:'0.7'
+        });
+        $("#select_origin option:selected").removeAttr("selected");
+        $('#select_origin').selectpicker('refresh');
+        $("#select_dest option:selected").removeAttr("selected");
+        $('#select_dest').selectpicker('refresh');
+
+        heatmap_layerGroup.clearLayers();
+        heatmap_stops_dict = {};
     });
 
 
 {#=================================================== Get Metrics Begin Here =======================================#}
+
+    function onEachFeature2(feature, layer){
+        layer.on({
+            mouseover: highlightFeature,
+            mouseout: resetHighlight
+        });
+    }
+
     function get_metrics(){
+        map.removeControl(legend);
+        legend.onAdd = function () {
+            var div = L.DomUtil.create('div', 'info legend');
+            div.innerHTML += '<i style="background:green' + '"></i> ' + "&nbsp Stop skipping proportion &le; " + sliderlow + "% <br>";
+            div.innerHTML += '<j style="background:yellow' +  '"></j> ' + "&nbsp Stop skipping proportion &le; "+ sliderhigh + "%<br>";
+            div.innerHTML += '<k style="background:red' +  '"></k> ' + "&nbsp Stop skipping proportion > "+ sliderhigh + "%<br>";
+            return div;
+        };
+        legend.addTo(map);
+
         var route = $('#select_route option:selected').attr('value');
         var direction = $('#inout').bootstrapSwitch('state');
         if (direction){direction = "1"} else {direction = "0"}
-		var selected_stops = $('#select_stop option:selected');
-        var stops_number = selected_stops.length;
-        if (stops_number == 0 ){
-            alert("Please select at least 1 stop.");
+
+        var stop1ID = $('#select_origin option:selected').attr('value');
+        var stop2ID = $('#select_dest option:selected').attr('value');
+        if (stop1ID == stop2ID ){
+            alert("Please select 2 different stops.");
             return;
         }
 
-        var stops_array = new Array(stops_number);
-        for(var i = 0; i < stops_number; i++){
-            stops_array[i] = selected_stops[i].value;
+        var num = stops_geoJson.features.length;
+        var flag = false;
+        var stops_number = 0;
+        for(var i = 0; i < num; i++){
+            if ((stops_geoJson.features[i].properties.stop_id == stop1ID) || (stops_geoJson.features[i].properties.stop_id == stop2ID)){
+                flag = !flag;
+            }
+            if (flag) {
+                stops_number++;
+            }
+        }
+        var stops_array = new Array(stops_number + 1);
+        flag = false;
+        stops_number = 0;
+        for(var i = 0; i < num; i++){
+            if ((stops_geoJson.features[i].properties.stop_id == stop1ID) || (stops_geoJson.features[i].properties.stop_id == stop2ID)){
+                if (flag){
+                    flag = false;
+                    stops_array[stops_number] = stops_geoJson.features[i].properties.stop_id;
+                    stops_number++;
+                }else{
+                    flag = true;
+                }
+            }
+            if (flag) {
+                stops_array[stops_number] = stops_geoJson.features[i].properties.stop_id;
+                stops_number++;
+            }
         }
         var selected_stops_str = stops_array.join();
 
@@ -523,10 +690,15 @@ MDAP - Transit - Stop Skipping
         spinner = new Spinner(spinneropts).spin(target);
         target.style.opacity = '0.15';
 
-        {# Threshold: store as percent times 100 #}
-        var threshold = $("#slider").slider('getValue');
+        heatmap_layerGroup.clearLayers();
+        heatmap_stops_dict = {};
 
-        $('#chartcontainer').empty();
+        if (map.hasLayer(stopsLayer)) {
+            map.removeLayer(stopsLayer);
+        }
+        routeLayer.setStyle({
+            opacity:'0.25'
+        });
 
         $.get("../transit_metrics_stopskipping/", {
             rt:route,
@@ -535,32 +707,53 @@ MDAP - Transit - Stop Skipping
             e_date:e_date,
             s_time:stime,
             e_time:etime,
-            stops:selected_stops_str,
-            thres:threshold
+            stops:selected_stops_str
         }, function(data, textStatus){
-            remove_all_stops_from_map();
-            for (var i=0;i < stops_number; i++){
+            for (var i=0;i < stops_number - 1; i++){
                 var stop_id = stops_array[i];
                 var num = stops_geoJson.features.length;
                 for (var j = 0; j < num; j++) {
                     if (stops_geoJson.features[j].properties.stop_id == stop_id) {
-                        if ((data[stop_id]["absmax"]==0)&&(data[stop_id]["avgmax"]==0)&&(data[stop_id]["avgavg"]==0)&&(data[stop_id]["avgmin"]==0)){
-                            selected_stops_dict[stop_id] = L.geoJson(stops_geoJson.features[j]).addTo(map)
-                                .bindPopup("<strong>" + stops_geoJson.features[j].properties.name
-                                + "</strong><br> No Data Found for this Stop!")
-                                .openPopup();
-                        } else {
-                            selected_stops_dict[stop_id] = L.geoJson(stops_geoJson.features[j]).addTo(map)
-                                .bindPopup("<strong>" + stops_geoJson.features[j].properties.name
-                                + "</strong><br>Absolute Max: " + (data[stop_id]["absmax"]*100).toFixed(2)
-                                + "%<br>Average Daily Max: " + (data[stop_id]["avgmax"]*100).toFixed(2)
-                                + "%<br>Average Daily Mean: " + (data[stop_id]["avgavg"]*100).toFixed(2)
-                                + "%<br>Average Daily Min: " + (data[stop_id]["avgmin"]*100).toFixed(2)
-                                + "%<br>Overcrowding Proportion: " + (data[stop_id]["ocpro"]*100).toFixed(2) + "%")
-                                .openPopup();
+                        var rec = 0;
+                        for (var j2 = 0; j2 < num; j2++) {
+                            if (stops_geoJson.features[j2].properties.stop_id == stops_array[i + 1]) {
+                                rec = j2;
+                                break;
+                            }
                         }
+                        var myline = {"type": "LineString",
+                            "coordinates": [stops_geoJson.features[j].geometry.coordinates,
+                                            stops_geoJson.features[rec].geometry.coordinates]};
+                        var myPopup = "<strong>" + stops_geoJson.features[j].properties.name
+                            + "</strong><br>Total queried trips: " + data[stop_id]["totaltrip"]
+                            + "<br>Total skip (proportion): " + data[stop_id]["totalskip"] + " (" + (parseFloat(data[stop_id]["totalskip"])/parseFloat(data[stop_id]["totaltrip"])*100).toFixed(2) + "%)"
+                            + "<br>Skip with full load (Proportion): " + data[stop_id]["skipwithfullload"] + " (" + (parseFloat(data[stop_id]["skipwithfullload"])/parseFloat(data[stop_id]["totaltrip"])*100).toFixed(2) + "%)"
+                            + "<br><br>Trips that skip with full load:";
+                        var hasskip = false;
+                        for (var key in data[stop_id]){
+                            if (data[stop_id].hasOwnProperty(key)){
+                                if ((key != "totaltrip")&&(key != "totalskip")&&(key != "skipwithfullload")) {
+                                    hasskip = true;
+                                    myPopup += "<br>" + key + ": " + data[stop_id][key] + " - ";
+                                    myPopup += (parseFloat(data[stop_id][key]) / parseFloat(data[stop_id]["skipwithfullload"]) * 100).toFixed(2) + "%";
+                                }
+                            }
+                        }
+                        if (!hasskip) myPopup += "<br> None.";
 
-                        selected_stops_layerGroup.addLayer(selected_stops_dict[stop_id]);
+                        heatmap_stops_dict[stop_id] = L.geoJson(myline, {
+                            style: function (feature) {
+                                var ref = (parseFloat(data[stop_id]["skipwithfullload"])/parseFloat(data[stop_id]["totaltrip"]))*100;
+                                if (ref <= sliderlow) {
+                                    return {weight: 7, color: 'green', opacity: 0.9};
+                                } else if (ref <= sliderhigh) {
+                                    return {weight: 7, color: 'yellow', opacity: 0.9};
+                                } else {
+                                    return {weight: 7, color: 'red', opacity: 0.9};
+                                }
+                            }
+                        }).addTo(map).bindPopup(myPopup);
+                        heatmap_layerGroup.addLayer(heatmap_stops_dict[stop_id]);
                         break;
                     }
                 }

@@ -679,7 +679,13 @@ def transit_waitingtime_byroute(request):
 def transit_waitingtime_bystop(request):
     gtfs = [record['GTFS'] for record in GTFS_calendar.objects.all().values('GTFS').distinct()]
     stops = [{"stop_id": stop.stop_id, "stop_name": stop.name} for stop in Stop.objects.all()]
-    return render(request, 'traffic/transit_waitingtime_bystop.html', {'stops': stops, 'GTFS':gtfs})
+    return render(request, 'traffic/transit_waitingtime_bystop.html', {'stops': stops, 'GTFS':gtfs})\
+
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
+def transit_waitingtime_byOD(request):
+    gtfs = [record['GTFS'] for record in GTFS_calendar.objects.all().values('GTFS').distinct()]
+    stops = [{"stop_id": stop.stop_id, "stop_name": stop.name} for stop in Stop.objects.all()]
+    return render(request, 'traffic/transit_waitingtime_byOD.html', {'stops': stops, 'GTFS':gtfs})
 
 @permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_stopskipping(request):
@@ -1146,6 +1152,13 @@ def transit_metrics_wt_bystop(request):
     return HttpResponse(response, content_type='application/json')
 
 @permission_required(perm= 'traffic.perm_transit', raise_exception= True)
+def transit_metrics_wt_byOD(request):
+    result = ""
+    response = json.dumps(result)
+    return HttpResponse(response, content_type='application/json')
+
+
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_metrics_stopskipping(request):
     routedict = Route_dict.objects.all()
     route = ''
@@ -1161,16 +1174,14 @@ def transit_metrics_stopskipping(request):
     s_date = date(int(s_date[6:10]), int(s_date[0:2]), int(s_date[3:5]))
     e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
     stops = request.GET["stops"].split(",")
-    threshold = float(request.GET["thres"])/float(100)
 
-    # The map from "bus model" to "number of seats", "bus model" in APC/AVL has 4 digits, only first 2 represent models
+    # The map from "bus model" to "number of seats", "bus model" in APC/AVL has 4 digits, only first 2 represent bus models
     bus_map = {"30": 63, "31": 60, "50": 37, "51": 37, "52": 37, "53": 37, "54": 37, "55": 40, "56": 40,
                "19": 57, "32": 56, "33": 56, "39": 60, "57": 40, "58": 40, "59": 40}
 
     result = {}
     for stopid in stops:
-        result[stopid] = {"absmax": 0, "avgmax": 0, "avgavg": 0, "avgmin": 0, "ocpro": 0}
-        temp = {}
+        result[stopid] = {"totaltrip": 0, "totalskip": 0, "skipwithfullload":0}
         # the field qstopa now has 2 blank spaces in the beginning of every line, if database changed, remember to revise the filter condition!!
         data = Transit_data.objects.filter(qstopa='  '+str(stopid), route=str(route), dir=str(direction), date__range=(s_date, e_date))
         for item in data:
@@ -1178,37 +1189,18 @@ def transit_metrics_stopskipping(request):
                 load = float(item.load_num)
                 capacity = float(bus_map[item.vehnoa[:2]])
                 pro = load/capacity
-                if temp.has_key(item.date):
-                    temp[item.date].append(pro)
-                else:
-                    temp[item.date] = [pro]
-        avgavg = 0
-        avgmax = 0
-        avgmin = 0
-        occount = 0
-        absmax = 0
-        totalcount = 0
-        for key in temp.keys():
-            avgavg += float(sum(temp[key]))/float(len(temp[key]))
-            avgmax += max(temp[key])
-            avgmin += min(temp[key])
-            if max(temp[key]) > absmax:
-                absmax = max(temp[key])
-            for item in temp[key]:
-                if item > threshold:
-                    occount += 1
-            totalcount += len(temp[key])
-        numofdate = float(len(temp))
-        result[stopid]["absmax"] = absmax
-        if numofdate != 0:
-            result[stopid]["avgmax"] = float(avgmax)/numofdate
-            result[stopid]["avgavg"] = float(avgavg)/numofdate
-            result[stopid]["avgmin"] = float(avgmin)/numofdate
-        if totalcount != 0:
-            result[stopid]["ocpro"] = float(occount)/float(totalcount)
-
+                result[stopid]["totaltrip"] += 1
+                if item.dwtime == 0: # doesn't stop at this bus stop
+                    result[stopid]["totalskip"] += 1
+                    if pro > 1.5: # doesn't stop because bus is full
+                        result[stopid]["skipwithfullload"] += 1
+                        if result[stopid].has_key(item.tripa):
+                            result[stopid][item.tripa] += 1
+                        else:
+                            result[stopid][item.tripa] = 1
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
+
 
 @permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_metrics_crowding(request):
@@ -1226,6 +1218,7 @@ def transit_metrics_crowding(request):
     s_date = date(int(s_date[6:10]), int(s_date[0:2]), int(s_date[3:5]))
     e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
     stops = request.GET["stops"].split(",")
+    # threshold only useful in Stop Statistics, it is useless in Heatmap
     threshold = float(request.GET["thres"])/float(100)
 
     # The map from "bus model" to "number of seats", "bus model" in APC/AVL has 4 digits, only first 2 represent models
@@ -1234,6 +1227,7 @@ def transit_metrics_crowding(request):
 
     result = {}
     for stopid in stops:
+        # All items below are useful in Stop Statistics, only avgavg is useful in Heatmap
         result[stopid] = {"absmax": 0, "avgmax": 0, "avgavg": 0, "avgmin": 0, "ocpro": 0}
         temp = {}
         # the field qstopa now has 2 blank spaces in the beginning of every line, if database changed, remember to revise the filter condition!!
