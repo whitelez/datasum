@@ -3,7 +3,7 @@
 {% load staticfiles %}
 
 {% block title %}
-MDAP - Transit - Crowding Level - Statistics for Stops
+MDAP - Transit - Stop Skipping
 {% endblock %}
 
 {% block style %}
@@ -72,8 +72,7 @@ MDAP - Transit - Crowding Level - Statistics for Stops
 {% block content %}
 <div class="well" style="overflow:auto;height:100%;">
 	<div class="container" style="width: inherit">
-    	<div class="row"><h4>Crowding Level </h4></div>
-        <div class="row"><p>&nbsp; &nbsp; Statistics for Stops: </p></div>
+    	<div class="row"><h4>Stop Skipping </h4></div>
 		<div class="row" style="padding-top:15px;">
             <div class="col-md-4" style="height: 36px;padding-right: 0;"><h5>Route:</h5></div>
             <div class="col-md-8" style="padding-left: 0;">
@@ -529,7 +528,7 @@ MDAP - Transit - Crowding Level - Statistics for Stops
 
         $('#chartcontainer').empty();
 
-        $.get("../transit_metrics_crowding/", {
+        $.get("../transit_metrics_stopskipping/", {
             rt:route,
             dir:direction,
             s_date:s_date,
