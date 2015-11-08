@@ -122,6 +122,7 @@ LOGIN_URL = '/traffic/login/'
 
 LOGIN_EXEMPT_URLS = (
     'traffic/register/',
+    'admin/'
 )
 
 # set sessions to expire when user close the browser, this is a global way
