@@ -3,6 +3,7 @@ from django.core import serializers
 from django.http import HttpResponse, QueryDict
 from django.db.models import Q
 from django.template import RequestContext, loader
+from django.contrib.auth.decorators import login_required, permission_required
 
 import json
 import urllib2,urllib
@@ -25,9 +26,11 @@ def index2(request):
     return render(request, 'traffic/index2.html')
 # +++++++++++++++++++++++++++++++++++++++++++++ #
 
+@permission_required(perm= 'traffic.perm_camera', raise_exception= True)
 def camera(request):
     return render(request, 'traffic/camera.html')
 
+@permission_required(perm= 'traffic.perm_count', raise_exception= True)
 def count(request):
     return render(request, 'traffic/count.html')
 
@@ -37,11 +40,11 @@ def ajaxtest(request):
     j = json.dumps(result)
     return HttpResponse(j, content_type='application/json')
 
-
-
+@permission_required(perm= 'traffic.perm_weather', raise_exception= True)
 def weather(request):
     return render(request, 'traffic/weather.html')
 
+@permission_required(perm= 'traffic.perm_weather', raise_exception= True)
 def get_county_weather(request):
     state = request.GET['state']   
     county = request.GET['county']
@@ -55,6 +58,7 @@ def get_county_weather(request):
     response = json.dumps(weather_info)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_weather', raise_exception= True)
 def get_weather(request):
     #geo_list = []
     i=0
@@ -86,14 +90,17 @@ def get_weather(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_ev_station', raise_exception= True)
 def ev_stations(request):
     return render(request, 'traffic/ev_stations.html')
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def travel_time(request):
     tmcs = TMC.objects.all()
     return render(request, 'traffic/travel_time.html', {'n': range(1, 32), 'tmcs': tmcs})
 
 #BY PXD
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def travel_time_new(request):
     tmcs = TMC.objects.all()
     records = SPCCorridorNodeInfo.objects.all()
@@ -110,6 +117,7 @@ def travel_time_new(request):
             corridors.insert(flag, corridor)
     return render(request, 'traffic/travel_time_new.html', {'corridors': corridors})
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def travel_time_corridorafter2013(request):
     records = SPCCorridorNodeInfo2013to2015.objects.all()
     corridors = []
@@ -125,6 +133,7 @@ def travel_time_corridorafter2013(request):
             corridors.insert(flag, corridor)
     return render(request, 'traffic/travel_time_corridorafter2013.html', {'corridors': corridors})
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def get_node_info(request):
     cornum = request.GET['cornum']
     nodes = SPCCorridorNodeInfo.objects.filter(Corridor_Number=cornum)
@@ -139,6 +148,7 @@ def get_node_info(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def get_node_info_2013to2015(request):
     cornum = request.GET['cornum']
     nodes = SPCCorridorNodeInfo2013to2015.objects.filter(Corridor_Number=cornum)
@@ -153,6 +163,7 @@ def get_node_info_2013to2015(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def get_spcyears(request):
     cornum = request.GET['cornum']
     records = SPCtraveltime.objects.filter(Corridor_Number=cornum)
@@ -168,6 +179,7 @@ def get_spcyears(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def get_spctraveltime_2013to2015(request):
     cornum0 = request.GET['cornum']
     Snode = request.GET['Snode']
@@ -214,6 +226,7 @@ def get_spctraveltime_2013to2015(request):
     response2 = json.dumps(response)
     return HttpResponse(response2, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def get_spctraveltime(request):
     cornum = request.GET['cornum']
     year = request.GET['year']
@@ -277,6 +290,7 @@ def get_spctraveltime(request):
     response2 = json.dumps(response)
     return HttpResponse(response2, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def get_spctraveltimeformanyyears(request):
     cornum = request.GET['cornum']
     years = request.GET['years']
@@ -348,7 +362,7 @@ def get_spctraveltimeformanyyears(request):
     return HttpResponse(response2, content_type='application/json')
 #END
 
-
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def get_travel_time(request):
     t1 = request.GET['tmc1']
     t2 = request.GET['tmc2']
@@ -440,6 +454,7 @@ def get_travel_time(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def get_travel_time_prediction(request):
     t1 = request.GET['tmc1']
     t2 = request.GET['tmc2']
@@ -485,6 +500,7 @@ def get_travel_time_prediction(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')  
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def get_road_tmc(request):
     input_tmc = request.GET['tmc']
     s_tmc = TMC.objects.get(tmc = input_tmc)
@@ -518,6 +534,7 @@ def get_road_tmc(request):
 ##    response = json.dumps(result)
 ##    return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_incident', raise_exception= True)
 def get_incidents_rcrs(request):
     s_date = request.GET['s_date']
     e_date = request.GET['e_date']
@@ -537,9 +554,11 @@ def get_incidents_rcrs(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_incident', raise_exception= True)
 def incidents(request):
     return render(request, 'traffic/incidents.html',{'n':range(1,32)})
 
+@permission_required(perm= 'traffic.perm_download', raise_exception= True)
 def download(request):
     return render(request, 'traffic/download.html',{'months':range(1,13), 'months14': range(1,9) ,'days':range(1,32)})
 
@@ -549,6 +568,7 @@ def download(request):
 # Aggregate the shape and stop information of each bus route
 # To run this function: 1. Create a url and run it in explorer (will cause no response, just save in database)
 #                       2. Write If name == "__main__": run transit_data() and run this view.py
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_data(request):
     for route in Route.objects.all():
         print route.route_id
@@ -578,6 +598,7 @@ def transit_data(request):
             route.outbound_stops_geoJson = stops
         route.save()
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def get_route(request):
     route_name = request.GET['route']
     direction = request.GET['direction']
@@ -589,6 +610,7 @@ def get_route(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def get_stops(request):
     route_name = request.GET['route']
     direction = request.GET['direction']
@@ -600,6 +622,7 @@ def get_stops(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def get_trips(request):
     route = request.GET["route"]
     gtfs_name = request.GET["gtfs_name"]
@@ -630,54 +653,77 @@ def get_trips(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_ontimeperformance_byroute(request):
     routes = [{"route_value": route.short_name+"+"+route.route_id, "route_shortname": route.short_name} for route in Route.objects.all()]
     return render(request, 'traffic/transit_ontimeperformance_byroute.html', {'routes': routes})
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_ontimeperformance_bystop(request):
     stops = [{"stop_id": stop.stop_id, "stop_name": stop.name} for stop in Stop.objects.all()]
     return render(request, 'traffic/transit_ontimeperformance_bystop.html', {'stops': stops})
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_schedule(request):
     gtfs = [record['GTFS'] for record in GTFS_calendar.objects.all().values('GTFS').distinct()]
     routes = [{"route_value": route.short_name+"+"+route.route_id, "route_shortname": route.short_name} for route in Route.objects.all()]
     return render(request, 'traffic/transit_schedule.html', {'routes': routes, 'GTFS':gtfs})
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_waitingtime_byroute(request):
     gtfs = [record['GTFS'] for record in GTFS_calendar.objects.all().values('GTFS').distinct()]
     routes = [{"route_value": route.short_name+"+"+route.route_id, "route_shortname": route.short_name} for route in Route.objects.all()]
     return render(request, 'traffic/transit_waitingtime_byroute.html', {'routes': routes, 'GTFS':gtfs})
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_waitingtime_bystop(request):
     gtfs = [record['GTFS'] for record in GTFS_calendar.objects.all().values('GTFS').distinct()]
     stops = [{"stop_id": stop.stop_id, "stop_name": stop.name} for stop in Stop.objects.all()]
-    return render(request, 'traffic/transit_waitingtime_bystop.html', {'stops': stops, 'GTFS':gtfs})
+    return render(request, 'traffic/transit_waitingtime_bystop.html', {'stops': stops, 'GTFS':gtfs})\
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
+def transit_waitingtime_byOD(request):
+    gtfs = [record['GTFS'] for record in GTFS_calendar.objects.all().values('GTFS').distinct()]
+    stops = [{"stop_id": stop.stop_id, "stop_name": stop.name} for stop in Stop.objects.all()]
+    return render(request, 'traffic/transit_waitingtime_byOD.html', {'stops': stops, 'GTFS':gtfs})
+
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
+def transit_stopskipping(request):
+    routes = ','.join(route.short_name for route in Route.objects.all())
+    routes = routes.split(',')
+    return render(request, 'traffic/transit_stopskipping.html', {'routes': routes})
+
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_crowding(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
     return render(request, 'traffic/transit_crowding.html', {'routes': routes})
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_crowding_hm(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
     return render(request, 'traffic/transit_crowding_hm.html', {'routes': routes})
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_bunching(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
     return render(request, 'traffic/transit_bunching.html', {'routes': routes})
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_bunching_hm(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
     return render(request, 'traffic/transit_busbunching_hm.html', {'routes': routes})
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_bustraveltime(request):
     routes = ','.join(route.short_name for route in Route.objects.all())
     routes = routes.split(',')
     return render(request, 'traffic/transit_bustraveltime.html', {'routes': routes})
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def get_stop_routes(request):
     stop_id = request.GET["stop"]
     routes = Stop_route.objects.filter(stop_id=stop_id)
@@ -722,6 +768,7 @@ def get_range_routes(request):
 #####################################################################
 
 #bus_real_time
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def bus_real_time(request):
     route = request.GET["rt"]
     url = "http://truetime.portauthority.org/bustime/api/v1/getvehicles?key=AX2AUxF9WBp8xdjHBTXEr8gn5&format=json&rt=" + route
@@ -746,6 +793,7 @@ def bus_real_time(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_metrics_op_byroute(request):
     routedict = Route_dict.objects.all()
     route = ''
@@ -779,6 +827,7 @@ def transit_metrics_op_byroute(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_metrics_op_bystop(request):
     routedict = Route_dict.objects.all()
     routes = request.GET["routes"].split(",")
@@ -815,6 +864,7 @@ def transit_metrics_op_bystop(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_metrics_schedule_opt(request):
     # gtfs_name = request.GET["gtfs_name"]
     routedict = Route_dict.objects.all()
@@ -856,6 +906,7 @@ def transit_metrics_schedule_opt(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_metrics_wt_byroute(request):
     gtfs_name = request.GET["gtfs_name"]
     routedict = Route_dict.objects.all()
@@ -972,6 +1023,7 @@ def transit_metrics_wt_byroute(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_metrics_wt_bystop(request):
     gtfs_name = request.GET["gtfs_name"]
     routedict = Route_dict.objects.all()
@@ -1099,6 +1151,58 @@ def transit_metrics_wt_bystop(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
+def transit_metrics_wt_byOD(request):
+    result = ""
+    response = json.dumps(result)
+    return HttpResponse(response, content_type='application/json')
+
+
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
+def transit_metrics_stopskipping(request):
+    routedict = Route_dict.objects.all()
+    route = ''
+    for item in routedict:
+        if item.short_name == request.GET["rt"]:
+            route = item.route_number_in_APCAVL
+            break
+    direction = request.GET["dir"]
+    s_date = request.GET["s_date"]
+    e_date = request.GET["e_date"]
+    s_time = int(request.GET["s_time"])
+    e_time = int(request.GET["e_time"])
+    s_date = date(int(s_date[6:10]), int(s_date[0:2]), int(s_date[3:5]))
+    e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
+    stops = request.GET["stops"].split(",")
+
+    # The map from "bus model" to "number of seats", "bus model" in APC/AVL has 4 digits, only first 2 represent bus models
+    bus_map = {"30": 63, "31": 60, "50": 37, "51": 37, "52": 37, "53": 37, "54": 37, "55": 40, "56": 40,
+               "19": 57, "32": 56, "33": 56, "39": 60, "57": 40, "58": 40, "59": 40}
+
+    result = {}
+    for stopid in stops:
+        result[stopid] = {"totaltrip": 0, "totalskip": 0, "skipwithfullload":0}
+        # the field qstopa now has 2 blank spaces in the beginning of every line, if database changed, remember to revise the filter condition!!
+        data = Transit_data.objects.filter(qstopa='  '+str(stopid), route=str(route), dir=str(direction), date__range=(s_date, e_date))
+        for item in data:
+            if item.schtim >= s_time and item.schtim <= e_time:
+                load = float(item.load_num)
+                capacity = float(bus_map[item.vehnoa[:2]])
+                pro = load/capacity
+                result[stopid]["totaltrip"] += 1
+                if item.dwtime == 0: # doesn't stop at this bus stop
+                    result[stopid]["totalskip"] += 1
+                    if pro > 1.5: # doesn't stop because bus is full
+                        result[stopid]["skipwithfullload"] += 1
+                        if result[stopid].has_key(item.tripa):
+                            result[stopid][item.tripa] += 1
+                        else:
+                            result[stopid][item.tripa] = 1
+    response = json.dumps(result)
+    return HttpResponse(response, content_type='application/json')
+
+
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_metrics_crowding(request):
     routedict = Route_dict.objects.all()
     route = ''
@@ -1114,6 +1218,7 @@ def transit_metrics_crowding(request):
     s_date = date(int(s_date[6:10]), int(s_date[0:2]), int(s_date[3:5]))
     e_date = date(int(e_date[6:10]), int(e_date[0:2]), int(e_date[3:5]))
     stops = request.GET["stops"].split(",")
+    # threshold only useful in Stop Statistics, it is useless in Heatmap
     threshold = float(request.GET["thres"])/float(100)
 
     # The map from "bus model" to "number of seats", "bus model" in APC/AVL has 4 digits, only first 2 represent models
@@ -1122,6 +1227,7 @@ def transit_metrics_crowding(request):
 
     result = {}
     for stopid in stops:
+        # All items below are useful in Stop Statistics, only avgavg is useful in Heatmap
         result[stopid] = {"absmax": 0, "avgmax": 0, "avgavg": 0, "avgmin": 0, "ocpro": 0}
         temp = {}
         # the field qstopa now has 2 blank spaces in the beginning of every line, if database changed, remember to revise the filter condition!!
@@ -1163,6 +1269,7 @@ def transit_metrics_crowding(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_metrics_bunching(request):
     routedict = Route_dict.objects.all()
     route = ''
@@ -1229,6 +1336,7 @@ def transit_metrics_bunching(request):
     response = json.dumps(result)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_transit', raise_exception= True)
 def transit_metrics_bustraveltime(request):
     routedict = Route_dict.objects.all()
     route = ''
@@ -1305,6 +1413,7 @@ def transit_metrics_route_range(request):
 
 
 #routing
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def routing(request):
     return render(request,'traffic/routing.html',{'n':range(1,32)})
 
@@ -1321,6 +1430,7 @@ def distance_lnglat(x,y): # in meters
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
     return R * c
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def routing_path(request):
     s_lon = float(request.GET['s_lon'])
     s_lat = float(request.GET['s_lat'])
@@ -1398,6 +1508,7 @@ def routing_path(request):
     response = json.dumps(rsps_json)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_travel', raise_exception= True)
 def routing_path_nodes(request):
     s_lon = float(request.GET['s_lon'])
     s_lat = float(request.GET['s_lat'])
@@ -1601,6 +1712,7 @@ def routing_path_old(request):
 def test(request):
     return HttpResponse("hi world")
 
+@permission_required(perm= 'traffic.perm_incident', raise_exception= True)
 def get_incidents_rcrs_area(request):
     s_date = request.GET['s_date']
     e_date = request.GET['e_date']
@@ -1640,6 +1752,7 @@ def get_incidents_rcrs_area(request):
     response = json.dumps(rsps)
     return HttpResponse(response, content_type='application/json')
 
+@permission_required(perm= 'traffic.perm_incident', raise_exception= True)
 def real_time_incidents_rcrs(request):
     events = {"type":"FeatureCollection","features":[]}
     url = 'https://www.dot511.state.pa.us/RCRS_Data_Feed/RCRSDataService.asmx/GetEventFeed?keyValue=RCRSdataFeedsPA@prod&userName=SEAN_QIAN&userPass=CMU_MOBILITY_DATA_ANALYTICS'
@@ -1737,9 +1850,11 @@ def real_time_tt(request):
 def device_render(request):
     return render(request, 'traffic/devices.html')
 
+@permission_required(perm= 'traffic.perm_count', raise_exception= True)
 def sensors_counts_webpage(request):
     return render(request, 'traffic/sensors_counts.html')
 
+@permission_required(perm= 'traffic.perm_count', raise_exception= True)
 def get_sensors_counts(request):
     sensors_data = {"type":"FeatureCollection","features":[]}
     sensors = Counts_sensors.objects.all()
@@ -1750,6 +1865,7 @@ def get_sensors_counts(request):
     response = json.dumps(sensors_data)
     return HttpResponse(response,content_type = "application/json")
 
+@permission_required(perm= 'traffic.perm_count', raise_exception= True)
 def get_sensors_links(request):
     sensors_links = {"type":"FeatureCollection","features":[]}
     links = Counts_sensors_links.objects.all()
@@ -1761,10 +1877,12 @@ def get_sensors_links(request):
     return HttpResponse(response,content_type = "application/json")
 
 #SGYang
+@permission_required(perm= 'traffic.perm_closure', raise_exception= True)
 def closure(request):
     return render(request, 'traffic/closure.html')
 
 
+@permission_required(perm= 'traffic.perm_closure', raise_exception= True)
 def get_road_closure_query(request):
     #eee = Closed_roads.objects.filter(location__icontains='FORBES AVE')
     #print eee.rdline

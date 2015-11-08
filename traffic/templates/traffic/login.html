@@ -1,0 +1,28 @@
+<!-- code from Tango with Django http://www.tangowithdjango.com/book17/chapters/login.html -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- Is anyone getting tired of repeatedly entering the header over and over?? -->
+        <title>MDAP</title>
+    </head>
+
+    <body>
+        <h1>Login to MDAP</h1>
+        <form id="login_form" method="post" action="/traffic/login/">
+            {% csrf_token %}
+            Username: <input type="text" name="username" value="" size="50" />
+            <br />
+            Password: <input type="password" name="password" value="" size="50" />
+            <br />
+            Keep me log in: <input type="checkbox" name="remember_me" value="" size="50" />
+            <br />
+            {% if next %}
+            <input type="hidden" name="next" value={{ next }}>
+            {% endif %}
+
+            <input type="submit" value="submit" />
+        </form>
+        <a href="/traffic/register/">Register Here</a><br />
+
+    </body>
+</html>

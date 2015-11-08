@@ -1,0 +1,33 @@
+<!-- code from Tango with Django http://www.tangowithdjango.com/book17/chapters/login.html -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>MDAP</title>
+    </head>
+
+    <body>
+        <h1>Register with MDAP</h1>
+
+        {% if registered %}
+        <strong>Thank you for registering!</strong>
+        <p> We will review your registration and send you an email with password shortly.</p>
+        <a href="/traffic/">Return to the homepage.</a><br />
+        {% else %}
+        <strong>register here!</strong><br />
+
+        <form id="user_form" method="post" action="/traffic/register/"
+                enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            <!-- Display each form. The as_p method wraps each element in a paragraph
+                 (<p>) element. This ensures each element appears on a new line,
+                 making everything look neater. -->
+            {{ user_form.as_p }}
+
+            <!-- Provide a button to click to submit the form. -->
+            <input type="submit" name="submit" value="Register" />
+        </form>
+        {% endif %}
+    </body>
+</html>

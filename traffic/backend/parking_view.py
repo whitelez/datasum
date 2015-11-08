@@ -10,12 +10,13 @@ import ast
 
 from traffic.models import * #Meter, Parking, Street, Streetparking, TMC, TMC_data, Incidents, Weather
 from datetime import date
+from django.contrib.auth.decorators import login_required, permission_required
 
-
+@permission_required(perm= 'traffic.perm_parking', raise_exception= True)
 def parking(request):
     return render(request, 'traffic/parking.html', {'n': range(1, 32)})
 
-
+@permission_required(perm= 'traffic.perm_parking', raise_exception= True)
 def street_parking_geojson_prediction(request):
     stpdate = date(2013, 1, 1)
     edpdate = date(2014, 8, 30)
@@ -93,6 +94,7 @@ def street_parking_geojson_prediction(request):
     return HttpResponse(response, content_type='application/json')
 
 
+@permission_required(perm= 'traffic.perm_parking', raise_exception= True)
 def parking_lots(request):
     lots = {"type" : "FeatureCollection", "features": []}
     for i in range(2, 43):

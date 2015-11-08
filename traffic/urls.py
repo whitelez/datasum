@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, url
-from traffic import views
+from traffic import views, authen_view
 from backend import crash_view, parking_view
+from django.contrib.auth import views as django_auth_views
 
 urlpatterns = patterns('',
     url(r'^$', views.index, name='index'),
@@ -48,6 +49,8 @@ urlpatterns = patterns('',
     url(r'^transit_schedule/$', views.transit_schedule, name='transit_schedule'),
     url(r'^transit_waitingtime_byroute/$', views.transit_waitingtime_byroute, name='transit_waitingtime_byroute'),
     url(r'^transit_waitingtime_bystop/$', views.transit_waitingtime_bystop, name='transit_waitingtime_bystop'),
+    url(r'^transit_waitingtime_byOD/$', views.transit_waitingtime_byOD, name='transit_waitingtime_byOD'),
+    url(r'^transit_stopskipping/$', views.transit_stopskipping, name='transit_stopskipping'),
     url(r'^transit_crowding/$', views.transit_crowding, name='transit_crowding'),
     url(r'^transit_crowding_heatmap/$', views.transit_crowding_hm, name='transit_crowding_hm'),
     url(r'^transit_busbunching/$', views.transit_bunching, name='transit_busbunching'),
@@ -60,6 +63,9 @@ urlpatterns = patterns('',
 
     url(r'^transit_metrics_wt_byroute/$', views.transit_metrics_wt_byroute, name='transit_metrics_wt_byroute'),
     url(r'^transit_metrics_wt_bystop/$', views.transit_metrics_wt_bystop, name='transit_metrics_wt_bystop'),
+    url(r'^transit_metrics_wt_byOD/$', views.transit_metrics_wt_byOD, name='transit_metrics_wt_byOD'),
+
+    url(r'^transit_metrics_stopskipping/$', views.transit_metrics_stopskipping, name='transit_metrics_stopskipping'),
 
     url(r'^transit_metrics_crowding/$', views.transit_metrics_crowding, name='transit_metrics_crowding'),
 
@@ -106,4 +112,11 @@ urlpatterns = patterns('',
 #map_displayer
     url(r'^map_displayer/$', views.map_displayer, name='map_displayer'),
 
+#authentication and registration
+    url(r'^register/$', authen_view.register, name='register'),
+    url(r'^login/$', authen_view.user_login, name='login'),
+    url(r'^restricted/', authen_view.restricted, name='restricted'),
+    url(r'^logout/$', authen_view.user_logout, name='logout'),
+    url(r'^change-password/', django_auth_views.password_change, {'post_change_redirect': '/traffic/'}, name='password_change'),
+    #url(r'^change-password-done/', django_auth_views.password_change_done, name='password_change_done'),
 )

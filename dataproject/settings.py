@@ -73,6 +73,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'project_middleware.authen_middleware.LoginRequiredMiddleware',
 )
 
 ROOT_URLCONF = 'dataproject.urls'
@@ -116,3 +117,23 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# for login use
+LOGIN_URL = '/traffic/login/'
+
+LOGIN_EXEMPT_URLS = (
+    'traffic/register/',
+)
+
+# set sessions to expire when user close the browser, this is a global way
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Email setting, use our gmail to send emails
+EMAIL_USE_TLS = True
+
+EMAIL_HOST = 'smtp.gmail.com'
+
+EMAIL_HOST_USER = 'mdap2205@gmail.com'
+
+EMAIL_HOST_PASSWORD = 'dataproject'
+
+EMAIL_PORT = 587

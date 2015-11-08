@@ -51,15 +51,34 @@
 		</div>
 		<nav class="navbar navbar-default navbar-static-top" role="navigation">
 			<div class="collapse navbar-collapse">
-                    <ul class="nav navbar-nav navbar-right" style="margin-right: 20px;">
+                <ul class="nav navbar-nav navbar-right" style="margin-right: 20px;">
+                    {% if perms.traffic.perm_download %}
                     <li id="nav-download"><a href="{% url 'traffic:download' %}"><span class="glyphicon glyphicon-download-alt"> </span> &nbsp;Download</a></li>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                    <li id="nav-logout"><a href="{% url 'traffic:logout' %}">Logout</a></li>
+                    {% endif %}
                 </ul>
 				<ul class="nav navbar-nav">
                     <li id="nav-home"><a href="{% url 'traffic:index' %}">Home</a></li>
+
+                    {% if perms.traffic.perm_weather %}
         	        <li id="nav-weather"><a href="{% url 'traffic:weather' %}">Weather</a></li>
+                    {% endif %}
+
+                    {% if perms.traffic.perm_parking %}
                     <li id="nav-parking"><a href="{% url 'traffic:parking' %}">Parking</a></li>
+                    {% endif %}
+
+                    {% if perms.traffic.perm_closure %}
                     <li id="nav-closure"><a href="{% url 'traffic:closure' %}">Closure</a></li>      <!Added by SGYang>
+                    {% endif %}
+
+                    {% if perms.traffic.perm_camera %}
                     <li id="nav-cameras"><a href="{% url 'traffic:camera' %}">Cameras</a></li>
+                    {% endif %}
+
+                    {% if perms.traffic.perm_count %}
                     <li id="nav-trafficcounts" class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Traffic Counts <b class="caret"></b></a>
                         <ul class="dropdown-menu">
@@ -67,6 +86,9 @@
 							<li><a href="{% url 'traffic:sensors_counts_webpage' %}">Sensors Counts</a></li>
                         </ul>
                     </li>
+                    {% endif %}
+
+                    {% if perms.traffic.perm_transit %}
                     <li id="nav-transit" class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Transit <b class="caret"></b></a>
                         <ul class="dropdown-menu">
@@ -83,8 +105,10 @@
                                 <ul class="dropdown-menu">
                                     <li><a href="{% url 'traffic:transit_waitingtime_byroute' %}"> Query by Route </a></li>
                                     <li><a href="{% url 'traffic:transit_waitingtime_bystop' %}"> Query by Stop </a></li>
+                                    <li><a href="{% url 'traffic:transit_waitingtime_byOD' %}"> Query by OD Pair </a></li>
                                 </ul>
                             </li>
+                            <li><a href="{% url 'traffic:transit_stopskipping' %}">Stop Skipping</a></li>
                             <li class="dropdown dropdown-submenu">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Bus Crowding Level</a>
                                 <ul class="dropdown-menu">
@@ -102,6 +126,9 @@
 							<li><a href="{% url 'traffic:transit_bustraveltime' %}">Bus Travel Time</a></li>
                         </ul>
                     </li>
+                    {% endif %}
+
+                    {% if perms.traffic.perm_travel %}
                     <li id="nav-traveltime" class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Travel <b class="caret"></b></a>
                         <ul class="dropdown-menu">
@@ -111,9 +138,19 @@
 							<li><a href="{% url 'traffic:travel_time_corridorafter2013' %}">Travel Time: Corridors (2013-2015)</a></li>
                         </ul>
                     </li>
+                    {% endif %}
+
+                    {% if perms.traffic.perm_crash %}
                     <li id="nav-crash"><a href="{% url 'traffic:crash' %}">Crashes</a></li>
+                    {% endif %}
+
+                    {% if perms.traffic.perm_incident %}
                     <li id="nav-incidents"><a href="{% url 'traffic:incidents' %}">Incidents</a></li>
+                    {% endif %}
+
+                    {% if perms.traffic.perm_ev_station %}
                     <li id="nav-evstation"><a href="{% url 'traffic:ev_stations' %}">EV Stations</a></li>
+                    {% endif %}
 				</ul>
 			</div>
 		</nav>

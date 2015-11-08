@@ -503,7 +503,26 @@ class Counts_sensors_links(models.Model):
 #     sid = models.ForeignKey(Counts_sensors)
 #     counts = models.TextField()
 
+# ==================== Models for Permission start ================== #
+class Permissions(models.Model):
+    class Meta:
+        permissions = (
+            ('test_pc', 'test_permission'),
+            ('perm_weather', 'permission to access weather section'),
+            ('perm_camera', 'permission to access camera section'),
+            ('perm_count', 'permission to access traffic counts section'),
+            ('perm_travel', 'permission to access travel time and trip planner section'),
+            ('perm_incident', 'permission to access incidents section'),
+            ('perm_ev_station', 'permission to access EV stations section'),
+            ('perm_download', 'permission to access download section'),
+            ('perm_transit', 'permission to access transit section'),
+            ('perm_parking', 'permission to access parking section'),
+            ('perm_crash', 'permission to access crash section'),
+            ('perm_closure', 'permission to access closure section')
+        )
 
+
+# ==================== Models for Permission end   ================== #
 
 
 
