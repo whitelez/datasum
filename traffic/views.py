@@ -21,11 +21,6 @@ import csv
 def index(request):
     return render(request, 'traffic/index.html')
 
-# Add by PXD - The new home page of Transit functions
-def index2(request):
-    return render(request, 'traffic/index2.html')
-# +++++++++++++++++++++++++++++++++++++++++++++ #
-
 @permission_required(perm= 'traffic.perm_camera', raise_exception= True)
 def camera(request):
     return render(request, 'traffic/camera.html')
