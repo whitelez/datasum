@@ -4,6 +4,10 @@
 MDAP - Home
 {% endblock %}
 
+{% block style %}
+       <link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css'%}">
+{% endblock %}
+
 {% block map %}
 
 
@@ -19,7 +23,7 @@ MDAP - Home
 					<li>Add other modes to leverage this resource as an organizing tool and principle with significant value to every corner of the region,</li>
 				</ul>
 			</div>	
-				<div class="p32_map" style="float:right; width:40%; padding-right: 5px; padding-top: 10px;">
-					<img src= "http://www.powerof32.org/admin/uploads/p32-regional-map.png" width="450px">
-				</div>
+{#				<div class="p32_map" style="float:right; width:40%; padding-right: 5px; padding-top: 10px;">#}
+{#					<img src= "http://www.powerof32.org/admin/uploads/p32-regional-map.png" width="450px">#}
+{#				</div>#}
 {% endblock %}

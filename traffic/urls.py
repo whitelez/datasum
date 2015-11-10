@@ -6,10 +6,6 @@ from django.contrib.auth import views as django_auth_views
 urlpatterns = patterns('',
     url(r'^$', views.index, name='index'),
 
-    # Add by PXD - The new home page of Transit functions
-    url(r'^transit/$', views.index2, name='index2'),
-    # +++++++++++++++++++++++++++++++++++++++++++++ #
-
     url(r'^camera/$', views.camera, name='camera'),
     url(r'^ajaxtest/$',views.ajaxtest, name='ajaxtest'),
 
