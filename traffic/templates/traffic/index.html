@@ -4,15 +4,19 @@
 MDAP - Home
 {% endblock %}
 
+{% block style %}
+<style>
+    #lw{
+        width: 0;
+    }
+</style>
+{% endblock %}
+
 {% block map %}
+    <h1 style="text-align: center"> Mobility Data Analytics Platform </h1>
+    <p style="text-align: center">   <img src="http://stupiddope.com/wp-content/uploads/2013/08/17th-Street-Bridge.jpg" width="50%" align="middle"> </p>
 
-    <h1> Mobility Data Analytics Platform </h1>
-
-    <div class="p32_map" style="width:100%;">
-        <img src="http://stupiddope.com/wp-content/uploads/2013/08/17th-Street-Bridge.jpg" width="600px">
-    </div>
-
-    <div class="text" style="width:100%;font-size: medium;">
+    <div class="text" style="width:60%;font-size: medium;margin: 0 auto;">
         <h3>Goal:</h3>
         <ul>
             <li>Create a regional traveler information system to provide real-time information to enable modal and route choices for people and freight.
@@ -24,5 +28,4 @@ MDAP - Home
             <li>Add other modes to leverage this resource as an organizing tool and principle with significant value to every corner of the region.</li>
         </ul>
     </div>
-
 {% endblock %}
