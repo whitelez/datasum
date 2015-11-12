@@ -726,8 +726,8 @@ MDAP - Transit - Stop Skipping
                                             stops_geoJson.features[rec].geometry.coordinates]};
                         var myPopup = "<strong>" + stops_geoJson.features[j].properties.name
                             + "</strong><br>Total queried trips: " + data[stop_id]["totaltrip"]
-                            + "<br>Total skip (proportion): " + data[stop_id]["totalskip"] + " (" + (parseFloat(data[stop_id]["totalskip"])/parseFloat(data[stop_id]["totaltrip"])*100).toFixed(2) + "%)"
-                            + "<br>Skip with full load (Proportion): " + data[stop_id]["skipwithfullload"] + " (" + (parseFloat(data[stop_id]["skipwithfullload"])/parseFloat(data[stop_id]["totaltrip"])*100).toFixed(2) + "%)"
+                            + "<br>Total skipping (proportion): " + data[stop_id]["totalskip"] + " (" + (parseFloat(data[stop_id]["totalskip"])/parseFloat(data[stop_id]["totaltrip"])*100).toFixed(2) + "%)"
+                            + "<br>Skipping with full load (Proportion): " + data[stop_id]["skipwithfullload"] + " (" + (parseFloat(data[stop_id]["skipwithfullload"])/parseFloat(data[stop_id]["totaltrip"])*100).toFixed(2) + "%)"
                             + "<br><br>Trips that skip with full load:";
                         var hasskip = false;
                         for (var key in data[stop_id]){
@@ -740,6 +740,8 @@ MDAP - Transit - Stop Skipping
                             }
                         }
                         if (!hasskip) myPopup += "<br> None.";
+                        var temp = (parseFloat(data[stop_id]["skipwithfullload"])/parseFloat(data[stop_id]["totaltrip"]))*30;
+                        myPopup += "<br><br><strong>Average Excessive Waiting Time caused by Skipping with full load: "+ temp.toFixed(2) +" mins/rider</strong>";
 
                         heatmap_stops_dict[stop_id] = L.geoJson(myline, {
                             style: function (feature) {
