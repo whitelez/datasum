@@ -478,7 +478,7 @@
                     py1: yy1,
                     'wkdys': wkdy  //// Sun -Sat
                 }, function (data, textStatus) {
-                    streets = $.parseJSON(data);
+                    streets = data;
                     showOcp();
                 /////////////spinner
                 spinner.stop();
@@ -528,7 +528,7 @@
                     'wkdys': wkdy  //// Sun -Sat
 
                 }, function (data, textStatus) {
-                    streets = $.parseJSON(data);
+                    streets = data;
                     //$('#txtHint').text(terminals);
                     showOcp();
                                    /////////////spinner
