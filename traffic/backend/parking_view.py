@@ -68,16 +68,16 @@ def street_parking_geojson_prediction(request):
                 dc = day.occupancy.split(',')
                 for i in range(intervals):
                     c[i] += float(dc[i])/n
-            cr = [0]*48
+            pr = [0]*48  # array of parking rate
             for day in r:
                 dc = day.rate.split(',')
                 for i in range(48):
-                    cr[i] = dc[i]
+                    pr[i] = dc[i]
             itemdic["type"] = "Feature"
             properties = dict()
             properties["streetID"] = str(t.sid)
             properties["street"] = str(t.street_name)
-            properties["rate"] = cr
+            properties["rate"] = pr
             properties["occupancy"] = c
             geometry = dict()
             geometry["coordinates"] = ast.literal_eval(t.coordinate)
