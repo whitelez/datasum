@@ -57,12 +57,14 @@ def street_parking_geojson_prediction(request):
                 p = p.filter(cr[0] | cr[1] | cr[2] | cr[3] | cr[4] | cr[5] | cr[6])
                 r = r.filter(cr[0] | cr[1] | cr[2] | cr[3] | cr[4] | cr[5] | cr[6])
         if (not p) or (p == 0):   # No historical data, use prediction
-            if pdateo == pdate:   # same day
-                p = t.streetpre_set.filter(date__week_day=weekday)
-                r = t.streetratepre_set.filter(date__week_day=weekday)
-            else:                 # Day ranges
-                p = t.streetpre_set.filter(date__week_day=weekday)
-                r = t.streetratepre_set.filter(date__week_day=weekday)
+            p = t.streetpre_set.filter(date__week_day=weekday)
+            r = t.streetratepre_set.filter(date__week_day=weekday)
+            # if pdateo == pdate:   # same day
+            #     p = t.streetpre_set.filter(date__week_day=weekday)
+            #     r = t.streetratepre_set.filter(date__week_day=weekday)
+            # else:                 # Day ranges
+            #     p = t.streetpre_set.filter(date__week_day=weekday)
+            #     r = t.streetratepre_set.filter(date__week_day=weekday)
         if p:
             n = p.count()
             c = [0]*intervals
