@@ -28,10 +28,10 @@ def street_parking_geojson_prediction(request):
     pd = request.GET['pd']
     pdate = date(int(py), int(pm)+1, int(pd))
     ##########
-    py1 = request.GET['py1']
-    pm1 = request.GET['pm1']
-    pd1 = request.GET['pd1']
-    pdate1 = date(int(py1), int(pm1)+1, int(pd1))
+    pyo = request.GET['py1']
+    pmo = request.GET['pm1']
+    pdo = request.GET['pd1']
+    pdateo = date(int(pyo), int(pmo)+1, int(pdo))
     ###############
     weekday = (pdate.weekday()+1) % 7 + 1
     wkdys = request.GET.getlist('wkdys[]')
@@ -50,14 +50,14 @@ def street_parking_geojson_prediction(request):
         p = 0
         r = 0
         itemdic = dict()
-        if not (pdate > edpdate or pdate1 < stpdate):  # use historical data
-            p = t.streetparking_set.filter(date__range=(pdate, pdate1))
-            r = t.streetrate_set.filter(date__range=(pdate, pdate1))
-            if pdate != pdate1:   # historical date range
+        if not (pdate > edpdate or pdateo < stpdate):  # use historical data
+            p = t.streetparking_set.filter(date__range=(pdate, pdateo))
+            r = t.streetrate_set.filter(date__range=(pdate, pdateo))
+            if pdate != pdateo:   # historical date range
                 p = p.filter(cr[0] | cr[1] | cr[2] | cr[3] | cr[4] | cr[5] | cr[6])
                 r = r.filter(cr[0] | cr[1] | cr[2] | cr[3] | cr[4] | cr[5] | cr[6])
         if (not p) or (p == 0):   # No historical data, use prediction
-            if pdate1 == pdate:   # same day
+            if pdateo == pdate:   # same day
                 p = t.streetpre_set.filter(date__week_day=weekday)
                 r = t.streetratepre_set.filter(date__week_day=weekday)
             else:                 # Day ranges
