@@ -7,10 +7,12 @@ from django.shortcuts import render
 import json
 import urllib2
 import ast
+import logging
 
 from traffic.models import * #Meter, Parking, Street, Streetparking, TMC, TMC_data, Incidents, Weather
 from datetime import date
 from django.contrib.auth.decorators import login_required, permission_required
+logger = logging.getLogger(__name__)
 
 @permission_required(perm= 'traffic.perm_parking', raise_exception= True)
 def parking(request):
@@ -59,8 +61,8 @@ def street_parking_geojson_prediction(request):
                 p = t.streetpre_set.filter(date__week_day=weekday)
                 r = t.streetratepre_set.filter(date__week_day=weekday)
             else:                 # Day ranges
-                p = t.streetpre_set.filter(cr[0] | cr[1] | cr[2] | cr[3] | cr[4] | cr[5] | cr[6])
-                r = t.streetratepre_set.filter(cr[0] | cr[1] | cr[2] | cr[3] | cr[4] | cr[5] | cr[6])
+                p = t.streetpre_set.filter(date__week_day=weekday)
+                r = t.streetratepre_set.filter(date__week_day=weekday)
         if p:
             n = p.count()
             c = [0]*intervals
