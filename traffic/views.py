@@ -1187,7 +1187,7 @@ def transit_metrics_stopskipping(request):
                 result[stopid]["totaltrip"] += 1
                 if item.dwtime == 0: # doesn't stop at this bus stop
                     result[stopid]["totalskip"] += 1
-                    if pro > 1.5: # doesn't stop because bus is full
+                    if pro > 1.00: # doesn't stop because bus is full
                         result[stopid]["skipwithfullload"] += 1
                         if result[stopid].has_key(item.tripa):
                             result[stopid][item.tripa] += 1
