@@ -1,0 +1,637 @@
+{% extends "traffic/base.html" %}
+
+{% load staticfiles %}
+
+{% block title %}
+    Power of 32 RTIS - Travel Time (Here)
+{% endblock %}
+
+{% block style %}
+    <style>
+        #overlaycon {
+            height: 600px;
+        }
+        #map{
+            z-index: 100;
+            position: relative;
+            /*top: -163px;*/
+        }
+        #charts {
+            background: #ffffff;
+            height:30%;
+            width:30%;
+            opacity: 0.93;
+            position: absolute;
+            left: 25%;
+            border-radius: 3px;
+            box-shadow:8px 8px 13px #CCCCCC;
+            z-index: 101;
+            visibility: hidden;
+
+        }
+        #chart {
+            background: #ffffff;
+
+            opacity: 0.93;
+            position: relative;
+            border-radius: 3px;
+            box-shadow:8px 8px 13px #CCCCCC;
+            z-index: 101;
+            visibility: hidden;
+
+        }
+
+    #p1{
+            background: #ffffff;
+            border: 2px solid;
+            border-radius: 10px;
+            border-color: #3f51b5;
+            position: relative;
+            opacity: 0.93;
+            top: 0px;
+            margin-left:1%;
+            height : 110px;
+            text-align: center;
+            width : 97%;
+            z-index: 10;
+
+    }
+
+    .legend {
+        line-height: 18px;
+        height:75px;
+        width:170px;
+        right: -10px;
+        bottom: -10px;
+        border-radius: 5px;
+        background: white;
+        box-shadow: -2px -2px 2px #CCCCCC;
+        opacity: 0.9;
+    }
+
+    .legend i {
+        width: 28px;
+        height: 7px;
+        float: left;
+        border-radius: 3px;
+        margin-right: 8px;
+        margin-left: 7px;
+        margin-top: 7px;
+        opacity: 0.9;
+    }
+
+
+    </style>
+    <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+    <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
+    <style>html {
+        font-size: 12px;
+        font-family: Arial, Helvetica, sans-serif;
+    }</style>
+    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.common-material.min.css" />
+    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.material.min.css" />
+    <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+    <link rel="stylesheet" href="{% static 'traffic/style_closure.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+
+    <div id="user_input" class="well" style="height: 600px;">
+
+        <div class="container" style="width: inherit">
+            <div class="row" style="margin-top:3px;text-align: center"><h3>Travel Time Info</h3></div>
+                        <div align="mid" class="row" id="p1"><h5>Hover over a street to check occupancy</h5><br><br></div>
+
+            <div class="row" id ="plzwait" style="margin-top:10px;margin-right:auto;margin-left: 0px;"><h5><b>Select time for inquiry: </b></h5></div>
+
+            <div class="row" style="margin-top:10px;margin-right:auto;margin-left: 0px;">
+                <div id="datepick">
+                <div id="to-do" align="left" style="width:120%;margin-left: -15px;">
+                    <label for="datepickerFrom"><h6><i>From: </i></h6></label> <input style = "width : 120px"  id="datepickerFrom" value="12/01/2014"/>
+                    <label for="datepickerTo"><h6><i>To: </i></h6></label> <input style = "width : 120px" id="datepickerTo" value="12/02/2014"/>
+                </div>
+                </div>
+                <div id="timepick">
+                    <div id="to-do" align="left" style="width:120%;margin-left: -15px;">
+                        <label for="timepicker"><h6><i>Time: </i></h6></label> <input style = "width : 120px"  id="timepicker"/>
+                    </div>
+                </div><br>
+                <a type="button" class="btn btn-purple" id="get_data" align="middle" style="margin-top:0px;width:90%;">
+                <span class="glyphicon glyphicon-search"> </span> &nbsp; Inquiry </a>
+            </div>
+
+{#            <a type="button" class="btn btn-purple" id="check_btn" align="middle" style="margin-top:5px;width:90%;">#}
+{#                <span class="glyphicon glyphicon-search"> </span> &nbsp; Inquiry </a> <br>#}
+            {#<input type="button" value="Update" />#}
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block map %}
+
+    <div id='overlaycon'>
+        <div id = 'foo'></div>
+        <div id = "charts">
+            <div id="chart" class="chart"></div>
+        </div>
+        <div id="map" ; style="opacity: 1"></div>
+    </div>
+{% endblock %}
+
+
+{% block script %}
+
+    <script src="http://cdn.kendostatic.com/2014.3.1411/js/kendo.all.min.js"></script>
+    <script>L_PREFER_CANVAS = true;</script> <!-- force Leaflet to use the Canvas back-end for vector layers instead of SVG, increase performance a lot-->
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+    <script type="text/javascript" src="{% static 'traffic/jquery.jqplot.min.js' %}"></script>
+    <!--<script type="text/javascript" src="{% static 'traffic/jqplot.cursor.js' %}"></script>-->
+    <script type="text/javascript" src="{% static 'traffic/jqplot.dateAxisRenderer.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'traffic/spinner.js' %}"></script>
+
+
+    <script>
+        // create a map in the "map" div, set the view to a given place and zoom
+        //////////////////////////////data picker
+        "use strict";
+
+        var tmcs, tt_data; // travel_time_data
+        var tmcLayerDict = {};
+        var tmcLayer;
+
+        //time picker
+        $("#timepicker").kendoTimePicker({
+            value: new Date(2002,1,1,10,0,0),
+            interval: 5,
+            change: function(){
+                resetColor(this.value().getHours() * 12 + this.value().getMinutes() / 5)
+            }
+        });
+        var timepicker = $("#timepicker").data("kendoTimePicker");
+
+        // datepicker
+        function startChange() {
+            var startDate = start.value(),
+            endDate = end.value();
+
+            if (startDate) {
+                startDate = new Date(startDate);
+                startDate.setDate(startDate.getDate());
+                end.min(startDate);
+            } else if (endDate) {
+                start.max(new Date(endDate));
+            } else {
+                endDate = new Date();
+                start.max(endDate);
+                end.min(endDate);
+            }
+        }
+
+        function endChange() {
+            var endDate = end.value(),
+            startDate = start.value();
+
+            if (endDate) {
+                endDate = new Date(endDate);
+                endDate.setDate(endDate.getDate());
+                start.max(endDate);
+            } else if (startDate) {
+                end.min(new Date(startDate));
+            } else {
+                endDate = new Date();
+                start.max(endDate);
+                end.min(endDate);
+            }
+        }
+
+        var start = $("#datepickerFrom").kendoDatePicker({
+            change: startChange
+        }).data("kendoDatePicker");
+
+        var end = $("#datepickerTo").kendoDatePicker({
+            change: endChange
+        }).data("kendoDatePicker");
+
+        start.max(end.value());
+        end.min(start.value());
+
+
+                // add an OpenStreetMap tile layer
+        var streets = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        });
+        var grayscale = L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
+                                    maxZoom: 18,
+                                    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+                                    '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                                    'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+                                    id: 'examples.map-20v6611k'
+        });
+        var map = L.map('map', {
+            center: [40.4407937, -80.0029874],
+            zoom: 12,
+            layers: [streets]
+        });
+
+        var baseMaps = {
+            "Grayscale": grayscale,
+            "Streets": streets
+        };
+
+        /*var overlayMaps = {
+         "Parking Terminals": terminalLayer
+         };*/
+
+
+        // right top control
+        var control = L.control.layers(baseMaps, null, {collapsed: false}).addTo(map);
+
+
+        // info
+        var info = L.control();
+
+
+
+        function writeInfoContent(props, hour, minute) {
+
+            var content = "<b>TMC: " + props.tmc + "</b> <br>";
+            var interval = hour * 12 + minute / 5;
+            if (!props.data || props.data.length < interval || props.data[interval] == 0)
+                content += "No Data <br>";
+            else
+                content += "Average Speed: <b>" + props.data[interval] + " mph </b><br>";
+
+            return content;
+        }
+        info.update = function (props, hour, minute) {
+            var start_time = "" + (hour > 12 ? hour - 12 : hour) + ":" + (minute < 10 ? "0" + minute : minute) + (hour >= 12 ? " pm" : " am");
+            var end_hour = minute == 55 ? hour + 1 : hour;
+            var end_minute = minute == 55 ? 0 : minute + 5;
+            var end_time = "" + (end_hour > 12 ? end_hour - 12 : end_hour) + ":" + (end_minute < 10 ? "0" + end_minute : end_minute) + (end_hour >= 12 ? " pm" : " am");
+            var content = "";
+            if (props) {
+                content = writeInfoContent(props,hour, minute); // sensor
+            }
+            document.getElementById("p1").innerHTML = "Time Range:" + start_time + " - " + end_time + "<br>" + (props ?
+                    content
+                    : '<h5>Hover over a link to check its average speed</h5><br>');
+
+        };
+
+        // right bottom legend
+        var legend = L.control({position: 'bottomright'});
+            legend.onAdd = function () {
+                var div = L.DomUtil.create('div', 'info legend');
+                div.innerHTML += '<i style="background:green"></i>' + "Speed &gt; 55 mph"+ "<br>";
+                div.innerHTML += '<i style="background:yellow"></i>' + "Speed &gt; 20 mph"+ "<br>";
+                div.innerHTML += '<i style="background:red"></i>' + "Speed &le; 20 mph"+ "<br>";
+                div.innerHTML += '<i style="background:blue"></i>' + "No data";
+                return div;
+            };
+        legend.addTo(map);
+
+        function showChart(props) {
+            //info.update(layer.feature.properties, hour);
+            //highlightFeature(e);
+            $("#chart").css("visibility","visible");
+            $("#chart").empty();
+            if (props.data) {
+                var plotData = [];
+                props.data.forEach(function(spd, index){
+                    if (spd > 0)
+{#                        var hour = Math.floor(index / 12);#}
+{#                        var minute = index % 12 * 5;#}
+{#                        var date = new Date(2000, 1, 1, hour, minute);#}
+{#                        hour = hour < 10 ? "0" + String(hour) : String(hour);#}
+{#                        minute = minute < 10 ? "0" + String(minute) : String(minute);#}
+                        plotData.push([index, spd]);
+                });
+                $.jqplot("chart", [plotData], {
+                    series: [{lineWidth: 3, markerOptions: {style: "filledCircle", size:5}}],
+                    title: 'Average Speed Distribution of TMC ' + props.tmc,
+                    axes: {
+                        //xaxis: {renderer: $.jqplot.DateAxisRenderer, tickOptions: {formatString: '%H:%M'}, ticks:["0:00", "4:00", "8:00", "12:00", "16:00", "20:00", "23:55"]},
+                        xaxis:{min: 0, max: 287, ticks: [0, 47, 95, 143, 191, 239, 287]},
+                        yaxis: {min: 0}
+                    },
+
+                    grid: {
+                        drawGridLines: true,        // wether to draw lines across the grid or not.
+                        gridLineColor: '#cccccc',    // *Color of the grid lines.
+                        background: '#FFFFFF'
+                    },
+                    seriesColors: ["#ff9900","#FF0066", "#999598"]
+                });
+            }
+            else
+                $("#chart").html("<p>Sorry, no data available for the tmc <b>" + props.tmc + "</b>.</p>");
+        }
+
+        function onEachFeature(feature, layer){
+
+            function highlightFeature(e) {
+                var l = e.target;
+                var crntWeight = l._options.style.weight; // since here layer is MultiLineString, its actually a group of LineString layers, so the option is _options instead of options
+                l.setStyle({
+                    weight: crntWeight + 3
+                });
+                if (!L.Browser.ie && !L.Browser.opera) {
+                    l.bringToFront();
+                }
+                info.update(l.feature.properties, timepicker.value().getHours(), timepicker.value().getMinutes());
+            }
+
+            function resetHighlight(e) {
+                //alert(e.target.feature.properties.tmc);
+                // for resetStyle to work, need to specify a default weight in L.geoJson options
+                // this will reset the layer to default style specified at L.geoJson, so do not specify color there, as we need to show speed with different colors
+                // tmcLayer.resetStyle(e.target);
+
+                // set to a weight fit for current map zoom
+                var l = e.target;
+                var zoom = map.getZoom();
+                l.setStyle({
+                    weight: weightFromZoom(zoom)
+                })
+                //info.update(null, timepicker.value().getHours(), timepicker.value().getMinutes()); //clean info when move out
+                //$('#chart1').empty();
+            }
+
+            function onClick(e) {
+                var layer = e.target;
+                map.fitBounds(layer.getBounds());
+                showChart(layer.feature.properties);
+            }
+
+            if (feature.properties && feature.properties.tmc) {
+                var popup = "TMC: <b>" + feature.properties.tmc + "</b><br>";
+                layer.bindPopup(popup);
+            }
+
+            layer.on({
+                mouseover: highlightFeature,
+                mouseout: resetHighlight,
+                click: onClick
+            });
+        }
+
+        //get tmc gis from server
+        $.get("../tmc_gis_here/",function(data,textStatus){
+            tmcs = data;
+            var zoom = map.getZoom();
+            tmcLayer = L.geoJson(tmcs, {
+                style: {"weight": weightFromZoom(zoom)},
+                onEachFeature:onEachFeature
+            }).addTo(map);
+            control.addOverlay(tmcLayer, 'TMCs');
+            buildLayerDict(tmcLayer, tmcLayerDict);
+        },"json");
+
+        function buildLayerDict(layer, layerDict) {
+            layer.eachLayer(function(l) {
+                var tmc = l.feature.properties.tmc;
+                layerDict[tmc] = l;
+            });
+        }
+
+        $("#get_data").click(function(e){
+            var start_date = start.value();
+            var s_year = start_date.getFullYear();
+            var s_month = start_date.getMonth() + 1; // js's month is 0 based
+            var s_day = start_date.getDate(); // day is 1 based
+            var s_date = "" + s_year + (s_month < 10 ? "0" : "") + s_month + (s_day < 10 ? "0" : "") + s_day;
+            var end_date = end.value();
+            var e_year = end_date.getFullYear();
+            var e_month = end_date.getMonth() + 1; // js's month is 0 based
+            var e_day = end_date.getDate(); // day is 1 based
+            var e_date = "" + e_year + (e_month < 10 ? "0" : "") + e_month + (e_day < 10 ? "0" : "") + e_day;
+            $.get("../tmc_data_here/", {s_date: s_date, e_date: e_date}, function(data, textStatus) {
+                tt_data = data;
+                Object.keys(tt_data).forEach(function(key) {
+                    if (key in tmcLayerDict) tmcLayerDict[key].feature.properties["data"] = tt_data[key];
+                });
+                resetColor(timepicker.value().getHours() * 12 + timepicker.value().getMinutes() / 5);
+            });
+        });
+
+        function resetColor(interval) {
+            if (interval < 0 || interval > 287) {
+                console.log("interval out of range from resetColor.");
+                return
+            }
+            tmcLayer.eachLayer(function(layer){
+                    layer.setStyle({color:getColor(layer.feature.properties.data[interval])}); // 5 minutes interval
+            });
+        }
+
+        function getColor(spd) {
+            if (spd >= 55) return "green";
+            else if (spd >= 20) return "yellow";
+            else if (spd > 0) return "red";
+            else return "blue"; // speed = 0 means no data
+        }
+
+        // hide charts and highlighted sensors(of clicked link) when map is clicked but not when map is dragged
+        var isDragging = false;
+        map.on("mousedown",function(e) {
+                isDragging = false;
+            })
+            .on("mousemove",function(e) {
+                isDragging = true;
+            })
+            .on("mouseup", function(e) {
+                if (!isDragging) {
+                    $("#chart").css("visibility", "hidden");
+                    //$("#chart2").css("visibility", "hidden");
+                    isDragging = false;
+                }
+            });
+        // change circle marker radius and link weight when map is zoomed
+        map.on("zoomend", function(e){
+            var zoom = map.getZoom();
+            if (tmcLayer) {
+                var weight = weightFromZoom(zoom);
+                tmcLayer.eachLayer(function(layer){
+                    layer.setStyle({weight:weight});
+                });
+            }
+        });
+
+        function weightFromZoom(zoom) {
+            return zoom < 8 ? zoom / 8 : Math.ceil((zoom - 7)/2) + 2;
+        }
+
+
+
+{#        // get counts data from server#}
+{##}
+{#        $.get("../get_sensors_counts/",function(data,textStatus){#}
+{#            counts = data;#}
+{#            countLayer = showCount(map,info,control, countLayer, counts, timepicker.value().getHours());#}
+{#        },"json");#}
+{##}
+{#        // get links from server#}
+{##}
+{#        $.get("../get_sensors_links/",function(data,textStatus){#}
+{#            links = data;#}
+{#            linkLayer = showLinks(map,info,control, linkLayer, links, timepicker, countLayerDict);#}
+{#        },"json");#}
+
+{#        function showChart(props, chartID) {#}
+{#            //info.update(layer.feature.properties, hour);#}
+{#            //highlightFeature(e);#}
+{#            $("#" + chartID).css("visibility","visible");#}
+{#            $("#" + chartID).empty();#}
+{#            if (props.data.length != 0) {#}
+{#                var plotData = [];#}
+{#                props.data.forEach(function(count, index){#}
+{#                    if (count >= 0)#}
+{#                        plotData.push(["" + index + ":00",count]);#}
+{#                });#}
+{#                $.jqplot(chartID, [plotData], {#}
+{#                    series: [{lineWidth: 3, markerOptions: {style: "filledCircle", size:5}}],#}
+{#                    title: 'Counts Distribution of Sensor ' + props.sid,#}
+{#                    axes: {#}
+{#                        xaxis: {renderer: $.jqplot.DateAxisRenderer, tickOptions: {formatString: '%H:%M'}, ticks:["0:00", "4:00", "8:00", "12:00", "16:00", "20:00", "24:00"]},#}
+{#                        yaxis: {min: 0}#}
+{#                    },#}
+{##}
+{#                    grid: {#}
+{#                        drawGridLines: true,        // wether to draw lines across the grid or not.#}
+{#                        gridLineColor: '#cccccc',    // *Color of the grid lines.#}
+{#                        background: '#FFFFFF'#}
+{#                    },#}
+{#                    seriesColors: ["#ff9900","#FF0066", "#999598"]#}
+{#                });#}
+{#            }#}
+{#            else#}
+{#                $("#" + chartID).html("<p>Sorry, no data available for sensor <b>" + props.sid + "</b>.</p>");#}
+{#        }#}
+{##}
+
+
+
+
+{#            linkLayer = L.geoJson(links, {#}
+{#                style: {"color":"#9ba7ff","fillOpacity": 1},#}
+{#                onEachFeature: onEachFeature#}
+{#            }).addTo(map);#}
+
+
+
+{##}
+{#        function buildLayerDict(layer) {#}
+{#            countLayerDict = {};#}
+{#            layer.eachLayer(function(layer) {#}
+{#                var sidDir = layer.feature.properties.sid;#}
+{#                var at = sidDir.indexOf("@");#}
+{#                var sid = sidDir.substr(0,at);#}
+{#                var Dir = sidDir.substr(at);#}
+{#                if(!(countLayerDict.hasOwnProperty(sid))) countLayerDict[sid] = []#}
+{#                countLayerDict[sid].push(layer);#}
+{#            });#}
+{#        }#}
+{##}
+{##}
+{##}
+{#        function showCount(map, info, control, countLayer, counts, hour) {#}
+{##}
+{#            function onEachFeature(feature, layer) {#}
+{##}
+{#                function highlightFeature(e) {#}
+{#                    var layer = e.target;#}
+{#                    // circleMarker is Path object, its different from LineStrings, cannot use the same way to resetStyle#}
+{#                    var radius = layer.getRadius();#}
+{#                    layer.setRadius(radius+2);#}
+{#                    if (!L.Browser.ie && !L.Browser.opera) {#}
+{#                        layer.bringToFront();#}
+{#                    }#}
+{##}
+{#                    info.update(layer.feature.properties, hour);#}
+{#                }#}
+{##}
+{#                function resetHighlight(e) {#}
+{#                    var layer = e.target;#}
+{#                    // circleMarker is Path object, its different from LineStrings, cannot use the same way to resetStyle#}
+{#                    var zoom = map.getZoom();#}
+{#                    var radius = weightFromZoom(zoom);#}
+{#                    layer.setRadius(radius); // set radius according to current map zoom, consistent with what we do when zooming the map#}
+{#                    info.update();#}
+{#                }#}
+{##}
+{#                function onClick(e) {#}
+{#                    if (map.hasLayer(highlightSensorLayer)) {#}
+{#                        map.removeLayer(highlightSensorLayer);#}
+{#                    }#}
+{#                    showChart(e.target.feature.properties, "chart1");#}
+{#                }#}
+{##}
+{#                layer.on({#}
+{#                    mouseover: highlightFeature,#}
+{#                    mouseout: resetHighlight,#}
+{#                    click: onClick#}
+{#                });#}
+{##}
+{#                if (feature.properties && feature.properties.sid && feature.properties.data) {#}
+{#                    var popup = "ID: <b>" + feature.properties.sid + "</b>";#}
+{#                    if (feature.properties.data.length != 0 && feature.properties.data[hour] != -1)#}
+{#                        popup += "<br>Counts: <b>" + feature.properties.data[hour] + "</b>";#}
+{#                    layer.bindPopup(popup);#}
+{#                }#}
+{#            }#}
+{##}
+{#            if (countLayer != undefined) {#}
+{#                control.removeLayer(countLayer);#}
+{#                if (map.hasLayer(countLayer)) {#}
+{#                    map.removeLayer(countLayer);#}
+{#                }#}
+{#            }#}
+{##}
+{#            var zoom = map.getZoom();#}
+{#            countLayer = L.geoJson(counts, {#}
+{#                pointToLayer: function(feature, latlng) {#}
+{#                    var data = feature.properties.data;#}
+{#                    if (data.length == 0)#}
+{#                        return L.circleMarker(latlng, meterMarkerStyle(-1, zoom));#}
+{#                    else#}
+{#                        return L.circleMarker(latlng, meterMarkerStyle(data[hour], zoom));#}
+{#                },#}
+{#                onEachFeature: onEachFeature#}
+{#            }).addTo(map);#}
+{##}
+{#            buildLayerDict(countLayer);#}
+{##}
+{#            control.addOverlay(countLayer, 'Counts Meters');#}
+{##}
+{#            return countLayer;#}
+{##}
+{#        }#}
+{##}
+{##}
+{#        function getColorLots(d) {#}
+{#            return  d >= 100 ? 'red' :#}
+{#                    d >= 20 ? 'yellow' :#}
+{#                    d > 0 ? 'green' :#}
+{#                            'black'; // no data#}
+{#        }#}
+{##}
+{#        function meterMarkerStyle(d, zoom) {#}
+{#            return {#}
+{#                radius: weightFromZoom(zoom),#}
+{#                fillColor: getColorLots(d),#}
+{#                color: getColorLots(d),#}
+{#                weight: 5,#}
+{#                opacity: 0.3,#}
+{#                fillOpacity: 0.5#}
+{#            };#}
+{#        }#}
+{##}
+
+
+    </script>
+
+{% endblock %}

@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 import json
 import urllib2,urllib
+import requests  # an http library for python
 import math,operator
 
 from traffic.models import * #Meter, Parking, Street, Streetparking, TMC, TMC_data, Incidents, Weather
@@ -1841,6 +1842,82 @@ def TMC_GIS(request):
 def real_time_tt(request):
     return render(request, 'traffic/real_time_tt.html')
 
+def tmc_gis_here(request):
+    geoJson = {"type":"FeatureCollection","features":[]}
+    tmcs = TMC_Here.objects.all()
+    for tmc in tmcs:
+        feature = {"type":"Feature","geometry":{"type":"MultiLineString","coordinates":json.loads(tmc.coordinates)},"properties":{"tmc":tmc.tmc, "miles": tmc.miles, "name": tmc.road_name,"dir":tmc.direction}}
+        geoJson["features"].append(feature)
+
+    response = json.dumps(geoJson)
+    return HttpResponse(response, content_type = "application/json")
+
+def tmc_data_here(request):
+    s_date = request.GET["s_date"]
+    e_date = request.GET["e_date"]
+    s_date = date(int(s_date[0:4]), int(s_date[4:6]), int(s_date[6:]))
+    e_date = date(int(e_date[0:4]), int(e_date[4:6]), int(e_date[6:]))
+    response = {};
+    all_tmc_data = TMC_Here_data.objects.filter(date__range = (s_date, e_date))
+    tmcs = TMC_Here.objects.all()
+    for tmc in tmcs:
+        this_tmc_data = all_tmc_data.filter(tmc = tmc.tmc)
+        data = [0]*288 # five minutes intervals
+        count = [0]*288
+        for record in this_tmc_data:
+            if record.spd_all > 0:
+                data[record.epoch] += record.spd_all
+                count[record.epoch] += 1
+        # getting average
+        for i in range(288):
+            if count[i] > 0:
+                data[i] = round(data[i] / count[i], 2)
+        response[tmc.tmc] = data
+    response = json.dumps(response)
+    return HttpResponse(response, content_type = "application/json")
+
+def tmc_tt_here(request):
+    return render(request, 'traffic/travel_time_here.html')
+
+def tmc_gis_ritis(request):
+    geoJson = {"type":"FeatureCollection","features":[]}
+    tmcs = TMC_Ritis.objects.all()
+    for tmc in tmcs:
+        feature = {"type":"Feature","geometry":{"type":"LineString","coordinates":json.loads(tmc.coordinates)},"properties":{"tmc":tmc.tmc, "miles": round(tmc.miles, 2), "name": tmc.road_name,"dir":tmc.direction}}
+        geoJson["features"].append(feature)
+
+    response = json.dumps(geoJson)
+    return HttpResponse(response, content_type = "application/json")
+
+def tmc_real_time_data_ritis(request):
+    token_url = "http://api.inrix.com/Traffic/Inrix.ashx?action=getsecuritytoken&Vendorid=1346213929&consumerid=30c227fe-93ab-4f30-9408-362645f33730"
+    token_link = requests.get(token_url)
+    token_root = XMLET.fromstring(token_link.text)
+    token = token_root.find("AuthResponse").find("AuthToken").text
+    api_path = "http://na.api.inrix.com/Traffic/Inrix.ashx"
+    tmc_set = TMC_Ritis.objects.values_list("tmc", flat = True) # a list of tmc field of the table
+    result_data = {}
+    result = {}
+    n = len(tmc_set)
+    i = 0
+    while i < n:
+        # query a list of tmcs each time, make fewer http request, improve speed, trade off between list join time and http request number
+        tmc_list = ",".join(tmc_set[i:min(n,i+50)])
+        i = min(n, i+50)
+        link = requests.get(api_path, params = {"Action":"GetRoadSpeedInTMCs", "Token":token, "Tmcs": tmc_list})
+        root = XMLET.fromstring(link.text)
+        result["timestamp"] = root.attrib["createdDate"]
+        if root.attrib["statusId"] == '0': # has real time data
+            for record in root.iter("TMC"):
+                #record = root.find("RoadSpeedResultSet").find("RoadSpeedResults").find("TMC") # Element.find() find first element with specified tag its direct children
+                result_data[record.attrib["code"]] = {"spd":float(record.attrib["speed"]), "ref":float(record.attrib["reference"]), "tt":round(float(record.attrib["travelTimeMinutes"]), 2), "sp_ref_ratio":round(float(record.attrib["speed"])/float(record.attrib["reference"]), 2)}
+                #result_data[tmc.tmc] = record.attrib
+    result["data"] = result_data
+    response = json.dumps(result)
+    return HttpResponse(response,content_type="application/json")
+
+def tmc_tt_ritis(request):
+    return render(request, "traffic/travel_time_ritis.html")
 
 def device_render(request):
     return render(request, 'traffic/devices.html')

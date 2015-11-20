@@ -222,6 +222,53 @@ class TMC(models.Model):
     def __unicode__(self):
             return self.tmc
 
+class TMC_Here(models.Model):
+    tmc = models.CharField(max_length = 9, primary_key = True)
+    state = models.CharField(max_length = 2)
+    county = models.CharField(max_length = 20)
+    miles = models.FloatField()
+    road_number = models.CharField(max_length = 20)
+    road_name = models.CharField(max_length = 100)
+    lat = models.FloatField();
+    lon = models.FloatField();
+    DIRECTION_CHOICES = (('N', 'Northbound'),('S', 'Southbound'),('E', 'Eastbound'),('W', 'Westbound'))
+    direction = models.CharField(max_length=1, choices = DIRECTION_CHOICES)
+    coordinates = models.TextField();
+    def __unicode__(self):
+            return self.tmc
+
+class TMC_Here_data(models.Model):
+    tmc = models.ForeignKey(TMC_Here)
+    date = models.DateField(db_index = True)
+    epoch = models.PositiveSmallIntegerField()
+    tt_all = models.PositiveSmallIntegerField(default = 0)
+    tt_pv = models.PositiveSmallIntegerField(default = 0) # passenger vehicles
+    tt_ft = models.PositiveSmallIntegerField(default = 0) # freight trucks
+    spd_all = models.FloatField(default = -1.0)
+    spd_pv = models.FloatField(default = -1.0)
+    spd_ft = models.FloatField(default = -1.0)
+
+class TMC_Ritis(models.Model):
+    tmc = models.CharField(max_length = 9, primary_key = True)
+    road_name = models.CharField(max_length = 50, db_index = True)
+    DIRECTION_CHOICES = (('N', 'Northbound'),('S', 'Southbound'),('E', 'Eastbound'),('W', 'Westbound'))
+    direction = models.CharField(max_length=1, choices = DIRECTION_CHOICES)
+    intersection = models.CharField(max_length = 100)
+    state = models.CharField(max_length = 2)
+    county = models.CharField(max_length = 20)
+    zip = models.CharField(max_length = 5)
+    s_lat = models.FloatField(); # start lat
+    s_lon = models.FloatField(); # start lon
+    e_lat = models.FloatField(); # end lat
+    e_lon = models.FloatField(); # end lon
+    miles = models.FloatField()
+    road_order = models.PositiveSmallIntegerField();
+    coordinates = models.TextField();
+    class Meta:
+        index_together = [['road_name','road_order'],]
+    def __unicode__(self):
+            return self.tmc
+
 class TMC_real_time(models.Model):
     tmc = models.CharField(max_length = 9, primary_key = True)
     road = models.CharField(max_length = 50, db_index = True)
