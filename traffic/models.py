@@ -322,6 +322,7 @@ class Incidents(models.Model):
     class Meta:
         index_together = [['close_date','close_time'],]
 
+# models for weather
 class Weather(models.Model):
     county = models.CharField(max_length = 20, primary_key = True)
     state = models.CharField(max_length = 2)
@@ -332,6 +333,12 @@ class Weather(models.Model):
     def __unicode__(self):
         return self.county
 
+# model for weather zipcode areas
+class Weather_zipcode(models.Model):
+    zipcode = models.CharField(max_length = 5, primary_key = True) # five digits zipcode
+    geoJson = models.TextField()
+    def __unicode__(self):
+        return self.zipcode
 
 # ============================================== Models for Transit BEGIN =============================================
 class Route(models.Model):
