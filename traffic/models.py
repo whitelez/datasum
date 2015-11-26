@@ -340,6 +340,17 @@ class Weather_zipcode(models.Model):
     def __unicode__(self):
         return self.zipcode
 
+class Weather_zipcode_data(models.Model):
+    zipcode = models.ForeignKey(Weather_zipcode)
+    query_time = models.DateTimeField()
+    code = models.PositiveSmallIntegerField()
+    timestamp = models.TextField()
+    temp = models.SmallIntegerField() # temperature Farenheit
+    text = models.TextField()
+    def __unicode__(self):
+        return self.zipcode.zipcode + "\n" + self.timestamp
+
+
 # ============================================== Models for Transit BEGIN =============================================
 class Route(models.Model):
     route_id = models.CharField(max_length = 10, primary_key = True)

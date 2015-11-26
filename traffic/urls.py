@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 from traffic import views, authen_view
-from backend import crash_view, parking_view
+from backend import crash_view, parking_view, weather_view
 from django.contrib.auth import views as django_auth_views
 
 urlpatterns = patterns('',
@@ -11,9 +11,18 @@ urlpatterns = patterns('',
 
     url(r'^count/$', views.count, name='count'),
 
+#++++++++++++++++++++++++++++++++++++++++++++++++ Weather +++++++++++++++++++++++++++++++++++++++
     url(r'^weather/$', views.weather, name='weather'),
     url(r'^get_county_weather/$', views.get_county_weather, name = 'get_county_weather'),
-    url(r'^get_weather/$', views.get_weather, name = 'get_weather'),
+    # url(r'^get_weather/$', views.get_weather, name = 'get_weather'),
+
+    # zipcode area weather
+    url(r'^get_zipcode_areas/$', weather_view.get_zipcode_areas, name = 'get_zipcode_areas'),
+    url(r'^get_weather/$', weather_view.get_weather, name = 'get_weather'),
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++ Weather_end +++++++++++++++++++++++++++++++++++++++
+
 
     url(r'^ev_stations/$', views.ev_stations, name='ev_stations'),
 
