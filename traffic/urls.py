@@ -12,11 +12,12 @@ urlpatterns = patterns('',
     url(r'^count/$', views.count, name='count'),
 
 #++++++++++++++++++++++++++++++++++++++++++++++++ Weather +++++++++++++++++++++++++++++++++++++++
-    url(r'^weather/$', views.weather, name='weather'),
-    url(r'^get_county_weather/$', views.get_county_weather, name = 'get_county_weather'),
-    # url(r'^get_weather/$', views.get_weather, name = 'get_weather'),
+    #url(r'^weather/$', views.weather, name='weather'),
+    #url(r'^get_county_weather/$', views.get_county_weather, name = 'get_county_weather'),
+    #url(r'^get_weather/$', views.get_weather, name = 'get_weather'),
 
     # zipcode area weather
+    url(r'^weather/$', weather_view.weather, name='weather'),
     url(r'^get_zipcode_areas/$', weather_view.get_zipcode_areas, name = 'get_zipcode_areas'),
     url(r'^get_weather/$', weather_view.get_weather, name = 'get_weather'),
 
@@ -126,6 +127,7 @@ urlpatterns = patterns('',
     url(r'^tmc_gis_ritis/$', views.tmc_gis_ritis, name = 'tmc_gis_ritis'),
     url(r'^tmc_real_time_data_ritis/$', views.tmc_real_time_data_ritis, name = 'tmc_real_time_data_ritis'),
     url(r'^tmc_tt_ritis/$', views.tmc_tt_ritis, name = 'tmc_tt_ritis'),
+
 #authentication and registration
     url(r'^register/$', authen_view.register, name='register'),
     url(r'^login/$', authen_view.user_login, name='login'),
