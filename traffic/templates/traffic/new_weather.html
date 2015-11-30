@@ -7,70 +7,143 @@
 MDAP - Weather
 {% endblock %}
 
+
 {% block style %}
-<link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
-<link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css'%}">
-<style>
-    #lw,#rw{
-    width:0px;
+    <style>
+        #overlaycon {
+            height: 600px;
+        }
+        #map{
+            z-index: 100;
+            position: relative;
+            /*top: -163px;*/
+        }
+        #charts {
+            background: #ffffff;
+            height:30%;
+            width:25%;
+            opacity: 0.93;
+            position: absolute;
+            left: 25%;
+            border-radius: 3px;
+            box-shadow:8px 8px 13px #CCCCCC;
+            z-index: 101;
+            visibility: hidden;
+
+        }
+        #chart1 {
+            background: #ffffff;
+
+            opacity: 0.93;
+            position: relative;
+            border-radius: 3px;
+            box-shadow:8px 8px 13px #CCCCCC;
+            z-index: 101;
+            visibility: hidden;
+
+        }
+        #chart2 {
+            background: #ffffff;
+            opacity: 0.93;
+            position: relative;
+            border-radius: 3px;
+            box-shadow:8px 8px 13px #CCCCCC;
+            z-index: 101;
+            visibility: hidden;
+
+        }
+
+    #p1{
+            background: #ffffff;
+            border: 2px solid;
+            border-radius: 10px;
+            border-color: #3f51b5;
+            position: relative;
+            opacity: 0.93;
+            top: 0px;
+            margin-left:1%;
+            height : 150px;
+            text-align: center;
+            width : 97%;
+            z-index: 10;
+
     }
-</style>
+
+    .legend {
+        line-height: 18px;
+        height:150px;
+        width:100px;
+        right: -10px;
+        bottom: -10px;
+        border-radius: 5px;
+        background: white;
+        box-shadow: -2px -2px 2px #CCCCCC;
+        opacity: 0.9;
+    }
+
+    .legend i {
+        width: 28px;
+        height: 7px;
+        float: left;
+        border-radius: 3px;
+        margin-right: 8px;
+        margin-left: 7px;
+        margin-top: 7px;
+        opacity: 0.9;
+    }
+
+	html {
+        font-size: 12px;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    </style>
+
+    <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
+    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.common-material.min.css" />
+    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.material.min.css" />
+    <link rel="stylesheet" href="{% static 'traffic/style_closure.css' %}">
+
 {% endblock %}
 
+{% block content %}
+
+
+    <div id="user_input" class="well" style="height: 600px;">
+
+        <div class="container" style="width: inherit">
+            <div class="row" style="margin-top:3px;text-align: center"><h3>Weather Info</h3></div>
+                        <div align="mid" class="row" id="p1"><h5>Hover over/Click a zipcode area to check its current weather</h5><br><br></div>
+
+            <div class="row" style="margin-top:10px;margin-right:auto;margin-left: 0px;">
+                <div><a type="button" class="btn btn-purple" id="getData" align="middle" style="margin-top:0px;width:90%;"> Update </a></div><br>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
 
 {% block map %}
-{#<input type="button" id="update_weather" value="update all counties" style = "display:none;"/>    #}
-<div id="map"></div>
-    <h5 style="text-align:right"> * Click on the counties to see weather distribution over one day.</h5>
-    <br>
-<div class="info legend">
-	<img src="http://www.wunderground.com/logos/images/wundergroundLogo_4c.jpg" style="float:right">
-	<p>	<strong> Temperature (Celsius): </strong> &emsp;
-		<mark style="background:#253494">&nbsp;&nbsp;&nbsp;</mark> under -15 &nbsp;
-		<mark style="background:#2c7fb8">&nbsp;&nbsp;&nbsp;</mark> -15 to -5 &nbsp;
-		<mark style="background:#41b6c4">&nbsp;&nbsp;&nbsp;</mark> -5 to 0&nbsp;
-		<mark style="background:#ffffcc">&nbsp;&nbsp;&nbsp;</mark> 0 to 10&nbsp;
-		<mark style="background:#c2e699">&nbsp;&nbsp;&nbsp;</mark> 10 to 15&nbsp;
-		<mark style="background:#78c679">&nbsp;&nbsp;&nbsp;</mark> 15 to 25&nbsp;
-		<mark style="background:#fd8d3c">&nbsp;&nbsp;&nbsp;</mark> 25 to 30&nbsp;
-		<mark style="background:#bd0026">&nbsp;&nbsp;&nbsp;</mark> 30 plus
-	</p>
 
-	<p>	<strong> Wind Speed (kmph): </strong>&emsp;&emsp;&nbsp;
-		<mark style="background:#f0f9e8">&nbsp;&nbsp;&nbsp;</mark> 0 to 6 &nbsp;
-		<mark style="background:#bae4bc">&nbsp;&nbsp;&nbsp;</mark> 6 to 30 &nbsp;
-		<mark style="background:#7bccc4">&nbsp;&nbsp;&nbsp;</mark> 30 to 62&nbsp;
-		<mark style="background:#43a2ca">&nbsp;&nbsp;&nbsp;</mark> 62 to 87&nbsp;
-		<mark style="background:#0868ac">&nbsp;&nbsp;&nbsp;</mark> 87 plus
-	</p>
-
-	<p>	<strong> Humidity (%): </strong> &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
-		<mark style="background:#eff3ff">&nbsp;&nbsp;&nbsp;</mark> 0 to 10 &nbsp;
-		<mark style="background:#bdd7e7">&nbsp;&nbsp;&nbsp;</mark> 10 to 40 &nbsp;
-		<mark style="background:#6baed6">&nbsp;&nbsp;&nbsp;</mark> 40 to 70&nbsp;
-		<mark style="background:#3182bd">&nbsp;&nbsp;&nbsp;</mark> 70 to 100&nbsp;
-		<mark style="background:#08519c">&nbsp;&nbsp;&nbsp;</mark> 100
-	</p>
-</div>
-	<div id="chart">
-
-     	<div id="chart1" style="height:auto;width:97%;margin-left: 20px;margin-right: 20px "></div>
-     </div>
+    <div id='overlaycon'>
+        <div id = "charts">
+            <div id="chart1" class="chart"></div>
+            <div id="chart2" class="chart"></div>
+        </div>
+        <div id="map" ; style="opacity: 1"></div>
+    </div>
 {% endblock %}
-
 
 
 {% block script %}
-<script type="text/javascript" src="{% static 'traffic/power32_geometry.js' %}"></script>
 <script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'traffic/jquery.jqplot.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'traffic/jqplot.dateAxisRenderer.min.js' %}"></script>
 <script>
 
 		"use strict";
 
-        var weatherGeoJSONDict = {};
-        var weatherLayer;
+        var weatherGeoJSONDict = {}; // dict that maps zipcode to its geoJSON and weather data
+        var weatherLayer; // weather layer
+		var weather_geoJSON; // zipcode and its weather data in geoJSON format
+		var weather_data; // weather data for zipcode areas in JSON format
 
         // add an OpenStreetMap tile layer
         var streets = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
@@ -94,44 +167,61 @@ MDAP - Weather
             "Streets": streets
         };
 
+		// weather data attribution, data API from Yahoo weather API
+		map.attributionControl.addAttribution('Weather data &copy; <a href="https://www.yahoo.com/?ilc=401" target="_blank"> <img src="https://poweredby.yahoo.com/purple.png" width="134" height="29"/> </a>');
+
+
+		// info
+        var info = L.control();
+
+		// write info content
+        function writeInfoContent(props) {
+
+            var content = "Zipcode: <b>" + props.zipcode + "</b><br>";
+            if (!props.data)
+                content += "No Data <br>";
+            else {
+                content += "Update Time: <br><b>" + props.data.date + "</b><br>";
+                content += "Condition: <br><b>" + props.data.text + "</b><br>";
+                content += "Temperature: <br><b>" + props.data.temp + " F </b><br>";
+            }
+
+
+            return content;
+        }
+
+		// update weather info
+        info.update = function (props) {
+            var content = "";
+            if (props) {
+                content = writeInfoContent(props); // sensor
+            }
+            document.getElementById("p1").innerHTML = (props ?
+                    content
+                    : '<h5>Hover over/Click a zipcode area to check its current weather</h5><br>');
+
+        };
 
         // right top control
         var control = L.control.layers(baseMaps, null, {collapsed: false}).addTo(map);
 
+		// right bottom legend
+        var legend = L.control({position: 'bottomright'});
+            legend.onAdd = function () {
+                var div = L.DomUtil.create('div', 'info legend');
+                div.innerHTML += '<i style="background:#bd0026"></i>' + "&ge; 95 F"+ "<br>";
+                div.innerHTML += '<i style="background:#fd8d3c"></i>' + "&ge; 85 F"+ "<br>";
+				div.innerHTML += '<i style="background:#78c679"></i>' + "&ge; 75 F"+ "<br>";
+				div.innerHTML += '<i style="background:#c2e699"></i>' + "&ge; 65 F"+ "<br>";
+				div.innerHTML += '<i style="background:#ffffcc"></i>' + "&ge; 55 F"+ "<br>";
+				div.innerHTML += '<i style="background:#41b6c4"></i>' + "&ge; 45 F"+ "<br>";
+				div.innerHTML += '<i style="background:#2c7fb8"></i>' + "&ge; 35 F"+ "<br>";
+                div.innerHTML += '<i style="background:#253494"></i>' + "&lt; 35 F"+ "<br>";
+                return div;
+            };
+        legend.addTo(map);
 
-
-
-		// control that shows state info on hover
-		var info = L.control({position: 'bottomright'});
-
-		info.onAdd = function (map) {
-			this._div = L.DomUtil.create('div', 'info');
-			this.update();
-			return this._div;
-		};
-
-		info.update = function (props) {
-			this._div.innerHTML = '<h4>Weather Information</h4>' +  (props ?
-				'<b>' + props.county + '</b>' +
-				(props.weather.hasOwnProperty('hourly_forecast')?
-				  '<br> <img src = ' + props.weather['hourly_forecast'][0]['icon_url'] +'>'
-				+ '<br> <b> temperature: </b> Fahrenheit: ' + props.weather['hourly_forecast'][0]['temp']['english'] + ', Celsius: ' + props.weather['hourly_forecast'][0]['temp']['metric']
-				+ '<br> <b> feels like: </b> Fahrenheit: ' + props.weather['hourly_forecast'][0]['feelslike']['english'] + ', Celsius: ' + props.weather['hourly_forecast'][0]['feelslike']['metric']
-				+ '<br> <b> condition: </b>' + props.weather['hourly_forecast'][0]['condition']
-				+ '<br> <b> humidity: </b>' + props.weather['hourly_forecast'][0]['humidity'] + '%'
-				+ '<br> <b> wind speed: </b>' + props.weather['hourly_forecast'][0]['wspd']['english'] + 'mph / ' + props.weather['hourly_forecast'][0]['wspd']['metric'] + 'kmph'
-				+ '<br> <b> wind direction: </b>' + props.weather['hourly_forecast'][0]['wdir']['dir'] + ' ' + props.weather['hourly_forecast'][0]['wdir']['degrees'] + ' degrees'
-				+ '<br> <b> snow: </b>' + props.weather['hourly_forecast'][0]['snow']['metric']
-				: '<br> not available')
-				: 'Hover over a county');
-		};
-
-		info.addTo(map);
-
-
-
-
-
+		// style and onEachFeature function for customizing geoJSON layer
 		function style(feature) {
 			return {
 				weight: 2,
@@ -139,88 +229,67 @@ MDAP - Weather
 				color: 'white',
 				dashArray: '3',
 				fillOpacity: 0.6,
-				//fillColor: feature.properties.weather.hourly_forecast?getColor(feature.properties.weather['hourly_forecast'][0]['temp']['metric']):'white'
 				fillColor: getColor(feature)
 			};
 		}
 
-		function highlightFeature(e) {
-			var layer = e.target;
+		function onEachFeature(feature, layer) {
 
-			layer.setStyle({
-				weight: 5,
-				dashArray: '',
-				fillOpacity: 0.7
-			});
+			function highlightFeature(e) {
+				var layer = e.target;
 
-			if (!L.Browser.ie && !L.Browser.opera) {
-				layer.bringToFront();
+				layer.setStyle({
+					weight: 5,
+					dashArray: '',
+					fillOpacity: 0.7
+				});
+
+				if (!L.Browser.ie && !L.Browser.opera) {
+					layer.bringToFront();
+				}
+
+				info.update(layer.feature.properties);
 			}
 
-			//info.update(layer.feature.properties);
-		}
 
 
-
-		function resetHighlight(e) {
-			var layer = e.target;
-			weatherLayer.resetStyle(layer);
-//			layer.setStyle({
-//				weight: 2
-//			});
-			//info.update();
-			//$('#chart1').empty();
-		}
-
-		/*function update_weather(layer, p){
-			//var weather;
-			$.get("../get_county_weather/", {state:layer.feature.properties.state, county:layer.feature.properties.api}, function(data, textStatus){
-
-				weather = $.parseJSON(data);
-				layer.feature.properties.weather = weather;
-				layer.setStyle({
-					fillColor: getColor(layer.feature.properties.weather['hourly_forecast'][0]['temp']['metric'])
-				});
-				if(p){
-					plot(layer);
-				}
-			});
-			//return weather;
-		}*/
+			function resetHighlight(e) {
+				var layer = e.target;
+				weatherLayer.resetStyle(layer);
+				info.update();
+			}
 
 
-		function zoomToFeature(e) {
-			var layer = e.target;
-			//var weather;
-			map.fitBounds(layer.getBounds()); // zoom to the layer
+			function zoomToFeature(e) {
+				var layer = e.target;
+				map.fitBounds(layer.getBounds()); // zoom to the layer
 
-			//update_weather(layer, true);
-			//plot(layer);
-			/*$.get("../get_county_weather/", {state:layer.feature.properties.state, county:layer.feature.properties.county}, function(data, textStatus){
-
-				weather = $.parseJSON(data);
-				layer.feature.properties.weather = weather;
-				//$('#txtHint').text(layer.feature.properties.weather['hourly_forecast'][0]['temp']);
-				//alert(data);
-			});*/
-
-
-			/*var weather;
-
-			for(var i=0,j=weatherLayer.getLayers().length; i<j; i++){
-			  	$.get("../get_county_weather/", {state:weatherLayer.getLayers()[i].feature.properties.state, county:weatherLayer.getLayers()[i].feature.properties.county}, function(data, textStatus){
+				//update_weather(layer, true);
+				//plot(layer);
+				/*$.get("../get_county_weather/", {state:layer.feature.properties.state, county:layer.feature.properties.county}, function(data, textStatus){
 
 					weather = $.parseJSON(data);
-					weatherLayer.getLayers()[i].feature.properties.weather = weather;
-					});
+					layer.feature.properties.weather = weather;
+					//$('#txtHint').text(layer.feature.properties.weather['hourly_forecast'][0]['temp']);
+					//alert(data);
+				});*/
 
-			};*/
 
-			//info.update(layer.feature.properties);
-			//plot(layer, weather);
-		}
+				/*var weather;
 
-		function onEachFeature(feature, layer) {
+				for(var i=0,j=weatherLayer.getLayers().length; i<j; i++){
+					$.get("../get_county_weather/", {state:weatherLayer.getLayers()[i].feature.properties.state, county:weatherLayer.getLayers()[i].feature.properties.county}, function(data, textStatus){
+
+						weather = $.parseJSON(data);
+						weatherLayer.getLayers()[i].feature.properties.weather = weather;
+						});
+
+				};*/
+
+				//info.update(layer.feature.properties);
+				//plot(layer, weather);
+			}
+
 			layer.on({
 				mouseover: highlightFeature,
 				mouseout: resetHighlight,
@@ -228,37 +297,12 @@ MDAP - Weather
 			});
 		}
 
-
-
-		map.attributionControl.addAttribution('Weather data &copy; <a href="http://www.wunderground.com/?apiref=569ad407f642ce53">Weather Underground</a>');
-
-		/*$("#update_weather").click(function() {
-			var weather;
-			var layers;
-			layers = weatherLayer.getLayers();
-			for(var i=0,j=layers.length; i<j; i++){
-				if(i%10==8){
-					setTimeout(function(){update_weather(layers[i],false);},60000);
-				}
-				else{
-					update_weather(layers[i],false);
-				}
-
-			}
-		});*/
-
-
-
-		//get tmc gis from server
-		var weather_geoJSON;
+		//get tmc gis from server, then get weather data and display it on weather layer
         $.get("../get_zipcode_areas/",function(data,textStatus){
             weather_geoJSON = data;
-//            weatherLayer = L.geoJson(weather_geoJSON, {
-//				style:style,
-//                onEachFeature: onEachFeature
-//            }).addTo(map);
-//            control.addOverlay(weatherLayer, 'Weather');
+			// build dictionary mapping zipcode to its geoJSON
             buildGeoJSONDict(weather_geoJSON.features, weatherGeoJSONDict);
+			//get weather data and display it on weather layer
 			getData();
         },"json");
 
@@ -269,6 +313,7 @@ MDAP - Weather
             });
         }
 
+		// set color of each zipcode area layer according to its temperature
 		function resetColor() {
             weatherLayer.eachLayer(function(layer){
                 if (layer.feature.properties.data)
@@ -291,10 +336,10 @@ MDAP - Weather
 																d > 35 ? '#2c7fb8' :
 																		'#253494';
 			}
-			else return "white";
+			else return "grey";
 		}
 
-		var weather_data;
+		// get weather data and display it on weather layer
 		function getData() {
             $.get("../get_weather/", function(data, textStatus) {
 				if (data["status"] == "success") {
@@ -322,31 +367,11 @@ MDAP - Weather
             });
         }
 
+		// bind Update button to refresh weather data
+		$("#getData").click(getData);
 
-		/*var legend = L.control({position: 'bottomright'});
-
-		legend.onAdd = function (map) {
-
-			var div = L.DomUtil.create('div', 'info legend'),
-				grades = [-15, -5, 0, 10, 15, 25, 30],
-				labels = [],
-				from, to;
-
-			for (var i = 0; i < grades.length+1; i++) {
-				from = grades[i-1];
-				to = grades[i];
-
-				labels.push(
-					'<i style="background:' + getColor(from + 1) + '"></i> ' +
-					((from || from == 0) ? from: '') + ((to || to == 0) ? ' to ' + to : '+'));
-			}
-
-			div.innerHTML = labels.join('<br><br>');
-			return div;
-		};
-
-		legend.addTo(map);*/
-
+	// add search function andicon on top-left
+	// get from leaflet plugins, Leaflet Search, https://github.com/stefanocudini/leaflet-search
 	map.addControl( new L.Control.Search({
 			url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',
 			jsonpParam: 'json_callback',
@@ -359,7 +384,6 @@ MDAP - Weather
 			zoom:10
 		}) );
 
-//	$("#update_weather").trigger('click');
 
   </script>
 {% endblock %}
