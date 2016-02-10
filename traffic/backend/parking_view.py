@@ -101,12 +101,15 @@ def parking_lots(request):
     lots = {"type" : "FeatureCollection", "features": []}
     for i in range(2, 43):
         url = 'http://parkpgh.org/index.php/api/getLotById?lotId=' + str(i)
-        p = urllib2.urlopen(url)
+        try:
+            p = urllib2.urlopen(str(url))
+        except urllib2.HTTPError:
+            continue
         info = p.read()
         info = json.loads(info)
         this_lot = {"type": "Feature", "geometry": {"type": "Point", "coordinates": []}, "properties": {}}
         if 'id' in info:
-            this_lot['geometry']['coordinates'] = [info['lon'] , info['lat']]
+            this_lot['geometry']['coordinates'] = [info['lon'], info['lat']]
             this_lot['properties'] = info
             lots['features'].append(this_lot)
     response = json.dumps(lots)

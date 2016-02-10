@@ -9,7 +9,6 @@ class Meter(models.Model):
     def __str__(self):
 	    return self.mid
 
-
 class Parking(models.Model):
     meter = models.ForeignKey(Meter)
     date = models.DateField(db_index = True)
@@ -107,35 +106,35 @@ class Crashdata(models.Model):
 
 
 #######################################################################################  Parking
-class Street(models.Model):
+class Street(models.Model): #Street coordinates with street name
     sid = models.CharField(max_length = 20, primary_key = True)
     street_name = models.CharField(max_length = 100)
     coordinate = models.TextField()
     def __unicode__(self):
         return self.sid
 
-class Streetpre(models.Model):
+class Streetpre(models.Model):  # parking occupancy prediction data
     street = models.ForeignKey(Street)
     date = models.DateField(db_index = True)
     occupancy = models.TextField()
     def __unicode__(self):
 	    return self.date.ctime()
 
-class Streetparking(models.Model):
+class Streetparking(models.Model):  # parking occupancy historical data
     street = models.ForeignKey(Street)
     date = models.DateField(db_index = True)
     occupancy = models.TextField()
     def __unicode__(self):
 	    return self.date.ctime()
 
-class Streetrate(models.Model):
+class Streetrate(models.Model):   # parking rate historical data
     street = models.ForeignKey(Street)
     date = models.DateField(db_index = True)
     rate = models.TextField()
     def __unicode__(self):
 	    return self.date.ctime()
 
-class Streetratepre(models.Model):
+class Streetratepre(models.Model):  # parking rate prediction data
     street = models.ForeignKey(Street)
     date = models.DateField(db_index = True)
     rate = models.TextField()

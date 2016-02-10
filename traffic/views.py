@@ -1464,13 +1464,13 @@ def routing_path(request):
     else:
         pattern = 2
 
-    interval =  int(p_time[0:2])*60 + int(p_time[2:4]) + 1
-    url = 'http://ec2-54-152-117-200.compute-1.amazonaws.com/travel_time_hierachy.php?s_lng='+ str(s_lon) + '&s_lat=' + str(s_lat) + '&e_lng=' + str(e_lon) + '&e_lat=' + str(e_lat) + '&interval=' + str(interval) + '&pattern=' + str(pattern)
+    interval = int(p_time[0:2])*60 + int(p_time[2:4]) + 1
+    url = 'http://ec2-54-152-117-200.compute-1.amazonaws.com/travel_time_hierachy.php?s_lng=' + str(s_lon) + '&s_lat=' + str(s_lat) + '&e_lng=' + str(e_lon) + '&e_lat=' + str(e_lat) + '&interval=' + str(interval) + '&pattern=' + str(pattern)
     rsps = urllib2.urlopen(url)
     info = rsps.read().strip(',\r\n')
     info = info.split('\t')
     if not info[1]: #no rsps
-        response = json.dumps({"success":"no","path":{},"lot":{"find_lot":0,"geoJson":{}},"travel_time":-1})
+        response = json.dumps({"success":"no","path":{},"lot": {"find_lot":0,"geoJson":{}},"travel_time":-1})
         return HttpResponse(response, content_type='application/json')
     origin, destination = info[0].split(";")
     origin = json.loads(origin)
