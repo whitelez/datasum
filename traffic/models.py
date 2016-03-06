@@ -143,6 +143,30 @@ class Streetratepre(models.Model):  # parking rate prediction data
 #######################################################################################  End of Parking
 
 
+
+# ~~~~~~~~~~~~~~~ Start Yiming ~~~~~~~~~~~~~~
+class TwitterEvents(models.Model):
+    eventid = models.CharField(max_length = 15, primary_key = True)
+    st_rt_no = models.PositiveSmallIntegerField()
+    sr = models.CharField(max_length = 255)
+    cause = models.CharField(max_length = 25)
+    status = models.CharField(max_length = 20)
+    close_date = models.DateField()
+    close_time = models.TimeField()
+    open_date = models.DateField()
+    open_time = models.TimeField()
+    s_lat = models.FloatField()
+    s_lon = models.FloatField()
+    e_lat = models.FloatField()
+    e_lon = models.FloatField()
+    geoJson = models.TextField()
+    def __unicode__(self):
+        return self.eventid
+
+# ~~~~~~~~~~~~~~~~ End Yiming~~~~~~~~~~~~~~
+
+
+
 #BY PXD
 class SPCCorridorNodeInfo(models.Model):
     Corridor_Number = models.PositiveSmallIntegerField()
