@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
+from django.views.decorators.csrf import csrf_exempt
 
 def register(request):
 
@@ -54,6 +55,7 @@ def register(request):
             'traffic/register.html',
             {'user_form': user_form, 'registered': registered} )
 
+@csrf_exempt
 def user_login(request):
 
     # If the request is a HTTP POST, try to pull out the relevant information.
