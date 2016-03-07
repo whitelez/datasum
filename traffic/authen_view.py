@@ -55,7 +55,6 @@ def register(request):
             'traffic/register.html',
             {'user_form': user_form, 'registered': registered} )
 
-@csrf_exempt
 def user_login(request):
 
     # If the request is a HTTP POST, try to pull out the relevant information.
