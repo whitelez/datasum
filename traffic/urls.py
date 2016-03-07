@@ -82,6 +82,16 @@ urlpatterns = patterns('',
     url(r'^bus_real_time/$', views.bus_real_time, name='bus_real_time'),
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  End  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~ start Yiming ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    url(r'^twitter_map/$', views.twitter_map, name='twitter_map'),
+    url(r'^get_incidents_twitter/$', views.get_incidents_twitter, name='get_incidents_twitter'),
+    url(r'^get_RT_incidents_twitter/$', views.get_RT_incidents_twitter, name='get_RT_incidents_twitter'),
+# ~~~~~~~~~~~~~~~~~~~~~~~~~ end Yiming ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
     url(r'^incidents/$', views.incidents, name='incidents'),
     url(r'^get_incidents_rcrs/$', views.get_incidents_rcrs, name='get_incidents_rcrs'),
 

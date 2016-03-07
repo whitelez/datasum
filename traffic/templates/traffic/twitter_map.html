@@ -1,0 +1,750 @@
+{% extends "traffic/base.html" %}
+
+{% load staticfiles %}
+
+{% block title %}
+MDAP - Twitter
+{% endblock %}
+
+{% block style %}
+    <style>
+ 
+    .legend i {
+        width: 28px;
+        height: 7px;
+        float: left;
+        border-radius: 3px;
+        margin-right: 8px;
+        margin-left: 7px;
+        margin-top: 7px;
+        opacity: 0.9;
+    }
+.legend .circle {
+border-radius: 50%;
+width: 10px;
+height: 10px;
+margin-top: 8px;
+}
+    </style>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'traffic/bootstrap_patch.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic/leaflet.draw.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div id='user_input' class="well" style="overflow:auto;height:100%;">
+	<div class="container" style="width: inherit">
+        <div class="row"> <h3> Twitter Incidents</h3> </div>
+    	<div class="row"> <h4> Time Period:</h4> </div>
+		<div class="row" style="padding-top:5px;">
+        	<div class="col-md-3" style="height: 36px;padding-left:7px;padding-right: 0;"><h5>Start Date:</h5></div>
+            <div class="col-md-3" style="padding-left:2px;padding-right: 1px;">
+                <select id='syear' name = 'syear' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+ 				<option value='2016'>2016</option>				
+				</select>
+            </div>
+            <div class="col-md-3" style="padding-left: 0;padding-right: 1px;">
+				<select id='smonth' name = 'smonth' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					<option value='01'>Jan</option>
+					<option value='02' selected="selected" >Feb</option>
+					<option value='03'>Mar</option>
+					<option value='04'>Apr</option>
+					<option value='05'>May</option>
+					<option value='06'>Jun</option>
+					<option value='07'>Jul</option>
+					<option value='08'>Aug</option>
+					<option value='09'>Sep</option>
+					<option value='10'>Oct</option>
+					<option value='11'>Nov</option>
+					<option value='12'>Dec</option>
+				</select>
+            </div>
+            <div class="col-md-3" style="padding-left: 0;padding-right: 10px;">
+				<select id='sday' name = 'sday' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					{% for i in n%}
+						<option value={{i}}>{{i}}</option>
+					{% endfor %}
+				</select>
+            </div>
+	    </div>
+
+		<div class="row" style="padding-top:5px;">
+        	<div class="col-md-3" style="height: 36px;padding-left:7px;padding-right: 0;"><h5>End Date:</h5></div>
+            <div class="col-md-3" style="padding-left:2px;padding-right: 1px;">
+                <select id='eyear' name = 'eyear' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+				<option value='2016'>2016</option>
+
+				</select>
+            </div>
+            <div class="col-md-3" style="padding-left: 0;padding-right: 1px;">
+				<select id='emonth' name = 'emonth' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					<option value='01'>Jan</option>
+					<option value='02'>Feb</option>
+					<option value='03' selected="selected" >Mar</option>
+					<option value='04'>Apr</option>
+					<option value='05'>May</option>
+					<option value='06'>Jun</option>
+					<option value='07'>Jul</option>
+					<option value='08'>Aug</option>
+					<option value='09'>Sep</option>
+					<option value='10'>Oct</option>
+					<option value='11'>Nov</option>
+					<option value='12'>Dec</option>
+				</select>
+            </div>
+            <div class="col-md-3" style="padding-left: 0;padding-right: 10px;">
+				<select id='eday' name = 'eday' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					{% for i in n%}
+						<option value={{i}}>{{i}}</option>
+					{% endfor %}
+				</select>
+            </div>
+	    </div>
+
+
+
+
+    	<div class="row" style="padding-top:5px;">
+            <div class="col-md-4" style="height: 36px;padding-left:7px;padding-right: 0;"><h5>Start Time:</h5></div>
+            <div class="col-md-4" style="padding-left: 0;padding-right: 1px;">
+            	<select id='shour' name = 'shour' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="90%">
+					<option value='00'>0</option>
+					<option value='01'>1</option>
+					<option value='02'>2</option>
+					<option value='03'>3</option>
+					<option value='04'>4</option>
+					<option value='05'>5</option>
+					<option value='06'>6</option>
+					<option value='07'>7</option>
+					<option value='08'>8</option>
+					<option value='09'>9</option>
+					<option value='10'>10</option>
+					<option value='11'>11</option>
+					<option value='12'>12</option>
+					<option value='13'>13</option>
+					<option value='14'>14</option>
+					<option value='15'>15</option>
+					<option value='16'>16</option>
+					<option value='17'>17</option>
+					<option value='18'>18</option>
+					<option value='19'>19</option>
+					<option value='20'>20</option>
+					<option value='21'>21</option>
+					<option value='22'>22</option>
+					<option value='23'>23</option>
+                </select>
+                <span> <strong>:</strong> </span>
+            </div>
+            <div class="col-md-4" style="padding-left: 0;padding-right: 10px;">
+				<select id='sminute' name = 'sminute' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					<option value='00'>0</option>
+					<option value='05'>5</option>
+					<option value='10'>10</option>
+					<option value='15'>15</option>
+					<option value='20'>20</option>
+					<option value='25'>25</option>
+					<option value='30'>30</option>
+					<option value='35'>35</option>
+					<option value='40'>40</option>
+					<option value='45'>45</option>
+					<option value='50'>50</option>
+					<option value='55'>55</option>
+				</select>
+            </div>
+	    </div>
+
+    	<div class="row" style="padding-top:5px;">
+            <div class="col-md-4" style="height: 36px;padding-left:7px;padding-right: 0;"><h5>End Time:</h5></div>
+            <div class="col-md-4" style="padding-left: 0;padding-right: 1px;">
+            	<select id='ehour' name = 'ehour' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="90%">
+					<option value='00'>0</option>
+					<option value='01'>1</option>
+					<option value='02'>2</option>
+					<option value='03'>3</option>
+					<option value='04'>4</option>
+					<option value='05'>5</option>
+					<option value='06'>6</option>
+					<option value='07'>7</option>
+					<option value='08'>8</option>
+					<option value='09'>9</option>
+					<option value='10'>10</option>
+					<option value='11'>11</option>
+					<option value='12'>12</option>
+					<option value='13'>13</option>
+					<option value='14'>14</option>
+					<option value='15'>15</option>
+					<option value='16'>16</option>
+					<option value='17'>17</option>
+					<option value='18'>18</option>
+					<option value='19'>19</option>
+					<option value='20'>20</option>
+					<option value='21'>21</option>
+					<option value='22'>22</option>
+					<option value='23' selected="selected">23</option>
+                </select>
+                <span> <strong>:</strong> </span>
+            </div>
+            <div class="col-md-4" style="padding-left: 0;padding-right: 10px;">
+				<select id='eminute' name = 'eminute' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="100%">
+					<option value='00'>0</option>
+					<option value='05'>5</option>
+					<option value='10'>10</option>
+					<option value='15'>15</option>
+					<option value='20'>20</option>
+					<option value='25'>25</option>
+					<option value='30'>30</option>
+					<option value='35'>35</option>
+					<option value='40'>40</option>
+					<option value='45'>45</option>
+					<option value='50'>50</option>
+					<option value='55' selected="selected">55</option>
+				</select>
+            </div>
+	    </div>
+    </div>
+
+	<button type="button" class="btn btn-default btn-block" id="his_data" style="margin-top:10px;">
+        <span class="glyphicon glyphicon-search"> </span> &nbsp; Query
+    </button> <br>
+	<button type="button" class="btn btn-default btn-block" id="rt_data" style="margin-top:10px;">
+        <span class="glyphicon glyphicon-search"> </span> &nbsp; Update Real-time Twitter Incidents 
+    </button> <br>
+    	<div class="row" style="padding-top:5px;">
+            <div class="col-md-4" style="height: 36px;padding-left:7px;padding-right: 1;"><h5>DB Query Freq: </h5></div>
+            <div class="col-md-4" style="padding-left: 0;padding-right: 1px;">
+            	<select id='freq' name = 'freq' class="selectpicker show-tick show-menu-arrow" data-live-search="true" data-width="90%">
+					<option value='03'>3 minutes</option>
+					<option value='05'>5 minutes</option>
+					<option value='10'>10 minutes</option>
+                </select>
+                <span> <strong></strong> </span>
+            </div>
+
+	    </div>
+
+	  <button type="button" onclick = "clickRefDB()" class="btn btn-default btn-block" id="resetDbFreq" style="margin-top:10px;">
+        <span class="glyphicon glyphicon-search"> </span> &nbsp; Reset DB Frequency 
+    </button> <br>
+
+
+
+    	<div class="row" style="padding-top:5px;">
+            <div class="col-md-4" style="height: 36px;padding-left:7px;padding-right: 1;">Keyword:<h5></h5></div>
+            <div class="col-md-4" style="padding-left: 0;padding-right: 1px;">
+            	<form>
+<input id = "inKey" type="text" name="inKey">
+</form>
+            </div>
+
+	    </div>
+
+	  <button onclick = "clickInKey()"   type="button" class="btn btn-default btn-block" id="resetDbFreq" style="margin-top:10px;">
+        <span class="glyphicon glyphicon-search"> </span> &nbsp; Input keyword
+    </button> <br>
+
+	  <button onclick = "clickoutkey()"   type="button" class="btn btn-default btn-block" id="resetDbFreq" style="margin-top:10px;">
+        <span class="glyphicon glyphicon-search"> </span> &nbsp; Delete keyword
+    </button> <br>
+
+
+
+
+
+
+    </div>
+{% endblock %}
+
+{% block map %}
+<style>
+ .legend .circle {
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  margin-top: 8px;
+}
+</style>
+
+
+
+	<div id="map"></div>
+	<table id="myTable" name = "dataTable"></table>
+
+
+
+
+
+{% endblock %}
+
+<style>
+ .legend .circle {
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  margin-top: 8px;
+}
+</style>	
+
+{% block script %}
+<script type="text/javascript" src="{% static 'traffic/leaflet.draw.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/flot/jquery.flot.js' %}"></script>
+<script type="text/javascript" src="{% static 'traffic/flot/jquery.flot.pie.js' %}"></script>
+
+
+
+
+
+<script>
+     $('.selectpicker').selectpicker({
+      style: 'btn-inverse',
+      size: 10
+     });
+</script>
+
+<script>
+	
+
+
+
+
+	var map = L.map('map').setView([40.4407937, -80.0029874], 10);
+    
+
+	var basemap = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+
+
+
+		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+	}).addTo(map);
+	
+	var drawnItems = new L.FeatureGroup();
+	map.addLayer(drawnItems);
+
+	var drawControl = new L.Control.Draw({
+		edit: {
+			featureGroup: drawnItems
+		},
+		draw: {
+				polyline: false,
+				polygon: false,
+                circle: false,
+                marker: false
+        }
+	});
+	map.addControl(drawControl);
+	
+
+
+	var info = L.control();
+
+		info.onAdd = function (map) {
+			this._div = L.DomUtil.create('div', 'info');
+			this.update();
+			return this._div;
+		};
+
+		info.update = function (props) {
+		};
+
+		info.addTo(map);
+				function getColor(d) {
+
+
+					return d == 'Obstacle Vehicles'? 'blue': 
+					       d == 'Events'? 'orange':
+					       d == 'Weather'?'yellow':
+					       d == 'Accident'? 'red':
+					        'green';
+					 
+		}
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+			function style(feature) {
+			return {
+				radius: 6,
+				opacity: 0.7,
+				//dashArray: '3',
+				color: getColor(feature.properties.cause)
+			};
+		}
+
+		function highlightFeature(e) {
+			var layer = e.target;
+
+
+			if (!L.Browser.ie && !L.Browser.opera) {
+				layer.bringToFront();
+			}
+
+			info.update(layer.feature.properties);
+		}
+
+		
+
+		function resetHighlight(e) {
+			info.update();
+		}
+		
+		function zoomToFeature(e) {
+			var layer = e.target;
+			//var weather;
+			map.fitBounds(layer.getBounds()); // zoom to the layer
+		}
+
+		function onEachFeature(feature, layer) {
+			layer.on({
+				mouseover: highlightFeature,
+				mouseout: resetHighlight,
+				click:zoomToFeature
+			});
+			layer.bindPopup('<b>' + feature.properties.text + '</b>'
+			    + "<br><b>Time: </b>" + feature.properties.start
+				+ "<br><b>Category: </b>" + feature.properties.cause+
+
+
+" <select id = 'labeledincident'   name='my_options'>  <option value='Accident'>Accident</option> <option value='Roadwork'>Roadwork</option>   <option value='Obstacle Vehicles'>Obstacle Vehicles</option>   <option value='Events'>Events</option>   <option value='Weather'>Weather</option> </select> <button type='submit' onclick = 'submitCat()' name='submit' value='submit'>submit </button>"
+
+// " <form method='POST' ' >  <select id = 'labeledincident'   name='my_options'>  <option value='Accident'>Accident</option> <option value='Roadwork'>Roadwork</option>   <option value='Obstacle Vehicles'>Obstacle Vehicles</option>   <option value='Events'>Events</option>   <option value='Weather'>Weather</option> </select> <button type='submit' onclick = 'submitCat()' name='submit' value='submit'>submit </button> </form>"
+
+				);
+			}
+	
+	var accidentLayer = L.geoJson(),
+		obsLayer = L.geoJson(),
+		eventLayer = L.geoJson(),
+		weatherLayer = L.geoJson(),
+		roadworkLayer = L.geoJson(),
+		realTimeLayer = L.geoJson(),
+		control = L.control.layers({'Base Map':basemap});
+		control.addTo(map);
+	
+
+	function removeLayers(){
+		if(accidentLayer)
+		{
+			control.removeLayer(accidentLayer);
+			if(map.hasLayer(accidentLayer)){
+				map.removeLayer(accidentLayer);
+			}
+		}
+		
+		if(roadworkLayer)
+		{
+			control.removeLayer(roadworkLayer);
+			if(map.hasLayer(roadworkLayer)){
+				map.removeLayer(roadworkLayer);
+			}
+		}
+		
+		if(obsLayer)
+		{
+			control.removeLayer(obsLayer);
+			if(map.hasLayer(obsLayer)){
+				map.removeLayer(obsLayer);
+			}
+		}
+		
+		if(eventLayer)
+		{
+			control.removeLayer(eventLayer);
+			if(map.hasLayer(eventLayer)){
+				map.removeLayer(eventLayer);
+			}
+		}
+		
+		if(weatherLayer)
+		{
+			control.removeLayer(weatherLayer);
+			if(map.hasLayer(weatherLayer)){
+				map.removeLayer(weatherLayer);
+			}
+		}
+
+		
+		if(realTimeLayer)
+		{
+			control.removeLayer(realTimeLayer);
+			if(map.hasLayer(realTimeLayer)){
+				map.removeLayer(realTimeLayer);
+			}
+		}
+	}
+	
+
+
+	function show_incidents(incidents){
+		removeLayers();
+
+		accidentLayer = L.geoJson(incidents,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return (feature.properties.cause == 'Accident');
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(accidentLayer,'Accident');
+		
+		
+		obsLayer = L.geoJson(incidents,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return (feature.properties.cause == 'Obstacle Vehicles');
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(obsLayer,'Obstacle Vehicles');
+		
+
+		
+		eventLayer = L.geoJson(incidents,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return (feature.properties.cause == 'Events');
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(eventLayer,'Events');
+		
+		
+		weatherLayer = L.geoJson(incidents,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return (feature.properties.cause == 'Weather');
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(weatherLayer,'Weather');
+		
+		
+		roadworkLayer = L.geoJson(incidents,{
+			pointToLayer:function(feature, latlng){
+				return L.circleMarker(latlng,style(feature));
+			},
+			filter: function(feature, latlng){
+				return (feature.properties.cause == 'Roadwork');
+			},
+			onEachFeature:onEachFeature
+		}).addTo(map);
+		control.addOverlay(roadworkLayer,'Roadwork');
+		
+
+
+		
+		
+
+	};
+
+
+
+
+
+	var options = {
+		series: {
+			pie: {
+				show: true,
+				tilt: 0.5
+			}
+		}
+	};
+	
+	$("#chart1").hide() //only show chart when update 
+
+
+	function clickonfunction(incidents,str){
+		// console.log(incidents.features)
+		for (i = 0; i < incidents.features.length; i++) { 
+					    var lat = incidents.features[i].geometry.coordinates[1]
+    		var long = incidents.features[i].geometry.coordinates[0]
+			if(incidents.features[i].properties.text == str){
+				map.setView(L.latLng(lat, long), 14);
+			}
+
+
+		}
+
+
+	}
+
+	function clickfun2(){
+map.setView(L.latLng(this.lat, this.long), 14)
+		
+	}
+
+	function updateTable(incidents) {
+var table = document.getElementById("myTable");
+	while(table.rows.length > 0) {
+  table.deleteRow(0);
+}
+
+	for (i = 0; i < incidents.features.length; i++) { 
+    var text = incidents.features[i].properties.text;
+    var time = incidents.features[i].properties.start;
+    console.log(incidents)
+    var table = document.getElementById("myTable");
+    var row = table.insertRow(0);
+    var cell = row.insertCell(0);
+    cell.innerHTML =incidents.features[i].properties.start+':::'+text;
+
+
+
+    var lat = incidents.features[i].geometry.coordinates[1];
+    var long = incidents.features[i].geometry.coordinates[0];
+
+    var button = document.createElement('button');
+      button.innerHTML = 'Show on map';
+      button.lat = incidents.features[i].geometry.coordinates[1];
+      button.long = incidents.features[i].geometry.coordinates[0];
+
+      // button.onclick = clickonfunction(incidents,text);
+
+button.onclick = clickfun2
+      // clickonfunction(incidents,text)
+
+
+
+
+
+
+ 			cell.appendChild(button);
+  };
+
+
+
+
+}
+
+	
+	//get historical incidents
+	//var selected = 0;
+	$('#his_data').click(function(){
+		var sy = $("#syear option:selected").attr("value"),
+			sm = $("#smonth option:selected").attr("value"),
+			sd = $("#sday option:selected").attr("value"),
+			ey = $("#eyear option:selected").attr("value"),
+			em = $("#emonth option:selected").attr("value"),
+			ed = $("#eday option:selected").attr("value"),
+			sh = $("#shour option:selected").attr("value"),
+			smi = $("#sminute option:selected").attr("value"),
+			eh = $("#ehour option:selected").attr("value"),
+			emi = $("#eminute option:selected").attr("value");
+		
+		sd = sd<10?'0'+sd:sd;
+		ed = sd<10?'0'+ed:ed;
+	
+
+	$.get("../get_incidents_twitter/", {s_date:sy+sm+sd, e_date:ey+em+ed, s_time:sh+smi, e_time:eh+emi}, function(data, textStatus){			 
+			 //draw incidents
+			 // $("#map").empty();
+			 // console.log(data)
+			 // console.log(textStatus)
+			 incidents = $.parseJSON(data["geoJson"]);
+			 show_incidents(incidents);
+			 updateTable(incidents);
+			 // $("#chart1").empty();
+			 // $("#chart1").hide();
+			 // $.plot($("#chart1"), data["data"], options);
+			 // $("#chart1").show();
+
+		},"json");
+			
+		
+	});
+	
+
+var myVar = setInterval(intervalFunction, 1000*60*5);
+
+function intervalFunction(){
+		$.get("../get_RT_incidents_twitter/", function(data, textStatus){
+			 incidents = $.parseJSON(data["geoJson"]);
+			 show_incidents(incidents);
+			 updateTable(incidents);
+		},"json");
+	}
+
+
+	$('#rt_data').click(function(){
+			// var table = document.getElementById("myTable");
+			// Table.innerHTML = "";
+		$.get("../get_RT_incidents_twitter/", function(data, textStatus){
+
+
+			 incidents = $.parseJSON(data["geoJson"]);
+			 show_incidents(incidents);
+			 updateTable(incidents);
+			 
+		},"json");
+	});
+	
+	
+	var legend = L.control({position: 'bottomright'});
+		legend.onAdd = function (map) {
+			var div = L.DomUtil.create('div', 'info legend'),
+				grades = ['Roadwork','Obstacle Vehicles','Accident','Events','Weather'],
+				labels =[];
+			for (var i = 0; i < grades.length; i++) {
+
+				// div.innerHTML +=
+    //     	'<i class="circle" style="background:' + getColor(grades[i]) + '"></i> ' +
+    //      (grades[i]? grades[i] + '<br>' : '+');
+
+    			// div.innerHTML +='<i style="background:green' + '"></i> ' + grades[i]+ "<br>"
+    			// div.innerHTML +='<i style="background:green' + '"></i> ' + 'fuckyou'+ "<br>"
+                div.innerHTML += '<i class="circle" style="background:'+  getColor(grades[i])  + '"></i> ' + grades[i]+ "<br>";
+
+				// labels.push(
+				// 	'<i class="circle" style="background:' + getColor(grades[i]) + '"></i> ' +
+				// 	grades[i]);
+			}
+
+
+
+			// div.innerHTML = labels.join('<br><br>');
+			console.log(div.innerHTML);
+			return div;
+		};
+
+		legend.addTo(map);
+
+	function clickInKey(){
+		// sy = $("#inKey option:selected").attr("value")
+		if (confirm("Are you sure you want to submit this query keyword?") == true) {};
+	}
+
+	function clickoutkey(){
+		// sy = $("#inKey option:selected").attr("value")
+		if (confirm("Are you sure you want to delete this query keyword?") == true) {};
+	}
+
+	function clickRefDB(){
+		sy = $("#freq option:selected").attr("value");
+		if (confirm("Confirm reset frequency to be "+sy +" minutes?") == true) {};
+
+	}
+	function submitCat(){
+		var yourSelect = document.getElementById( "labeledincident" );
+							
+		sy = yourSelect.value;
+		console.log(sy);
+		if (confirm("Confirm choice as "+sy+"?") == true) {
+
+
+		};
+
+	}
+
+
+
+
+
+  </script>
+{% endblock %}
+
+
