@@ -1951,9 +1951,6 @@ def get_sensors_links(request):
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~ Yiming ~~~~~~~~~~~~~~~~~~~~~~~~
-# @permission_required(perm= 'traffic.perm_inciTwitter', raise_exception= True)
-# def index(request):
-#     return render(request, 'traffic/index.html')
 
 @permission_required(perm= 'traffic.perm_twitter_map', raise_exception= True)
 def twitter_map(request):
