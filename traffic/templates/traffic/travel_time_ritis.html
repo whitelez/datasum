@@ -1,0 +1,431 @@
+{% extends "traffic/base.html" %}
+
+{% load staticfiles %}
+
+{% block title %}
+    MDAP - Travel Time (Ritis)
+{% endblock %}
+
+{% block style %}
+    <style>
+        #overlaycon {
+            height: 600px;
+        }
+        #map{
+            z-index: 100;
+            position: relative;
+            /*top: -163px;*/
+        }
+        #charts {
+            background: #ffffff;
+            height:30%;
+            width:25%;
+            opacity: 0.93;
+            position: absolute;
+            left: 25%;
+            border-radius: 3px;
+            box-shadow:8px 8px 13px #CCCCCC;
+            z-index: 101;
+            visibility: hidden;
+
+        }
+        #chart1 {
+            background: #ffffff;
+
+            opacity: 0.93;
+            position: relative;
+            border-radius: 3px;
+            box-shadow:8px 8px 13px #CCCCCC;
+            z-index: 101;
+            visibility: hidden;
+
+        }
+        #chart2 {
+            background: #ffffff;
+            opacity: 0.93;
+            position: relative;
+            border-radius: 3px;
+            box-shadow:8px 8px 13px #CCCCCC;
+            z-index: 101;
+            visibility: hidden;
+
+        }
+
+    #p1{
+            background: #ffffff;
+            border: 2px solid;
+            border-radius: 10px;
+            border-color: #3f51b5;
+            position: relative;
+            opacity: 0.93;
+            top: 0px;
+            margin-left:1%;
+            height : 110px;
+            text-align: center;
+            width : 97%;
+            z-index: 10;
+
+    }
+
+    .legend {
+        line-height: 18px;
+        height:75px;
+        width:220px;
+        right: -10px;
+        bottom: -10px;
+        border-radius: 5px;
+        background: white;
+        box-shadow: -2px -2px 2px #CCCCCC;
+        opacity: 0.9;
+    }
+
+    .legend i {
+        width: 28px;
+        height: 7px;
+        float: left;
+        border-radius: 3px;
+        margin-right: 8px;
+        margin-left: 7px;
+        margin-top: 7px;
+        opacity: 0.9;
+    }
+
+
+    </style>
+    <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+    <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic/jquery.jqplot.min.css' %}">
+    <style>html {
+        font-size: 12px;
+        font-family: Arial, Helvetica, sans-serif;
+    }</style>
+    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.common-material.min.css" />
+    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.material.min.css" />
+    <link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css">
+    <link rel="stylesheet" href="{% static 'traffic/style_closure.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+
+    <div id="user_input" class="well" style="height: 600px;">
+
+        <div class="container" style="width: inherit">
+            <div class="row" style="margin-top:3px;text-align: center"><h3>Travel Time Info</h3></div>
+                        <div align="mid" class="row" id="p1"><h5>Hover over a street to check occupancy</h5><br><br></div>
+
+            <div class="row" id ="plzwait" style="margin-top:10px;margin-right:auto;margin-left: 0px;"><h5><b>Select time for inquiry: </b></h5></div>
+
+            <div class="row" style="margin-top:10px;margin-right:auto;margin-left: 0px;">
+                <div><a type="button" class="btn btn-purple" id="getData" align="middle" style="margin-top:0px;width:90%;"> Inquiry </a></div><br>
+                <div><a type="button" class="btn btn-purple" id="refresh" align="middle" style="margin-top:0px;width:90%;"> Stop Refreshing </a></div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block map %}
+
+    <div id='overlaycon'>
+        <div id = 'foo'></div>
+        <div id = "charts">
+            <div id="chart1" class="chart"></div>
+            <div id="chart2" class="chart"></div>
+        </div>
+        <div id="map" ; style="opacity: 1"></div>
+    </div>
+{% endblock %}
+
+
+{% block script %}
+
+    <script src="http://cdn.kendostatic.com/2014.3.1411/js/kendo.all.min.js"></script>
+{#    <script>L_PREFER_CANVAS = true;</script> <!-- force Leaflet to use the Canvas back-end for vector layers instead of SVG, increase performance a lot-->#}
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+    <script type="text/javascript" src="{% static 'traffic/jquery.jqplot.min.js' %}"></script>
+    <!--<script type="text/javascript" src="{% static 'traffic/jqplot.cursor.js' %}"></script>-->
+    <script type="text/javascript" src="{% static 'traffic/jqplot.dateAxisRenderer.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'traffic/spinner.js' %}"></script>
+
+
+    <script>
+        // create a map in the "map" div, set the view to a given place and zoom
+        //////////////////////////////data picker
+        "use strict";
+
+        var tmcs, tt_data, data_timestamp; // real_time_travel_time_data and its timestamp
+        var tmcLayerDict = {};
+        var tmcLayer;
+
+        // add an OpenStreetMap tile layer
+        var streets = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        });
+        var grayscale = L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
+                                    maxZoom: 18,
+                                    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+                                    '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                                    'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+                                    id: 'examples.map-20v6611k'
+        });
+        var map = L.map('map', {
+            center: [40.4407937, -80.0029874],
+            zoom: 10,
+            layers: [streets]
+        });
+
+        var baseMaps = {
+            "Grayscale": grayscale,
+            "Streets": streets
+        };
+
+
+        // right top control
+        var control = L.control.layers(baseMaps, null, {collapsed: false}).addTo(map);
+
+
+        // info
+        var info = L.control();
+
+
+
+        function writeInfoContent(props, timestamp) {
+
+            var crntTime = new Date(timestamp); // Date() will automatically convert any time format to local time, timestamp in data is in UTC: YYYY-MM-DDTHH-MM-SSZ
+            var content = "" + crntTime.toDateString() + " " + crntTime.toLocaleTimeString() + "<br>"; // toDateString() return locale date
+            content += "TMC: <b>" + props.tmc + "<b><br>";
+            if (!props.data)
+                content += "No Data <br>";
+            else {
+                content += "Speed: <b>" + props.data["spd"] + " mph </b><br>";
+                content += "Reference Speed: <b>" + props.data["ref"] + " mph </b><br>";
+                content += "Travel Time: <b>" + props.data["tt"] + " minutes </b><br>";
+            }
+
+
+            return content;
+        }
+        info.update = function (props, timestamp) {
+            var content = "";
+            if (props && timestamp) {
+                content = writeInfoContent(props,timestamp); // sensor
+            }
+            document.getElementById("p1").innerHTML = (props && timestamp ?
+                    content
+                    : '<h5>Hover over/Click a link to check its current speed</h5><br>');
+
+        };
+
+        // right bottom legend
+        var legend = L.control({position: 'bottomright'});
+            legend.onAdd = function () {
+                var div = L.DomUtil.create('div', 'info legend');
+                div.innerHTML += '<i style="background:green"></i>' + "Speed Reference Ratio &ge; 90%"+ "<br>";
+                div.innerHTML += '<i style="background:yellow"></i>' + "Speed Reference Ratio &ge; 50%"+ "<br>";
+                div.innerHTML += '<i style="background:red"></i>' + "Speed Reference Ratio &lt; 50%"+ "<br>";
+                div.innerHTML += '<i style="background:blue"></i>' + "No data";
+                return div;
+            };
+        legend.addTo(map);
+
+        function setPopup(layer) {
+            if (layer.feature.properties) {
+                var popup = "TMC: <b>" + layer.feature.properties.tmc + "</b><br>";
+                popup += "Road Name: " + layer.feature.properties.name + "<br>";
+                popup += "Direction: " + layer.feature.properties.dir + "<br>";
+                popup += "Miles: " + layer.feature.properties.miles + "<br>";
+                if (layer.feature.properties.data){
+                    popup += "Speed: " + layer.feature.properties.data["spd"] + " mph"
+                }
+                layer.bindPopup(popup);
+            }
+        }
+        function onEachFeature(feature, layer){
+
+            function highlightFeature(e) {
+                var l = e.target;
+                var crntWeight = l.options.style.weight; // LineString is a layer, use options instead of _options for layer groups like MultiLineString
+                l.setStyle({
+                    weight: crntWeight + 3
+                });
+                if (!L.Browser.ie && !L.Browser.opera) {
+                    l.bringToFront();
+                }
+                info.update(l.feature.properties, data_timestamp);
+            }
+
+            function resetHighlight(e) {
+                //alert(e.target.feature.properties.tmc);
+                // for resetStyle to work, need to specify a default weight in L.geoJson options
+                // this will reset the layer to default style specified at L.geoJson, so do not specify color there, as we need to show speed with different colors
+                // tmcLayer.resetStyle(e.target);
+
+                // set to a weight fit for current map zoom
+                var l = e.target;
+                var zoom = map.getZoom();
+                l.setStyle({
+                    weight: weightFromZoom(zoom)
+                })
+                //info.update(null, timepicker.value().getHours(), timepicker.value().getMinutes()); //clean info when move out
+                //$('#chart1').empty();
+            }
+
+            function onClick(e) {
+                map.fitBounds(e.target.getBounds());
+            }
+
+            setPopup(layer);
+
+            layer.on({
+                mouseover: highlightFeature,
+                mouseout: resetHighlight,
+                click: onClick
+            });
+        }
+        //get tmc gis from server
+        $.get("../tmc_gis_ritis/",function(data,textStatus){
+            tmcs = data;
+            var zoom = map.getZoom();
+            tmcLayer = L.geoJson(tmcs, {
+                style: {"weight": weightFromZoom(zoom), "fillOpacity": 1},
+                onEachFeature: onEachFeature
+            }).addTo(map);
+            control.addOverlay(tmcLayer, 'TMCs');
+            buildLayerDict(tmcLayer, tmcLayerDict);
+        },"json");
+
+        function buildLayerDict(layer, layerDict) {
+            layer.eachLayer(function(l) {
+                var tmc = l.feature.properties.tmc;
+                layerDict[tmc] = l;
+            });
+        }
+
+        function resetColor() {
+            tmcLayer.eachLayer(function(layer){
+                if (layer.feature.properties.data)
+                    layer.setStyle({color: getColor(layer.feature.properties.data["sp_ref_ratio"])});
+                else
+                    layer.setStyle({color: "blue"});
+            });
+        }
+
+         function getColor(spd_ref_ratio) {
+            if (spd_ref_ratio >= 0.9) return "green";
+            else if (spd_ref_ratio >= 0.5) return "yellow";
+            else return "red";
+        }
+
+        $("#getData").click(getData);
+
+        function getData() {
+            $.get("../tmc_real_time_data_ritis/", function(data, textStatus) {
+                data_timestamp = data["timestamp"];
+                tt_data = data["data"];
+                // delete data of last inquiry
+                tmcLayer.eachLayer(function(layer) {
+                    if (layer.feature.properties.data)
+                        delete layer.feature.properties.data;
+                });
+                Object.keys(tt_data).forEach(function(key) {
+                    if (key in tmcLayerDict) tmcLayerDict[key].feature.properties["data"] = tt_data[key];
+                });
+                resetColor();
+                //reset popup for each layer
+                tmcLayer.eachLayer(function(layer){
+                    setPopup(layer);
+                });
+            });
+        }
+
+        //time spinner
+         var spinneropts = {
+             lines: 13, // The number of lines to draw
+             length: 20, // The length of each line
+             width: 10, // The line thickness
+             radius: 30, // The radius of the inner circle
+             corners: 1, // Corner roundness (0..1)
+             rotate: 0, // The rotation offset
+             direction: 1, // 1: clockwise, -1: counterclockwise
+             color: '#000', // #rgb or #rrggbb or array of colors
+             speed: 1, // Rounds per second
+             trail: 60, // Afterglow percentage
+             shadow: false, // Whether to render a shadow
+             hwaccel: false, // Whether to use hardware acceleration
+             className: 'spinner', // The CSS class to assign to the spinner
+             zIndex: 2e9, // The z-index (defaults to 2000000000)
+             top: '60%', // Top position relative to parent
+             left: '63%' // Left position relative to parent
+         };
+
+        var target = document.getElementById('foo');
+        var spinner = new Spinner(spinneropts).spin(target);
+        target.style.zIndex = "110";
+        var target = document.getElementById('map');
+        target.style.opacity = '0.2';
+        target = document.getElementById('chart1');
+        target.style.opacity= '0';
+
+        getData();
+
+        // stop spinner and reset map style
+        spinner.stop();
+        var target = document.getElementById('foo');
+        target.style.zIndex = "1";
+        var mapper = document.getElementById('map');
+        mapper.style.opacity = '1';
+        target = document.getElementById('chart1');
+        target.style.opacity= '1';
+
+
+        var interval = setInterval(getData, 10000); // refresh the data every 10 seconds
+        function stopRefresh() {
+            clearInterval(interval); // stop refresh
+            $("#refresh").text("Start Refreshing"); // change button text
+            $("#refresh").off("click").on("click", startRefresh); // remove stopRefresh listener and switch to startRefresh
+        }
+        function startRefresh() {
+            getData(); // refresh immediately
+            interval = setInterval(getData, 10000);
+            $("#refresh").text("Stop Refreshing");
+            $("#refresh").off("click").on("click", stopRefresh);
+        }
+        $("#refresh").on("click", stopRefresh);
+
+
+        // hide charts and highlighted sensors(of clicked link) when map is clicked but not when map is dragged
+        var isDragging = false;
+        map.on("mousedown",function(e) {
+                isDragging = false;
+            })
+            .on("mousemove",function(e) {
+                isDragging = true;
+            })
+            .on("mouseup", function(e) {
+                if (!isDragging) {
+                    //$("#chart1").css("visibility", "hidden");
+                    //$("#chart2").css("visibility", "hidden");
+                    isDragging = false;
+                }
+            });
+        // change circle marker radius and link weight when map is zoomed
+        map.on("zoomend", function(e){
+            var zoom = map.getZoom();
+            if (tmcLayer) {
+                var weight = weightFromZoom(zoom);
+                tmcLayer.eachLayer(function(layer){
+                    layer.setStyle({weight:weight});
+                });
+            }
+        });
+
+        function weightFromZoom(zoom) {
+            return zoom < 8 ? zoom / 8 : Math.ceil((zoom - 7)/2) + 2;
+        }
+
+
+    </script>
+
+{% endblock %}

@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 from traffic import views, authen_view
-from backend import crash_view, parking_view
+from backend import crash_view, parking_view, weather_view
 from django.contrib.auth import views as django_auth_views
 
 urlpatterns = patterns('',
@@ -11,9 +11,19 @@ urlpatterns = patterns('',
 
     url(r'^count/$', views.count, name='count'),
 
-    url(r'^weather/$', views.weather, name='weather'),
-    url(r'^get_county_weather/$', views.get_county_weather, name = 'get_county_weather'),
-    url(r'^get_weather/$', views.get_weather, name = 'get_weather'),
+#++++++++++++++++++++++++++++++++++++++++++++++++ Weather +++++++++++++++++++++++++++++++++++++++
+    #url(r'^weather/$', views.weather, name='weather'),
+    #url(r'^get_county_weather/$', views.get_county_weather, name = 'get_county_weather'),
+    #url(r'^get_weather/$', views.get_weather, name = 'get_weather'),
+
+    # zipcode area weather
+    url(r'^weather/$', weather_view.weather, name='weather'),
+    url(r'^get_zipcode_areas/$', weather_view.get_zipcode_areas, name = 'get_zipcode_areas'),
+    url(r'^get_weather/$', weather_view.get_weather, name = 'get_weather'),
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++ Weather_end +++++++++++++++++++++++++++++++++++++++
+
 
     url(r'^ev_stations/$', views.ev_stations, name='ev_stations'),
 
@@ -72,6 +82,16 @@ urlpatterns = patterns('',
     url(r'^bus_real_time/$', views.bus_real_time, name='bus_real_time'),
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  End  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~ start Yiming ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    url(r'^twitter_map/$', views.twitter_map, name='twitter_map'),
+    url(r'^get_incidents_twitter/$', views.get_incidents_twitter, name='get_incidents_twitter'),
+    url(r'^get_RT_incidents_twitter/$', views.get_RT_incidents_twitter, name='get_RT_incidents_twitter'),
+# ~~~~~~~~~~~~~~~~~~~~~~~~~ end Yiming ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
     url(r'^incidents/$', views.incidents, name='incidents'),
     url(r'^get_incidents_rcrs/$', views.get_incidents_rcrs, name='get_incidents_rcrs'),
 
@@ -107,6 +127,16 @@ urlpatterns = patterns('',
 
 #map_displayer
     url(r'^map_displayer/$', views.map_displayer, name='map_displayer'),
+
+#here_tmc_data
+    url(r'^tmc_gis_here/$', views.tmc_gis_here, name = 'tmc_gis_here'),
+    url(r'^tmc_data_here/$', views.tmc_data_here, name = 'tmc_data_here'),
+    url(r'^tmc_tt_here/$', views.tmc_tt_here, name = 'tmc_tt_here'),
+
+#ritis_here_data (real time)
+    url(r'^tmc_gis_ritis/$', views.tmc_gis_ritis, name = 'tmc_gis_ritis'),
+    url(r'^tmc_real_time_data_ritis/$', views.tmc_real_time_data_ritis, name = 'tmc_real_time_data_ritis'),
+    url(r'^tmc_tt_ritis/$', views.tmc_tt_ritis, name = 'tmc_tt_ritis'),
 
 #authentication and registration
     url(r'^register/$', authen_view.register, name='register'),

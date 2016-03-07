@@ -4,13 +4,15 @@ from django.http import HttpResponse, QueryDict
 from django.db.models import Q
 from django.template import RequestContext, loader
 from django.contrib.auth.decorators import login_required, permission_required
-
+import pickle
+# import datetime
 import json
 import urllib2,urllib
+import requests  # an http library for python
 import math,operator
 
 from traffic.models import * #Meter, Parking, Street, Streetparking, TMC, TMC_data, Incidents, Weather
-from datetime import date, time, datetime
+from datetime import date, time, datetime, timedelta
 import time as the_time
 import xml.etree.ElementTree as XMLET
 
@@ -1187,7 +1189,7 @@ def transit_metrics_stopskipping(request):
                 result[stopid]["totaltrip"] += 1
                 if item.dwtime == 0: # doesn't stop at this bus stop
                     result[stopid]["totalskip"] += 1
-                    if pro > 1.00: # doesn't stop because bus is full
+                    if pro > 1.0: # doesn't stop because bus is full
                         result[stopid]["skipwithfullload"] += 1
                         if result[stopid].has_key(item.tripa):
                             result[stopid][item.tripa] += 1
@@ -1464,13 +1466,13 @@ def routing_path(request):
     else:
         pattern = 2
 
-    interval =  int(p_time[0:2])*60 + int(p_time[2:4]) + 1
-    url = 'http://ec2-54-152-117-200.compute-1.amazonaws.com/travel_time_hierachy.php?s_lng='+ str(s_lon) + '&s_lat=' + str(s_lat) + '&e_lng=' + str(e_lon) + '&e_lat=' + str(e_lat) + '&interval=' + str(interval) + '&pattern=' + str(pattern)
+    interval = int(p_time[0:2])*60 + int(p_time[2:4]) + 1
+    url = 'http://ec2-54-152-117-200.compute-1.amazonaws.com/travel_time_hierachy.php?s_lng=' + str(s_lon) + '&s_lat=' + str(s_lat) + '&e_lng=' + str(e_lon) + '&e_lat=' + str(e_lat) + '&interval=' + str(interval) + '&pattern=' + str(pattern)
     rsps = urllib2.urlopen(url)
     info = rsps.read().strip(',\r\n')
     info = info.split('\t')
     if not info[1]: #no rsps
-        response = json.dumps({"success":"no","path":{},"lot":{"find_lot":0,"geoJson":{}},"travel_time":-1})
+        response = json.dumps({"success":"no","path":{},"lot": {"find_lot":0,"geoJson":{}},"travel_time":-1})
         return HttpResponse(response, content_type='application/json')
     origin, destination = info[0].split(";")
     origin = json.loads(origin)
@@ -1841,6 +1843,82 @@ def TMC_GIS(request):
 def real_time_tt(request):
     return render(request, 'traffic/real_time_tt.html')
 
+def tmc_gis_here(request):
+    geoJson = {"type":"FeatureCollection","features":[]}
+    tmcs = TMC_Here.objects.all()
+    for tmc in tmcs:
+        feature = {"type":"Feature","geometry":{"type":"MultiLineString","coordinates":json.loads(tmc.coordinates)},"properties":{"tmc":tmc.tmc, "miles": tmc.miles, "name": tmc.road_name,"dir":tmc.direction}}
+        geoJson["features"].append(feature)
+
+    response = json.dumps(geoJson)
+    return HttpResponse(response, content_type = "application/json")
+
+def tmc_data_here(request):
+    s_date = request.GET["s_date"]
+    e_date = request.GET["e_date"]
+    s_date = date(int(s_date[0:4]), int(s_date[4:6]), int(s_date[6:]))
+    e_date = date(int(e_date[0:4]), int(e_date[4:6]), int(e_date[6:]))
+    response = {};
+    all_tmc_data = TMC_Here_data.objects.filter(date__range = (s_date, e_date))
+    tmcs = TMC_Here.objects.all()
+    for tmc in tmcs:
+        this_tmc_data = all_tmc_data.filter(tmc = tmc.tmc)
+        data = [0]*288 # five minutes intervals
+        count = [0]*288
+        for record in this_tmc_data:
+            if record.spd_all > 0:
+                data[record.epoch] += record.spd_all
+                count[record.epoch] += 1
+        # getting average
+        for i in range(288):
+            if count[i] > 0:
+                data[i] = round(data[i] / count[i], 2)
+        response[tmc.tmc] = data
+    response = json.dumps(response)
+    return HttpResponse(response, content_type = "application/json")
+
+def tmc_tt_here(request):
+    return render(request, 'traffic/travel_time_here.html')
+
+def tmc_gis_ritis(request):
+    geoJson = {"type":"FeatureCollection","features":[]}
+    tmcs = TMC_Ritis.objects.all()
+    for tmc in tmcs:
+        feature = {"type":"Feature","geometry":{"type":"LineString","coordinates":json.loads(tmc.coordinates)},"properties":{"tmc":tmc.tmc, "miles": round(tmc.miles, 2), "name": tmc.road_name,"dir":tmc.direction}}
+        geoJson["features"].append(feature)
+
+    response = json.dumps(geoJson)
+    return HttpResponse(response, content_type = "application/json")
+
+def tmc_real_time_data_ritis(request):
+    token_url = "http://api.inrix.com/Traffic/Inrix.ashx?action=getsecuritytoken&Vendorid=1346213929&consumerid=30c227fe-93ab-4f30-9408-362645f33730"
+    token_link = requests.get(token_url)
+    token_root = XMLET.fromstring(token_link.text)
+    token = token_root.find("AuthResponse").find("AuthToken").text
+    api_path = "http://na.api.inrix.com/Traffic/Inrix.ashx"
+    tmc_set = TMC_Ritis.objects.values_list("tmc", flat = True) # a list of tmc field of the table
+    result_data = {}
+    result = {}
+    n = len(tmc_set)
+    i = 0
+    while i < n:
+        # query a list of tmcs each time, make fewer http request, improve speed, trade off between list join time and http request number
+        tmc_list = ",".join(tmc_set[i:min(n,i+50)])
+        i = min(n, i+50)
+        link = requests.get(api_path, params = {"Action":"GetRoadSpeedInTMCs", "Token":token, "Tmcs": tmc_list})
+        root = XMLET.fromstring(link.text)
+        result["timestamp"] = root.attrib["createdDate"]
+        if root.attrib["statusId"] == '0': # has real time data
+            for record in root.iter("TMC"):
+                #record = root.find("RoadSpeedResultSet").find("RoadSpeedResults").find("TMC") # Element.find() find first element with specified tag its direct children
+                result_data[record.attrib["code"]] = {"spd":float(record.attrib["speed"]), "ref":float(record.attrib["reference"]), "tt":round(float(record.attrib["travelTimeMinutes"]), 2), "sp_ref_ratio":round(float(record.attrib["speed"])/float(record.attrib["reference"]), 2)}
+                #result_data[tmc.tmc] = record.attrib
+    result["data"] = result_data
+    response = json.dumps(result)
+    return HttpResponse(response,content_type="application/json")
+
+def tmc_tt_ritis(request):
+    return render(request, "traffic/travel_time_ritis.html")
 
 def device_render(request):
     return render(request, 'traffic/devices.html')
@@ -1870,6 +1948,214 @@ def get_sensors_links(request):
     sensors_links["features"] = features
     response = json.dumps(sensors_links)
     return HttpResponse(response,content_type = "application/json")
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~ Yiming ~~~~~~~~~~~~~~~~~~~~~~~~
+@permission_required(perm= 'traffic.perm_inciTwitter', raise_exception= True)
+def index(request):
+    return render(request, 'traffic/index.html')
+
+@permission_required(perm= 'traffic.perm_twitter_map', raise_exception= True)
+def twitter_map(request):
+    return render(request, 'traffic/twitter_map.html',{'n':range(1,32)})
+
+def get_RT_incidents_twitter(request):
+    if request.POST:
+        selected_option = request.POST.get('my_options', None)
+
+
+        print selected_option
+
+    fileName = '/tweetSource/twitterDBDic.p'
+
+    rawTweets = pickle.load(open(fileName,"rb"))
+
+    # filter tweets in time
+    tweetsTemp = []
+    # print datetime.datetime.now()
+    # print (datetime.datetime.now()-datetime.timedelta(hours=12))
+    for tweet in rawTweets:
+        if tweet['timestamp']>(datetime.now()-timedelta(hours=12)):
+            tweetsTemp.append(tweet)
+
+    print len(tweetsTemp)
+
+    jsonJJList = []
+    causes={}
+    newTweetTemp = []
+    for atweet in tweetsTemp:
+        if atweet['category'] != "Not traffic incident":
+            if atweet['location'] is not None:
+                if atweet['category'] == 'accident':
+                    atweet['category'] = 'Accident'
+                jj = {}
+                jj["type"]="Feature"
+                jj["properties"]={"eventid":atweet['tid'],"direction":"NO","start":str(atweet['timestamp']),"end":str(atweet['timestamp']),"duration":"00:00:00","delay":"0","cause":atweet['category'],"sr":"0000","text":atweet['text']}
+                jj["geometry"] = {"type":"Point","coordinates":[atweet['location'][1],atweet['location'][0]]}
+                jsonJJ = json.dumps(jj)
+                jsonJJList.append(jsonJJ)
+
+                if atweet['category'] not in causes:
+                    causes[atweet['category']] = 1
+                else:
+                    causes[atweet['category']] += 1
+
+
+    result = ','.join(jsonJJ for jsonJJ in jsonJJList)
+    # ~~~~~~~~~~~~~~~~~~
+
+    print len(jsonJJList)
+
+
+
+    geoJson = '''{ "type": "FeatureCollection","features": [''' + result + ']}'
+    # pp.pprint(geoJson)
+    # print geoJson
+
+    data = []
+    for key,value in causes.items():
+        data.append({"label":key,"data":value})
+    # print data
+    # data is the count dictionary of the occurences of the incidents
+
+    #~~~~~~~ testgeoJson ~~~~
+
+    # geoJson = 
+
+
+    rsps = {"geoJson":geoJson,"data":data}
+    # print "~~~~~"
+    # print rsps['geoJson']
+
+    response = json.dumps(rsps)
+
+    return HttpResponse(response, content_type='application/json') 
+
+
+
+
+def get_incidents_twitter(request):
+
+    if request.POST:
+        selected_option = request.POST.get('my_options', None)
+
+
+        print selected_option
+
+    fileName = '/tweetSource/twitterDBDic.p'
+
+    rawTweets = pickle.load(open(fileName,"rb"))
+    
+
+
+    s_date = request.GET['s_date']
+    e_date = request.GET['e_date']
+    s_time = request.GET['s_time']
+    e_time = request.GET['e_time']
+
+    s_hour = int(s_time[0:2])
+    s_minute = int(s_time[2:4])
+    e_hour = int(e_time[0:2])
+    e_minute = int(e_time[2:4])
+    start_date = date(int(s_date[0:4]),int(s_date[4:6]), int(s_date[6:8]))
+    end_date = date(int(e_date[0:4]),int(e_date[4:6]), int(e_date[6:8]))
+
+    start_time = time(s_hour, s_minute)
+    end_time = time(e_hour, e_minute)
+
+
+
+
+    start_datetime = datetime(int(s_date[0:4]),int(s_date[4:6]),int(s_date[6:8]),s_hour,s_minute,1)
+    end_datetime   = datetime(int(e_date[0:4]),int(e_date[4:6]),int(e_date[6:8]),e_hour,e_minute,1)
+    # print start_datetime
+    # print end_datetime
+
+
+    # filter tweets in time
+    tweetsTemp = []
+    for tweet in rawTweets:
+        # print tweet['timestamp']
+        if (tweet['timestamp']>start_datetime and tweet['timestamp']<end_datetime):
+            tweetsTemp.append(tweet)
+
+    print len(tweetsTemp)
+    # print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+    # inspect the incident object
+    
+    ####
+    # tweetsTemp = rawTweets
+    ####
+
+
+    jsonJJList = []
+    causes={}
+    newTweetTemp = []
+    for atweet in tweetsTemp:
+        if atweet['category'] != "Not traffic incident":
+            if atweet['location'] is not None:
+                if atweet['category'] == 'accident':
+                    atweet['category'] = 'Accident'
+                jj = {}
+                jj["type"]="Feature"
+                jj["properties"]={"eventid":atweet['tid'],"direction":"NO","start":str(atweet['timestamp']),"end":str(atweet['timestamp']),"duration":"00:00:00","delay":"0","cause":atweet['category'],"sr":"0000","text":atweet['text']}
+                jj["geometry"] = {"type":"Point","coordinates":[atweet['location'][1],atweet['location'][0]]}
+                jsonJJ = json.dumps(jj)
+                jsonJJList.append(jsonJJ)
+
+                if atweet['category'] not in causes:
+                    causes[atweet['category']] = 1
+                else:
+                    causes[atweet['category']] += 1
+
+
+    result = ','.join(jsonJJ for jsonJJ in jsonJJList)
+    # ~~~~~~~~~~~~~~~~~~
+
+    print len(jsonJJList)
+    # print result
+
+    
+    # for inc in incidents:
+    #     if inc.cause not in causes:
+    #         causes[inc.cause] = 1
+    #     else:
+    #         causes[inc.cause] += 1
+
+
+
+    geoJson = '''{ "type": "FeatureCollection","features": [''' + result + ']}'
+    # pp.pprint(geoJson)
+    # print geoJson
+
+    data = []
+    for key,value in causes.items():
+        data.append({"label":key,"data":value})
+    # print data
+    # data is the count dictionary of the occurences of the incidents
+
+    #~~~~~~~ testgeoJson ~~~~
+
+    # geoJson = 
+
+
+    rsps = {"geoJson":geoJson,"data":data}
+    # print "~~~~~"
+    # print rsps['geoJson']
+
+    response = json.dumps(rsps)
+
+    return HttpResponse(response, content_type='application/json')
+
+
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~ end Yiming ~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
 
 #SGYang
 @permission_required(perm= 'traffic.perm_closure', raise_exception= True)

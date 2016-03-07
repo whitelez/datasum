@@ -1,0 +1,389 @@
+<!-- weather with zipcode level areas and Yahoo weather APT-->
+{% extends "traffic/base.html" %}
+
+{% load staticfiles %}
+
+{% block title %}
+MDAP - Weather
+{% endblock %}
+
+
+{% block style %}
+    <style>
+        #overlaycon {
+            height: 600px;
+        }
+        #map{
+            z-index: 100;
+            position: relative;
+            /*top: -163px;*/
+        }
+        #charts {
+            background: #ffffff;
+            height:30%;
+            width:25%;
+            opacity: 0.93;
+            position: absolute;
+            left: 25%;
+            border-radius: 3px;
+            box-shadow:8px 8px 13px #CCCCCC;
+            z-index: 101;
+            visibility: hidden;
+
+        }
+        #chart1 {
+            background: #ffffff;
+
+            opacity: 0.93;
+            position: relative;
+            border-radius: 3px;
+            box-shadow:8px 8px 13px #CCCCCC;
+            z-index: 101;
+            visibility: hidden;
+
+        }
+        #chart2 {
+            background: #ffffff;
+            opacity: 0.93;
+            position: relative;
+            border-radius: 3px;
+            box-shadow:8px 8px 13px #CCCCCC;
+            z-index: 101;
+            visibility: hidden;
+
+        }
+
+    #p1{
+            background: #ffffff;
+            border: 2px solid;
+            border-radius: 10px;
+            border-color: #3f51b5;
+            position: relative;
+            opacity: 0.93;
+            top: 0px;
+            margin-left:1%;
+            height : 150px;
+            text-align: center;
+            width : 97%;
+            z-index: 10;
+
+    }
+
+    .legend {
+        line-height: 18px;
+        height:150px;
+        width:100px;
+        right: -10px;
+        bottom: -10px;
+        border-radius: 5px;
+        background: white;
+        box-shadow: -2px -2px 2px #CCCCCC;
+        opacity: 0.9;
+    }
+
+    .legend i {
+        width: 28px;
+        height: 7px;
+        float: left;
+        border-radius: 3px;
+        margin-right: 8px;
+        margin-left: 7px;
+        margin-top: 7px;
+        opacity: 0.9;
+    }
+
+	html {
+        font-size: 12px;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    </style>
+
+    <link rel="stylesheet" href="{% static 'traffic/leaflet-search.css' %}">
+    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.common-material.min.css" />
+    <link rel="stylesheet" href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.material.min.css" />
+    <link rel="stylesheet" href="{% static 'traffic/style_closure.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+
+    <div id="user_input" class="well" style="height: 600px;">
+
+        <div class="container" style="width: inherit">
+            <div class="row" style="margin-top:3px;text-align: center"><h3>Weather Info</h3></div>
+                        <div align="mid" class="row" id="p1"><h5>Hover over/Click a zipcode area to check its current weather</h5><br><br></div>
+
+            <div class="row" style="margin-top:10px;margin-right:auto;margin-left: 0px;">
+                <div><a type="button" class="btn btn-purple" id="getData" align="middle" style="margin-top:0px;width:90%;"> Update </a></div><br>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block map %}
+
+    <div id='overlaycon'>
+        <div id = "charts">
+            <div id="chart1" class="chart"></div>
+            <div id="chart2" class="chart"></div>
+        </div>
+        <div id="map" ; style="opacity: 1"></div>
+    </div>
+{% endblock %}
+
+
+{% block script %}
+<script type="text/javascript" src="{% static 'traffic/leaflet-search.min.js' %}"></script>
+<script>
+
+		"use strict";
+
+        var weatherGeoJSONDict = {}; // dict that maps zipcode to its geoJSON and weather data
+        var weatherLayer; // weather layer
+		var weather_geoJSON; // zipcode and its weather data in geoJSON format
+		var weather_data; // weather data for zipcode areas in JSON format
+
+        // add an OpenStreetMap tile layer
+        var streets = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        });
+        var grayscale = L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
+                                    maxZoom: 18,
+                                    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+                                    '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                                    'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+                                    id: 'examples.map-20v6611k'
+        });
+        var map = L.map('map', {
+            center: [40.4407937, -80.0029874],
+            zoom: 10,
+            layers: [streets]
+        });
+
+        var baseMaps = {
+            "Grayscale": grayscale,
+            "Streets": streets
+        };
+
+		// weather data attribution, data API from Yahoo weather API
+		map.attributionControl.addAttribution('Weather data &copy; <a href="https://www.yahoo.com/?ilc=401" target="_blank"> <img src="https://poweredby.yahoo.com/purple.png" width="134" height="29"/> </a>');
+
+
+		// info
+        var info = L.control();
+
+		// write info content
+        function writeInfoContent(props) {
+
+            var content = "Zipcode: <b>" + props.zipcode + "</b><br>";
+            if (!props.data)
+                content += "No Data <br>";
+            else {
+                content += "Update Time: <br><b>" + props.data.date + "</b><br>";
+                content += "Condition: <br><b>" + props.data.text + "</b><br>";
+                content += "Temperature: <br><b>" + props.data.temp + " F </b><br>";
+            }
+
+
+            return content;
+        }
+
+		// update weather info
+        info.update = function (props) {
+            var content = "";
+            if (props) {
+                content = writeInfoContent(props); // sensor
+            }
+            document.getElementById("p1").innerHTML = (props ?
+                    content
+                    : '<h5>Hover over/Click a zipcode area to check its current weather</h5><br>');
+
+        };
+
+        // right top control
+        var control = L.control.layers(baseMaps, null, {collapsed: false}).addTo(map);
+
+		// right bottom legend
+        var legend = L.control({position: 'bottomright'});
+            legend.onAdd = function () {
+                var div = L.DomUtil.create('div', 'info legend');
+                div.innerHTML += '<i style="background:#bd0026"></i>' + "&ge; 95 F"+ "<br>";
+                div.innerHTML += '<i style="background:#fd8d3c"></i>' + "&ge; 85 F"+ "<br>";
+				div.innerHTML += '<i style="background:#78c679"></i>' + "&ge; 75 F"+ "<br>";
+				div.innerHTML += '<i style="background:#c2e699"></i>' + "&ge; 65 F"+ "<br>";
+				div.innerHTML += '<i style="background:#ffffcc"></i>' + "&ge; 55 F"+ "<br>";
+				div.innerHTML += '<i style="background:#41b6c4"></i>' + "&ge; 45 F"+ "<br>";
+				div.innerHTML += '<i style="background:#2c7fb8"></i>' + "&ge; 35 F"+ "<br>";
+                div.innerHTML += '<i style="background:#253494"></i>' + "&lt; 35 F"+ "<br>";
+                return div;
+            };
+        legend.addTo(map);
+
+		// style and onEachFeature function for customizing geoJSON layer
+		function style(feature) {
+			return {
+				weight: 2,
+				opacity: 1,
+				color: 'white',
+				dashArray: '3',
+				fillOpacity: 0.6,
+				fillColor: getColor(feature)
+			};
+		}
+
+		function onEachFeature(feature, layer) {
+
+			function highlightFeature(e) {
+				var layer = e.target;
+
+				layer.setStyle({
+					weight: 5,
+					dashArray: '',
+					fillOpacity: 0.7
+				});
+
+				if (!L.Browser.ie && !L.Browser.opera) {
+					layer.bringToFront();
+				}
+
+				info.update(layer.feature.properties);
+			}
+
+
+
+			function resetHighlight(e) {
+				var layer = e.target;
+				weatherLayer.resetStyle(layer);
+				info.update();
+			}
+
+
+			function zoomToFeature(e) {
+				var layer = e.target;
+				map.fitBounds(layer.getBounds()); // zoom to the layer
+
+				//update_weather(layer, true);
+				//plot(layer);
+				/*$.get("../get_county_weather/", {state:layer.feature.properties.state, county:layer.feature.properties.county}, function(data, textStatus){
+
+					weather = $.parseJSON(data);
+					layer.feature.properties.weather = weather;
+					//$('#txtHint').text(layer.feature.properties.weather['hourly_forecast'][0]['temp']);
+					//alert(data);
+				});*/
+
+
+				/*var weather;
+
+				for(var i=0,j=weatherLayer.getLayers().length; i<j; i++){
+					$.get("../get_county_weather/", {state:weatherLayer.getLayers()[i].feature.properties.state, county:weatherLayer.getLayers()[i].feature.properties.county}, function(data, textStatus){
+
+						weather = $.parseJSON(data);
+						weatherLayer.getLayers()[i].feature.properties.weather = weather;
+						});
+
+				};*/
+
+				//info.update(layer.feature.properties);
+				//plot(layer, weather);
+			}
+
+			layer.on({
+				mouseover: highlightFeature,
+				mouseout: resetHighlight,
+				click: zoomToFeature
+			});
+		}
+
+		//get tmc gis from server, then get weather data and display it on weather layer
+        $.get("../get_zipcode_areas/",function(data,textStatus){
+            weather_geoJSON = data;
+			// build dictionary mapping zipcode to its geoJSON
+            buildGeoJSONDict(weather_geoJSON.features, weatherGeoJSONDict);
+			//get weather data and display it on weather layer
+			getData();
+        },"json");
+
+        function buildGeoJSONDict(geoJSON, geoJSONDict) {
+            geoJSON.forEach(function(f) {
+                var zipcode = f.properties.zipcode;
+                geoJSONDict[zipcode] = f;
+            });
+        }
+
+		// set color of each zipcode area layer according to its temperature
+		function resetColor() {
+            weatherLayer.eachLayer(function(layer){
+                if (layer.feature.properties.data)
+                    layer.setStyle({fillColor: getColor(layer.feature.properties.data["temp"])});
+                else
+                    layer.setStyle({fillColor: "grey"});
+            });
+        }
+
+		// get color depending on population temperature
+         function getColor(feature) {
+			if (feature.properties.data) {
+				var d = feature.properties.data.temp;
+				return d > 95 ? '#bd0026' :
+						d > 85 ? '#fd8d3c' :
+								d > 75 ? '#78c679' :
+										d > 65 ? '#c2e699' :
+												d > 55 ? '#ffffcc' :
+														d > 45 ? '#41b6c4' :
+																d > 35 ? '#2c7fb8' :
+																		'#253494';
+			}
+			else return "grey";
+		}
+
+		// get weather data and display it on weather layer
+		function getData() {
+            $.get("../get_weather/", function(data, textStatus) {
+				if (data["status"] == "success") {
+					if (weatherLayer) {
+						if (map.hasLayer(weatherLayer)) {
+							map.removeLayer(weatherLayer);
+							control.removeLayer(weatherLayer);
+						}
+					}
+					weather_data = data["data"];
+					// delete data of last inquiry
+					weather_geoJSON.features.forEach(function (f) {
+						if (f.properties.data)
+							delete f.properties.data;
+					});
+					weather_data.forEach(function (area) {
+						if (area.zip in weatherGeoJSONDict) weatherGeoJSONDict[area.zip].properties.data = area.cond;
+					});
+					weatherLayer = L.geoJson(weather_geoJSON, {
+						style:style,
+						onEachFeature: onEachFeature
+					}).addTo(map);
+					control.addOverlay(weatherLayer, 'Weather');
+				}
+            });
+        }
+
+		// bind Update button to refresh weather data
+		$("#getData").click(getData);
+
+	// add search function andicon on top-left
+	// get from leaflet plugins, Leaflet Search, https://github.com/stefanocudini/leaflet-search
+	map.addControl( new L.Control.Search({
+			url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',
+			jsonpParam: 'json_callback',
+			propertyName: 'display_name',
+			propertyLoc: ['lat','lon'],
+			markerLocation: true,
+			autoType: false,
+			autoCollapse: true,
+			minLength: 2,
+			zoom:10
+		}) );
+
+
+  </script>
+{% endblock %}

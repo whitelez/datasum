@@ -186,7 +186,7 @@
 
 
 {% block script %}
-
+    <script type="text/javascript" src="{% static 'traffic/Leaflet_0.7.5/leaflet-src.js' %}"></script>
     <script src="http://cdn.kendostatic.com/2014.3.1411/js/kendo.all.min.js"></script>
     <script type="text/javascript" src="{% static 'traffic/jquery.jqplot.min.js' %}"></script>
     <!--<script type="text/javascript" src="{% static 'traffic/jqplot.cursor.js' %}"></script>-->
@@ -202,13 +202,10 @@
         var streets = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         });
-        var grayscale = L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
-                                    maxZoom: 18,
-                                    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-                                    '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-                                    'Imagery © <a href="http://mapbox.com">Mapbox</a>',
-                                    id: 'examples.map-20v6611k'
+         var grayscale = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {maxZoom: 18,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
         });
+
         var map = L.map('map', {
             center: [40.4407937, -80.0029874],
             zoom: 16,

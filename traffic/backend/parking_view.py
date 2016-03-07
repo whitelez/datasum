@@ -7,10 +7,12 @@ from django.shortcuts import render
 import json
 import urllib2
 import ast
+import logging
 
 from traffic.models import * #Meter, Parking, Street, Streetparking, TMC, TMC_data, Incidents, Weather
 from datetime import date
 from django.contrib.auth.decorators import login_required, permission_required
+logger = logging.getLogger(__name__)
 
 @permission_required(perm= 'traffic.perm_parking', raise_exception= True)
 def parking(request):
@@ -26,10 +28,10 @@ def street_parking_geojson_prediction(request):
     pd = request.GET['pd']
     pdate = date(int(py), int(pm)+1, int(pd))
     ##########
-    py1 = request.GET['py1']
-    pm1 = request.GET['pm1']
-    pd1 = request.GET['pd1']
-    pdate1 = date(int(py1), int(pm1)+1, int(pd1))
+    pyo = request.GET['py1']
+    pmo = request.GET['pm1']
+    pdo = request.GET['pd1']
+    pdate1 = date(int(pyo), int(pmo)+1, int(pdo))
     ###############
     weekday = (pdate.weekday()+1) % 7 + 1
     wkdys = request.GET.getlist('wkdys[]')
@@ -99,12 +101,15 @@ def parking_lots(request):
     lots = {"type" : "FeatureCollection", "features": []}
     for i in range(2, 43):
         url = 'http://parkpgh.org/index.php/api/getLotById?lotId=' + str(i)
-        p = urllib2.urlopen(url)
+        try:
+            p = urllib2.urlopen(str(url))
+        except urllib2.HTTPError:
+            continue
         info = p.read()
         info = json.loads(info)
         this_lot = {"type": "Feature", "geometry": {"type": "Point", "coordinates": []}, "properties": {}}
         if 'id' in info:
-            this_lot['geometry']['coordinates'] = [info['lon'] , info['lat']]
+            this_lot['geometry']['coordinates'] = [info['lon'], info['lat']]
             this_lot['properties'] = info
             lots['features'].append(this_lot)
     response = json.dumps(lots)

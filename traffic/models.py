@@ -9,7 +9,6 @@ class Meter(models.Model):
     def __str__(self):
 	    return self.mid
 
-
 class Parking(models.Model):
     meter = models.ForeignKey(Meter)
     date = models.DateField(db_index = True)
@@ -107,41 +106,65 @@ class Crashdata(models.Model):
 
 
 #######################################################################################  Parking
-class Street(models.Model):
+class Street(models.Model): #Street coordinates with street name
     sid = models.CharField(max_length = 20, primary_key = True)
     street_name = models.CharField(max_length = 100)
     coordinate = models.TextField()
     def __unicode__(self):
         return self.sid
 
-class Streetpre(models.Model):
+class Streetpre(models.Model):  # parking occupancy prediction data
     street = models.ForeignKey(Street)
     date = models.DateField(db_index = True)
     occupancy = models.TextField()
     def __unicode__(self):
 	    return self.date.ctime()
 
-class Streetparking(models.Model):
+class Streetparking(models.Model):  # parking occupancy historical data
     street = models.ForeignKey(Street)
     date = models.DateField(db_index = True)
     occupancy = models.TextField()
     def __unicode__(self):
 	    return self.date.ctime()
 
-class Streetrate(models.Model):
+class Streetrate(models.Model):   # parking rate historical data
     street = models.ForeignKey(Street)
     date = models.DateField(db_index = True)
     rate = models.TextField()
     def __unicode__(self):
 	    return self.date.ctime()
 
-class Streetratepre(models.Model):
+class Streetratepre(models.Model):  # parking rate prediction data
     street = models.ForeignKey(Street)
     date = models.DateField(db_index = True)
     rate = models.TextField()
     def __unicode__(self):
 	    return self.date.ctime()
 #######################################################################################  End of Parking
+
+
+
+# ~~~~~~~~~~~~~~~ Start Yiming ~~~~~~~~~~~~~~
+class TwitterEvents(models.Model):
+    eventid = models.CharField(max_length = 15, primary_key = True)
+    st_rt_no = models.PositiveSmallIntegerField()
+    sr = models.CharField(max_length = 255)
+    cause = models.CharField(max_length = 25)
+    status = models.CharField(max_length = 20)
+    close_date = models.DateField()
+    close_time = models.TimeField()
+    open_date = models.DateField()
+    open_time = models.TimeField()
+    s_lat = models.FloatField()
+    s_lon = models.FloatField()
+    e_lat = models.FloatField()
+    e_lon = models.FloatField()
+    geoJson = models.TextField()
+    def __unicode__(self):
+        return self.eventid
+
+# ~~~~~~~~~~~~~~~~ End Yiming~~~~~~~~~~~~~~
+
 
 
 #BY PXD
@@ -222,6 +245,53 @@ class TMC(models.Model):
     def __unicode__(self):
             return self.tmc
 
+class TMC_Here(models.Model):
+    tmc = models.CharField(max_length = 9, primary_key = True)
+    state = models.CharField(max_length = 2)
+    county = models.CharField(max_length = 20)
+    miles = models.FloatField()
+    road_number = models.CharField(max_length = 20)
+    road_name = models.CharField(max_length = 100)
+    lat = models.FloatField();
+    lon = models.FloatField();
+    DIRECTION_CHOICES = (('N', 'Northbound'),('S', 'Southbound'),('E', 'Eastbound'),('W', 'Westbound'))
+    direction = models.CharField(max_length=1, choices = DIRECTION_CHOICES)
+    coordinates = models.TextField();
+    def __unicode__(self):
+            return self.tmc
+
+class TMC_Here_data(models.Model):
+    tmc = models.ForeignKey(TMC_Here)
+    date = models.DateField(db_index = True)
+    epoch = models.PositiveSmallIntegerField()
+    tt_all = models.PositiveSmallIntegerField(default = 0)
+    tt_pv = models.PositiveSmallIntegerField(default = 0) # passenger vehicles
+    tt_ft = models.PositiveSmallIntegerField(default = 0) # freight trucks
+    spd_all = models.FloatField(default = -1.0)
+    spd_pv = models.FloatField(default = -1.0)
+    spd_ft = models.FloatField(default = -1.0)
+
+class TMC_Ritis(models.Model):
+    tmc = models.CharField(max_length = 9, primary_key = True)
+    road_name = models.CharField(max_length = 50, db_index = True)
+    DIRECTION_CHOICES = (('N', 'Northbound'),('S', 'Southbound'),('E', 'Eastbound'),('W', 'Westbound'))
+    direction = models.CharField(max_length=1, choices = DIRECTION_CHOICES)
+    intersection = models.CharField(max_length = 100)
+    state = models.CharField(max_length = 2)
+    county = models.CharField(max_length = 20)
+    zip = models.CharField(max_length = 5)
+    s_lat = models.FloatField(); # start lat
+    s_lon = models.FloatField(); # start lon
+    e_lat = models.FloatField(); # end lat
+    e_lon = models.FloatField(); # end lon
+    miles = models.FloatField()
+    road_order = models.PositiveSmallIntegerField();
+    coordinates = models.TextField();
+    class Meta:
+        index_together = [['road_name','road_order'],]
+    def __unicode__(self):
+            return self.tmc
+
 class TMC_real_time(models.Model):
     tmc = models.CharField(max_length = 9, primary_key = True)
     road = models.CharField(max_length = 50, db_index = True)
@@ -275,6 +345,7 @@ class Incidents(models.Model):
     class Meta:
         index_together = [['close_date','close_time'],]
 
+# models for weather
 class Weather(models.Model):
     county = models.CharField(max_length = 20, primary_key = True)
     state = models.CharField(max_length = 2)
@@ -284,6 +355,23 @@ class Weather(models.Model):
     weather = models.TextField()
     def __unicode__(self):
         return self.county
+
+# model for weather zipcode areas
+class Weather_zipcode(models.Model):
+    zipcode = models.CharField(max_length = 5, primary_key = True) # five digits zipcode
+    geoJson = models.TextField()
+    def __unicode__(self):
+        return self.zipcode
+
+class Weather_zipcode_data(models.Model):
+    zipcode = models.ForeignKey(Weather_zipcode)
+    query_time = models.DateTimeField()
+    code = models.PositiveSmallIntegerField()
+    timestamp = models.TextField()
+    temp = models.SmallIntegerField() # temperature Farenheit
+    text = models.TextField()
+    def __unicode__(self):
+        return self.zipcode.zipcode + "\n" + self.timestamp
 
 
 # ============================================== Models for Transit BEGIN =============================================
