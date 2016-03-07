@@ -152,6 +152,7 @@
                     {% if perms.traffic.perm_ev_station %}
                     <li id="nav-evstation"><a href="{% url 'traffic:ev_stations' %}">EV Stations</a></li>
                     {% endif %}
+
                     {% if perms.traffic.perm_twitter_map %}
                     <li id="nav-twittermap"><a href="{% url 'traffic:twitter_map' %}">Twitter incident map</a></li>
                     {% endif %}

@@ -20,8 +20,6 @@ urlpatterns = patterns('',
     url(r'^weather/$', weather_view.weather, name='weather'),
     url(r'^get_zipcode_areas/$', weather_view.get_zipcode_areas, name = 'get_zipcode_areas'),
     url(r'^get_weather/$', weather_view.get_weather, name = 'get_weather'),
-
-
 #++++++++++++++++++++++++++++++++++++++++++++++++ Weather_end +++++++++++++++++++++++++++++++++++++++
 
 
