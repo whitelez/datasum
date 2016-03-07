@@ -606,7 +606,8 @@ class Permissions(models.Model):
             ('perm_transit', 'permission to access transit section'),
             ('perm_parking', 'permission to access parking section'),
             ('perm_crash', 'permission to access crash section'),
-            ('perm_closure', 'permission to access closure section')
+            ('perm_closure', 'permission to access closure section'),
+            ('perm_twitter_map', 'permission to access twitter incident section')
         )
 
 
