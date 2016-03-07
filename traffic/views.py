@@ -1952,11 +1952,11 @@ def get_sensors_links(request):
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~ Yiming ~~~~~~~~~~~~~~~~~~~~~~~~
 
-@permission_required(perm= 'traffic.perm_twitter_map', raise_exception= True)
+@permission_required(perm= 'traffic.perm_twitter_map', raise_exception= False)
 def twitter_map(request):
     return render(request, 'traffic/twitter_map.html',{'n':range(1,32)})
 
-@permission_required(perm= 'traffic.perm_twitter_map', raise_exception= True)
+@permission_required(perm= 'traffic.perm_twitter_map', raise_exception= False)
 def get_RT_incidents_twitter(request):
     if request.POST:
         selected_option = request.POST.get('my_options', None)
@@ -2031,7 +2031,7 @@ def get_RT_incidents_twitter(request):
 
 
 
-@permission_required(perm= 'traffic.perm_twitter_map', raise_exception= True)
+@permission_required(perm= 'traffic.perm_twitter_map', raise_exception= False)
 def get_incidents_twitter(request):
 
     if request.POST:
