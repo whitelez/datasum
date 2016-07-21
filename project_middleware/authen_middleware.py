@@ -1,4 +1,4 @@
-# author: ryanwittgagagag
+# author: ryanwittgagagaghahahah
 # github address: https://gist.github.com/ryanwitt/130583#file-login_required_middleware-py
 
 from django.http import HttpResponseRedirect
